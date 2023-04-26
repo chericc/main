@@ -1,0 +1,178 @@
+# How to wrap a function in c++ ?
+
+## 这是什么
+
+在 C++ 中应该怎么封装一个函数？
+
+C++ 是面向对象的，而函数作为一个地址，本身不是对象；并且类的普通成员函数，不能直接作为一个普通函数去使用（其名字本身不是一个函数指针）。  
+
+C++ 是利用仿函数来达到函数封装函数的目的的。仿函数能够像函数那样使用，同时仿函数本身是一个对象，能够携带一些附加参数。
+
+## 附 1：调用一个对象的成员函数有哪些方式
+
+```C++
+#include <iostream>
+
+class Tree
+{
+public:
+    void start()
+    {
+        print ();
+    }
+private:
+    void print()
+    {
+        std::cout << "print" << std::endl;
+    }
+};
+
+int main ()
+{
+    Tree tree;
+    tree.start ();
+}
+
+```
+
+通过对象直接调用这个函数，是最常见的方法。  
+
+那么是否和普通的函数一样，能够通过函数指针去调用成员函数呢？
+
+
+
+## 以一个例子说明这个问题
+
+pthread 要求传入一个函数指针，例如：  
+
+```C
+void *func(void *)
+{
+    // blank
+}
+
+int main()
+{
+    pthread_t tid;
+    pthread_create (& tid, NULL, func, NULL);
+    return 0;
+}
+```
+
+但是 C++ 的实际场景中，更多的函数是以类的成员函数的形式出现的。类的成员函数，仍然是一个函数，但是其名字不能直接作为普通函数使用，因为其隐含了 this 指针。  
+
+```C
+#include <pthread.h>
+#include <stdio.h>
+
+class Tree
+{
+public:
+    void start()
+    {
+        pthread_t tid;
+        pthread_create (& tid, NULL, doStart, NULL);
+        return ;
+    }
+private:
+    void *doStart(void *)
+    {
+        printf ("start\n");
+        return NULL;
+    }
+};
+
+int main()
+{
+    Tree tree;
+    tree.start();
+}
+```
+
+这个例子中，在成员函数中直接把成员函数作为函数指针使用，编译会报错
+
+```bash
+test.cpp: In member function ‘void Tree::start()’:
+test.cpp:10:38: error: invalid use of non-static member function ‘void* Tree::doStart(void*)’
+   10 |         pthread_create (& tid, NULL, doStart, NULL);
+      |                                      ^~~~~~~
+test.cpp:14:11: note: declared here
+   14 |     void *doStart(void *)
+      |           ^~~~~~~
+```
+
+这个例子中，我们需要实现的语义是创建一个线程，这个线程能直接调用类的成员函数。由于成员函数可能是外部不可见的，因此很可能的场景是在类内部创建一个线程，这个线程调用内部的成员函数（和例子中的一样）。  
+
+正如提示的那样，我们需要把这个函数变成类的静态成员函数才能直接传给 pthread_create ，但是这样的话就破坏掉了 C++ 的面向对象的形式，譬如静态函数中如果要访问对象的成员，则只能显式的写一个 this 指针参数传递过去，如下：  
+
+```C++
+#include <pthread.h>
+#include <stdio.h>
+
+class Tree
+{
+public:
+    void start()
+    {
+        pthread_t tid;
+        pthread_create (& tid, NULL, doStart, this);
+        return ;
+    }
+    void print()
+    {
+        printf ("hello world\n");
+        return ;
+    }
+private:
+    static void *doStart(void *arg)
+    {
+        Tree *pThis = reinterpret_cast<Tree*>(arg);
+        pThis->print();
+        return NULL;
+    }
+};
+
+int main()
+{
+    Tree tree;
+    tree.start();
+}
+```
+
+此时编译能够通过，但是破坏了 C++ 的形式（使用了显式的 this 指针）。
+
+## 一个解决方案
+
+将类的成员函数
+
+```C++
+#include <functional>
+#include <thread>
+#include <iostream>
+
+class Tree
+{
+public:
+    void start()
+    {
+        std::function<void()> func([this]{this->doStart();});
+        std::thread trd(func);
+        trd.join();
+    }
+private:
+    void doStart()
+    {
+        for (int i = 0; i < 5; ++i)
+        {
+            std::cout << i << std::endl;
+        }
+        return ;
+    }
+};
+
+int main()
+{
+    Tree tree;
+    tree.start();
+}
+```

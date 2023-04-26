@@ -1,0 +1,42 @@
+
+enum class ASCII
+{
+    NUL             = 0x0,
+    SOH             = 0x1,
+    STX             = 0x2,
+    ETX             = 0x3,
+    EOT             = 0x4,
+    ENQ             = 0x5,
+    ACK             = 0x6,
+    BEL             = 0x7,
+    BS              = 0x8,
+    HT              = 0x9,
+    LF              = 0xA,  // new line
+    VT              = 0xB,
+    FF              = 0xC,
+    CR              = 0xD,
+    SO              = 0xE,
+    SI              = 0xF,
+    DLE             = 0x10,
+    DC1             = 0x11,
+    DC2             = 0x12,
+    DC3             = 0x13,
+    DC4             = 0x14,
+    NAK             = 0x15,
+    SYN             = 0x16,
+    ETB             = 0x17,
+    CAN             = 0x18,
+    EM              = 0x19,
+    SUB             = 0x1A,
+    ESC             = 0x1B,
+    FS              = 0x1C,
+    GS              = 0x1D,
+    RS              = 0x1E,
+    US              = 0x1F,
+
+    C_START         = 0x20,
+    SPACE           = 0x20,
+    C_END           = 0x7E,
+
+    DEL             = 0x7F,
+};

@@ -1,0 +1,80 @@
+#pragma once
+
+#include <string>
+#include <stdio.h>
+#include <stdint.h>
+#include <vector>
+#include <memory>
+
+/* 参考 wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
+enum class RiffFmt
+{
+    PCM = 0x1,
+    PCM_ALAW = 0x6,
+    PCM_MULAW = 0x7,
+};
+
+class WavDemuxer
+{
+private:
+    struct NA_TAG
+    {
+        uint32_t chunkid;
+        uint32_t chunksize;
+    } __attribute__((packed));
+
+    struct NA_RIFF
+    {
+        NA_TAG tag;
+        uint32_t format;
+    } __attribute__((packed));
+
+    struct NA_SubChunkFmt
+    {
+        NA_TAG tag;
+        uint16_t audio_format;
+        uint16_t num_channels;
+        uint32_t sample_rate;
+        uint32_t byte_rate;
+        uint16_t align;
+        uint16_t bits_per_sample;
+    } __attribute__((packed));
+
+    struct NA_SubChunkData
+    {
+        NA_TAG tag;
+    } __attribute__((packed));
+
+    class LoadInfo
+    {
+    public:
+        NA_RIFF        riff{};
+        NA_SubChunkFmt fmt{};
+        FILE *fp{nullptr};
+        size_t data_offset{};
+        size_t data_size{};
+
+        ~LoadInfo();
+    };
+public:
+    WavDemuxer(const std::string &filename);
+    ~WavDemuxer();
+    bool loadSuccessful();
+    int format(); // RiffFmt
+    int numChannels();
+    int sampleRate();
+    int sampleBits();
+    int numSamples();
+    std::vector<uint8_t> getSamples(int ch, int pos, int count);
+private:
+    int doLoadFile();
+    int doCloseFile();
+
+    /* read header into mem */
+    int readHeader(std::shared_ptr<LoadInfo> info);
+
+    std::vector<uint8_t> readBuf(std::shared_ptr<LoadInfo> info, size_t pos, size_t size);
+
+    const std::string _filename;
+    std::shared_ptr<LoadInfo> _load_info;
+};

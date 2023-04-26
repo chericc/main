@@ -1,0 +1,37 @@
+
+cmake_minimum_required(VERSION 3.15)
+
+project (test)
+
+set (CMAKE_CXX_STANDARD 11)
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/output)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/output)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/output)
+
+include_directories(.)
+
+aux_source_directory(. SRC)
+
+link_libraries(pthread)
+
+SET(CMAKE_BUILD_TYPE "Debug")
+# SET(CMAKE_BUILD_TYPE "Release")
+
+add_definitions(-DENABLE_ASSERT)
+
+add_executable(${PROJECT_NAME} ${SRC})
+
+# 设置安装路径
+#cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/output
+
+# 启用警告
+#target_compile_options(test PRIVATE -Wall -Wextra)
+
+# install
+install(TARGETS ${XTOOL_LIB}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+include(GNUInstallDirs)
+install(FILES xlog/xlog.h xconfig/xconfig.h
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/xtools)
