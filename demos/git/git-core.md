@@ -63,5 +63,82 @@ echo "Silly example" > example
 
 You have now created two files in your working tree (aka working directory), but to actually check in your hard work, you will have to go through two steps:
 
+- fill in the index file (aka cache) with the information about your working tree state.
+- commit that index file as an object.
 
+The first step is trivial: when you want to tell Git about any changes to your working tree, you use the git update-index program. That program normally just takes a list of filenames you want to update, but to avoid trivial mistakes, it refuses to add new entries to the index (or remove existing ones) unless you explicitly tell it that you're adding a new entry with the --add flag (or removing an entry with the --remove) flag.
+
+So to populate the index with the two files you just created, you can do 
+
+```bash
+git update-index --add hello example
+```
+
+and you have now told Git to track those two files.
+
+In fact, as you did that, if you now look into your object directory, you'll notice that Git will have added two new objects to the object database. if you did exactly the steps above, you should now be able to do
+
+```bash
+ls .git/objects/??/*
+```
+
+and see two files:
+
+```bash
+.git/objects/55/7db03de997c86a4a028e1ebd3a1ceb225be238
+.git/objects/f2/4c74a2e500f5ee1332c86b94199f52b1d1d962
+```
+
+which correspond with the objects with names of 557db... and f24c7... respectively.
+
+If you want to, you can use git cat-file to look at those objects, but you'll have to use the object name, not the filename of the object:
+
+```bash
+git cat-file -t 7db03de997c86a4a028e1ebd3a1ceb225be238
+```
+
+where the -t tells git cat-file to tell you what the "type" of the object is. Git will tell you that you have a "blob" object (i.e., just a regular file), and you can see the contents with
+
+```bash
+git cat-file blob 557db03
+```
+
+which will print out "Hello World". The object 557db03 is nothing more than the contents of your file hello.
+
+Note: Don't confuse that object with the file hello itself. The object is literally just those specific contents of the file, and however much you later change the contents in file hello, the object we just looked at will never change. Objects are immutable.
+
+Note: The second example demonstrates that you can abbreviate the object name to only the first several hexadecimal digits in most places.
+
+Anyway, as we mentioned previously, you normally never actually take a look at the objects themselves, and typing long 40-character hex names is not something you'd normally want to do. The above digression was just to show that git update-index did something magical, and actually saved away the contents of your files into the Git object database.
+
+Updating the index did something else too: it created a .git/index file. This is the index that describes your current working tree, and something you should be very aware of. Again, you normally never worry about the index file itself, but you should be aware of the fact that you have not actually really "checked in" your files into Git so far, you've only told Git about them.
+
+However, since Git knows about them, you can now start using some of the most basic git commands to manipulate the files or look at their status.
+
+In particular, let's not even check in the two files into Git yet, we'll start off by adding another line to hello first: 
+
+```bash
+echo "It's a new day for git" >> hello
+```
+
+and you can now, since you told Git about the previous state of hello, ask Git what has changed in the tree compared to your old index, using the git diff-files command:
+
+```bash
+git diff-files
+```
+
+Oops. That wasn't very readable. It just spit out its own internal version of a diff, but that internal version really just tells you that it has noticed that "hello" has been modified, and that the old object contents it had have been replaced with something else.
+
+To make it readable, we call tell git diff-files to output the differences as a patch, using the -p flag:
+
+```bash
+git diff-files -p
+diff --git a/hello b/hello
+index 557db03..263414f 10064
+--- a/hello
++++ b/hello
+@@ -1 +1,2 @@
+ Hello World
++It's a new day for git
+```
 

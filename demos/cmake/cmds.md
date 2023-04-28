@@ -16,5 +16,5 @@ set(CMAKE_INSTALL_PREFIX ${PROJECT_BINARY_DIR}/install)
 
 or
 
-cmake -DCMAKE_INSTALL_PREFIX=
+cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/output
 ```
