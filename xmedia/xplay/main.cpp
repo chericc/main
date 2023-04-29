@@ -2,7 +2,7 @@
 #include <string>
 
 #include "xplay.hpp"
-#include "xtools/xlog.hpp"
+#include "xlog.hpp"
 
 static void print_usage(int argc, char **argv)
 {

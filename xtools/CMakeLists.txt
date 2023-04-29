@@ -22,12 +22,12 @@ include_directories(
 
 link_directories(${GTEST_PATH}/lib)
 
-add_library(${G_XTOOL_LIB} SHARED ${src_xlog} ${src_xconfig} ${src_xstring})
+add_library(${G_XTOOLS} SHARED ${src_xlog} ${src_xconfig} ${src_xstring})
 
 if(${gnu})
-set(COMMON_LIB gtest ${G_XTOOL_LIB} pthread)
+set(COMMON_LIB gtest ${G_XTOOLS} pthread)
 elseif(${msvc})
-set(COMMON_LIB gtest ${G_XTOOL_LIB})
+set(COMMON_LIB gtest ${G_XTOOLS})
 endif()
 
 add_executable(${XTOOL_TEST_XLOG} 

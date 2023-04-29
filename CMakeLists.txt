@@ -17,8 +17,14 @@ set(G_GOOGLETEST_PATH /home/test/opensrc/googletest/build/output)
 set(G_GOOGLETEST_LIB_PATH ${G_GOOGLETEST_PATH}/lib)
 set(G_GOOGLETEST_INC_PATH ${G_GOOGLETEST_PATH}/include)
 
+# ffmpeg
+set(G_FFMPEG_PATH /home/test/opensrc/ffmpeg/build/output)
+set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
+set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
+
 # xtools
-set(G_XTOOL_LIB xtools)
+set(G_XTOOLS xtools)
+set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
 
 # platform
 
@@ -29,5 +35,6 @@ link_directories(${G_GOOGLETEST_LIB_PATH})
 
 # targets
 add_subdirectory(xtools)
+add_subdirectory(xmedia/xplay)
 
 # 

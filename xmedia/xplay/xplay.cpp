@@ -1,7 +1,7 @@
 
 
 #include "xplay.hpp"
-#include "xtools/xlog.hpp"
+#include "xlog.hpp"
 
 #include <assert.h>
 
