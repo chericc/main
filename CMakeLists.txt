@@ -26,6 +26,10 @@ set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
 
+# wav
+set(G_XWAV_DEMUXER xwav_demuxer)
+set(G_XWAV_DEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/wav/demuxer)
+
 # bmp
 set(G_BMP bmp)
 set(G_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
@@ -46,4 +50,5 @@ include(CTest)
 # targets
 add_subdirectory(xtools)
 add_subdirectory(xmedia/xplay)
+add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(image/bmp)

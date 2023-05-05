@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "print.hpp"
+#include "xlog.hpp"
 
 #define MKTAG(a,b,c,d)   ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
 #define MKBETAG(a,b,c,d) ((d) | ((c) << 8) | ((b) << 16) | ((unsigned)(a) << 24))
@@ -147,14 +147,14 @@ int WavDemuxer::doLoadFile()
 
         if (!info->fp)
         {
-            LOGE("open file failed");
+            xlog_err("open file failed");
             berror = true;
             break;
         }
 
         if (readHeader(info) < 0)
         {
-            LOGE("read header failed");
+            xlog_err("read header failed");
             berror = true;
             break;
         }
@@ -235,7 +235,7 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
 
     if (!info)
     {
-        LOGE("null info");
+        xlog_err("null info");
         return -1;
     }
 
@@ -246,14 +246,14 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
             break;
         }
 
-        LOGD("offset=%lu", offset);
+        xlog_dbg("offset=%lu", offset);
 
         // get next tag
         size = sizeof(NA_TAG);
         std::vector<uint8_t> buftag = readBuf(info, offset, size);
         if (!buftag.data() || buftag.size() != size)
         {
-            LOGD("no next tag");
+            xlog_dbg("no next tag");
             break;
         }
 
@@ -265,13 +265,13 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
         {
             case MKTAG('R', 'I', 'F', 'F'):
             {
-                LOGD("parsing chunk RIFF");
+                xlog_dbg("parsing chunk RIFF");
                 size = sizeof(NA_RIFF);
                 buf = readBuf(info, offset, size);
                 NA_RIFF *nariff = (NA_RIFF*)buf.data();
                 if (!nariff || buf.size() != size)
                 {
-                    LOGE("parse chunk riff failed");
+                    xlog_err("parse chunk riff failed");
                     berror = true;
                     break;
                 }
@@ -285,13 +285,13 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
             }
             case MKTAG('f','m','t',' '):
             {
-                LOGD("parsing chunk fmt");
+                xlog_dbg("parsing chunk fmt");
                 size = sizeof(NA_SubChunkFmt);
                 buf = readBuf(info, offset, size);
                 NA_SubChunkFmt* nafmt = (NA_SubChunkFmt*)buf.data();
                 if (!nafmt || buf.size() != size)
                 {
-                    LOGE("parse chunk fmt failed");
+                    xlog_err("parse chunk fmt failed");
                     berror = true;
                     break;
                 }
@@ -305,13 +305,13 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
             }
             case MKTAG('d', 'a', 't', 'a'):
             {
-                LOGD("parsing chunk data");
+                xlog_dbg("parsing chunk data");
                 size = sizeof(NA_SubChunkData);
                 buf = readBuf(info, offset, size);
                 NA_SubChunkData* data = (NA_SubChunkData*)buf.data();
                 if(!data || buf.size() != size)
                 {
-                    LOGE("parse chunk data failed");
+                    xlog_err("parse chunk data failed");
                     berror = true;
                     break;
                 }
@@ -326,7 +326,7 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
             }
             default:
             {
-                LOGD("parsing chunk unknown");
+                xlog_dbg("parsing chunk unknown");
                 offset += tag.chunksize + sizeof(NA_TAG);
                 break;
             }
@@ -335,7 +335,7 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
 
     if (!has_riff || !has_fmt || !has_data)
     {
-        LOGE("chunk incomplete(riff=%d,fmt=%d,data=%d)", 
+        xlog_err("chunk incomplete(riff=%d,fmt=%d,data=%d)", 
             has_riff, has_fmt, has_data);
         berror = true;
     }
@@ -344,7 +344,7 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
     if ((info->fmt.bits_per_sample % 8 != 0)
         || info->fmt.num_channels != 1)
     {
-        LOGE("bits_per_sample=%d, num_channels=%d", 
+        xlog_err("bits_per_sample=%d, num_channels=%d", 
             info->fmt.bits_per_sample,
             info->fmt.num_channels);
         berror = true;

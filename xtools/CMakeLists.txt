@@ -20,8 +20,6 @@ include_directories(
         ${G_GOOGLETEST_INC_PATH}
 )
 
-link_directories(${GTEST_PATH}/lib)
-
 add_library(${G_XTOOLS} SHARED ${src_xlog} ${src_xconfig} ${src_xstring})
 
 # tests
