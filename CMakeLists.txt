@@ -26,6 +26,10 @@ set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
 
+# bmp
+set(G_BMP bmp)
+set(G_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
+
 # platform
 
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
@@ -36,5 +40,6 @@ link_directories(${G_GOOGLETEST_LIB_PATH})
 # targets
 add_subdirectory(xtools)
 add_subdirectory(xmedia/xplay)
+add_subdirectory(image/bmp)
 
 # 

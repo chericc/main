@@ -79,8 +79,10 @@ int BmpDecoder::doCloseFile()
 int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
 {
     int berror = false;
+    std::vector<uint8_t> buf;
 
     size_t offset = 0;  // 下一个要扫描的快的起始位置
+    size_t size = 0;    // 
 
     if (!info)
     {
@@ -88,15 +90,33 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
         return -1;
     }
 
-    for (;;)
+    do
     {
-        if (berror)
         {
-            break;
-        }
+            size = sizeof(NA_BMPFileHeader);
+            buf = readBuf(info, offset, size);
+            if (buf.size() != size)
+            {
+                berror = true;
+                xlog_err("read head failed");
+                break;
+            }
 
-        
+            NA_BMPFileHeader* fileheader = (NA_BMPFileHeader* )buf.data();
+            xlog_dbg("filetype=%hx, filesize=%u, off=%u", 
+                fileheader->filetype,
+                fileheader->filesize, 
+                fileheader->bitmapoffset);
+        }
     }
+    while (0);
+
+    if (berror)
+    {
+        return -1;
+    }
+
+    return 0;
 }
 
 std::vector<uint8_t> BmpDecoder::readBuf(std::shared_ptr<LoadInfo> info, size_t pos, size_t size)

@@ -2,6 +2,7 @@
 
 /*
 https://docs.fileformat.com/image/bmp/
+https://www.fileformat.info/format/bmp/egff.htm
 ffmpeg/libavcodec/bmp
 */
 
@@ -13,11 +14,21 @@ ffmpeg/libavcodec/bmp
 class BmpDecoder
 {
 private:
-    struct NA_BitmapFileHeader
+
+/*
+File Header
+Bitmap Header
+Color Palette
+Bitmap Data
+*/
+
+    struct NA_BMPFileHeader
     {
-        uint8_t tag[2];
-        uint32_t size;
-        
+        uint16_t filetype;      /* File type, always "BM" */
+        uint32_t filesize;      /* Size of the file in bytes */
+        uint16_t reserved1;     /* Always 0 */
+        uint16_t reserved2;     /* Always 0 */
+        uint32_t bitmapoffset;  /* Starting position of image data in bytes. */
     } __attribute__((packed));
 
     class LoadInfo
