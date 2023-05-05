@@ -24,6 +24,8 @@ link_directories(${GTEST_PATH}/lib)
 
 add_library(${G_XTOOLS} SHARED ${src_xlog} ${src_xconfig} ${src_xstring})
 
+# tests
+
 if(${gnu})
 set(COMMON_LIB gtest ${G_XTOOLS} pthread)
 elseif(${msvc})
@@ -33,19 +35,27 @@ endif()
 add_executable(${XTOOL_TEST_XLOG} 
         ${src_xlog_test})
 target_link_libraries(${XTOOL_TEST_XLOG} ${COMMON_LIB})
+# add_test(NAME ${XTOOL_TEST_XLOG}
+        # COMMAND ${XTOOL_TEST_XLOG})
 
 add_executable(${XTOOL_TEST_XCONFIG} 
         ${src_xconfig_test}
         ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${XTOOL_TEST_XCONFIG} ${COMMON_LIB})
+add_test(NAME ${XTOOL_TEST_XCONFIG}
+        COMMAND ${XTOOL_TEST_XCONFIG})
 
 add_executable(${XTOOL_TEST_XSTRING} 
         ${src_xstring_test}
         ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${XTOOL_TEST_XSTRING} ${COMMON_LIB})
+add_test(NAME ${XTOOL_TEST_XSTRING}
+        COMMAND ${XTOOL_TEST_XSTRING})
 
 add_executable(${XTOOL_TEST_XLOG_GTEST} 
         ${src_xlog_gtest}
         ${G_GOOGLETEST_MAIN_SRCFILE}
 )
 target_link_libraries(${XTOOL_TEST_XLOG_GTEST} ${COMMON_LIB})
+add_test(NAME ${XTOOL_TEST_XLOG_GTEST}
+        COMMAND ${XTOOL_TEST_XLOG_GTEST})

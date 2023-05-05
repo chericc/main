@@ -35,11 +35,15 @@ set(G_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
 
+# add googletest include path
+
 link_directories(${G_GOOGLETEST_LIB_PATH})
+
+# ctest
+
+include(CTest)
 
 # targets
 add_subdirectory(xtools)
 add_subdirectory(xmedia/xplay)
-add_subdirectory(image/bmp)
-
-# 
+#add_subdirectory(image/bmp)

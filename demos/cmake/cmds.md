@@ -18,3 +18,9 @@ or
 
 cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/output
 ```
+
+## virables
+
+```bash
+cmake -LH .
+```
