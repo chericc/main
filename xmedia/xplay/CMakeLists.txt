@@ -18,9 +18,18 @@ target_include_directories(
     PRIVATE ${G_XTOOLS_XLOG_HEADER_PATH}
 )
 
-target_link_libraries(
-    ${L_XPLAY} 
+if(${gnu})
+set(COMMON_LIB 
     ${G_XTOOLS}
     avformat swscale avformat avcodec avutil swresample 
-    pthread
+    pthread)
+elseif(${msvc})
+set(COMMON_LIB 
+    ${G_XTOOLS}
+    avformat swscale avformat avcodec avutil swresample )
+endif()
+
+target_link_libraries(
+    ${L_XPLAY} 
+    ${COMMON_LIB}
 )
