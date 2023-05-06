@@ -27,7 +27,8 @@ endif()
 add_definitions(-DRES_AUDIO_PATH="${G_RESOURCE_PATH}/audio")
 
 add_executable(${WAV_DEMUXER_TEST}
-    ${src_wav_demuxer_test})
+    ${src_wav_demuxer_test}
+    ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${WAV_DEMUXER_TEST}
     ${COMMON_LIB})
 add_test(NAME ${WAV_DEMUXER_TEST}
