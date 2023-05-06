@@ -2,7 +2,7 @@
 
 #include <list>
 
-#include "print.hpp"
+#include "xlog.hpp"
 #include "wav_demuxer.hpp"
 
 struct TestDemux
@@ -73,7 +73,7 @@ static void testExtractRaw(const std::string &wavFile, const std::string &rawFil
 {
     WavDemuxer wavd(wavFile);
 
-    LOGD("testExtractRaw: file:%s", wavFile.c_str());
+    xlog_dbg("testExtractRaw: file:%s", wavFile.c_str());
 
     EXPECT_TRUE(wavd.loadSuccessful());
 
@@ -96,12 +96,12 @@ static void testExtractRaw(const std::string &wavFile, const std::string &rawFil
         EXPECT_EQ(get_buffer, file_buffer);
     }
 
-    LOGD("testExtractRaw fin");
+    xlog_dbg("testExtractRaw fin");
 }
 
 TEST(wav_demuxer, demux)
 {
-    std::string path = "/home/test/code/log/audio/sources/wav/";
+    std::string path = std::string(RES_AUDIO_PATH) + "/";
 
     TestDemux demux[] = {
         {

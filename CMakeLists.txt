@@ -12,6 +12,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 # main
 set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
 
+# resource
+set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
+
 # googletest
 set(G_GOOGLETEST_PATH /home/test/opensrc/googletest/build/output)
 set(G_GOOGLETEST_LIB_PATH ${G_GOOGLETEST_PATH}/lib)
