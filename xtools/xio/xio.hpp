@@ -43,8 +43,9 @@ public:
     virtual void write(std::vector<uint8_t> buffer) = 0;
 
 protected:
-    struct IOContext
+    class IOContext
     {
+    public:
         std::string url;
         int flags{0};
 
@@ -76,8 +77,11 @@ public:
     void w8(uint8_t b) override;
     void write(std::vector<uint8_t> buffer) override;
 private:
-    struct IOFileContenxt
+    class IOFileContenxt
     {
+    public:
+        ~IOFileContenxt();
+        int error{0};
         FILE *fp{nullptr};
     };
     IOFileContenxt iofctx_;

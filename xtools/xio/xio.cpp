@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "xlog.hpp"
+
 XIO::XIO(const std::string &url, int flags)
 {
     ioctx_.url = url;
@@ -68,15 +70,48 @@ void XIO::wl64(uint64_t value)
     wl32(value >> 32);
 }
 
+XIOFile::IOFileContenxt::~IOFileContenxt()
+{
+    if (fp)
+    {
+        fclose(fp);
+        fp = nullptr;
+    }
+}
+
 XIOFile::XIOFile(const std::string &url, int flags)
     : XIO(url, flags)
 {
+    int berror = false;
+
     do
     {
         if (ioctx_.url.empty())
         {
+            berror = true;
             break;
         }
+
+        iofctx_.fp = fopen(ioctx_.url.c_str(), "r");
+        if (nullptr == iofctx_.fp)
+        {
+            xlog_err("open file failed");
+            berror = true;
+            break;
+        }
+
+        xlog_trc("open file successful");
     }
     while (0);
+
+    if (berror)
+    {
+        iofctx_.error = true;
+    }
 }
+
+XIOFile::~XIOFile()
+{
+
+}
+
