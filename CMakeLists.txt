@@ -45,6 +45,7 @@ string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
 # add googletest include path
 
 link_directories(${G_GOOGLETEST_LIB_PATH})
+include_directories(${G_GOOGLETEST_INC_PATH})
 
 # ctest
 
