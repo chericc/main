@@ -32,12 +32,12 @@ void xlog_setmask(unsigned int mask);
 void xlog_setoutput(const std::vector<FILE*> &fps);
 std::string xlog_shortfilepath(const std::string &path);
 
-#define XLOG_FILE xlog_shortfilepath(std::string(__FILE__)).c_str()
+#define XLOG_FILE__ xlog_shortfilepath(std::string(__FILE__)).c_str()
 
-#define xlog_trc(format, ...) xlog(XLOG_LEVEL_TRACE, "[%s %d %s]" format, XLOG_FILE,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define xlog_dbg(format, ...) xlog(XLOG_LEVEL_DEBUG, "[%s %d %s]" format, XLOG_FILE,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define xlog_log(format, ...) xlog(XLOG_LEVEL_LOG, "[%s %d %s]" format, XLOG_FILE,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define xlog_inf(format, ...) xlog(XLOG_LEVEL_INFORMATION, "[%s %d %s]" format, XLOG_FILE,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define xlog_err(format, ...) xlog(XLOG_LEVEL_ERROR, "[%s %d %s]" format, XLOG_FILE,__LINE__,__FUNCTION__,##__VA_ARGS__)
-#define xlog_cri(format, ...) xlog(XLOG_LEVEL_CRITICAL, "[%s %d %s]" format, XLOG_FILE,__LINE__,__FUNCTION__,##__VA_ARGS__)
+#define xlog_trc(format, ...) xlog(XLOG_LEVEL_TRACE, "[%s %d %s]" format, XLOG_FILE__,__LINE__,__FUNCTION__,##__VA_ARGS__)
+#define xlog_dbg(format, ...) xlog(XLOG_LEVEL_DEBUG, "[%s %d %s]" format, XLOG_FILE__,__LINE__,__FUNCTION__,##__VA_ARGS__)
+#define xlog_log(format, ...) xlog(XLOG_LEVEL_LOG, "[%s %d %s]" format, XLOG_FILE__,__LINE__,__FUNCTION__,##__VA_ARGS__)
+#define xlog_inf(format, ...) xlog(XLOG_LEVEL_INFORMATION, "[%s %d %s]" format, XLOG_FILE__,__LINE__,__FUNCTION__,##__VA_ARGS__)
+#define xlog_err(format, ...) xlog(XLOG_LEVEL_ERROR, "[%s %d %s]" format, XLOG_FILE__,__LINE__,__FUNCTION__,##__VA_ARGS__)
+#define xlog_cri(format, ...) xlog(XLOG_LEVEL_CRITICAL, "[%s %d %s]" format, XLOG_FILE__,__LINE__,__FUNCTION__,##__VA_ARGS__)
 

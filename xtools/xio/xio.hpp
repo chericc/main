@@ -49,10 +49,6 @@ protected:
     public:
         std::string url;
         int flags{0};
-
-        std::size_t buf_size{64 * 1024};
-        std::vector<uint8_t> buffer;
-        std::size_t buf_content_size{0};
     };
 
     IOContext ioctx_;
@@ -84,7 +80,6 @@ private:
     {
     public:
         ~IOFileContenxt();
-        int error{0};
         FILE *fp{nullptr};
     };
     IOFileContenxt iofctx_;

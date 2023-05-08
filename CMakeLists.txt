@@ -53,6 +53,6 @@ include(CTest)
 
 # targets
 add_subdirectory(xtools)
-add_subdirectory(xmedia/xplay)
+#add_subdirectory(xmedia/xplay)
 add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(image/bmp)

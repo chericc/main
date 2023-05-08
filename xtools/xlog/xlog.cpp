@@ -70,6 +70,8 @@ void xlog_setmask(unsigned int mask)
 
 void xlog_setoutput(const std::vector<FILE*> &fps)
 {
+    std::unique_lock<std::mutex> lock(s_call_mutex);
+    
     // close all output
     for (auto &it : s_fps)
     {

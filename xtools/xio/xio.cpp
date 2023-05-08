@@ -9,7 +9,6 @@ XIO::XIO(const std::string &url, int flags)
 {
     ioctx_.url = url;
     ioctx_.flags = flags;
-    ioctx_.buffer.resize(ioctx_.buf_size);
 }
 
 XIO::~XIO()
@@ -28,6 +27,7 @@ uint32_t XIO::rl24()
     uint32_t value;
     value = rl16();
     value |= (r8() << 16);
+    return value;
 }
 
 uint32_t XIO::rl32()
@@ -42,7 +42,7 @@ uint64_t XIO::rl64()
 {
     uint64_t value;
     value = rl32();
-    value = (rl32() << 32);
+    value = (static_cast<uint64_t>(rl32()) << 32);
     return value;
 }
 
@@ -103,11 +103,6 @@ XIOFile::XIOFile(const std::string &url, int flags)
         xlog_trc("open file successful");
     }
     while (0);
-
-    if (berror)
-    {
-        iofctx_.error = true;
-    }
 }
 
 XIOFile::~XIOFile()
@@ -142,12 +137,6 @@ int XIOFile::error()
     int berror = false;
     do 
     {
-        if (iofctx_.error)
-        {
-            berror = true;
-            break;
-        }
-
         if (!iofctx_.fp)
         {
             berror = true;
@@ -222,6 +211,12 @@ int64_t XIOFile::size()
             break;
         }
 
+        if (fseek(iofctx_.fp, 0, SEEK_SET) < 0)
+        {
+            berror = true;
+            break;
+        }
+
         file_size = size;
     }
     while (0);
@@ -265,7 +260,48 @@ void XIOFile::flush()
             break;
         }
         
-        
+        fflush(iofctx_.fp);
     }
     while (0);
+}
+
+uint8_t XIOFile::r8()
+{
+    uint8_t buf[1];
+
+    int ret = fread(buf, 1, sizeof(buf), iofctx_.fp);
+    if (ret < 0)
+    {
+        return 0;
+    }
+    
+    return buf[0];
+}
+
+std::vector<uint8_t> XIOFile::read(std::size_t size)
+{
+    std::vector<uint8_t> buf;
+    buf.reserve(size);
+
+    int ret = fread(buf.data(), 1, size, iofctx_.fp);
+    if (ret <= 0)
+    {
+        buf = std::vector<uint8_t>();
+    }
+    else 
+    {
+        buf.resize(ret);
+    }
+
+    return buf;
+}
+
+void XIOFile::w8(uint8_t b)
+{
+    xlog_err("not implement");
+}
+
+void XIOFile::write(std::vector<uint8_t> buffer)
+{
+    xlog_err("not implement");
 }
