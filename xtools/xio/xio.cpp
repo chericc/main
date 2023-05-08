@@ -115,3 +115,157 @@ XIOFile::~XIOFile()
 
 }
 
+int XIOFile::eof()
+{
+    int beof = 0;
+    do
+    {
+        if (error())
+        {
+            beof = true;
+            break;
+        }
+
+        if (feof(iofctx_.fp))
+        {
+            beof = true;
+            break;
+        }
+    }
+    while (0);
+    
+    return (beof ? true : false);
+}
+
+int XIOFile::error()
+{
+    int berror = false;
+    do 
+    {
+        if (iofctx_.error)
+        {
+            berror = true;
+            break;
+        }
+
+        if (!iofctx_.fp)
+        {
+            berror = true;
+            break;
+        }
+
+        if (ferror(iofctx_.fp))
+        {
+            berror = true;
+            break;
+        }
+    }
+    while (0);
+
+    return (berror ? true : false);
+}
+
+int XIOFile::seek(int64_t offset, int whence)
+{
+    int berror = 0;
+
+    do
+    {
+        if (error())
+        {
+            berror = true;
+            break;
+        }
+
+        if (fseek(iofctx_.fp, offset, whence) < 0)
+        {
+            berror = true;
+            break;
+        }
+    }
+    while (0);
+
+    return (berror ? -1 : 0);
+}
+
+int64_t XIOFile::size()
+{
+    int berror = 0;
+    int64_t file_size = 0;
+
+    do 
+    {
+        if (error())
+        {
+            berror = true;
+            break;
+        }
+
+        long old_offset = ftell(iofctx_.fp);
+
+        if (old_offset < 0)
+        {
+            berror = true;
+            break;
+        }
+
+        if (fseek(iofctx_.fp, 0, SEEK_END) < 0)
+        {
+            berror = true;
+            break;
+        }
+
+        long size = ftell(iofctx_.fp);
+        if (size < 0)
+        {
+            berror = true;
+            break;
+        }
+
+        file_size = size;
+    }
+    while (0);
+
+    return (berror ? -1 : file_size);
+}
+
+int64_t XIOFile::tell()
+{
+    int berror = 0;
+    int64_t pos = 0;
+
+    do
+    {
+        if (error())
+        {
+            berror = true;
+            break;
+        }
+
+        long tell_ret = ftell(iofctx_.fp);
+        if (tell_ret < 0)
+        {
+            berror = true;
+            break;
+        }
+
+        pos = tell_ret;
+    }
+    while (0);
+
+    return (berror ? -1 : pos);
+}
+
+void XIOFile::flush()
+{
+    do 
+    {
+        if (error())
+        {
+            break;
+        }
+        
+        
+    }
+    while (0);
+}

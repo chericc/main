@@ -18,11 +18,12 @@ public:
     XIO(const std::string &url, int flags);
     virtual ~XIO() = 0;
 
-    virtual void feof() = 0;
+    virtual int eof() = 0;
     virtual int error() = 0;
 
-    virtual int seek(std::size_t offset, int whence) = 0;
-    virtual std::size_t size() = 0;
+    virtual int seek(int64_t offset, int whence) = 0;
+    virtual int64_t size() = 0;
+    virtual int64_t tell() = 0;
 
     virtual void flush() = 0;
 
@@ -63,11 +64,12 @@ public:
     XIOFile(const std::string &url, int flags);
     ~XIOFile() override;
 
-    void feof() override;
+    int eof() override;
     int error() override;
 
-    int seek(std::size_t offset, int whence) override;
-    std::size_t size() override;
+    int seek(int64_t offset, int whence) override;
+    int64_t size() override;
+    int64_t tell() override;
 
     void flush() override;
 
@@ -77,6 +79,7 @@ public:
     void w8(uint8_t b) override;
     void write(std::vector<uint8_t> buffer) override;
 private:
+
     class IOFileContenxt
     {
     public:
