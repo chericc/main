@@ -92,7 +92,7 @@ XIOFile::XIOFile(const std::string &url, int flags)
             break;
         }
 
-        iofctx_.fp = fopen(ioctx_.url.c_str(), "r");
+        iofctx_.fp = fopen(ioctx_.url.c_str(), "rb");
         if (nullptr == iofctx_.fp)
         {
             xlog_err("open file failed");

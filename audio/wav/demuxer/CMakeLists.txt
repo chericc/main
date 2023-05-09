@@ -16,6 +16,8 @@ include_directories(
 add_library(${G_XWAV_DEMUXER}
     SHARED
     ${src_wav_demuxer})
+target_link_libraries(${G_XWAV_DEMUXER}
+    ${G_XTOOLS})
 
 # tests
 

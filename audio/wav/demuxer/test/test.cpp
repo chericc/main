@@ -35,7 +35,7 @@ static size_t fileSize(FILE *fp)
 static std::vector<uint8_t> readFile(const std::string &filename)
 {
     std::vector<uint8_t> buffer;
-    FILE *fp = fopen(filename.c_str(), "r");
+    FILE *fp = fopen(filename.c_str(), "rb");
 
     if (fp)
     {
@@ -56,7 +56,7 @@ static std::vector<uint8_t> readFile(const std::string &filename)
 
 static void saveFile(const std::string &filename, std::vector<uint8_t> data)
 {
-    FILE *fp = fopen(filename.c_str(), "w");
+    FILE *fp = fopen(filename.c_str(), "wb");
     if (fp)
     {
         int ret = fwrite(data.data(), 1, data.size(), fp);
