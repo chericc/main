@@ -28,6 +28,7 @@ set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 # xtools
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
+set(G_XTOOLS_XIO_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xio)
 
 # wav
 set(G_XWAV_DEMUXER xwav_demuxer)
@@ -50,6 +51,10 @@ include_directories(${G_GOOGLETEST_INC_PATH})
 # ctest
 
 include(CTest)
+
+# debug
+SET(CMAKE_BUILD_TYPE "Debug")
+# SET(CMAKE_BUILD_TYPE "Release")
 
 # targets
 add_subdirectory(xtools)

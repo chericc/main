@@ -9,6 +9,7 @@ aux_source_directory(test src_wav_demuxer_test)
 
 include_directories(
     ${G_XTOOLS_XLOG_HEADER_PATH}
+    ${G_XTOOLS_XIO_HEADER_PATH}
     ${G_XWAV_DEMUXER_HEADER_PATH}
 )
 

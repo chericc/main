@@ -8,15 +8,6 @@
 #define MKBETAG(a,b,c,d) ((d) | ((c) << 8) | ((b) << 16) | ((unsigned)(a) << 24))
 #define BIT2BYTE(value)   ((value) / 8)
 
-WavDemuxer::LoadInfo::~LoadInfo()
-{
-    if (fp)
-    {
-        fclose(fp);
-        fp = nullptr;
-    }
-}
-
 WavDemuxer::WavDemuxer(const std::string &filename)
     : _filename(filename)
 {
@@ -123,7 +114,9 @@ std::vector<uint8_t> WavDemuxer::getSamples(int ch, int pos, int count)
         int pos_in_bytes = pos * bytes_per_sample + _load_info->data_offset;
         int count_in_bytes = count * bytes_per_sample;
         
-        buf = readBuf(_load_info, pos_in_bytes, count_in_bytes);
+        _load_info->xio->seek(pos_in_bytes, SEEK_SET);
+
+        buf = _load_info->xio->read(count_in_bytes);
     }
     while (0);
 
@@ -140,12 +133,12 @@ int WavDemuxer::doLoadFile()
 
     do 
     {
-        if (!info->fp)
+        if (!info->xio)
         {
-            info->fp = fopen(_filename.c_str(), "r");
+            info->xio = std::make_shared<XIOFile>(_filename, 0);
         }
 
-        if (!info->fp)
+        if (!info->xio)
         {
             xlog_err("open file failed");
             berror = true;
@@ -179,49 +172,140 @@ int WavDemuxer::doCloseFile()
     return 0;
 }
 
-std::vector<uint8_t> WavDemuxer::readBuf(std::shared_ptr<LoadInfo> info, size_t pos, size_t size)
+int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
 {
-    std::vector<uint8_t> buf;
     int berror = false;
-    int ret = 0;
 
-    do 
+    bool has_riff = false;
+    bool has_fmt = false;
+    bool has_data = false;
+
+    if (!info || !info->xio)
     {
-        if (!info || !info->fp)
+        xlog_err("null");
+        return -1;
+    }
+
+    info->xio->seek(0, SEEK_SET);
+
+    for (;;)
+    {
+        if (berror)
         {
-            berror = true;
+            xlog_err("error");
             break;
         }
 
-        ret = fseek(info->fp, pos, SEEK_SET);
-        if (ret < 0)
+        if (info->xio->eof())
         {
-            berror = true;
+            xlog_trc("eof(read)");
+            break;
+        }
+        
+        if (info->xio->tell() >= info->xio->size())
+        {
+            xlog_trc("eof(seek)");
             break;
         }
 
-        buf.resize(size);
+        xlog_trc("offset=%d", (int)info->xio->tell());
 
-        if (size > 0)
+        // get next tag
+        uint32_t chunkid = info->xio->rl32();
+        uint32_t chunksize = info->xio->rl32();
+
+        switch (chunkid)
         {
-            int ret = fread(buf.data(), 1, size, info->fp);
-            if (ret != size)
+            case MKTAG('R', 'I', 'F', 'F'):
             {
-                berror = true;
+                xlog_trc("parsing chunk RIFF");
+                info->riff.tag.chunkid = chunkid;
+                info->riff.tag.chunksize = chunksize;
+                info->riff.format = info->xio->rl32();
+                has_riff = true;
                 break;
             }
-        }
+            case MKTAG('f','m','t',' '):
+            {
+                xlog_trc("parsing chunk fmt");
+                info->fmt.tag.chunkid = chunkid;
+                info->fmt.tag.chunksize = chunksize;
+                info->fmt.audio_format = info->xio->rl16();
+                info->fmt.num_channels = info->xio->rl16();
+                info->fmt.sample_rate = info->xio->rl32();
+                info->fmt.byte_rate = info->xio->rl32();
+                info->fmt.align = info->xio->rl16();
+                info->fmt.bits_per_sample = info->xio->rl16();
+                has_fmt = true;
+                xlog_trc("fmt=%d,num_chn=%d,sample_rate=%d,"
+                    "byte_rate=%d,align=%d,bits_per_sample=%d",
+                    (int)info->fmt.audio_format,
+                    (int)info->fmt.num_channels,
+                    (int)info->fmt.sample_rate,
+                    (int)info->fmt.byte_rate,
+                    (int)info->fmt.align,
+                    (int)info->fmt.bits_per_sample);
+                break;
+            }
+            case MKTAG('d', 'a', 't', 'a'):
+            {
+                xlog_trc("parsing chunk data");
+                info->fmt.tag.chunkid = chunkid;
+                info->fmt.tag.chunksize = chunksize;
+                info->data_offset = info->xio->tell();
+                info->data_size = chunksize;
+                if (info->xio->seek(chunksize, SEEK_CUR) < 0)
+                {
+                    xlog_err("seek over chunk data failed");
+                    berror = true;
+                    break;
+                }
+                has_data = true;
+                break;
+            }
+            default:
+            {
+                char chunkname[5] = {};
+                static_assert(4 == sizeof(chunkid), "chunkid size err");
+                memcpy(chunkname, &chunkid, 4);
+
+                xlog_trc("parsing chunk (%s), skipped", chunkname);
+                if (info->xio->seek(chunksize, SEEK_CUR) < 0)
+                {
+                    xlog_err("seek over chunk unknown failed");
+                    berror = true;
+                    break;
+                }
+                break;
+            }
+        } // switch 
+    } // for()
+
+    if (!has_riff || !has_fmt || !has_data)
+    {
+        xlog_err("chunk incomplete(riff=%d,fmt=%d,data=%d)", 
+            has_riff, has_fmt, has_data);
+        berror = true;
     }
-    while (0);
+
+    // 为了读取的方便，做出一些限制
+    if ((info->fmt.bits_per_sample % 8 != 0)
+        || info->fmt.num_channels != 1)
+    {
+        xlog_err("bits_per_sample=%d, num_channels=%d", 
+            info->fmt.bits_per_sample,
+            info->fmt.num_channels);
+        berror = true;
+    }
 
     if (berror)
     {
-        buf.clear();
+        return -1;
     }
-
-    return buf;
+    return 0;
 }
 
+#if 0
 int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
 {
     int berror = false;
@@ -356,3 +440,4 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
     }
     return 0;
 }
+#endif

@@ -211,7 +211,7 @@ int64_t XIOFile::size()
             break;
         }
 
-        if (fseek(iofctx_.fp, 0, SEEK_SET) < 0)
+        if (fseek(iofctx_.fp, old_offset, SEEK_SET) < 0)
         {
             berror = true;
             break;
