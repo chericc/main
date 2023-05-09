@@ -18,7 +18,7 @@ uint16_t XIO::rl16()
 {
     uint16_t value;
     value = r8();
-    value |= (r8() << 8);
+    value |= ((uint16_t)r8() << 8);
     return value;
 }
 
@@ -26,7 +26,7 @@ uint32_t XIO::rl24()
 {
     uint32_t value;
     value = rl16();
-    value |= (r8() << 16);
+    value |= ((uint32_t)r8() << 16);
     return value;
 }
 
@@ -34,7 +34,7 @@ uint32_t XIO::rl32()
 {
     uint32_t value;
     value = rl16();
-    value |= (rl16() << 16);
+    value |= ((uint32_t)rl16() << 16);
     return value;
 }
 
@@ -42,7 +42,7 @@ uint64_t XIO::rl64()
 {
     uint64_t value;
     value = rl32();
-    value = (static_cast<uint64_t>(rl32()) << 32);
+    value |= ((uint64_t)rl32() << 32);
     return value;
 }
 

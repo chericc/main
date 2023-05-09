@@ -115,10 +115,41 @@ TEST_F(BaseFileIOTest, read)
         offset = 5;
         iofile.seek(offset, SEEK_SET);
 
-        ASSERT_LT(offset + 1, data.size());
+        ASSERT_EQ(offset, iofile.tell());
 
+        ASSERT_LT(offset + 1, data.size());
         uint8_t r8 = iofile.r8();
         EXPECT_EQ(r8, data[offset]);
+        offset += 1;
+        
+        ASSERT_LT(offset + 1, data.size());
+        r8 = iofile.r8();
+        EXPECT_EQ(r8, data[offset]);
+        offset += 1;
+
+        
+        ASSERT_LT(offset + 2, data.size());
+        uint16_t r16 = iofile.rl16();
+        EXPECT_EQ(r16, *(uint16_t*)&data[offset]);
+        offset += 2;
+
+
+        ASSERT_LT(offset + 4, data.size());
+        uint32_t r32 = iofile.rl24();
+        EXPECT_EQ(r32, (*(uint32_t*)&data[offset]) & 0x00ffffff);
+        offset += 3;
+
+        ASSERT_LT(offset + 4, data.size());
+        r32 = iofile.rl32();
+        EXPECT_EQ(r32, (*(uint32_t*)&data[offset]));
+        offset += 4;
+
+        ASSERT_LT(offset + 8, data.size());
+        uint64_t r64 = iofile.rl64();
+        EXPECT_EQ(r64, (*(uint64_t*)&data[offset]));
+        offset += 8;
+        
+        ASSERT_EQ(offset, iofile.tell());
     }
     while (0);
 }
