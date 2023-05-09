@@ -267,33 +267,51 @@ void XIOFile::flush()
 
 uint8_t XIOFile::r8()
 {
-    uint8_t buf[1];
+    int berror = false;
+    uint8_t buf[1] = { 0 };
 
-    int ret = fread(buf, 1, sizeof(buf), iofctx_.fp);
-    if (ret < 0)
+    do 
     {
-        return 0;
+        if (error())
+        {
+            berror = true; 
+            break;
+        }
+        
+        if (fread(buf, 1, sizeof(buf), iofctx_.fp) < 0)
+        {
+            return 0;
+        }
     }
+    while (0);
     
     return buf[0];
 }
 
 std::vector<uint8_t> XIOFile::read(std::size_t size)
 {
+    int berror = false;
     std::vector<uint8_t> buf;
-    buf.reserve(size);
 
-    int ret = fread(buf.data(), 1, size, iofctx_.fp);
-    if (ret <= 0)
+    do
     {
-        buf = std::vector<uint8_t>();
-    }
-    else 
-    {
-        buf.resize(ret);
-    }
+        if (error())
+        {
+            berror = true;
+            break;
+        }
 
-    return buf;
+        buf.resize(size);
+
+        if (fread(buf.data(), 1, size, iofctx_.fp) <= 0)
+        {
+            berror = true;
+            break;
+        }
+    }
+    while (0);
+
+    return (berror ? std::vector<uint8_t>() : buf);
 }
 
 void XIOFile::w8(uint8_t b)

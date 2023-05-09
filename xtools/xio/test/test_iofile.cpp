@@ -104,7 +104,7 @@ TEST_F(BaseFileIOTest, base)
     EXPECT_EQ(iofile.tell(), 0);
 }
 
-TEST_F(BaseFileIOTest, read)
+TEST_F(BaseFileIOTest, read_ele)
 {
     XIOFile iofile(filename, 0);
 
@@ -152,4 +152,21 @@ TEST_F(BaseFileIOTest, read)
         ASSERT_EQ(offset, iofile.tell());
     }
     while (0);
+}
+
+TEST_F(BaseFileIOTest, read_data)
+{
+    XIOFile iofile(filename, 0);
+
+    std::size_t offset = 0;
+    std::size_t size = 0;
+
+    offset = 100;
+    size = 64;
+    ASSERT_TRUE(offset + size < data.size());
+    iofile.seek(offset, SEEK_SET);
+    std::vector<uint8_t> read_data = iofile.read(size);
+    std::vector<uint8_t> ref_data(data.begin() + offset, 
+        data.begin() + offset + size);
+    ASSERT_EQ(read_data, ref_data);
 }
