@@ -16,12 +16,12 @@ set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
 set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 
 # googletest
-set(G_GOOGLETEST_PATH C:/Users/test/opensrc/googletest/install)
+set(G_GOOGLETEST_PATH /home/test/opensrc/googletest/build/output)
 set(G_GOOGLETEST_LIB_PATH ${G_GOOGLETEST_PATH}/lib)
 set(G_GOOGLETEST_INC_PATH ${G_GOOGLETEST_PATH}/include)
 
 # ffmpeg
-set(G_FFMPEG_PATH C:/Users/test/opensrc/ffmpeg/ffmpeg-6.0-full_build-shared)
+set(G_FFMPEG_PATH /home/test/opensrc/ffmpeg/build/output)
 set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
 set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 
