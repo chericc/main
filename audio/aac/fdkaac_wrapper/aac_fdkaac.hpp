@@ -2,11 +2,6 @@
 
 #include <memory>
 
-#define NAMESPACE_AAC_BEGIN namespace AAC {
-#define NAMESPACE_AAC_END   }
-
-NAMESPACE_AAC_BEGIN
-
 /************************** STRUCTURE **************************/
 
 typedef struct
@@ -73,5 +68,3 @@ private:
     static const int PCM_ELEMENT_SIZE = 2; // 16bit default
     static const int AAC_ELEMENT_SIZE = 1; // 8bit default
 };
-
-NAMESPACE_AAC_END

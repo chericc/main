@@ -25,6 +25,11 @@ set(G_FFMPEG_PATH /home/test/opensrc/ffmpeg/build/output)
 set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
 set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 
+# fdk-aac
+set(G_FDKAAC_PATH /home/test/opensrc/fdkaac/build/output)
+set(G_FDKAAC_LIB_PATH ${G_FDKAAC_PATH}/lib)
+set(G_FDKAAC_INC_PATH ${G_FDKAAC_PATH}/include/fdk-aac)
+
 # xtools
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
@@ -33,6 +38,10 @@ set(G_XTOOLS_XIO_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xio)
 # wav
 set(G_XWAV_DEMUXER xwav_demuxer)
 set(G_XWAV_DEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/wav/demuxer)
+
+# fdkaac_wrapper
+set(G_FDKAAC_WRAPPER fdkaac_wrapper)
+set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
 
 # bmp
 set(G_BMP bmp)
@@ -58,6 +67,7 @@ SET(CMAKE_BUILD_TYPE "Debug")
 
 # targets
 add_subdirectory(xtools)
-#add_subdirectory(xmedia/xplay)
 add_subdirectory(audio/wav/demuxer)
-#add_subdirectory(image/bmp)
+add_subdirectory(audio/aac/fdkaac_wrapper)
+add_subdirectory(image/bmp)
+#add_subdirectory(xmedia/xplay)

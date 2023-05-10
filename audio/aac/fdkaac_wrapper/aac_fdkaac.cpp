@@ -25,7 +25,6 @@
 
 
 
-NAMESPACE_AAC_BEGIN
 
 class AacFDKAac::InnerData
 {
@@ -510,5 +509,3 @@ int AacFDKAac::PrepareEncodeEnv__(const AudioInputPCMData *input,
 
     return 0;
 }
-
-NAMESPACE_AAC_END

@@ -32,8 +32,8 @@
 
 int run(const char *input_file, const char *output_file)
 {
-    AAC::AacFDKAac aac;
-    AAC::AacEncInfo aac_info = {};
+    AacFDKAac aac;
+    AacEncInfo aac_info = {};
 
     FILE *fp_in = nullptr;
     FILE *fp_out = nullptr;
@@ -102,10 +102,10 @@ int run(const char *input_file, const char *output_file)
 
     while (true)
     {
-        AAC::AudioInputPCMData inputdata = {};
-        AAC::InputArgs inputarg = {};
-        AAC::AudioOutputAACData outputdata = {};
-        AAC::OutputArgs outputarg = {};
+        AudioInputPCMData inputdata = {};
+        InputArgs inputarg = {};
+        AudioOutputAACData outputdata = {};
+        OutputArgs outputarg = {};
 
         ret = fread (buffer_input, 1, buffer_input_size, fp_in);
 
