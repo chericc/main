@@ -22,6 +22,8 @@ elseif(${msvc})
 set(COMMON_LIB gtest ${G_BMP} ${G_XTOOLS})
 endif()
 
+add_definitions(-DRES_BMP_PATH="${G_RESOURCE_PATH}/bmp")
+
 add_executable(${L_BMP_TEST}
     ${src_bmp_test}
     ${G_GOOGLETEST_MAIN_SRCFILE})
