@@ -29,3 +29,5 @@ add_executable(${L_BMP_TEST}
     ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${L_BMP_TEST}
     ${COMMON_LIB})
+add_test(NAME ${L_BMP_TEST}
+        COMMAND ${L_BMP_TEST})

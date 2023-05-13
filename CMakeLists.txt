@@ -9,6 +9,10 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
+# platform
+string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
+string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
+
 # main
 set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
 
@@ -16,12 +20,20 @@ set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
 set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 
 # googletest
+if(${msvc})
+set(G_GOOGLETEST_PATH C:/Users/test/opensrc/googletest/install)
+elseif(${gnu})
 set(G_GOOGLETEST_PATH /home/test/opensrc/googletest/build/output)
+endif()
 set(G_GOOGLETEST_LIB_PATH ${G_GOOGLETEST_PATH}/lib)
 set(G_GOOGLETEST_INC_PATH ${G_GOOGLETEST_PATH}/include)
 
 # ffmpeg
+if(${msvc})
+set(G_FFMPEG_PATH C:/Users/test/opensrc/ffmpeg/ffmpeg-6.0-full_build-shared)
+elseif({gnu})
 set(G_FFMPEG_PATH /home/test/opensrc/ffmpeg/build/output)
+endif()
 set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
 set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 
@@ -47,11 +59,6 @@ set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
 set(G_BMP bmp)
 set(G_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
 
-# platform
-
-string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
-string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
-
 # add googletest include path
 
 link_directories(${G_GOOGLETEST_LIB_PATH})
@@ -68,6 +75,6 @@ SET(CMAKE_BUILD_TYPE "Debug")
 # targets
 add_subdirectory(xtools)
 add_subdirectory(audio/wav/demuxer)
-add_subdirectory(audio/aac/fdkaac_wrapper)
+#add_subdirectory(audio/aac/fdkaac_wrapper)
 add_subdirectory(image/bmp)
 #add_subdirectory(xmedia/xplay)
