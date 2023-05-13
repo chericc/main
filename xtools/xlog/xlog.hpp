@@ -27,6 +27,10 @@ typedef enum XLOG_LEVEL
     XLOG_LEVEL_BUTT         = 1 << 6,
 } XLOG_LEVEL;
 
+#define XLOG_MASK_LOG (~((unsigned int)XLOG_LEVEL_DEBUG | XLOG_LEVEL_TRACE))
+#define XLOG_MASK_ERR (~((unsigned int)XLOG_LEVEL_INFORMATION | XLOG_LEVEL_LOG \
+                        | XLOG_LEVEL_DEBUG | XLOG_LEVEL_TRACE))
+
 void xlog(XLOG_LEVEL level, const char *format, ...);
 void xlog_setmask(unsigned int mask);
 void xlog_setoutput(const std::vector<FILE*> &fps);
