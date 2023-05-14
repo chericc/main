@@ -69,10 +69,21 @@ std::vector<uint8_t> BmpDecoder::getContent(int pos, int numPixels)
         int pixel_min = 0;
         int pixel_max = _load_info->width * _load_info->height;
 
+        if (!_load_info->width || !_load_info->height)
+        {
+            xlog_err("width or height is 0");
+            break;
+        }
+
         if (pos < pixel_min || pos >= pixel_max)
         {
             xlog_err("pos invalid");
             break;
+        }
+
+        if (numPixels < 0)
+        {
+            numPixels = pixel_max - pos;
         }
 
         if (numPixels < pixel_min || pos + numPixels > pixel_max)
@@ -88,13 +99,32 @@ std::vector<uint8_t> BmpDecoder::getContent(int pos, int numPixels)
             break;
         }
 
-        int offset = _load_info->data_offset + depth_bytes * pos;
-        int bytes = numPixels * depth_bytes;
+        buf.reserve(depth_bytes * numPixels);
 
-        _load_info->xio->seek(offset, SEEK_SET);
-        buf = _load_info->xio->read(bytes);
+        /* 每一行按4字节对齐 */
+        int width_pad_bytes = (_load_info->width * depth_bytes + 3) & (~0x3);
+
+        /* 按行读取性能更优 */
+        for (int i = pos; i < pos + numPixels; ++i)
+        {
+            int width = _load_info->width;
+            int x = i % width;
+            int y = i / width;
+            int offset = _load_info->data_offset + y * width_pad_bytes + x * depth_bytes;
+            _load_info->xio->seek(offset, SEEK_SET);
+            auto pixel_buf = _load_info->xio->read(depth_bytes);
+            for (auto const& ref : pixel_buf)
+            {
+                buf.push_back(ref);
+            }
+        }
     }
     while (0);
+
+    if (buf.empty())
+    {
+        buf.shrink_to_fit();
+    }
 
     return buf;
 }
@@ -111,6 +141,13 @@ int BmpDecoder::doLoadFile()
         if (!info->xio)
         {
             info->xio = std::make_shared<XIOFile>(_filename, 0);
+        }
+
+        if (!info->xio)
+        {
+            xlog_err("open failed");
+            berror = true;
+            break;
         }
 
         if (readHeader(info) < 0)
@@ -183,6 +220,11 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
         info->fileheader.reserved2 = info->xio->rl16();
 
         info->fileheader.bitmapoffset = info->xio->rl32();
+
+        xlog_trc("filesize=%d,dataoffset=%d", 
+            (int)info->fileheader.filesize,
+            (int)info->fileheader.bitmapoffset);
+
         info->bitmapheader.size = info->xio->rl32();
 
         xlog_trc("filesize=%d,headersize=%d", 
@@ -201,10 +243,10 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
                 break;
             }
             case  40: // windib
-            case  56: // windib v3
-            case  64: // OS/2 v2
+            // case  56: // windib v3
+            // case  64: // OS/2 v2
             case 108: // windib v4
-            case 124: // windib v5
+            // case 124: // windib v5
             {
                 info->bitmapheader.width_v3 = info->xio->rl32();
                 info->bitmapheader.height_v3 = info->xio->rl32();
@@ -222,6 +264,7 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
 
         if (info->height < 0)
         {
+            xlog_trc("reverse height");
             info->height = (0 - info->height);
         }
 
@@ -254,9 +297,26 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
             break;
         }
 
+        xlog_trc("bmp bit depth=%d", (int)info->bitmapheader.bitsperpixel);
+
         if (info->bitmapheader.size >= 40)
         {
             comp = (BiCompression)info->xio->rl32();
+            info->bitmapheader.compression = comp;
+            info->bitmapheader.sizeofbitmap = info->xio->rl32();
+            info->bitmapheader.horzresolution = info->xio->rl32();
+            info->bitmapheader.vertresolution = info->xio->rl32();
+            info->bitmapheader.colorsused = info->xio->rl32();
+            info->bitmapheader.colorsimportant = info->xio->rl32();
+
+            xlog_trc("bmp bitmap header: [comp=%d,sizeofbitmap=%d,horres=%d,]"
+                    "verres=%d,colorused=%d,colorimpor=%d]",
+                    info->bitmapheader.compression,
+                    info->bitmapheader.sizeofbitmap,
+                    info->bitmapheader.horzresolution,
+                    info->bitmapheader.vertresolution,
+                    info->bitmapheader.colorsused,
+                    info->bitmapheader.colorsimportant);
         }
         else 
         {
@@ -311,20 +371,20 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
             break;
         }
 
-        info->data_offset = 14 + info->bitmapheader.size;
+        info->data_offset = info->fileheader.bitmapoffset;
         info->data_size = info->width * info->height * (info->bitmapheader.bitsperpixel / 8);
 
+        xlog_trc("dataoffset=%d,datasize=%d,filesize=%d",
+            (int)info->data_offset, (int)info->data_size,
+            info->xio->size());
+
         /* 当前没有考虑调色板区域 */
-        if (info->data_offset + info->data_size != info->xio->size())
+        if (info->fileheader.bitmapoffset != 14 + info->bitmapheader.size)
         {
-            xlog_err("bmp decode incomplete");
+            xlog_err("bmp decode not support palette section");
             berror = true;
             break;
         }
-
-        xlog_trc("offset=%d,size=%d,filesize=%d",
-            (int)info->data_offset, (int)info->data_size,
-            info->xio->size());
     }
     while (0);
 

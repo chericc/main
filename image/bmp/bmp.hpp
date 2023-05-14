@@ -124,6 +124,8 @@ public:
     int height();
 
     PixFmt pixfmt();
+
+    /* 注：BMP图像数据的扫描方式是从左至右，从下到上的 */
     std::vector<uint8_t> getContent(int pos, int numPixels);
 
 private:
