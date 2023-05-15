@@ -13,7 +13,12 @@ TEST(xlog, base)
             std::make_pair("path/a.txt", "a.txt"),
             std::make_pair("", ""),
             std::make_pair("/", ""),
-            std::make_pair("a/b/c", "c")
+            std::make_pair("a\\b\\c", "c"),
+            std::make_pair("a.txt","a.txt"),
+            std::make_pair("path\\a.txt", "a.txt"),
+            std::make_pair("", ""),
+            std::make_pair("\\", ""),
+            std::make_pair("a\\b\\c", "c")
     };
 
     for (auto const& i : test_suite)

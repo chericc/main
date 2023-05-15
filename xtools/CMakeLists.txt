@@ -1,5 +1,5 @@
 
-set(XTOOL_TEST_XLOG test_xtools_xlog)
+set(XTOOL_TEST_XLOG demo_xtools_xlog)
 set(XTOOL_TEST_XLOG_GTEST test_xtools_xlog_gtest)
 set(XTOOL_TEST_XCONFIG test_xtools_xconfig)
 set(XTOOL_TEST_XSTRING test_xtools_xstring)

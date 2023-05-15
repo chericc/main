@@ -132,9 +132,20 @@ void xlog(XLOG_LEVEL level, const char *format, ...)
 
 std::string xlog_shortfilepath(const std::string &path)
 {
-    char token = '/';
-    std::size_t token_pos = path.rfind(token);
-    if (token_pos == std::string::npos)
+    char token[] = { '/', '\\'};
+    std::size_t token_pos = 0;
+    bool found = false;
+    for (auto const& r : token)
+    {
+        std::size_t pos = path.rfind(r);
+        if (pos != std::string::npos && pos >= token_pos)
+        {
+            found = true;
+            token_pos = pos;
+        }
+    }
+    
+    if (!found)
     {
         return path;
     }
