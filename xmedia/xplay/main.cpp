@@ -37,11 +37,15 @@ int main(int argc, char **argv)
         std::vector<FILE *> fps = {stdout, fp};
         xlog_setoutput(fps);
 
+#if 0
         if (parse_opts(argc, argv, opts) < 0)
         {
             xlog_err("get opts failed");
             break;
         }
+#else 
+        opts.filename = std::string() + RES_VIDEO_PATH + "/qianxun_640_360.mkv";
+#endif 
 
         xlog_dbg("opts: filename:%s", opts.filename.c_str());
 
