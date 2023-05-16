@@ -12,6 +12,136 @@ typedef struct MyAVPacketList {
     int serial{ 0 };
 } MyAVPacketList;
 
+int FrameQueue::init(std::shared_ptr<PacketQueue> pktq_v, int max_size)
+{
+    pktq = pktq_v;
+    queue.resize(max_size);
+    for (auto &r : queue)
+    {
+        r.frame = av_frame_alloc();
+        if (!r.frame)
+        {
+            xlog_err("alloc failed");
+            return -1;
+        }
+    }
+    return 0;
+}
+
+void FrameQueue::destroy()
+{
+    for (auto &r : queue)
+    {
+        if (r.frame)
+        {
+            av_frame_unref(r.frame);
+            av_frame_free(&r.frame);
+        }
+    }
+}
+
+void FrameQueue::signal()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    cond.notify_one();
+}
+
+Frame *FrameQueue::peek()
+{
+    return &queue[(rindex + rindex_shown) % queue.size()];
+}
+
+Frame *FrameQueue::peek_next()
+{
+    return &queue[(rindex + rindex_shown + 1) % queue.size()];
+}
+
+Frame *FrameQueue::peek_last()
+{
+    return &queue[rindex];
+}
+
+Frame *FrameQueue::peek_writable()
+{
+    std::unique_lock lock(mutex);
+    while (size >= queue.size()
+        && !pktq->abort_request)
+    {
+        cond.wait(lock);
+    }
+
+    if (pktq->abort_request)
+    {
+        return nullptr;
+    }
+
+    return &queue[windex];
+}
+
+Frame *FrameQueue::peek_readable()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    while (size - rindex_shown <= 0
+        && !pktq->abort_request)
+    {
+        cond.wait(lock);
+    }
+
+    if (pktq->abort_request)
+    {
+        return nullptr;
+    }
+    return &queue[(rindex + rindex_shown) % queue.size()];
+}
+
+void FrameQueue::push()
+{
+    if (++windex == queue.size())
+    {
+        windex = 0;
+    }
+    std::unique_lock<std::mutex> lock(mutex);
+    ++size;
+    cond.notify_one();
+}
+
+void FrameQueue::next()
+{
+    if (keep_last && !rindex_shown)
+    {
+        rindex_shown = 1;
+        return ;
+    }
+
+    if (queue[rindex].frame)
+    {
+        av_frame_unref(queue[rindex].frame);
+        av_frame_free(&queue[rindex].frame);
+    }
+
+    std::unique_lock<std::mutex> lock(mutex);
+    --size;
+    cond.notify_one();
+}
+
+int FrameQueue::numRemaining()
+{
+    return size - rindex_shown;
+}
+
+int64_t FrameQueue::lastPos()
+{
+    Frame *fp = &queue[rindex];
+    if (rindex_shown && fp->serial == pktq->serial)
+    {
+        return fp->pos;
+    }
+    else 
+    {
+        return -1;
+    }
+}
+
 int PacketQueue::get(AVPacket* pkt, int block, int* serial)
 {
     std::unique_lock<std::mutex> lock(mutex);
@@ -258,7 +388,16 @@ std::shared_ptr<VideoState> XPlay::streamOpen(const OptValues &opt)
 
         is->filename = opt.filename;
 
-        if (is->videoq.init() < 0)
+        is->videoq = std::make_shared<PacketQueue>();
+        is->pictq = std::make_shared<FrameQueue>();
+
+        if (is->pictq->init(is->videoq, 16) < 0)
+        {
+            xlog_err("pic queue init failed");
+            break;
+        }
+
+        if (is->videoq->init() < 0)
         {
             xlog_err("video q init failed");
             break;
@@ -327,7 +466,7 @@ int XPlay::streamComponentOpen(int stream_index)
             {
                 is_->video_stream = stream_index;
                 is_->video_st = ic->streams[stream_index];
-                if (decoderInit(&is_->viddec, avctx, &is_->videoq) < 0)
+                if (decoderInit(&is_->viddec, avctx, is_->videoq.get()) < 0)
                 {
                     berror = true;
                     xlog_err("decoderInit failed");
@@ -598,8 +737,8 @@ int XPlay::readThread()
 
             // seek
 
-            if (is_->videoq.size > MAX_QUEUE_SIZE ||
-                streamHasEnoughPackets(is_->video_st, is_->video_stream, &is_->videoq))
+            if (is_->videoq->size > MAX_QUEUE_SIZE ||
+                streamHasEnoughPackets(is_->video_st, is_->video_stream, is_->videoq.get()))
             {
                 /* wait some time */
                 std::unique_lock<std::mutex> lock(wait_mutex);
@@ -616,7 +755,7 @@ int XPlay::readThread()
                 {
                     if (is_->video_stream >= 0)
                     {
-                        is_->videoq.putNullPacket(pkt, is_->video_stream);
+                        is_->videoq->putNullPacket(pkt, is_->video_stream);
                     }
                     is_->eof = 1;
                     xlog_trc("read eof");
@@ -641,7 +780,7 @@ int XPlay::readThread()
                 && !(is_->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC))
             {
                 xlog_trc("put packet");
-                is_->videoq.put(pkt);
+                is_->videoq->put(pkt);
             }
             else
             {

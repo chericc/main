@@ -6,6 +6,7 @@
 #include <mutex>
 #include <functional>
 #include <condition_variable>
+#include <vector>
 
 extern "C"
 {
@@ -43,6 +44,52 @@ public:
     int get(AVPacket* pkt, int block, int* serial);
 };
 
+/* Common struct for handling all types of decoded data and allocated render buffers. */
+class Frame 
+{
+public:
+    AVFrame *frame{nullptr};
+    // AVSubtitle sub{};
+    int serial{0};
+    double pts{0.0};           /* presentation timestamp for the frame */
+    double duration{0.0};      /* estimated duration of the frame */
+    int64_t pos{0};          /* byte position of the frame in the input file */
+    int width{0};
+    int height{0};
+    int format{0};
+    AVRational sar{};
+    int uploaded{0};
+    int flip_v{0};
+};
+
+class FrameQueue
+{
+public:
+    std::vector<Frame> queue;
+    int rindex{0};
+    int windex{0};
+    int size{0};
+    int max_size{0};
+    int keep_last{0};
+    int rindex_shown{0};
+    std::mutex mutex;
+    std::condition_variable cond;
+    std::shared_ptr<PacketQueue> pktq;
+
+    int init(std::shared_ptr<PacketQueue> pktq, int max_size);
+    void destroy();
+    void signal();
+    Frame *peek();
+    Frame *peek_next();
+    Frame *peek_last();
+    Frame *peek_writable();
+    Frame *peek_readable();
+    void push();
+    void next();
+    int numRemaining();
+    int64_t lastPos();
+};
+
 class Decoder
 {
 public:
@@ -73,7 +120,10 @@ public:
 
     int video_stream{0};
     AVStream *video_st{nullptr};
-    PacketQueue videoq;
+
+    std::shared_ptr<PacketQueue> videoq;
+
+    std::shared_ptr<FrameQueue> pictq;
 
     Decoder auddec;
     Decoder viddec;
@@ -81,6 +131,12 @@ public:
     int eof{};
 
     std::condition_variable cond_continue_read_thread;
+};
+
+class XWindow
+{
+public:
+    XWindow();
 };
 
 class XPlay
