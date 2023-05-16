@@ -37,6 +37,11 @@ endif()
 set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
 set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 
+# SDL2
+set(G_SDL2_PATH C:/Users/test/opensrc/SDL/install)
+set(G_SDL2_LIB_PATH ${G_SDL2_PATH}/lib)
+set(G_SDL2_INC_PATH ${G_SDL2_PATH}/include/SDL2)
+
 # fdk-aac
 set(G_FDKAAC_PATH /home/test/opensrc/fdkaac/build/output)
 set(G_FDKAAC_LIB_PATH ${G_FDKAAC_PATH}/lib)
@@ -77,4 +82,5 @@ add_subdirectory(xtools)
 add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(audio/aac/fdkaac_wrapper)
 add_subdirectory(image/bmp)
-add_subdirectory(xmedia/xplay)
+#add_subdirectory(xmedia/xplay)
+#add_subdirectory(xmedia/xdisplay)
