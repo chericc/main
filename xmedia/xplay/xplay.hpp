@@ -20,6 +20,27 @@ struct OptValues
     std::string filename;
 };
 
+class NonCopyableObject
+{
+public:
+    NonCopyableObject() = default;
+    NonCopyableObject(NonCopyableObject const&) = delete;
+    NonCopyableObject& operator=(NonCopyableObject const&) = delete;
+};
+
+class MyThread : public NonCopyableObject
+{
+public:
+    using MyFunc=std::function<void(void)>;
+    MyThread(MyFunc func);
+    ~MyThread();
+    void start();
+    void join();
+private:
+    std::shared_ptr<std::thread> trd;
+    MyFunc func;
+    std::mutex mutex;
+};
 
 class PacketQueue
 {
@@ -97,16 +118,20 @@ public:
     AVCodecContext *avctx{nullptr};
     PacketQueue *queue{nullptr};
 
-    std::shared_ptr<std::thread> trd_decoder;
+    std::shared_ptr<MyThread> trd_decoder;
 
     int pkt_serial{};
     int finished{};
     int packet_pending{};
-    std::condition_variable empty_queue_cond;
+    std::shared_ptr<std::condition_variable> empty_queue_cond;
     int64_t start_pts{};
     AVRational start_pts_tb{};
     int64_t next_pts{};
     AVRational next_pts_tb{};
+
+    int init(AVCodecContext *avctx, PacketQueue *queue, std::shared_ptr<std::condition_variable> empty_queue_cond);
+    int start(std::function<int()> func, const char *thread_name);
+    int decodeFrame(AVFrame* frame, AVSubtitle* sub);
 };
 
 class VideoState
@@ -114,7 +139,7 @@ class VideoState
 public:
     std::string filename;
 
-    std::shared_ptr<std::thread> trd_read;
+    std::shared_ptr<MyThread> trd_read;
 
     AVFormatContext *ic{nullptr};
 
@@ -130,7 +155,7 @@ public:
 
     int eof{};
 
-    std::condition_variable cond_continue_read_thread;
+    std::shared_ptr<std::condition_variable> cond_continue_read_thread;
 };
 
 class XWindow

@@ -12,6 +12,38 @@ typedef struct MyAVPacketList {
     int serial{ 0 };
 } MyAVPacketList;
 
+MyThread::MyThread(MyFunc func_tmp)
+{
+    func = func_tmp;
+}
+
+MyThread::~MyThread()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    if (trd && trd->joinable())
+    {
+        trd->join();
+    }
+}
+
+void MyThread::start()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    if (!trd)
+    {
+        trd = std::make_shared<std::thread>(func);
+    }
+}
+
+void MyThread::join()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    if (trd && trd->joinable())
+    {
+        trd->join();
+    }
+}
+
 int FrameQueue::init(std::shared_ptr<PacketQueue> pktq_v, int max_size)
 {
     pktq = pktq_v;
@@ -354,6 +386,12 @@ int XPlay::doOpen(const OptValues &opt)
     assert(nullptr == is_);
 
     is_ = streamOpen(opt);
+
+    /* 赋值之后再启动线程 */
+    if (is_ && is_->trd_read)
+    {
+        is_->trd_read->start();
+    }
     
     return is_ ? 0 : -1;
 }
@@ -405,8 +443,10 @@ std::shared_ptr<VideoState> XPlay::streamOpen(const OptValues &opt)
 
         xlog_trc("videoq init suc");
 
-        auto lambda_readtrd = [&](){return this->readThread();};
-        is->trd_read = std::make_shared<std::thread>(lambda_readtrd);
+        is->cond_continue_read_thread = std::make_shared<std::condition_variable>();
+
+        auto lambda_readtrd = [&](){this->readThread();};
+        is->trd_read = std::make_shared<MyThread>(lambda_readtrd);
     }
     while (0);
 
@@ -466,7 +506,7 @@ int XPlay::streamComponentOpen(int stream_index)
             {
                 is_->video_stream = stream_index;
                 is_->video_st = ic->streams[stream_index];
-                if (decoderInit(&is_->viddec, avctx, is_->videoq.get()) < 0)
+                if (is_->viddec.init(avctx, is_->videoq.get(), is_->cond_continue_read_thread) < 0)
                 {
                     berror = true;
                     xlog_err("decoderInit failed");
@@ -479,7 +519,7 @@ int XPlay::streamComponentOpen(int stream_index)
                 {
                     return this->videoThread();
                 };
-                if (decoderStart(&is_->viddec, lambda_video_trd, "video_deocde") < 0)
+                if (is_->viddec.start(lambda_video_trd, "video_deocde") < 0)
                 {
                     berror = true;
                     xlog_err("decoderStart failed");
@@ -494,31 +534,11 @@ int XPlay::streamComponentOpen(int stream_index)
     return ret;
 }
 
-int XPlay::decoderInit(Decoder *d, AVCodecContext *avctx, PacketQueue *queue)
-{
-    d->pkt = av_packet_alloc();
-    if (!d->pkt)
-    {
-        xlog_err("av_packet_alloc failed");
-        return -1;
-    }
-    d->avctx = avctx;
-    d->queue = queue;
-    return 0;
-}
-
-int XPlay::decoderStart(Decoder *d, std::function<int()> func, const char *thread_name)
-{
-    d->queue->start();
-    d->trd_decoder = std::make_shared<std::thread>(func);
-    return 0;
-}
-
 int XPlay::streamClose(std::shared_ptr<VideoState> is)
 {
     if (is)
     {
-        if (is->trd_read && is->trd_read->joinable())
+        if (is->trd_read)
         {
             is->trd_read->join();
         }
@@ -531,7 +551,7 @@ int XPlay::getVideoFrame(AVFrame* frame)
 {
     int got_picture = 0;
 
-    if ((got_picture = decoderDecodeFrame(&is_->viddec, frame, nullptr)) < 0)
+    if ((got_picture = is_->viddec.decodeFrame(frame, nullptr)) < 0)
     {
         return -1;
     }
@@ -544,7 +564,31 @@ int XPlay::getVideoFrame(AVFrame* frame)
     return got_picture;
 }
 
-int XPlay::decoderDecodeFrame(Decoder* d, AVFrame* frame, AVSubtitle* sub)
+
+int Decoder::init(AVCodecContext *avctx_tmp, PacketQueue *queue_tmp, std::shared_ptr<std::condition_variable> empty_queue_cond_tmp)
+{
+    pkt = av_packet_alloc();
+    if (!pkt)
+    {
+        xlog_err("av_packet_alloc failed");
+        return -1;
+    }
+    avctx = avctx_tmp;
+    queue = queue_tmp;
+    empty_queue_cond = empty_queue_cond_tmp;
+    
+    return 0;
+}
+
+int Decoder::start(std::function<int()> func, const char *thread_name)
+{
+    queue->start();
+    trd_decoder = std::make_shared<MyThread>(func);
+    trd_decoder->start();
+    return 0;
+}
+
+int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
 {
     xlog_trc("decode frame");
 
@@ -555,18 +599,18 @@ int XPlay::decoderDecodeFrame(Decoder* d, AVFrame* frame, AVSubtitle* sub)
         // receive frame
         do
         {
-            switch (d->avctx->codec_type)
+            switch (avctx->codec_type)
             {
             case AVMEDIA_TYPE_VIDEO:
             {
-                ret = avcodec_receive_frame(d->avctx, frame);
+                ret = avcodec_receive_frame(avctx, frame);
                 break;
             }
             }
 
             if (ret == AVERROR_EOF)
             {
-                avcodec_flush_buffers(d->avctx);
+                avcodec_flush_buffers(avctx);
                 return 0;
             }
             if (ret >= 0)
@@ -588,51 +632,51 @@ int XPlay::decoderDecodeFrame(Decoder* d, AVFrame* frame, AVSubtitle* sub)
 
         do
         {
-            if (d->queue->nb_packets == 0)
+            if (queue->nb_packets == 0)
             {
-                d->empty_queue_cond.notify_one();
+                empty_queue_cond->notify_one();
             }
-            if (d->packet_pending)
+            if (packet_pending)
             {
-                d->packet_pending = 0;
+                packet_pending = 0;
             }
-            int old_serial = d->pkt_serial;
+            int old_serial = pkt_serial;
             xlog_trc("getting packet");
-            if (d->queue->get(d->pkt, 1, &d->pkt_serial) < 0)
+            if (queue->get(pkt, 1, &pkt_serial) < 0)
             {
                 return -1;
             }
-            if (old_serial != d->pkt_serial)
+            if (old_serial != pkt_serial)
             {
-                avcodec_flush_buffers(d->avctx);
-                d->finished = 0;
-                d->next_pts = d->start_pts;
-                d->next_pts_tb = d->start_pts_tb;
+                avcodec_flush_buffers(avctx);
+                finished = 0;
+                next_pts = start_pts;
+                next_pts_tb = start_pts_tb;
             }
-            if (d->queue->serial == d->pkt_serial)
+            if (queue->serial == pkt_serial)
             {
                 break;
             }
-            av_packet_unref(d->pkt);
+            av_packet_unref(pkt);
         } 
         while (1);
 
 
         // send packet
-        if (d->avctx->codec_type == AVMEDIA_TYPE_SUBTITLE)
+        if (avctx->codec_type == AVMEDIA_TYPE_SUBTITLE)
         {
-            av_packet_unref(d->pkt);
+            av_packet_unref(pkt);
         }
         else
         {
             xlog_trc("sending packet");
-            if (avcodec_send_packet(d->avctx, d->pkt) == AVERROR(EAGAIN))
+            if (avcodec_send_packet(avctx, pkt) == AVERROR(EAGAIN))
             {
                 xlog_err("error");
             }
             else
             {
-                av_packet_unref(d->pkt);
+                av_packet_unref(pkt);
             }
         }
     }
@@ -743,7 +787,7 @@ int XPlay::readThread()
                 /* wait some time */
                 std::unique_lock<std::mutex> lock(wait_mutex);
                 xlog_trc("queue full, wait");
-                is_->cond_continue_read_thread.wait_for(lock, std::chrono::seconds(10));
+                is_->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
                 continue;
             }
 
@@ -768,7 +812,7 @@ int XPlay::readThread()
 
                 std::unique_lock<std::mutex> lock(wait_mutex);
                 xlog_trc("read thread wait");
-                is_->cond_continue_read_thread.wait_for(lock, std::chrono::seconds(10));
+                is_->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
                 continue;
             }
             else
