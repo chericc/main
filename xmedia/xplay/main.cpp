@@ -44,7 +44,7 @@ int main(int argc, char **argv)
             break;
         }
 #else 
-        opts.filename = std::string() + RES_VIDEO_PATH + "/qianxun_640_360.mkv";
+        opts.filename = std::string() + RES_VIDEO_PATH + "/demo.mp4";
 #endif 
 
         xlog_dbg("opts: filename:%s", opts.filename.c_str());

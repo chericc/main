@@ -898,9 +898,76 @@ int XPlay::videoThread()
     return 0;
 }
 
+static void SaveYUVBlock(unsigned char *buf, int wrap, int xsize, int ysize, FILE *fp)
+{
+    for (int i = 0; i < ysize; ++i)
+    {
+        fwrite (buf + i * wrap, 1, xsize, fp);
+    }
+}
+
+static void SaveYUV420Frame(const AVFrame *pVFrame, FILE *fp)
+{
+    SaveYUVBlock((unsigned char*)pVFrame->data[0], pVFrame->linesize[0], pVFrame->width, pVFrame->height, fp);
+    SaveYUVBlock((unsigned char*)pVFrame->data[1], pVFrame->linesize[1], pVFrame->width / 2, pVFrame->height / 2, fp);
+    SaveYUVBlock((unsigned char*)pVFrame->data[2], pVFrame->linesize[2], pVFrame->width / 2, pVFrame->height / 2, fp);
+}
+
+static void SaveYUVNV12Frame (const AVFrame *pVFrame, FILE *fp)
+{
+    SaveYUVBlock((unsigned char*)pVFrame->data[0], pVFrame->linesize[0], pVFrame->width, pVFrame->height, fp);
+    SaveYUVBlock((unsigned char*)pVFrame->data[1], pVFrame->linesize[1], pVFrame->width, pVFrame->height / 2, fp);
+}
+
+static void saveFrame(AVFrame *frame)
+{
+    static FILE *fp = nullptr;
+    char filename[] = "output.yuv";
+
+    do
+    {
+        if (!fp)
+        {
+            fp = fopen(filename, "wb");
+        }
+        
+        if (!fp)
+        {
+            break;
+        }
+
+        xlog_trc("video.format=%d", frame->format);
+        AVPixelFormat format = (AVPixelFormat)frame->format;
+
+        switch (format)
+        {
+            case AV_PIX_FMT_YUV420P:
+            {
+                SaveYUV420Frame (frame, fp);
+                break;
+            }
+            case AV_PIX_FMT_NV12:
+            {
+                SaveYUVNV12Frame(frame, fp);
+                break;
+            }
+            default:
+            {
+                xlog_err ("unknown pix_fmt=%d\n", (int)format);
+                break;
+            }
+        }
+
+        fflush(fp);
+    }
+    while (0);
+}
+
 int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration, int64_t pos, int serial)
 {
     xlog_dbg("push pic");
+
+    saveFrame(src_frame);
 
     av_frame_unref(src_frame);
 
