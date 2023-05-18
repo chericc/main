@@ -178,11 +178,8 @@ private:
     int videoThread();
 
     int streamComponentOpen(int stream_index);
-    int decoderInit(Decoder *d, AVCodecContext *avctx, PacketQueue *queue);
-    int decoderStart(Decoder *d, std::function<int()>, const char *thread_name);
 
     int getVideoFrame(AVFrame* frame);
-    int decoderDecodeFrame(Decoder* d, AVFrame* frame, AVSubtitle* sub);
 
     std::shared_ptr<VideoState> streamOpen(const OptValues &opt);
     int streamClose(std::shared_ptr<VideoState> is);

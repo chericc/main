@@ -95,7 +95,7 @@ Frame *FrameQueue::peek_last()
 
 Frame *FrameQueue::peek_writable()
 {
-    std::unique_lock lock(mutex);
+    std::unique_lock<std::mutex> lock(mutex);
     while (size >= queue.size()
         && !pktq->abort_request)
     {

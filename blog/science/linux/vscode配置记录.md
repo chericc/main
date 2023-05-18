@@ -33,6 +33,14 @@ Install plantuml extension in vscode.
 
 Install graphviz on ubuntu.
 
-- Stop 0x3
+`sudo apt-get install graphviz`
+
+- Step 0x3
+
+Install jre on ubuntu.
+
+`sudo apt-get install openjdk-8-jre`
+
+- Step 0x4
 
 Enjoy it.
