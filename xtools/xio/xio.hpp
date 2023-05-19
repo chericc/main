@@ -15,7 +15,7 @@ ref: ffmpeg/libavformat/avio
 class XIO
 {
 public:
-    XIO(const std::string &url, int flags);
+    XIO(const std::string &url, const std::string &mode);
     virtual ~XIO() = 0;
 
     virtual int eof() = 0;
@@ -48,7 +48,7 @@ protected:
     {
     public:
         std::string url;
-        int flags{0};
+        std::string mode;
     };
 
     IOContext ioctx_;
@@ -57,7 +57,7 @@ protected:
 class XIOFile : public XIO
 {
 public:
-    XIOFile(const std::string &url, int flags);
+    XIOFile(const std::string &url, const std::string &mode);
     ~XIOFile() override;
 
     int eof() override;

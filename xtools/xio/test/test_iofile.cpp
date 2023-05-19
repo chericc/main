@@ -95,7 +95,7 @@ protected:
 
 TEST_F(BaseFileIOTest, base)
 {
-    XIOFile iofile(filename, 0);
+    XIOFile iofile(filename, "rb");
 
     EXPECT_FALSE(iofile.eof());
     EXPECT_FALSE(iofile.error());
@@ -106,7 +106,7 @@ TEST_F(BaseFileIOTest, base)
 
 TEST_F(BaseFileIOTest, read_ele)
 {
-    XIOFile iofile(filename, 0);
+    XIOFile iofile(filename, "rb");
 
     std::size_t offset = 0;
 
@@ -158,7 +158,7 @@ TEST_F(BaseFileIOTest, read_ele)
 
 TEST_F(BaseFileIOTest, read_data)
 {
-    XIOFile iofile(filename, 0);
+    XIOFile iofile(filename, "rb");
 
     std::size_t offset = 0;
     std::size_t size = 0;

@@ -135,7 +135,7 @@ int WavDemuxer::doLoadFile()
     {
         if (!info->xio)
         {
-            info->xio = std::make_shared<XIOFile>(_filename, 0);
+            info->xio = std::make_shared<XIOFile>(_filename, "rb");
         }
 
         if (!info->xio)

@@ -5,10 +5,10 @@
 
 #include "xlog.hpp"
 
-XIO::XIO(const std::string &url, int flags)
+XIO::XIO(const std::string &url, const std::string &mode)
 {
     ioctx_.url = url;
-    ioctx_.flags = flags;
+    ioctx_.mode = mode;
 }
 
 XIO::~XIO()
@@ -79,8 +79,8 @@ XIOFile::IOFileContenxt::~IOFileContenxt()
     }
 }
 
-XIOFile::XIOFile(const std::string &url, int flags)
-    : XIO(url, flags)
+XIOFile::XIOFile(const std::string &url, const std::string &mode)
+    : XIO(url, mode)
 {
     int berror = false;
 
@@ -92,7 +92,7 @@ XIOFile::XIOFile(const std::string &url, int flags)
             break;
         }
 
-        iofctx_.fp = fopen(ioctx_.url.c_str(), "rb");
+        iofctx_.fp = fopen(ioctx_.url.c_str(), mode.c_str());
         if (nullptr == iofctx_.fp)
         {
             xlog_err("open file failed");
@@ -278,7 +278,7 @@ uint8_t XIOFile::r8()
             break;
         }
         
-        if (fread(buf, 1, sizeof(buf), iofctx_.fp) < 0)
+        if (fread(buf, 1, sizeof(buf), iofctx_.fp) != sizeof(buf))
         {
             return 0;
         }
@@ -303,7 +303,7 @@ std::vector<uint8_t> XIOFile::read(std::size_t size)
 
         buf.resize(size);
 
-        if (fread(buf.data(), 1, size, iofctx_.fp) <= 0)
+        if (fread(buf.data(), 1, size, iofctx_.fp) != size)
         {
             berror = true;
             break;
@@ -316,10 +316,46 @@ std::vector<uint8_t> XIOFile::read(std::size_t size)
 
 void XIOFile::w8(uint8_t b)
 {
-    xlog_err("not implement");
+    int berror = false;
+    uint8_t buf[1] = {b};
+
+    do 
+    {
+        if (error())
+        {
+            berror = true;
+            break;
+        }
+
+        if (fwrite(buf, 1, sizeof(buf), iofctx_.fp) != sizeof(buf))
+        {
+            break;
+        }
+    }
+    while (0);
+
+    return ;
 }
 
 void XIOFile::write(std::vector<uint8_t> buffer)
 {
-    xlog_err("not implement");
+    int berror = false;
+
+    do 
+    {
+        if (error())
+        {
+            berror = true;
+            break;
+        }
+
+        if (fwrite(buffer.data(), 1, buffer.size(), iofctx_.fp) != buffer.size())
+        {
+            berror = true;
+            break;
+        }
+    }
+    while(0);
+
+    return ;
 }
