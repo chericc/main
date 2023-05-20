@@ -14,6 +14,43 @@ struct TestInfo
     std::vector<std::pair<std::pair<int,int>,std::vector<uint8_t>>> checks;
 };
 
+static size_t fileSize(FILE *fp)
+{
+    size_t size_file = 0;
+    size_t size_origin = 0;
+    if (fp)
+    {
+        size_origin = ftell(fp);
+        fseek(fp, 0, SEEK_END);
+        size_file = ftell(fp);
+        fseek(fp, size_origin, SEEK_SET);
+    }
+
+    return size_file;
+}
+
+static std::vector<uint8_t> readFile(const std::string &filename)
+{
+    std::vector<uint8_t> buffer;
+    FILE *fp = fopen(filename.c_str(), "rb");
+
+    if (fp)
+    {
+        size_t pos = 0;
+        size_t filesize = fileSize(fp);
+
+        
+        buffer.resize(filesize);
+
+        int ret = fread(buffer.data(), 1, filesize, fp);
+
+        fclose(fp);
+        fp = nullptr;
+    }
+
+    return buffer;
+}
+
 static void TestBmp(const TestInfo &info)
 {
     const std::string path = RES_BMP_PATH;
@@ -30,7 +67,29 @@ static void TestBmp(const TestInfo &info)
     for (auto const& i : info.checks)
     {
         auto buf = bmp.getContent(i.first.first, i.first.second);
-        EXPECT_EQ(buf, i.second);
+        EXPECT_NE(buf, nullptr);
+        if(buf)
+        {
+            EXPECT_EQ(*buf, i.second);
+        }
+    }
+
+    {
+        std::string file_bmp_save = std::string("save_") + info.filename;
+        BmpDecoder::BmpInfo info{};
+        auto buf = bmp.getContent(0, bmp.width() * bmp.height());
+        EXPECT_NE(buf, nullptr);
+        if (buf)
+        {
+            info.data = buf;
+            info.file = file_bmp_save;
+            info.width = bmp.width();
+            info.height = bmp.height();
+            info.pixfmt = bmp.pixfmt();
+            BmpDecoder::saveBmp(info);
+
+            EXPECT_EQ(readFile(file_bmp), readFile(file_bmp_save));
+        }
     }
 }
 

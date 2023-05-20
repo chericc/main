@@ -4,6 +4,9 @@
 
 #define MKLE16(a,b) ((a) | ((uint16_t)b << 8))
 
+// 将宽度字节上对齐到4的倍数
+#define WIDTH_PAD_BYTES(width_bytes) (((width_bytes) + 3) & (~0x3))
+
 BmpDecoder::BmpDecoder(const std::string &filename)
     : _filename(filename)
 {
@@ -53,9 +56,9 @@ BmpDecoder::PixFmt BmpDecoder::pixfmt()
     return PIXFMT_NONE;
 }
 
-std::vector<uint8_t> BmpDecoder::getContent(int pos, int numPixels)
+std::shared_ptr<std::vector<uint8_t>> BmpDecoder::getContent(int pos, int numPixels)
 {
-    std::vector<uint8_t> buf;
+    std::shared_ptr<std::vector<uint8_t>> buf;
 
     do
     {
@@ -99,10 +102,12 @@ std::vector<uint8_t> BmpDecoder::getContent(int pos, int numPixels)
             break;
         }
 
-        buf.reserve(depth_bytes * numPixels);
+        buf = std::make_shared<std::vector<uint8_t>>();
+
+        buf->reserve(depth_bytes * numPixels);
 
         /* 每一行按4字节对齐 */
-        int width_pad_bytes = (_load_info->width * depth_bytes + 3) & (~0x3);
+        int width_pad_bytes = WIDTH_PAD_BYTES(_load_info->width * depth_bytes);
 
         /* 按行读取性能更优 */
         for (int i = pos; i < pos + numPixels; ++i)
@@ -115,18 +120,170 @@ std::vector<uint8_t> BmpDecoder::getContent(int pos, int numPixels)
             auto pixel_buf = _load_info->xio->read(depth_bytes);
             for (auto const& ref : pixel_buf)
             {
-                buf.push_back(ref);
+                buf->push_back(ref);
             }
         }
     }
     while (0);
 
-    if (buf.empty())
+    if (buf && buf->empty())
     {
-        buf.shrink_to_fit();
+        buf->shrink_to_fit();
     }
 
     return buf;
+}
+
+int BmpDecoder::saveBmp(const BmpInfo &info)
+{
+    int berror = false;
+
+    do
+    {
+        BMP_FileHeader fileheader{};
+        BMP_BitmapHeader bitmapheader{};
+
+        uint16_t bitspersample = 0;
+
+        std::shared_ptr<XIO> xio;
+        
+        if (!info.data || info.data->empty())
+        {
+            xlog_err("data is empty");
+            berror = true;
+            break;
+        }
+
+        if (info.width <= 0 || info.height <= 0)
+        {
+            xlog_err("width or height invalid[%d,%d]", info.width, info.height);
+            berror = true;
+            break;
+        }
+
+        switch (info.pixfmt)
+        {
+            case PIXFMT_BGRA:
+            {
+                bitspersample = 32;
+                break;
+            }
+            case PIXFMT_BGR24:
+            {
+                bitspersample = 24;
+                break;
+            }
+            case PIXFMT_RGB555:
+            {
+                bitspersample = 16;
+                break;
+            }
+            default:
+            {
+                xlog_err("pixfmt not support(%#x)", (int)info.pixfmt);
+                berror = true;
+                break;
+            }
+        }
+
+        if (berror)
+        {
+            break;
+        }
+
+        int bytespersample = bitspersample / 8;
+
+        if (info.data->size() != info.width * info.height * bytespersample)
+        {
+            xlog_err("data.size != width * height");
+            berror = true;
+            break;
+        }
+
+        // 每行对齐后的字节数
+        int width_pad_bytes = WIDTH_PAD_BYTES(info.width * bytespersample);
+
+        // 每行因对齐额外增加的字节数
+        int pad_bytes = width_pad_bytes - (info.width * bytespersample);
+
+        fileheader.filetype = MKLE16('B','M');
+        fileheader.filesize = 14 + 40 + width_pad_bytes * info.height;
+        fileheader.reserved1 = 0;
+        fileheader.reserved2 = 0;
+        fileheader.bitmapoffset = 14 + 40;
+
+        bitmapheader.size = 40;
+        bitmapheader.width_v3 = info.width;
+        bitmapheader.height_v3 = info.height;
+        bitmapheader.planes = 1;
+        bitmapheader.bitsperpixel = bitspersample;
+
+        bitmapheader.compression = 0;
+        bitmapheader.sizeofbitmap = width_pad_bytes * info.height;
+        bitmapheader.horzresolution = 0;
+        bitmapheader.vertresolution = 0;
+        bitmapheader.colorsimportant = 0;
+
+        xio = std::make_shared<XIOFile>(info.file, "wb");
+        if (xio->error())
+        {
+            berror = true;
+            break;
+        }
+
+        // fileheader
+        xio->wl16(fileheader.filetype);
+        xio->wl32(fileheader.filesize);
+        xio->wl16(fileheader.reserved1);
+        xio->wl16(fileheader.reserved2);
+        xio->wl32(fileheader.bitmapoffset);
+
+        // bitmapheader
+        xio->wl32(bitmapheader.size);
+        xio->wl32(bitmapheader.width_v3);
+        xio->wl32(bitmapheader.height_v3);
+        xio->wl16(bitmapheader.planes);
+        xio->wl16(bitmapheader.bitsperpixel);
+
+        xio->wl32(bitmapheader.compression);
+        xio->wl32(bitmapheader.sizeofbitmap);
+        xio->wl32(bitmapheader.horzresolution);
+        xio->wl32(bitmapheader.vertresolution);
+        xio->wl32(bitmapheader.colorsused);
+        xio->wl32(bitmapheader.colorsimportant);
+
+        // data
+        std::vector<uint8_t> buf_pixel;
+        buf_pixel.resize(bytespersample);
+        for (int y = 0; y < info.height; ++y)
+        {
+            for (int x = 0; x < info.width; ++x)
+            {
+                std::size_t offset = (y * info.width + x) * bytespersample;
+                for (std::size_t i = 0; i < bytespersample; ++i)
+                {
+                    buf_pixel[i] = (*info.data)[i + offset];
+                }
+                xio->write(buf_pixel);
+            }
+
+            for (int i = 0; i < pad_bytes; ++i)
+            {
+                xio->w8(0x0);
+            }
+        }
+
+        if (xio->error())
+        {
+            berror = true;
+            break;
+        }
+
+        xio.reset();
+    }
+    while (0);
+
+    return berror ? -1 : 0;
 }
 
 int BmpDecoder::doLoadFile()
