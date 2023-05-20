@@ -32,6 +32,8 @@ if(${gnu})
 set(COMMON_LIB gtest ${G_XTOOLS} pthread)
 elseif(${msvc})
 set(COMMON_LIB gtest ${G_XTOOLS})
+elseif(${clang})
+set(COMMON_LIB gtest ${G_XTOOLS})
 endif()
 
 add_executable(${XTOOL_TEST_XLOG} 

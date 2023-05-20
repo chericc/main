@@ -25,6 +25,8 @@ if(${gnu})
 set(COMMON_LIB gtest ${G_XWAV_DEMUXER} ${G_XTOOLS} pthread)
 elseif(${msvc})
 set(COMMON_LIB gtest ${G_XWAV_DEMUXER} ${G_XTOOLS})
+elseif(${clang})
+set(COMMON_LIB gtest ${G_XWAV_DEMUXER} ${G_XTOOLS})
 endif()
 
 add_definitions(-DRES_AUDIO_PATH="${G_RESOURCE_PATH}/audio")

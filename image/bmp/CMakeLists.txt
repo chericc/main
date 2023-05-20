@@ -10,8 +10,6 @@ include_directories(
     ${G_BMP_HEADER_PATH}
 )
 
-link_directories(${GTEST_PATH}/lib)
-
 add_library(${G_BMP} SHARED ${src_bmp})
 target_link_libraries(${G_BMP}
     ${G_XTOOLS})
@@ -19,6 +17,8 @@ target_link_libraries(${G_BMP}
 if(${gnu})
 set(COMMON_LIB gtest ${G_BMP} ${G_XTOOLS} pthread)
 elseif(${msvc})
+set(COMMON_LIB gtest ${G_BMP} ${G_XTOOLS})
+elseif(${clang})
 set(COMMON_LIB gtest ${G_BMP} ${G_XTOOLS})
 endif()
 
