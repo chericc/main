@@ -74,6 +74,7 @@ class BaseFileIOTest : public testing::Test
 protected:
 
     const char filename[64] = "xtools_xio_fileio_test.data";
+    const char filename_output[64] = "xtools_xio_fileio_output.data";
 
     std::vector<uint8_t> data;
 
@@ -171,4 +172,87 @@ TEST_F(BaseFileIOTest, read_data)
     std::vector<uint8_t> ref_data(data.begin() + offset, 
         data.begin() + offset + size);
     ASSERT_EQ(read_data, ref_data);
+}
+
+TEST_F(BaseFileIOTest, write_ele)
+{
+    auto iofile = std::make_shared<XIOFile>(filename_output, "wb+");
+    uint64_t v64 = 0x6464646464646464;
+    uint32_t v32 = 0x32323232;
+    uint32_t v24 = 0x242424;
+    uint16_t v16 = 0x1616;
+    uint8_t v8 = 0x88;
+    std::size_t count_limit = 32;
+    
+    for (std::size_t count = 0; count < count_limit; ++count)
+    {
+        if (count % 3 == 0)
+        {
+            iofile->wl64(v64);
+            iofile->wl32(v32);
+            iofile->wl24(v24);
+            iofile->wl16(v16);
+            iofile->w8(v8);
+        }
+        else if (count % 3 == 1)
+        {
+            iofile->w8(v8);
+            iofile->wl16(v16);
+            iofile->wl24(v24);
+            iofile->wl32(v32);
+            iofile->wl64(v64);
+        }
+        else 
+        {
+            iofile->wl32(v32);
+            iofile->w8(v8);
+            iofile->wl64(v64);
+            iofile->wl16(v16);
+            iofile->wl24(v24);
+        }
+    }
+
+    iofile.reset();
+
+    iofile = std::make_shared<XIOFile>(filename_output, "rb");
+
+    for (std::size_t count = 0; count < count_limit; ++count)
+    {
+        if (count % 3 == 0)
+        {
+            EXPECT_EQ(v64, iofile->rl64());
+            EXPECT_EQ(v32, iofile->rl32());
+            EXPECT_EQ(v24, iofile->rl24());
+            EXPECT_EQ(v16, iofile->rl16());
+            EXPECT_EQ(v8, iofile->r8());
+        }
+        else if (count % 3 == 1)
+        {
+            EXPECT_EQ(v8, iofile->r8());
+            EXPECT_EQ(v16, iofile->rl16());
+            EXPECT_EQ(v24, iofile->rl24());
+            EXPECT_EQ(v32, iofile->rl32());
+            EXPECT_EQ(v64, iofile->rl64());
+        }
+        else 
+        {
+            EXPECT_EQ(v32, iofile->rl32());
+            EXPECT_EQ(v8, iofile->r8());
+            EXPECT_EQ(v64, iofile->rl64());
+            EXPECT_EQ(v16, iofile->rl16());
+            EXPECT_EQ(v24, iofile->rl24());
+        }
+    }
+
+    iofile.reset();
+}
+
+TEST_F(BaseFileIOTest, write_data)
+{
+    auto iofile = std::make_shared<XIOFile>(filename_output, "wb+");
+    iofile->write(data);
+    iofile.reset();
+
+    auto output_data = readFile(filename_output);
+    EXPECT_EQ(output_data, data);
 }

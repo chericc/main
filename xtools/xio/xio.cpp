@@ -48,25 +48,25 @@ uint64_t XIO::rl64()
 
 void XIO::wl16(uint16_t value)
 {
-    w8(static_cast<uint8_t>(value));
+    w8((uint8_t)value);
     w8(value >> 8);
 }
 
 void XIO::wl24(uint32_t value)
 {
-    wl16(value & 0xffff);
+    wl16((uint16_t)value);
     w8(value >> 16);
 }
 
 void XIO::wl32(uint32_t value)
 {
-    wl16(value && 0xffff);
+    wl16((uint16_t)value);
     wl16(value >> 16);
 }
 
 void XIO::wl64(uint64_t value)
 {
-    wl32(value && 0xffffffff);
+    wl32((uint32_t)value);
     wl32(value >> 32);
 }
 
