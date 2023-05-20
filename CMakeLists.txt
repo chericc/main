@@ -43,7 +43,11 @@ set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
 set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 
 # SDL2
+if(${msvc})
 set(G_SDL2_PATH C:/Users/test/opensrc/SDL/install)
+elseif(${clang})
+set(G_SDL2_PATH ~/opensrc/SDL/build/output/)
+endif()
 set(G_SDL2_LIB_PATH ${G_SDL2_PATH}/lib)
 set(G_SDL2_INC_PATH ${G_SDL2_PATH}/include/SDL2)
 
