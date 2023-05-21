@@ -1,8 +1,12 @@
 
-#include "SDL.h"
 
 #include <thread>
 
+#include <SDL.h>
+
+#include "xdisplay.hpp"
+
+#if 0
 int main(int argc, char* argv[])
 {
     const int WIDTH = 640;
@@ -21,3 +25,13 @@ int main(int argc, char* argv[])
     SDL_Quit();
     return 0;
 }
+#else 
+
+int main(int argc, char *argv[])
+{
+    XDisplay dis;
+
+    return 0;
+}
+
+#endif 
