@@ -374,6 +374,11 @@ int XPlay::close()
     return ret;
 }
 
+VideoState &XPlay::vs()
+{
+    return *is_;
+}
+
 int XPlay::doOpen(const OptValues &opt)
 {
     int ret = 0;

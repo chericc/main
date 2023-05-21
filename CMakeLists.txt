@@ -73,6 +73,10 @@ set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
 set(G_BMP bmp)
 set(G_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
 
+# xplay
+set(G_XPLAY xplay)
+set(G_XPLAY_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/xplay)
+
 # add googletest include path
 
 link_directories(${G_GOOGLETEST_LIB_PATH})

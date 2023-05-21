@@ -171,6 +171,7 @@ public:
     ~XPlay();
     int open(const OptValues &opt);
     int close();
+    VideoState& vs();
 private:
     int doOpen(const OptValues &opt);
     int doClose();
