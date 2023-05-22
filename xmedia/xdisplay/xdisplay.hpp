@@ -21,9 +21,14 @@ public:
     XDisplay();
     ~XDisplay();
 
+    int open(const std::string& url);
+    int close();
+
+    int exec();
+
 private:
     
     std::shared_ptr<State> init();
 
-    std::shared_ptr<State> st;
+    std::shared_ptr<State> _st;
 };

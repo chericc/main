@@ -1,37 +1,25 @@
-
-
-#include <thread>
-
 #include <SDL.h>
 
 #include "xdisplay.hpp"
-
-#if 0
-int main(int argc, char* argv[])
-{
-    const int WIDTH = 640;
-    const int HEIGHT = 480;
-    SDL_Window* window = NULL;
-    SDL_Renderer* renderer = NULL;
-
-    SDL_Init(SDL_INIT_VIDEO);
-    window = SDL_CreateWindow("SDL2 Test", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-    SDL_PumpEvents();
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return 0;
-}
-#else 
+#include "xlog.hpp"
 
 int main(int argc, char *argv[])
 {
+    std::vector<FILE*> fps = { stdout };
+
+    FILE* fp = fopen("log.txt", "w");
+    if (fp)
+    {
+        fps.push_back(fp);
+    }
+
+    xlog_setoutput(fps);
+
     XDisplay dis;
 
-    return 0;
-}
+    std::string path = std::string() + RES_VIDEO_PATH + "/demo.mp4";
 
-#endif 
+    dis.open(path);
+
+    return dis.exec();
+}

@@ -10,6 +10,8 @@ link_directories(
 	${G_FFMPEG_LIB_PATH}
 )
 
+add_definitions(-DRES_VIDEO_PATH="${G_RESOURCE_PATH}/video")
+
 add_executable(
 	${L_XDISPLAY} WIN32
 	${src_xdisplay}

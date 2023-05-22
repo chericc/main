@@ -21,7 +21,7 @@ State::~State()
 
 XDisplay::XDisplay()
 {
-    st = init();
+    _st = init();
 }
 
 XDisplay::~XDisplay()
@@ -77,5 +77,72 @@ std::shared_ptr<State> XDisplay::init()
     }
     while (0);
 
-    return st;
+    return (berror ? nullptr : st);
+}
+
+int XDisplay::open(const std::string& url)
+{
+    int berror = false;
+
+    do
+    {
+        if (!_st)
+        {
+            xlog_err("null");
+            berror = true;
+            break;
+        }
+
+        OptValues opt{};
+        opt.filename = url;
+        _st->xplay->open(opt);
+    } 
+    while (0);
+
+    return (berror ? -1 : 0);
+}
+
+int XDisplay::close()
+{
+    xlog_inf("close");
+
+    xlog_setoutput(std::vector<FILE*>());
+
+    exit(0);
+
+    return 0;
+}
+
+int XDisplay::exec()
+{
+    double remaininig_time = 0.0; // s
+    SDL_Event event{};
+
+    for (;;)
+    {
+        SDL_PumpEvents();
+        while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
+        {
+            if (remaininig_time > 0.0)
+            {
+                std::this_thread::sleep_for(
+                    std::chrono::microseconds((uint64_t)(remaininig_time * 1000000.0)));
+            }
+            remaininig_time = 0.01;
+            SDL_PumpEvents();
+        }
+
+        switch (event.type)
+        {
+        case SDL_QUIT:
+        {
+            close();
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+    }
 }
