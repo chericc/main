@@ -15,6 +15,9 @@ public:
     ~ImageView();
     int ok();
 
+    int width();
+    int height();
+    int pixelBytes();
     std::vector<uint8_t> &mem();
 
     int drawPixels(int x, int y, const std::vector<uint8_t> &pixels);

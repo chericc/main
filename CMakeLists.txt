@@ -56,6 +56,11 @@ set(G_FDKAAC_PATH /home/test/opensrc/fdkaac/build/output)
 set(G_FDKAAC_LIB_PATH ${G_FDKAAC_PATH}/lib)
 set(G_FDKAAC_INC_PATH ${G_FDKAAC_PATH}/include/fdk-aac)
 
+# freetype
+set(G_FREETYPE_PATH ~/opensrc/freetype/build)
+set(G_FREETYPE_LIB_PATH ${G_FREETYPE_PATH}/lib)
+set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include)
+
 # xtools
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
