@@ -70,8 +70,9 @@ set(G_FDKAAC_WRAPPER fdkaac_wrapper)
 set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
 
 # bmp
-set(G_BMP bmp)
-set(G_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
+set(G_IMAGE image)
+set(G_IMAGE_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
+set(G_IMAGE_IMAGEVIEW_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/imageview)
 
 # xplay
 set(G_XPLAY xplay)
@@ -92,8 +93,8 @@ SET(CMAKE_BUILD_TYPE "Debug")
 
 # targets
 add_subdirectory(xtools)
+add_subdirectory(image)
 add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(audio/aac/fdkaac_wrapper)
-add_subdirectory(image/bmp)
 #add_subdirectory(xmedia/xplay)
 #add_subdirectory(xmedia/xdisplay)
