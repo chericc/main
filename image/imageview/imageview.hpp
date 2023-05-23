@@ -18,8 +18,8 @@ public:
     int width() const;
     int height() const;
     int pixelBytes() const;
-    std::vector<uint8_t> &mem();
-    const std::vector<uint8_t> &mem() const;
+    std::shared_ptr<std::vector<uint8_t>> mem();
+    std::shared_ptr<const std::vector<uint8_t>> mem() const;
 
     std::vector<uint8_t> pixels(int x, int y, int num_pixels) const;
 

@@ -195,7 +195,7 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
 
         if (info.data->size() != info.width * info.height * bytespersample)
         {
-            xlog_err("data.size != width * height");
+            xlog_err("data.size != width * height * depth");
             berror = true;
             break;
         }
@@ -227,6 +227,7 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
         xio = std::make_shared<XIOFile>(info.file, "wb");
         if (xio->error())
         {
+            xlog_err("open file failed");
             berror = true;
             break;
         }
@@ -256,15 +257,8 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
         std::vector<uint8_t> buf_pixel;
         buf_pixel.resize(bytespersample);
 
-        int y_start = 0;
-        int y_end = info.height;
-        if (!info.invert_y)
-        {
-            std::swap(y_start, y_end);
-        }
-
-        for (int y = y_start; y < y_end; ++y)
-        {
+        auto lambda_write_line = [&](int y){
+            
             for (int x = 0; x < info.width; ++x)
             {
                 std::size_t offset = (y * info.width + x) * bytespersample;
@@ -279,10 +273,26 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
             {
                 xio->w8(0x0);
             }
+        };
+
+        if (!info.invert_y)
+        {
+            for (int y = info.height - 1; y >= 0; --y)
+            {
+                lambda_write_line(y);
+            }
+        }
+        else 
+        {
+            for (int y = 0; y < info.height; ++y)
+            {
+                lambda_write_line(y);
+            }
         }
 
         if (xio->error())
         {
+            xlog_err("xio failed");
             berror = true;
             break;
         }

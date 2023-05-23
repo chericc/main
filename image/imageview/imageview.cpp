@@ -50,30 +50,24 @@ int ImageView::pixelBytes() const
     return 0;
 }
 
-std::vector<uint8_t> &ImageView::mem()
+std::shared_ptr<std::vector<uint8_t>> ImageView::mem()
 {
-    if (_state && _state->mem)
+    if (_state)
     {
+        return _state->mem;
     }
-    else 
-    {
-        xlog_cri("null");
-    }
-
-    return *(_state->mem);
+    
+    return nullptr;
 }
 
-const std::vector<uint8_t> &ImageView::mem() const
+std::shared_ptr<const std::vector<uint8_t>> ImageView::mem() const
 {
-    if (_state && _state->mem)
+    if (_state)
     {
+        return _state->mem;
     }
-    else 
-    {
-        xlog_cri("null");
-    }
-
-    return *(_state->mem);
+    
+    return nullptr;
 }
 
 std::vector<uint8_t> ImageView::pixels(int x, int y, int num_pixels) const

@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 #include <stdio.h>
 
-#include "enc.hpp"
+#include "utf8_enc.hpp"
 #include "content_utf8.hpp"
 
 TEST(utf8, enc_utf8_strlen)
