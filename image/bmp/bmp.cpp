@@ -255,7 +255,15 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
         // data
         std::vector<uint8_t> buf_pixel;
         buf_pixel.resize(bytespersample);
-        for (int y = 0; y < info.height; ++y)
+
+        int y_start = 0;
+        int y_end = info.height;
+        if (!info.invert_y)
+        {
+            std::swap(y_start, y_end);
+        }
+
+        for (int y = y_start; y < y_end; ++y)
         {
             for (int x = 0; x < info.width; ++x)
             {

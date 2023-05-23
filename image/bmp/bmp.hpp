@@ -135,6 +135,9 @@ public:
         int width{0};
         int height{0};
         std::shared_ptr<std::vector<uint8_t>> data;
+
+        /* 如果存入的数据是从上到下扫描的，则传入0 */
+        int invert_y{0};
     };
     static int saveBmp(const BmpInfo &info);
 
