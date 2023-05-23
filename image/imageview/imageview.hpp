@@ -13,12 +13,15 @@ class ImageView
 public:
     ImageView(int w, int h, std::shared_ptr<std::vector<uint8_t>> mem);
     ~ImageView();
-    int ok();
+    int ok() const;
 
-    int width();
-    int height();
-    int pixelBytes();
-    std::vector<uint8_t> &mem();
+    int width() const;
+    int height() const;
+    int pixelBytes() const;
+    std::shared_ptr<std::vector<uint8_t>> mem();
+    std::shared_ptr<const std::vector<uint8_t>> mem() const;
+
+    std::vector<uint8_t> pixels(int x, int y, int num_pixels) const;
 
     int drawPixels(int x, int y, const std::vector<uint8_t> &pixels);
     int scale(int w, int h);
@@ -35,6 +38,7 @@ private:
 
     std::shared_ptr<State> init(int w, int h, std::shared_ptr<std::vector<uint8_t>> mem);
     uint8_t* pixelAt(int x, int y, int offset_pixels);
+    const uint8_t* pixelAt(int x, int y, int offset_pixels) const;
 
     std::shared_ptr<State> _state;
 };

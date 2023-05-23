@@ -57,9 +57,9 @@ set(G_FDKAAC_LIB_PATH ${G_FDKAAC_PATH}/lib)
 set(G_FDKAAC_INC_PATH ${G_FDKAAC_PATH}/include/fdk-aac)
 
 # freetype
-set(G_FREETYPE_PATH ~/opensrc/freetype/build)
+set(G_FREETYPE_PATH ~/opensrc/freetype/build/output)
 set(G_FREETYPE_LIB_PATH ${G_FREETYPE_PATH}/lib)
-set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include)
+set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include/freetype2)
 
 # xtools
 set(G_XTOOLS xtools)
@@ -74,10 +74,15 @@ set(G_XWAV_DEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/wav/demuxer)
 set(G_FDKAAC_WRAPPER fdkaac_wrapper)
 set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
 
-# bmp
-set(G_IMAGE image)
+# image
+set(G_IMAGE ximage)
 set(G_IMAGE_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
 set(G_IMAGE_IMAGEVIEW_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/imageview)
+set(G_IMAGE_FREETYPEWRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/freetypewrapper)
+
+# textenc
+set(G_TEXTENC xtextenc)
+set(G_TEXTENC_UTF8_HEADER_PATH ${CMAKE_SOURCE_DIR}/textenc/utf8_enc)
 
 # xplay
 set(G_XPLAY xplay)
@@ -103,3 +108,4 @@ add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(audio/aac/fdkaac_wrapper)
 #add_subdirectory(xmedia/xplay)
 #add_subdirectory(xmedia/xdisplay)
+add_subdirectory(textenc)

@@ -86,6 +86,7 @@ static void TestBmp(const TestInfo &info)
             info.width = bmp.width();
             info.height = bmp.height();
             info.pixfmt = bmp.pixfmt();
+            info.invert_y = true;
             BmpDecoder::saveBmp(info);
 
             EXPECT_EQ(readFile(file_bmp), readFile(file_bmp_save));

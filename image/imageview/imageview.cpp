@@ -12,14 +12,112 @@ ImageView::~ImageView()
 
 }
 
-int ImageView::ok()
+int ImageView::ok() const
 {
     return (_state ? true : false);
 }
 
-std::vector<uint8_t> &ImageView::mem()
+int ImageView::width() const
 {
-    return *(_state->mem);
+    if (_state)
+    {
+        return _state->w;
+    }
+
+    xlog_err("null");
+    return 0;
+}
+
+int ImageView::height() const
+{
+    if (_state)
+    {
+        return _state->h;
+    }
+
+    xlog_err("null");
+    return 0;
+}
+
+int ImageView::pixelBytes() const
+{
+    if (_state)
+    {
+        return _state->pixel_bytes;
+    }
+
+    xlog_err("null");
+    return 0;
+}
+
+std::shared_ptr<std::vector<uint8_t>> ImageView::mem()
+{
+    if (_state)
+    {
+        return _state->mem;
+    }
+    
+    return nullptr;
+}
+
+std::shared_ptr<const std::vector<uint8_t>> ImageView::mem() const
+{
+    if (_state)
+    {
+        return _state->mem;
+    }
+    
+    return nullptr;
+}
+
+std::vector<uint8_t> ImageView::pixels(int x, int y, int num_pixels) const
+{
+    int berror = false;
+
+    std::vector<uint8_t> data;
+
+    do 
+    {
+        if (!_state)
+        {
+            xlog_err("null");
+            berror = true;
+            break;
+        }
+
+        if (x < 0 || y < 0 || num_pixels < 0)
+        {
+            xlog_err("invalid arg");
+            berror = true;
+            break;
+        }
+
+        int total_bytes = num_pixels * _state->pixel_bytes;
+        if (total_bytes < 0)
+        {
+            xlog_err("invalid arg");
+            berror = true;
+            break;
+        }
+
+        if (!pixelAt(x, y, num_pixels))
+        {
+            xlog_err("over");
+            berror = true;
+            break;
+        }
+
+        data.reserve(total_bytes);
+
+        const uint8_t *src = pixelAt(x, y, 0);
+        for (int i = 0; i < total_bytes; ++i)
+        {
+            data.push_back(src[i]);
+        }
+    }
+    while (0);
+
+    return (berror ? std::vector<uint8_t>() : data);
 }
 
 int ImageView::drawPixels(int x, int y, const std::vector<uint8_t> &pixels)
@@ -128,6 +226,30 @@ std::shared_ptr<ImageView::State> ImageView::init(int w, int h, std::shared_ptr<
 }
 
 uint8_t* ImageView::pixelAt(int x, int y, int offset_pixels)
+{
+    if (!_state)
+    {
+        return nullptr;
+    }
+
+    if (x < 0 || x >= _state->w
+        || y < 0 || y >= _state->h)
+    {
+        return nullptr;
+    }
+
+    int pixel_offset = y * _state->w + x + offset_pixels;
+    int bytes_offset = pixel_offset * _state->pixel_bytes;
+
+    if (bytes_offset < 0 || bytes_offset >= _state->mem->size())
+    {
+        return nullptr;
+    }
+
+    return _state->mem->data() + bytes_offset;
+}
+
+const uint8_t* ImageView::pixelAt(int x, int y, int offset_pixels) const
 {
     if (!_state)
     {
