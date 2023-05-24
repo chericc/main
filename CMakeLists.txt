@@ -88,6 +88,9 @@ set(G_TEXTENC_UTF8_HEADER_PATH ${CMAKE_SOURCE_DIR}/textenc/utf8_enc)
 set(G_XPLAY xplay)
 set(G_XPLAY_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/xplay)
 
+# md5dir
+set(G_MD5DIR xmd5dir)
+
 # add googletest include path
 
 link_directories(${G_GOOGLETEST_LIB_PATH})
@@ -109,3 +112,4 @@ add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(xmedia/xplay)
 #add_subdirectory(xmedia/xdisplay)
 add_subdirectory(textenc)
+add_subdirectory(md5dir)
