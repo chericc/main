@@ -182,14 +182,14 @@ TEST(bmp_decoder, read_test)
                 std::vector<uint8_t>({0xff,0xff,0xff})),
                 std::make_pair(std::make_pair(6,1),
                 std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(14,1),
+                std::make_pair(std::make_pair(14,1),        // black
                 std::vector<uint8_t>({0x0,0x0,0x0})),
                 std::make_pair(std::make_pair(15,1),
-                std::vector<uint8_t>({0x0,0x0,0xff})),
+                std::vector<uint8_t>({0x0,0x0,0xff})),      // red
                 std::make_pair(std::make_pair(16,1),
-                std::vector<uint8_t>({0x0,0xff,0x0})),
+                std::vector<uint8_t>({0x0,0xff,0x0})),      // green
                 std::make_pair(std::make_pair(17,1),
-                std::vector<uint8_t>({0xff,0x0,0x0})),
+                std::vector<uint8_t>({0xff,0x0,0x0})),      // blue
             }
         }
     };

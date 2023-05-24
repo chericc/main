@@ -12,7 +12,7 @@ class ImageView
 {
 public:
     /* depth: bytes */
-    ImageView(int w, int h, int depth);
+    ImageView(int w, int h, int depth, std::vector<uint8_t> init_pixel = std::vector<uint8_t>());
     ~ImageView();
     int ok() const;
 
@@ -36,7 +36,7 @@ private:
         int depth{0};
     };
 
-    std::shared_ptr<State> init(int w, int h, int depth);
+    std::shared_ptr<State> init(int w, int h, int depth, std::vector<uint8_t> init_pixel);
     uint8_t* pixelAt(int x, int y, int offset_pixels);
     const uint8_t* pixelAt(int x, int y, int offset_pixels) const;
 

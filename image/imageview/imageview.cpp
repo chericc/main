@@ -2,9 +2,14 @@
 
 #include "xlog.hpp"
 
-ImageView::ImageView(int w, int h, int depth)
+ImageView::ImageView(int w, int h, int depth, std::vector<uint8_t> init_pixel)
 {
-    _state = init(w, h, depth);
+    if (init_pixel.empty())
+    {
+        init_pixel.resize(depth, 0x0);
+    }
+
+    _state = init(w, h, depth, init_pixel);
 }
 
 ImageView::~ImageView()
@@ -169,7 +174,7 @@ int ImageView::drawRect(int x, int y, int w, int h, const std::vector<uint8_t> &
     return -1;
 }
 
-std::shared_ptr<ImageView::State> ImageView::init(int w, int h, int depth)
+std::shared_ptr<ImageView::State> ImageView::init(int w, int h, int depth, std::vector<uint8_t> init_pixel)
 {
     std::shared_ptr<State> state;
     int berror = false;
@@ -184,15 +189,32 @@ std::shared_ptr<ImageView::State> ImageView::init(int w, int h, int depth)
         }
 
         int num_pixel = w * h;
-        if (num_pixel <= 0)
+        int total_bytes = num_pixel * depth;
+        if (num_pixel <= 0 || total_bytes <= 0)
         {
-            xlog_err("invalid args(w,h over)");
+            xlog_err("invalid args(w,h,depth over)");
+            berror = true;
+            break;
+        }
+
+        if (init_pixel.size() != depth)
+        {
+            xlog_err("invalid args(init_pixel.size != depth)");
             berror = true;
             break;
         }
 
         std::shared_ptr<std::vector<uint8_t>> mem = 
-            std::make_shared<std::vector<uint8_t>>(w * h * depth);
+            std::make_shared<std::vector<uint8_t>>();
+        mem->reserve(total_bytes);
+
+        for (int i = 0; i < num_pixel; ++i)
+        {
+            for (int k = 0; k < depth; ++k)
+            {
+                mem->push_back(init_pixel[k]);
+            }
+        }
 
         state = std::make_shared<State>();
 
