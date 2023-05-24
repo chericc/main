@@ -48,6 +48,8 @@ int FreeTypeWrapper::setColorMap(FuncColorMap color_map)
         _state->color_map = std::make_shared<FuncColorMap>(color_map);
     }
     while(0);
+
+    return (berror ? -1 : 0);
 }
 
 int FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int x, int y,
@@ -388,4 +390,5 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
         }
     }
     
+    return (berror ? -1 : 0);
 }
