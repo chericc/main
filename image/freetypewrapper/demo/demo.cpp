@@ -26,7 +26,8 @@ int main()
     }
 
     // std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
-    std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
+    // std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
+    std::string font_path = std::string() + RES_FONT_PATH + "/simsun.ttc";
 
     int width = 500;
     int height = 100;
@@ -34,14 +35,16 @@ int main()
 
     std::shared_ptr<ImageView> iv = std::make_shared<ImageView>(width, height, s_pixel_depth, pixel_init);
 
-    std::string utf8_str = "2023-05-22 星期一 14:14:43";
+    // std::string utf8_str = "2023-05-22 星期一 14:14:43";
+    std::string utf8_str = "AAaaAAaa";
     FreeTypeWrapper ft(font_path);
     ft.setColorMap(color_mapper);
 
     // 72 * 360 / 1440 = 18
     // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
     // ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
-    ft.drawStringNormal(utf8_str, 72 * 360 / 1440, 0, 50, iv);
+    // ft.drawStringNormal(utf8_str, 72 * 360 / 1440, 0, height - 1, iv);
+    ft.drawStringNormal(utf8_str, 72 * 360 / 1440, 0, 0, iv);
 
     {
         BmpDecoder::BmpInfo info{};

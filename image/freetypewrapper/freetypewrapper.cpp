@@ -4,6 +4,7 @@
 #include "utf8_enc.hpp"
 
 #define INT_TO_FP_26_6(integer) ((integer) * 64)
+#define FP_26_6_TO_INT(FP26_6)  ((FP26_6) / 64)
 
 FreeTypeWrapper::State::~State()
 {
@@ -237,10 +238,17 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
                 continue;
             }
 
-            FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
+            // FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
+
+            auto &metrics = _state->ft_face->size->metrics;
+            xlog_trc("[ascender=%d, descender=%d, height=%d]",
+                FP_26_6_TO_INT(metrics.ascender), 
+                FP_26_6_TO_INT(metrics.descender),
+                FP_26_6_TO_INT(metrics.height));
+
             drawBitmap(iv, 
                 slot->bitmap_left, 
-                iv_height - slot->bitmap_top,
+                iv_height - 1 - slot->bitmap_top + (_state->ft_face->size->metrics.height >> 6),
                 &slot->bitmap);
 
             pen.x += slot->advance.x;
