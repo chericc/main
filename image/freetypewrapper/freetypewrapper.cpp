@@ -3,6 +3,8 @@
 #include "xlog.hpp"
 #include "utf8_enc.hpp"
 
+#define INT_TO_FP_26_6(integer) ((integer) * 64)
+
 FreeTypeWrapper::State::~State()
 {
     if (ft_face)
@@ -98,10 +100,10 @@ int FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int 
             }
 
             FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
-            drawBitmap(&slot->bitmap, 
+            drawBitmap(iv, 
                 x + slot->bitmap_left, 
                 y + ascender - slot->bitmap_top,
-                iv);
+                &slot->bitmap);
 
             pen.x += slot->advance.x;
             pen.y += slot->advance.y;
@@ -164,10 +166,82 @@ int FreeTypeWrapper::drawStringMonochrome(const std::string &utf8_str, int font_
             }
 
             FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
-            drawBitmap(&slot->bitmap, 
+            drawBitmap(iv, 
                 x + slot->bitmap_left, 
                 y + ascender - slot->bitmap_top,
-                iv);
+                &slot->bitmap);
+
+            pen.x += slot->advance.x;
+            pen.y += slot->advance.y;
+        }
+    }
+    while (0);
+
+    return (berror ? -1 : 0);
+}
+
+int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
+    std::shared_ptr<ImageView> iv)
+{
+    int berror = false;
+    FT_Error err{};
+
+    do
+    {
+        if (x < 0 || y < 0 || !iv)
+        {
+            xlog_err("invalid args");
+            berror = true;
+            break;
+        }
+
+        if (!_state)
+        {
+            xlog_err("null");
+            berror = true;
+            break;
+        }
+
+        std::vector<uint32_t> utf32_str;
+
+        utf32_str = enc_utf8_2_utf32(utf8_str);
+
+        err = FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size);
+        if (err)
+        {
+            xlog_err("FT_Set_Char_Size failed");
+            berror = true;
+            break;
+        }
+
+        FT_GlyphSlot slot = nullptr;
+        FT_Vector pen = {0, 0};
+        slot = _state->ft_face->glyph;
+
+        int iv_width = iv->width();
+        int iv_height = iv->height();
+
+        /* 注意：freetype 坐标系为笛卡尔坐标系 */
+        
+        pen.x = INT_TO_FP_26_6(x);
+        pen.y = INT_TO_FP_26_6(iv_height - y);
+
+        for (int i = 0; i < (int)utf32_str.size(); ++i)
+        {
+            FT_Set_Transform(_state->ft_face, nullptr, &pen);
+
+            err = FT_Load_Char(_state->ft_face, utf32_str[i], FT_LOAD_RENDER);
+            if (err)
+            {
+                xlog_err("FT_Load_Char failed");
+                continue;
+            }
+
+            FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
+            drawBitmap(iv, 
+                slot->bitmap_left, 
+                iv_height - slot->bitmap_top,
+                &slot->bitmap);
 
             pen.x += slot->advance.x;
             pen.y += slot->advance.y;
@@ -215,7 +289,8 @@ std::shared_ptr<FreeTypeWrapper::State> FreeTypeWrapper::init()
     return state;
 }
 
-int FreeTypeWrapper::drawBitmap(FT_Bitmap *bitmap, int x, int y, std::shared_ptr<ImageView> iv)
+/* 注：这里以左上角为原点 */
+int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap)
 {
     xlog_trc("[x=%d,y=%d][w=%d, h=%d]", 
         x, y, 

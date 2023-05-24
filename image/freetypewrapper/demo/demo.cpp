@@ -30,15 +30,18 @@ int main()
 
     int width = 500;
     int height = 100;
+    std::vector<uint8_t> pixel_init(s_pixel_depth, 0xff);
 
-    std::shared_ptr<ImageView> iv = std::make_shared<ImageView>(width, height, s_pixel_depth);
+    std::shared_ptr<ImageView> iv = std::make_shared<ImageView>(width, height, s_pixel_depth, pixel_init);
 
     std::string utf8_str = "2023-05-22 星期一 14:14:43";
     FreeTypeWrapper ft(font_path);
     ft.setColorMap(color_mapper);
 
+    // 72 * 360 / 1440 = 18
     // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
-    ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
+    // ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
+    ft.drawStringNormal(utf8_str, 72 * 360 / 1440, 0, 50, iv);
 
     {
         BmpDecoder::BmpInfo info{};

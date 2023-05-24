@@ -26,6 +26,8 @@ public:
         std::shared_ptr<ImageView> iv);
     int drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
         std::shared_ptr<ImageView> iv);
+    int drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
+        std::shared_ptr<ImageView> iv);
     
 private:
     struct State
@@ -39,7 +41,7 @@ private:
     };
 
     std::shared_ptr<State> init();
-    int drawBitmap(FT_Bitmap *bitmap, int x, int y, std::shared_ptr<ImageView> iv);
+    int drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap);
 
     const std::string _font_path;
 
