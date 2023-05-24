@@ -2,9 +2,9 @@
 
 #include "xlog.hpp"
 
-ImageView::ImageView(int w, int h, std::shared_ptr<std::vector<uint8_t>> mem)
+ImageView::ImageView(int w, int h, int depth)
 {
-    _state = init(w, h, mem);
+    _state = init(w, h, depth);
 }
 
 ImageView::~ImageView()
@@ -39,35 +39,27 @@ int ImageView::height() const
     return 0;
 }
 
-int ImageView::pixelBytes() const
+int ImageView::depth() const
 {
     if (_state)
     {
-        return _state->pixel_bytes;
+        return _state->depth;
     }
 
     xlog_err("null");
     return 0;
 }
 
-std::shared_ptr<std::vector<uint8_t>> ImageView::mem()
+const std::vector<uint8_t> &ImageView::mem() const
 {
-    if (_state)
+    if (_state && _state->mem)
+    {}
+    else 
     {
-        return _state->mem;
+        xlog_cri("null");
     }
     
-    return nullptr;
-}
-
-std::shared_ptr<const std::vector<uint8_t>> ImageView::mem() const
-{
-    if (_state)
-    {
-        return _state->mem;
-    }
-    
-    return nullptr;
+    return *_state->mem;
 }
 
 std::vector<uint8_t> ImageView::pixels(int x, int y, int num_pixels) const
@@ -92,7 +84,7 @@ std::vector<uint8_t> ImageView::pixels(int x, int y, int num_pixels) const
             break;
         }
 
-        int total_bytes = num_pixels * _state->pixel_bytes;
+        int total_bytes = num_pixels * _state->depth;
         if (total_bytes < 0)
         {
             xlog_err("invalid arg");
@@ -133,14 +125,14 @@ int ImageView::drawPixels(int x, int y, const std::vector<uint8_t> &pixels)
             break;
         }
 
-        if (pixels.size() % _state->pixel_bytes)
+        if (pixels.size() % _state->depth)
         {
             xlog_err("invalid args");
             berror = true;
             break;
         }
 
-        int num_pixels = pixels.size() / _state->pixel_bytes;
+        int num_pixels = pixels.size() / _state->depth;
 
         if (!pixelAt(x, y, num_pixels))
         {
@@ -151,10 +143,10 @@ int ImageView::drawPixels(int x, int y, const std::vector<uint8_t> &pixels)
 
         for (int i = 0; i < num_pixels; ++i)
         {
-            const uint8_t *psrc = &pixels[i * _state->pixel_bytes];
+            const uint8_t *psrc = &pixels[i * _state->depth];
             uint8_t *pdst = pixelAt(x, y, i);
 
-            for (int k = 0; k < _state->pixel_bytes; ++k)
+            for (int k = 0; k < _state->depth; ++k)
             {
                 pdst[k] = psrc[k];
             }
@@ -177,14 +169,14 @@ int ImageView::drawRect(int x, int y, int w, int h, const std::vector<uint8_t> &
     return -1;
 }
 
-std::shared_ptr<ImageView::State> ImageView::init(int w, int h, std::shared_ptr<std::vector<uint8_t>> mem_arg)
+std::shared_ptr<ImageView::State> ImageView::init(int w, int h, int depth)
 {
     std::shared_ptr<State> state;
     int berror = false;
 
     do
     {
-        if (w <= 0 || h <= 0 || !mem_arg)
+        if (w <= 0 || h <= 0 || depth <= 0)
         {
             xlog_err("invalid args");
             berror = true;
@@ -199,21 +191,17 @@ std::shared_ptr<ImageView::State> ImageView::init(int w, int h, std::shared_ptr<
             break;
         }
 
-        if (mem_arg->size() % num_pixel)
-        {
-            xlog_err("invalid args(size != w * h * depth)");
-            berror = true;
-            break;
-        }
+        std::shared_ptr<std::vector<uint8_t>> mem = 
+            std::make_shared<std::vector<uint8_t>>(w * h * depth);
 
         state = std::make_shared<State>();
 
-        state->mem = mem_arg;
+        state->mem = mem;
         state->w = w;
         state->h = h;
-        state->pixel_bytes = mem_arg->size() / num_pixel;
+        state->depth = depth;
 
-        if (!state->pixel_bytes)
+        if (!state->depth)
         {
             xlog_err("pixel depth is 0");
             berror = true;
@@ -239,7 +227,7 @@ uint8_t* ImageView::pixelAt(int x, int y, int offset_pixels)
     }
 
     int pixel_offset = y * _state->w + x + offset_pixels;
-    int bytes_offset = pixel_offset * _state->pixel_bytes;
+    int bytes_offset = pixel_offset * _state->depth;
 
     if (bytes_offset < 0 || bytes_offset >= _state->mem->size())
     {
@@ -263,7 +251,7 @@ const uint8_t* ImageView::pixelAt(int x, int y, int offset_pixels) const
     }
 
     int pixel_offset = y * _state->w + x + offset_pixels;
-    int bytes_offset = pixel_offset * _state->pixel_bytes;
+    int bytes_offset = pixel_offset * _state->depth;
 
     if (bytes_offset < 0 || bytes_offset >= _state->mem->size())
     {

@@ -11,15 +11,15 @@
 class ImageView
 {
 public:
-    ImageView(int w, int h, std::shared_ptr<std::vector<uint8_t>> mem);
+    /* depth: bytes */
+    ImageView(int w, int h, int depth);
     ~ImageView();
     int ok() const;
 
     int width() const;
     int height() const;
-    int pixelBytes() const;
-    std::shared_ptr<std::vector<uint8_t>> mem();
-    std::shared_ptr<const std::vector<uint8_t>> mem() const;
+    int depth() const;
+    const std::vector<uint8_t> &mem() const;
 
     std::vector<uint8_t> pixels(int x, int y, int num_pixels) const;
 
@@ -33,10 +33,10 @@ private:
         std::shared_ptr<std::vector<uint8_t>> mem;
         int w{0};
         int h{0};
-        int pixel_bytes{0};
+        int depth{0};
     };
 
-    std::shared_ptr<State> init(int w, int h, std::shared_ptr<std::vector<uint8_t>> mem);
+    std::shared_ptr<State> init(int w, int h, int depth);
     uint8_t* pixelAt(int x, int y, int offset_pixels);
     const uint8_t* pixelAt(int x, int y, int offset_pixels) const;
 

@@ -29,7 +29,25 @@ FreeTypeWrapper::~FreeTypeWrapper()
     _state.reset();
 }
 
-void FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int x, int y,
+int FreeTypeWrapper::setColorMap(FuncColorMap color_map)
+{
+    int berror = false;
+
+    do 
+    {
+        if (!_state)
+        {
+            xlog_err("null");
+            berror = true;
+            break;
+        }
+
+        _state->color_map = std::make_shared<FuncColorMap>(color_map);
+    }
+    while(0);
+}
+
+int FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int x, int y,
     std::shared_ptr<ImageView> iv)
 {
     int berror = false;
@@ -55,7 +73,6 @@ void FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int
 
         utf32_str = enc_utf8_2_utf32(utf8_str);
 
-        // err = FT_Set_Char_Size(_state->ft_face, 50 << 6, 0, 100, 0);
         err = FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size);
         if (err)
         {
@@ -92,7 +109,73 @@ void FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int
     }
     while (0);
 
-    return ;
+    return (berror ? -1 : 0);
+}
+
+int FreeTypeWrapper::drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
+    std::shared_ptr<ImageView> iv)
+{
+
+    int berror = false;
+    FT_Error err{};
+
+    do
+    {
+        if (x < 0 || y < 0 || !iv)
+        {
+            xlog_err("invalid args");
+            berror = true;
+            break;
+        }
+
+        if (!_state)
+        {
+            xlog_err("null");
+            berror = true;
+            break;
+        }
+
+        std::vector<uint32_t> utf32_str;
+
+        utf32_str = enc_utf8_2_utf32(utf8_str);
+
+        err = FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size);
+        if (err)
+        {
+            xlog_err("FT_Set_Char_Size failed");
+            berror = true;
+            break;
+        }
+
+        FT_GlyphSlot slot = nullptr;
+        FT_Vector pen = {0, 0};
+        slot = _state->ft_face->glyph;
+
+        for (int i = 0; i < (int)utf32_str.size(); ++i)
+        {
+            FT_Set_Transform(_state->ft_face, 0, &pen);
+
+            err = FT_Load_Char(_state->ft_face, utf32_str[i], FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
+            if (err)
+            {
+                xlog_err("FT_Load_Char failed");
+                berror = true;
+                break;
+            }
+
+            FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
+            drawBitmap(&slot->bitmap, 
+                x + slot->bitmap_left, 
+                y + ascender - slot->bitmap_top,
+                iv);
+
+            pen.x += slot->advance.x;
+            pen.y += slot->advance.y;
+        }
+    }
+    while (0);
+
+    return (berror ? -1 : 0);
 }
 
 std::shared_ptr<FreeTypeWrapper::State> FreeTypeWrapper::init()
@@ -132,16 +215,22 @@ std::shared_ptr<FreeTypeWrapper::State> FreeTypeWrapper::init()
     return state;
 }
 
-void FreeTypeWrapper::drawBitmap(FT_Bitmap *bitmap, int x, int y, std::shared_ptr<ImageView> iv)
+int FreeTypeWrapper::drawBitmap(FT_Bitmap *bitmap, int x, int y, std::shared_ptr<ImageView> iv)
 {
     xlog_trc("[x=%d,y=%d][w=%d, h=%d]", 
         x, y, 
         (int)bitmap->width, (int)bitmap->rows);
 
-    int view_width = iv->width();
-    int view_height = iv->height();
+    int berror = false;
 
-    std::vector<uint8_t> pixel(iv->pixelBytes());
+    if (!bitmap || !iv)
+    {
+        xlog_err("null");
+        berror = true;
+        return -1;
+    }
+
+    std::vector<uint8_t> pixel(iv->depth());
 
     for (int j = 0; j < bitmap->rows; ++j)
     {
@@ -150,22 +239,68 @@ void FreeTypeWrapper::drawBitmap(FT_Bitmap *bitmap, int x, int y, std::shared_pt
             int dst_x = x + i;
             int dst_y = y + j;
 
-            if (dst_x < 0 || dst_x >= view_width)
+            if (dst_x < 0 || dst_x >= iv->width())
             {
                 xlog_err("x over");
                 continue;
             }
 
-            if (dst_y < 0 || dst_y >= view_height)
+            if (dst_y < 0 || dst_y >= iv->height())
             {
                 xlog_err("y over"); 
                 continue;
             }
 
-            for (auto & r : pixel)
+            uint8_t color = 0x0;
+
+            switch (bitmap->pixel_mode)
             {
-                r = bitmap->buffer[j * bitmap->width + i];
+                case FT_PIXEL_MODE_MONO:
+                {
+                    int byte_index = (bitmap->pitch * j + i / 8);
+                    int bit_index = i % 8;
+                    if (bitmap->buffer[byte_index] & (0x80 >> bit_index))
+                    {
+                        color = 0xff;
+                    }
+                    else 
+                    {
+                        color = 0x0;
+                    }
+                    break;
+                }
+                case FT_PIXEL_MODE_GRAY:
+                {
+                    color = bitmap->buffer[j * bitmap->width + i];
+                    break;
+                }
+                default:
+                {
+                    xlog_err("");
+                    break;
+                }
             }
+
+            if (!_state->color_map)
+            {
+                for (auto & r : pixel)
+                {
+                    r = color;
+                }
+            }
+            else 
+            {
+                auto pixel_map = (*_state->color_map)(color);
+                if (pixel_map)
+                {
+                    pixel = *pixel_map;
+                }
+                else 
+                {
+                    xlog_err("color map null");
+                }
+            }
+
             iv->drawPixels(dst_x, dst_y, pixel);
         }
     }

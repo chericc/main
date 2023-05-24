@@ -4,6 +4,20 @@
 #include "xlog.hpp"
 #include "bmp.hpp"
 
+static const int s_pixel_depth = 3;
+
+std::shared_ptr<std::vector<uint8_t>> color_mapper(uint8_t color)
+{
+    std::shared_ptr<std::vector<uint8_t>> pixel = std::make_shared<std::vector<uint8_t>>(s_pixel_depth);
+
+    for (auto & r : *pixel)
+    {
+        r = 255 - color;
+    }
+
+    return pixel;
+}
+
 int main()
 {
     {
@@ -11,25 +25,24 @@ int main()
         xlog_setoutput(fps);
     }
 
-    std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
+    // std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
+    std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
 
-    int width = 1000;
+    int width = 500;
     int height = 100;
-    int depth = 3;
 
+    std::shared_ptr<ImageView> iv = std::make_shared<ImageView>(width, height, s_pixel_depth);
+
+    std::string utf8_str = "2023-05-22 星期一 14:14:43";
     FreeTypeWrapper ft(font_path);
-    std::shared_ptr<std::vector<uint8_t>> mem;
-    mem = std::make_shared<std::vector<uint8_t>>(width * height * depth);
+    ft.setColorMap(color_mapper);
 
-    ImageView view(width, height, mem);
-    std::shared_ptr<ImageView> iv = std::make_shared<ImageView>(width, height, mem);
-
-    std::string utf8_str = "星期天12345";
-    ft.drawString(utf8_str, 50, 0, 0, iv);
+    // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
+    ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
 
     {
         BmpDecoder::BmpInfo info{};
-        info.data = view.mem();
+        info.data = std::make_shared<std::vector<uint8_t>>(iv->mem());
         info.file = "output.bmp";
         info.height = height;
         info.width = width;
