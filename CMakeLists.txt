@@ -14,6 +14,18 @@ string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "AppleClang" clang)
 
+# cxx standard
+if(${msvc})
+set(CMAKE_CXX_STANDARD 20)
+endif()
+
+# warning
+if(${msvc})
+add_compile_options(/W4 /WX)
+else()
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+endif()
+
 # main
 set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
 
@@ -57,7 +69,11 @@ set(G_FDKAAC_LIB_PATH ${G_FDKAAC_PATH}/lib)
 set(G_FDKAAC_INC_PATH ${G_FDKAAC_PATH}/include/fdk-aac)
 
 # freetype
+if(${msvc})
+set(G_FREETYPE_PATH C:/Users/test/opensrc/freetype/build/out)
+elseif(${gnu})
 set(G_FREETYPE_PATH ~/opensrc/freetype/build/output)
+endif()
 set(G_FREETYPE_LIB_PATH ${G_FREETYPE_PATH}/lib)
 set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include/freetype2)
 
