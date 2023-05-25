@@ -55,139 +55,32 @@ int FreeTypeWrapper::setColorMap(FuncColorMap color_map)
 int FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int x, int y,
     std::shared_ptr<ImageView> iv)
 {
-    int berror = false;
-    FT_Error err{};
-
-    do
-    {
-        if (x < 0 || y < 0 || !iv)
-        {
-            xlog_err("invalid args");
-            berror = true;
-            break;
-        }
-
-        if (!_state)
-        {
-            xlog_err("null");
-            berror = true;
-            break;
-        }
-
-        std::vector<uint32_t> utf32_str;
-
-        utf32_str = enc_utf8_2_utf32(utf8_str);
-
-        err = FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size);
-        if (err)
-        {
-            xlog_err("FT_Set_Char_Size failed");
-            berror = true;
-            break;
-        }
-
-        FT_GlyphSlot slot = nullptr;
-        FT_Vector pen = {0, 0};
-        slot = _state->ft_face->glyph;
-
-        for (int i = 0; i < (int)utf32_str.size(); ++i)
-        {
-            FT_Set_Transform(_state->ft_face, 0, &pen);
-
-            err = FT_Load_Char(_state->ft_face, utf32_str[i], FT_LOAD_RENDER);
-            if (err)
-            {
-                xlog_err("FT_Load_Char failed");
-                berror = true;
-                break;
-            }
-
-            FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
-            drawBitmap(iv, 
-                x + slot->bitmap_left, 
-                y + ascender - slot->bitmap_top,
-                &slot->bitmap);
-
-            pen.x += slot->advance.x;
-            pen.y += slot->advance.y;
-        }
-    }
-    while (0);
-
-    return (berror ? -1 : 0);
+    int ret = drawStringNormal(utf8_str, font_size, x, y, iv, Normal);
+    return ret;
 }
 
 int FreeTypeWrapper::drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
     std::shared_ptr<ImageView> iv)
 {
+    int ret = drawStringNormal(utf8_str, font_size, x, y, iv, Monochrome);
+    return ret;
+}
 
-    int berror = false;
-    FT_Error err{};
 
-    do
-    {
-        if (x < 0 || y < 0 || !iv)
-        {
-            xlog_err("invalid args");
-            berror = true;
-            break;
-        }
-
-        if (!_state)
-        {
-            xlog_err("null");
-            berror = true;
-            break;
-        }
-
-        std::vector<uint32_t> utf32_str;
-
-        utf32_str = enc_utf8_2_utf32(utf8_str);
-
-        err = FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size);
-        if (err)
-        {
-            xlog_err("FT_Set_Char_Size failed");
-            berror = true;
-            break;
-        }
-
-        FT_GlyphSlot slot = nullptr;
-        FT_Vector pen = {0, 0};
-        slot = _state->ft_face->glyph;
-
-        for (int i = 0; i < (int)utf32_str.size(); ++i)
-        {
-            FT_Set_Transform(_state->ft_face, 0, &pen);
-
-            err = FT_Load_Char(_state->ft_face, utf32_str[i], FT_LOAD_RENDER | FT_LOAD_MONOCHROME);
-            if (err)
-            {
-                xlog_err("FT_Load_Char failed");
-                berror = true;
-                break;
-            }
-
-            FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
-            drawBitmap(iv, 
-                x + slot->bitmap_left, 
-                y + ascender - slot->bitmap_top,
-                &slot->bitmap);
-
-            pen.x += slot->advance.x;
-            pen.y += slot->advance.y;
-        }
-    }
-    while (0);
-
-    return (berror ? -1 : 0);
+int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
+    uint8_t outline_color, float output_width,
+    std::shared_ptr<ImageView> iv)
+{
+    xlog_err("not implemented");
+    return -1;
 }
 
 int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
-    std::shared_ptr<ImageView> iv)
+    std::shared_ptr<ImageView> iv, DrawMode mode)
 {
     int berror = false;
     FT_Error err{};
+    int load_flags = 0;
 
     do
     {
@@ -229,28 +122,47 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
         pen.x = INT_TO_FP_26_6(x);
         pen.y = INT_TO_FP_26_6(iv_height - y);
 
+        if (Normal == mode)
+        {
+            load_flags = FT_LOAD_RENDER;
+        }
+        else if (Monochrome == mode)
+        {
+            load_flags = FT_LOAD_RENDER | FT_LOAD_MONOCHROME;
+        }
+
         for (int i = 0; i < (int)utf32_str.size(); ++i)
         {
             FT_Set_Transform(_state->ft_face, nullptr, &pen);
 
-            err = FT_Load_Char(_state->ft_face, utf32_str[i], FT_LOAD_RENDER);
+            err = FT_Load_Char(_state->ft_face, utf32_str[i], load_flags);
             if (err)
             {
                 xlog_err("FT_Load_Char failed");
                 continue;
             }
 
-            // FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
+            FT_Pos ascender = _state->ft_face->size->metrics.ascender >> 6;
 
             auto &metrics = _state->ft_face->size->metrics;
-            xlog_trc("[ascender=%d, descender=%d, height=%d]",
+
+            xlog_trc("[left=%d,top=%d][ascender=%d, descender=%d, height=%d]",
+                (int)slot->bitmap_left,
+                (int)slot->bitmap_top,
                 FP_26_6_TO_INT(metrics.ascender), 
                 FP_26_6_TO_INT(metrics.descender),
                 FP_26_6_TO_INT(metrics.height));
 
+            /** 
+             * 注：如果传入的图片高度为100，则bitmap_top为100+，即笛卡尔坐标系 
+             * 下为图片左上角的上方。
+             * 实际需要绘制到左上角的下方，因此作以下换算。
+             * 实际测试，ascender的大小即为字符的高度。
+             **/
+
             drawBitmap(iv, 
                 slot->bitmap_left, 
-                iv_height - 1 - slot->bitmap_top + (_state->ft_face->size->metrics.height >> 6),
+                iv_height - 1 - slot->bitmap_top + ascender,
                 &slot->bitmap);
 
             pen.x += slot->advance.x;

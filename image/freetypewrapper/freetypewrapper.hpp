@@ -6,6 +6,8 @@
 #include FT_FREETYPE_H
 #include FT_OUTLINE_H
 #include FT_STROKER_H
+#include FT_BITMAP_H
+
 
 #include <functional>
 
@@ -26,8 +28,18 @@ public:
         std::shared_ptr<ImageView> iv);
     int drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
         std::shared_ptr<ImageView> iv);
-    int drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
+    int drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
+        uint8_t outline_color, float output_width,
         std::shared_ptr<ImageView> iv);
+
+private:
+    enum DrawMode
+    {
+        Normal,
+        Monochrome,
+    };
+    int drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
+        std::shared_ptr<ImageView> iv, DrawMode mode);
     
 private:
     struct State
