@@ -103,6 +103,11 @@ XIOFile::XIOFile(const std::string &url, const std::string &mode)
         xlog_trc("open file successful");
     }
     while (0);
+
+    if (berror)
+    {
+        xlog_err("init failed");
+    }
 }
 
 XIOFile::~XIOFile()
@@ -284,6 +289,11 @@ uint8_t XIOFile::r8()
         }
     }
     while (0);
+
+    if (berror)
+    {
+        xlog_err("read with error");
+    }
     
     return buf[0];
 }
@@ -334,6 +344,11 @@ void XIOFile::w8(uint8_t b)
     }
     while (0);
 
+    if (berror)
+    {
+        xlog_err("write with error");
+    }
+
     return ;
 }
 
@@ -356,6 +371,11 @@ void XIOFile::write(std::vector<uint8_t> buffer)
         }
     }
     while(0);
+
+    if (berror)
+    {
+        xlog_err("write failed");
+    }
 
     return ;
 }

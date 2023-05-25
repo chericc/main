@@ -237,7 +237,7 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
                 info->fmt.byte_rate = info->xio->rl32();
                 info->fmt.align = info->xio->rl16();
                 info->fmt.bits_per_sample = info->xio->rl16();
-                if (info->xio->tell() != next_tag_pos)
+                if (info->xio->tell() != (int64_t)next_tag_pos)
                 {
                     xlog_trc("additional info in fmt, skip");
                     if (info->xio->seek(next_tag_pos, SEEK_SET) < 0)

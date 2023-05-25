@@ -193,7 +193,7 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
 
         int bytespersample = bitspersample / 8;
 
-        if (info.data->size() != info.width * info.height * bytespersample)
+        if (info.data->size() != (std::size_t)(info.width * info.height * bytespersample))
         {
             xlog_err("data.size != width * height * depth");
             berror = true;
@@ -262,7 +262,7 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
             for (int x = 0; x < info.width; ++x)
             {
                 std::size_t offset = (y * info.width + x) * bytespersample;
-                for (std::size_t i = 0; i < bytespersample; ++i)
+                for (std::size_t i = 0; i < (std::size_t)bytespersample; ++i)
                 {
                     buf_pixel[i] = (*info.data)[i + offset];
                 }

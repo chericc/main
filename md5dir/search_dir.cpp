@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "log.h"
+#include "xlog.hpp"
 
 
 
@@ -26,7 +26,7 @@ static int search_dir_recusive(const std::string &dir_path, std::list<FileItem> 
     dir = opendir(dir_path.c_str());
     if (nullptr == dir)
     {
-        xerror("open dir failed: <%s>\n", dir_path.c_str());
+        xlog_err("open dir failed: <%s>\n", dir_path.c_str());
         return -1;
     }
 

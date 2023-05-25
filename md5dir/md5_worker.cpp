@@ -4,8 +4,9 @@
 #include <string.h>
 #include <iostream>
 
-#include "md5sum.h"
-#include "log.h"
+#include "md5sum.hpp"
+
+#include "xlog.hpp"
 
 Md5Worker::~Md5Worker()
 {
@@ -28,7 +29,7 @@ int Md5Worker::start(std::size_t jobs)
 
     if (!threads__.empty())
     {
-        xerror ("tasks not empty\n");
+        xlog_err ("tasks not empty\n");
         return -1;
     }
 
@@ -58,7 +59,7 @@ int Md5Worker::finish()
         }
         else
         {
-            xerror ("not joinable\n");
+            xlog_err ("not joinable\n");
             return -1;
         }
 
@@ -113,11 +114,8 @@ int Md5Worker::workerThd(int id)
 {
     bool error_flag = 0;
 
-    int ret_read = 0;
     FILE *fp = nullptr;
     std::shared_ptr<FileItem> item_ptr;
-
-    char buffer[4 * 1024];
 
     while (true)
     {
@@ -133,7 +131,7 @@ int Md5Worker::workerThd(int id)
 
         if (!item_ptr)
         {
-            xdebug ("no task, thread [%d] fin\n", id);
+            xlog_dbg ("no task, thread [%d] fin\n", id);
             break;
         }
 
@@ -142,7 +140,7 @@ int Md5Worker::workerThd(int id)
             fp = fopen (item_ptr->file_path.c_str(), "r");
             if (nullptr == fp)
             {
-                xerror ("open file <%s> failed\n", 
+                xlog_err ("open file <%s> failed\n", 
                     item_ptr->file_path.c_str());
                 error_flag = true;
                 continue;
@@ -155,7 +153,7 @@ int Md5Worker::workerThd(int id)
 
         if (md5_stream (fp, md5_result.md5.data()))
         {
-            xerror ("md5 failed\n");
+            xlog_err ("md5 failed\n");
             break;
         }
 

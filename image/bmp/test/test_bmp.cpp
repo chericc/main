@@ -1,6 +1,8 @@
 
 #include <gtest/gtest.h>
 
+#include <list>
+
 #include "bmp.hpp"
 
 #include "xlog.hpp"
@@ -36,13 +38,12 @@ static std::vector<uint8_t> readFile(const std::string &filename)
 
     if (fp)
     {
-        size_t pos = 0;
         size_t filesize = fileSize(fp);
 
         
         buffer.resize(filesize);
 
-        int ret = fread(buffer.data(), 1, filesize, fp);
+        fread(buffer.data(), 1, filesize, fp);
 
         fclose(fp);
         fp = nullptr;
@@ -96,103 +97,120 @@ static void TestBmp(const TestInfo &info)
 
 TEST(bmp_decoder, read_test)
 {
-    TestInfo info[] = {
-        {
-            .filename = "bmp_4_4_pureblack.bmp",
-            .width = 4,
-            .height = 4,
-            .pixfmt = BmpDecoder::PIXFMT_BGR24,
-            .checks = {
-                std::make_pair(std::make_pair(0,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(1,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(0,-1),
-                std::vector<uint8_t>(4*4*3,0x0))
-            }
-        },
-        {
-            .filename = "bmp_5_5_pureblack.bmp",
-            .width = 5,
-            .height = 5,
-            .pixfmt = BmpDecoder::PIXFMT_BGR24,
-            .checks = {
-                std::make_pair(std::make_pair(0,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(1,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(0,-1),
-                std::vector<uint8_t>(5*5*3,0x0))
-            }
-        },
-        {
-            .filename = "bmp_6_6_pureblack.bmp",
-            .width = 6,
-            .height = 6,
-            .pixfmt = BmpDecoder::PIXFMT_BGR24,
-            .checks = {
-                std::make_pair(std::make_pair(0,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(1,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(0,-1),
-                std::vector<uint8_t>(6*6*3,0x0))
-            }
-        },
-        {
-            .filename = "bmp_253_153_pureblack.bmp",
-            .width = 253,
-            .height = 153,
-            .pixfmt = BmpDecoder::PIXFMT_BGR24,
-            .checks = {
-                std::make_pair(std::make_pair(0,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(1,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(0,-1),
-                std::vector<uint8_t>(253*153*3,0x0))
-            }
-        },
-        {
-            .filename = "bmp_2_2_bwwb.bmp",
-            .width = 2,
-            .height = 2,
-            .pixfmt = BmpDecoder::PIXFMT_BGR24,
-            .checks = {
-                std::make_pair(std::make_pair(0,1),
-                std::vector<uint8_t>({0xff,0xff,0xff})),
-                std::make_pair(std::make_pair(1,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(2,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(3,1),
-                std::vector<uint8_t>({0xff,0xff,0xff})),
-                std::make_pair(std::make_pair(0,-1),
-                std::vector<uint8_t>({0xff,0xff,0xff,0x0,0x0,0x0,
-                                        0x0,0x0,0x0,0xff,0xff,0xff}))
-            }
-        },
-        {
-            .filename = "bmp_7_3.bmp",
-            .width = 7,
-            .height = 3,
-            .pixfmt = BmpDecoder::PIXFMT_BGR24,
-            .checks = {
-                std::make_pair(std::make_pair(0,1),
-                std::vector<uint8_t>({0xff,0xff,0xff})),
-                std::make_pair(std::make_pair(6,1),
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(14,1),        // black
-                std::vector<uint8_t>({0x0,0x0,0x0})),
-                std::make_pair(std::make_pair(15,1),
-                std::vector<uint8_t>({0x0,0x0,0xff})),      // red
-                std::make_pair(std::make_pair(16,1),
-                std::vector<uint8_t>({0x0,0xff,0x0})),      // green
-                std::make_pair(std::make_pair(17,1),
-                std::vector<uint8_t>({0xff,0x0,0x0})),      // blue
-            }
-        }
-    };
+    std::list<TestInfo> info;
+
+    {
+        TestInfo item{};
+        item.filename = "bmp_4_4_pureblack.bmp";
+        item.width = 4;
+        item.height = 4;
+        item.pixfmt = BmpDecoder::PIXFMT_BGR24;
+        item.checks = {
+            std::make_pair(std::make_pair(0,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(1,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(0,-1),
+            std::vector<uint8_t>(4*4*3,0x0))
+        };
+        info.push_back(item);
+    }
+
+    {
+        TestInfo item{};
+        item.filename = "bmp_5_5_pureblack.bmp";
+        item.width = 5;
+        item.height = 5;
+        item.pixfmt = BmpDecoder::PIXFMT_BGR24;
+        item.checks = {
+            std::make_pair(std::make_pair(0,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(1,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(0,-1),
+            std::vector<uint8_t>(5*5*3,0x0))
+        };
+        info.push_back(item);
+    }
+
+    {
+        TestInfo item{};
+        item.filename = "bmp_6_6_pureblack.bmp";
+        item.width = 6;
+        item.height = 6;
+        item.pixfmt = BmpDecoder::PIXFMT_BGR24;
+        item.checks = {
+            std::make_pair(std::make_pair(0,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(1,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(0,-1),
+            std::vector<uint8_t>(6*6*3,0x0))
+        };
+        info.push_back(item);
+    }
+
+    {
+        TestInfo item{};
+        item.filename = "bmp_253_153_pureblack.bmp";
+        item.width = 253;
+        item.height = 153;
+        item.pixfmt = BmpDecoder::PIXFMT_BGR24;
+        item.checks = {
+            std::make_pair(std::make_pair(0,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(1,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(0,-1),
+            std::vector<uint8_t>(253*153*3,0x0))
+        };
+        info.push_back(item);
+    }
+
+    {
+        TestInfo item{};
+        item.filename = "bmp_2_2_bwwb.bmp";
+        item.width = 2;
+        item.height = 2;
+        item.pixfmt = BmpDecoder::PIXFMT_BGR24;
+        item.checks = {
+            std::make_pair(std::make_pair(0,1),
+            std::vector<uint8_t>({0xff,0xff,0xff})),
+            std::make_pair(std::make_pair(1,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(2,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(3,1),
+            std::vector<uint8_t>({0xff,0xff,0xff})),
+            std::make_pair(std::make_pair(0,-1),
+            std::vector<uint8_t>({0xff,0xff,0xff,0x0,0x0,0x0,
+                                    0x0,0x0,0x0,0xff,0xff,0xff}))
+        };
+        info.push_back(item);
+    }
+
+    {
+        TestInfo item{};
+        item.filename = "bmp_7_3.bmp";
+        item.width = 7;
+        item.height = 3;
+        item.pixfmt = BmpDecoder::PIXFMT_BGR24;
+        item.checks = {
+            std::make_pair(std::make_pair(0,1),
+            std::vector<uint8_t>({0xff,0xff,0xff})),
+            std::make_pair(std::make_pair(6,1),
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(14,1),        // black
+            std::vector<uint8_t>({0x0,0x0,0x0})),
+            std::make_pair(std::make_pair(15,1),
+            std::vector<uint8_t>({0x0,0x0,0xff})),      // red
+            std::make_pair(std::make_pair(16,1),
+            std::vector<uint8_t>({0x0,0xff,0x0})),      // green
+            std::make_pair(std::make_pair(17,1),
+            std::vector<uint8_t>({0xff,0x0,0x0})),      // blue
+        };
+        info.push_back(item);
+    }
 
     for (auto const& i : info)
     {

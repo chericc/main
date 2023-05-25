@@ -99,14 +99,7 @@ void xlog_setoutput(const std::vector<FILE*> &fps)
 
 void xlog(XLOG_LEVEL level, const char *format, ...)
 {
-    const char *file = NULL;
-    const int line = 0;
-    const char *function = NULL;
-
     va_list ap;
-    int ret = 0;
-
-    char buffer[1024]; // not init
 
     std::unique_lock<std::mutex> lock(s_call_mutex);
 

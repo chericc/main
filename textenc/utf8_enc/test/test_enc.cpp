@@ -7,7 +7,7 @@
 
 TEST(utf8, enc_utf8_strlen)
 {
-    EXPECT_EQ(20, enc_utf8_length(g_utf8_20_words));
+    EXPECT_EQ((std::size_t)20, enc_utf8_length(g_utf8_20_words));
 }
 
 TEST(utf8, enc_utf8_substr)

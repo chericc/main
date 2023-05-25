@@ -66,7 +66,7 @@ int FreeTypeWrapper::drawStringMonochrome(const std::string &utf8_str, int font_
     return ret;
 }
 
-
+#if 0
 int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
     uint8_t outline_color, float output_width,
     std::shared_ptr<ImageView> iv)
@@ -74,6 +74,7 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
     xlog_err("not implemented");
     return -1;
 }
+#endif 
 
 int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
     std::shared_ptr<ImageView> iv, DrawMode mode)
@@ -114,7 +115,7 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
         FT_Vector pen = {0, 0};
         slot = _state->ft_face->glyph;
 
-        int iv_width = iv->width();
+        // int iv_width = iv->width();
         int iv_height = iv->height();
 
         /* 注意：freetype 坐标系为笛卡尔坐标系 */
@@ -229,9 +230,9 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
 
     std::vector<uint8_t> pixel(iv->depth());
 
-    for (int j = 0; j < bitmap->rows; ++j)
+    for (unsigned int j = 0; j < bitmap->rows; ++j)
     {
-        for (int i = 0; i < bitmap->width; ++i)
+        for (unsigned int i = 0; i < bitmap->width; ++i)
         {
             int dst_x = x + i;
             int dst_y = y + j;

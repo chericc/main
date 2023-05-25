@@ -162,6 +162,7 @@ int ImageView::drawPixels(int x, int y, const std::vector<uint8_t> &pixels)
     return (berror ? -1 : 0);
 }
 
+#if 0
 int ImageView::scale(int w, int h)
 {
     xlog_err("not implement");
@@ -173,6 +174,7 @@ int ImageView::drawRect(int x, int y, int w, int h, const std::vector<uint8_t> &
     xlog_err("not implement");
     return -1;
 }
+#endif 
 
 std::shared_ptr<ImageView::State> ImageView::init(int w, int h, int depth, std::vector<uint8_t> init_pixel)
 {
@@ -197,7 +199,7 @@ std::shared_ptr<ImageView::State> ImageView::init(int w, int h, int depth, std::
             break;
         }
 
-        if (init_pixel.size() != depth)
+        if (init_pixel.size() != (std::size_t)depth)
         {
             xlog_err("invalid args(init_pixel.size != depth)");
             berror = true;
@@ -251,7 +253,7 @@ uint8_t* ImageView::pixelAt(int x, int y, int offset_pixels)
     int pixel_offset = y * _state->w + x + offset_pixels;
     int bytes_offset = pixel_offset * _state->depth;
 
-    if (bytes_offset < 0 || bytes_offset >= _state->mem->size())
+    if (bytes_offset < 0 || (std::size_t)bytes_offset >= _state->mem->size())
     {
         return nullptr;
     }
@@ -275,7 +277,7 @@ const uint8_t* ImageView::pixelAt(int x, int y, int offset_pixels) const
     int pixel_offset = y * _state->w + x + offset_pixels;
     int bytes_offset = pixel_offset * _state->depth;
 
-    if (bytes_offset < 0 || bytes_offset >= _state->mem->size())
+    if (bytes_offset < 0 || (std::size_t)bytes_offset >= _state->mem->size())
     {
         return nullptr;
     }

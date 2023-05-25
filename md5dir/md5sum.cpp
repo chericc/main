@@ -1,10 +1,10 @@
 
-#include "md5sum.h"
+#include "md5sum.hpp"
 
-#include "log.h"
+#include "xlog.hpp"
 
-#define perror_msg(x...) xerror(x)
-#define error_msg(x...) xerror(x)
+#define perror_msg xlog_err
+#define error_msg xlog_err
 
 #define SWAP(n) (n)
 
@@ -190,7 +190,7 @@ void md5_process_bytes(const void *buffer, size_t len, struct md5_ctx *ctx)
 void md5_process_block(const void *buffer, size_t len, struct md5_ctx *ctx)
 {
   md5_uint32 correct_words[16];
-  const md5_uint32 *words = buffer;
+  const md5_uint32 *words = (const md5_uint32 *)buffer;
   size_t nwords = len / sizeof(md5_uint32);
   const md5_uint32 *endp = words + nwords;
   md5_uint32 A = ctx->A;
@@ -349,7 +349,7 @@ void md5_process_block(const void *buffer, size_t len, struct md5_ctx *ctx)
 #define ISXDIGIT(c) (IN_CTYPE_DOMAIN (c) && isxdigit (c))
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
 #define TOLOWER(Ch) tolower (Ch)
-#define OPENOPTS(BINARY) "r"
+// #define OPENOPTS(BINARY) "r"
 
 /* The minimum length of a valid digest line in a file produced
    by `md5sum FILE' and read by `md5sum -c'.  This length does
@@ -358,6 +358,7 @@ static const int MIN_DIGEST_LINE_LENGTH = 35; /* 32 - message digest length
                                       2 - blank and binary indicator
                                       1 - minimum filename length */
 
+#if 0
 static int have_read_stdin; /* Nonzero if any of the files read were
                                the standard input. */
 
@@ -464,7 +465,7 @@ static int hex_digits(unsigned char const *s)
    put the result in *MD5_RESULT.  Return non-zero upon failure, zero
    to indicate success.  */
 static int md5_file(const char *filename,
-                    int binary,
+                    int ,
                     unsigned char *md5_result)
 {
   FILE *fp;
@@ -473,7 +474,7 @@ static int md5_file(const char *filename,
     have_read_stdin = 1;
     fp = stdin;
   } else {
-    fp = fopen(filename, OPENOPTS(binary));
+    fp = fopen(filename, "rb");
     if (fp == NULL) {
       perror_msg("%s", filename);
       return FALSE;
@@ -625,6 +626,7 @@ static int md5_check(const char *checkfile_name)
   return ((n_properly_formated_lines > 0 && n_mismatched_checksums == 0
            && n_open_or_read_failures == 0) ? 0 : 1);
 }
+#endif 
 
 #if 0
 int md5sum_main(int argc,

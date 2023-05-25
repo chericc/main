@@ -25,13 +25,12 @@ static std::vector<uint8_t> readFile(const std::string &filename)
 
     if (fp)
     {
-        size_t pos = 0;
         size_t filesize = fileSize(fp);
 
         
         buffer.resize(filesize);
 
-        int ret = fread(buffer.data(), 1, filesize, fp);
+        fread(buffer.data(), 1, filesize, fp);
 
         fclose(fp);
         fp = nullptr;
@@ -45,7 +44,7 @@ static void saveFile(const std::string &filename, std::vector<uint8_t> data)
     FILE *fp = fopen(filename.c_str(), "wb");
     if (fp)
     {
-        int ret = fwrite(data.data(), 1, data.size(), fp);
+        fwrite(data.data(), 1, data.size(), fp);
         if (fp)
         {
             fclose(fp);
@@ -101,7 +100,7 @@ TEST_F(BaseFileIOTest, base)
     EXPECT_FALSE(iofile.eof());
     EXPECT_FALSE(iofile.error());
 
-    EXPECT_EQ(iofile.size(), data.size());
+    EXPECT_EQ(iofile.size(), (int64_t)data.size());
     EXPECT_EQ(iofile.tell(), 0);
 }
 
@@ -116,14 +115,14 @@ TEST_F(BaseFileIOTest, read_ele)
         offset = 5;
         iofile.seek(offset, SEEK_SET);
 
-        ASSERT_EQ(offset, iofile.tell());
+        ASSERT_EQ((int64_t)offset, iofile.tell());
 
         ASSERT_LT(offset + 1, data.size());
         uint8_t r8 = iofile.r8();
         EXPECT_EQ(r8, data[offset]);
         offset += 1;
 
-        ASSERT_EQ(offset, iofile.tell());
+        ASSERT_EQ((int64_t)offset, iofile.tell());
         
         ASSERT_LT(offset + 1, data.size());
         r8 = iofile.r8();
@@ -152,7 +151,7 @@ TEST_F(BaseFileIOTest, read_ele)
         EXPECT_EQ(r64, (*(uint64_t*)&data[offset]));
         offset += 8;
         
-        ASSERT_EQ(offset, iofile.tell());
+        ASSERT_EQ((int64_t)offset, iofile.tell());
     }
     while (0);
 }

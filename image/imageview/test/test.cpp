@@ -21,7 +21,7 @@ protected:
 
 TEST_F(ImageViewTest, base)
 {
-    EXPECT_EQ(imageview->mem().size(), width * height * depth);
+    EXPECT_EQ(imageview->mem().size(), (std::size_t)(width * height * depth));
 
     EXPECT_EQ(imageview->width(), width);
     EXPECT_EQ(imageview->height(), height);

@@ -39,33 +39,18 @@ static std::vector<uint8_t> readFile(const std::string &filename)
 
     if (fp)
     {
-        size_t pos = 0;
         size_t filesize = fileSize(fp);
 
         
         buffer.resize(filesize);
 
-        int ret = fread(buffer.data(), 1, filesize, fp);
+        fread(buffer.data(), 1, filesize, fp);
 
         fclose(fp);
         fp = nullptr;
     }
 
     return buffer;
-}
-
-static void saveFile(const std::string &filename, std::vector<uint8_t> data)
-{
-    FILE *fp = fopen(filename.c_str(), "wb");
-    if (fp)
-    {
-        int ret = fwrite(data.data(), 1, data.size(), fp);
-        if (fp)
-        {
-            fclose(fp);
-            fp = nullptr;
-        }
-    }
 }
 
 static void testExtractRaw(const std::string &wavFile, const std::string &rawFile,
@@ -103,67 +88,79 @@ TEST(wav_demuxer, demux)
 {
     std::string path = std::string(RES_AUDIO_PATH) + "/";
 
-    TestDemux demux[] = {
-        {
-            .file = path + "demo_8000hz_1ch.wav",
-            .file_raw = path + "demo_8000hz_1ch.raw",
-            .format = (int)RiffFmt::PCM,
-            .channel = 1,
-            .samplerate = 8000,
-            .samplebits = 16,
-            .samples = 8000 * 2
-        },
-        {
-            .file = path + "demo_8000hz_1ch_alaw.wav",
-            .file_raw = path + "demo_8000hz_1ch_alaw.raw",
-            .format = (int)RiffFmt::PCM_ALAW,
-            .channel = 1,
-            .samplerate = 8000,
-            .samplebits = 8,
-            .samples = 8000 * 2
-        },
-        {
-            .file = path + "demo_8000hz_1ch_ulaw.wav",
-            .file_raw = path + "demo_8000hz_1ch_ulaw.raw",
-            .format = (int)RiffFmt::PCM_MULAW,
-            .channel = 1,
-            .samplerate = 8000,
-            .samplebits = 8,
-            .samples = 8000 * 2
-        },
-        {
-            .file = path + "demo_16000hz_1ch.wav",
-            .file_raw = path + "demo_16000hz_1ch.raw",
-            .format = (int)RiffFmt::PCM,
-            .channel = 1,
-            .samplerate = 16000,
-            .samplebits = 16,
-            .samples = 16000 * 2
-        },
-        {
-            .file = path + "demo_16000hz_1ch_alaw.wav",
-            .file_raw = path + "demo_16000hz_1ch_alaw.raw",
-            .format = (int)RiffFmt::PCM_ALAW,
-            .channel = 1,
-            .samplerate = 16000,
-            .samplebits = 8,
-            .samples = 16000 * 2
-        },
-        {
-            .file = path + "demo_16000hz_1ch_ulaw.wav",
-            .file_raw = path + "demo_16000hz_1ch_ulaw.raw",
-            .format = (int)RiffFmt::PCM_MULAW,
-            .channel = 1,
-            .samplerate = 16000,
-            .samplebits = 8,
-            .samples = 16000 * 2
-        },
-    };
+    std::list<TestDemux> demux;
 
-    for (int i = 0; i < sizeof(demux)/sizeof(demux[0]); ++i)
     {
-        testExtractRaw(demux[i].file, demux[i].file_raw, 
-            demux[i].format, demux[i].channel, demux[i].samplerate, 
-            demux[i].samplebits, demux[i].samples);
+        TestDemux item{};
+        item.file = path + "demo_8000hz_1ch.wav";
+        item.file_raw = path + "demo_8000hz_1ch.raw";
+        item.format = (int)RiffFmt::PCM;
+        item.channel = 1;
+        item.samplerate = 8000;
+        item.samplebits = 16;
+        item.samples = 8000 * 2;
+        demux.push_back(item);
+    }
+    {
+        TestDemux item{};
+        item.file = path + "demo_8000hz_1ch_alaw.wav";
+        item.file_raw = path + "demo_8000hz_1ch_alaw.raw";
+        item.format = (int)RiffFmt::PCM_ALAW;
+        item.channel = 1;
+        item.samplerate = 8000;
+        item.samplebits = 8;
+        item.samples = 8000 * 2;
+        demux.push_back(item);
+    }
+    {
+        TestDemux item{};
+        item.file = path + "demo_8000hz_1ch_ulaw.wav";
+        item.file_raw = path + "demo_8000hz_1ch_ulaw.raw";
+        item.format = (int)RiffFmt::PCM_MULAW;
+        item.channel = 1;
+        item.samplerate = 8000;
+        item.samplebits = 8;
+        item.samples = 8000 * 2;
+        demux.push_back(item);
+    }
+    {
+        TestDemux item{};
+        item.file = path + "demo_16000hz_1ch.wav";
+        item.file_raw = path + "demo_16000hz_1ch.raw";
+        item.format = (int)RiffFmt::PCM;
+        item.channel = 1;
+        item.samplerate = 16000;
+        item.samplebits = 16;
+        item.samples = 16000 * 2;
+        demux.push_back(item);
+    }
+    {
+        TestDemux item{};
+        item.file = path + "demo_16000hz_1ch_alaw.wav";
+        item.file_raw = path + "demo_16000hz_1ch_alaw.raw";
+        item.format = (int)RiffFmt::PCM_ALAW;
+        item.channel = 1;
+        item.samplerate = 16000;
+        item.samplebits = 8;
+        item.samples = 16000 * 2;
+        demux.push_back(item);
+    }
+    {
+        TestDemux item{};
+        item.file = path + "demo_16000hz_1ch_ulaw.wav";
+        item.file_raw = path + "demo_16000hz_1ch_ulaw.raw";
+        item.format = (int)RiffFmt::PCM_MULAW;
+        item.channel = 1;
+        item.samplerate = 16000;
+        item.samplebits = 8;
+        item.samples = 16000 * 2;
+        demux.push_back(item);
+    }
+
+    for (auto const & ref : demux)
+    {
+        testExtractRaw(ref.file, ref.file_raw, 
+            ref.format, ref.channel, ref.samplerate, 
+            ref.samplebits, ref.samples);
     }
 }
