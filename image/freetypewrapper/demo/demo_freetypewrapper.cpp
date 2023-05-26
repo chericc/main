@@ -6,18 +6,6 @@
 
 static const int s_pixel_depth = 3;
 
-std::shared_ptr<std::vector<uint8_t>> color_mapper(uint8_t color)
-{
-    std::shared_ptr<std::vector<uint8_t>> pixel = std::make_shared<std::vector<uint8_t>>(s_pixel_depth);
-
-    for (auto & r : *pixel)
-    {
-        r = 255 - color;
-    }
-
-    return pixel;
-}
-
 int main()
 {
     {
@@ -41,7 +29,6 @@ int main()
 
     {
         FreeTypeWrapper ft(font_path);
-        ft.setColorMap(color_mapper);
         
         // std::string utf8_str = "2023-05-22 星期一 14:14:43";
         std::string utf8_str = "0123456789星期一123:-";
@@ -51,8 +38,21 @@ int main()
         // 72 * 360 / 1440 = 18
         // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
         // ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
-        ft.drawStringOutline(utf8_str, 72 * 360 / 1440, 0, 0, 0x80, 0.15, iv);
-        // ft.drawStringOutline(utf8_str, 72, 0, 0, 0x80, 0.5, iv);
+
+        std::vector<uint8_t> pixel_white({0xff,0xff,0xff});
+        std::vector<uint8_t> pixel_black({0x0,0x0,0x0});
+
+        FreeTypeWrapper::DrawInfo drawinfo{};
+        drawinfo.utf8_str = std::make_shared<std::string>(utf8_str);
+        drawinfo.iv = iv;
+        drawinfo.x = 0;
+        drawinfo.y = 0;
+        drawinfo.font_size = 72 * 360 / 1440;
+        drawinfo.outline_width = 0.0;
+        drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_white);
+        drawinfo.background = std::make_shared<std::vector<uint8_t>>(pixel_black);
+
+        ft.drawString(drawinfo);
     }
 
     // convert to 1555

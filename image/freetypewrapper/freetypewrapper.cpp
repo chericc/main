@@ -1,5 +1,7 @@
 #include "freetypewrapper.hpp"
 
+#include <math.h>
+
 #include "xlog.hpp"
 #include "utf8_enc.hpp"
 
@@ -154,61 +156,83 @@ FreeTypeWrapper::~FreeTypeWrapper()
     _state.reset();
 }
 
-int FreeTypeWrapper::setColorMap(FuncColorMap color_map)
+int FreeTypeWrapper::drawString(const DrawInfo &info)
 {
     int berror = false;
 
     do 
     {
-        if (!_state)
+        if (!info.utf8_str
+            || !info.iv
+            || info.x < 0
+            || info.y < 0
+            || info.font_size < 0
+            || info.outline_width < 0.0)
         {
-            xlog_err("null");
+            xlog_err("inavlid arg");
             berror = true;
             break;
         }
 
-        _state->color_map = std::make_shared<FuncColorMap>(color_map);
+        switch (info.mode)
+        {
+            case DrawMode::Normal:
+            case DrawMode::Monochrome:
+            {
+                if (drawString_Normal_Monochrome(info) < 0)
+                {
+                    xlog_err("draw failed");
+                    berror = true;
+                }
+                break;
+            }
+            case DrawMode::Outline:
+            {
+                if (drawString_Outline(info) < 0)
+                {
+                    xlog_err("draw failed");
+                    berror = true;
+                }
+                break;
+            }
+            default:
+            {
+                xlog_err("unknown mode");
+                berror = true;
+                break;
+            }
+        }
     }
-    while(0);
+    while (0);
 
     return (berror ? -1 : 0);
 }
 
-int FreeTypeWrapper::drawString(const std::string &utf8_str, int font_size, int x, int y,
-    std::shared_ptr<ImageView> iv)
+int FreeTypeWrapper::drawString_Outline(const DrawInfo &info)
 {
-    int ret = drawStringNormal(utf8_str, font_size, x, y, iv, Normal);
-    return ret;
-}
+    if (!info.utf8_str || !info.iv)
+    {
+        return -1;
+    }
 
-int FreeTypeWrapper::drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
-    std::shared_ptr<ImageView> iv)
-{
-    int ret = drawStringNormal(utf8_str, font_size, x, y, iv, Monochrome);
-    return ret;
-}
-
-int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
-    uint8_t outline_color, float outline_width,
-    std::shared_ptr<ImageView> iv)
-{
     FT_Face &face = _state->ft_face;
     FT_Library &library = _state->ft_library;
 
     std::vector<uint32_t> utf32_str;
-    utf32_str = enc_utf8_2_utf32(utf8_str);
-    // uint32_t ch = utf32_str.front();
+    utf32_str = enc_utf8_2_utf32(*info.utf8_str);
 
-    float &outlineWidth = outline_width;
+    double outlineWidth = info.outline_width;
 
     Pixel32 outlineCol = Pixel32(0, 0, 0);
     Pixel32 fontCol = Pixel32(255, 255, 255);
+    
+    int xoff = info.x;
 
     for (const auto & ref_utf32_c : utf32_str)
     {
         // Set the size to use.
         // if (FT_Set_Char_Size(face, size << 6, size << 6, 90, 90) == 0)
-        if (FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size) == 0)
+        if (FT_Set_Pixel_Sizes(_state->ft_face, 0, info.font_size) == 0)
         {
             // Load the glyph we are looking for.
             FT_UInt gindex = FT_Get_Char_Index(face, ref_utf32_c);
@@ -325,7 +349,7 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
                                     (int)advance,
                                     (int)ascender);
 
-                                std::vector<uint8_t> pixel(iv->depth());
+                                std::vector<uint8_t> pixel(info.iv->depth());
                                 if (pixel.size() >= 3U)
                                 {
                                     for (int iy = 0; iy < imgHeight; ++iy)
@@ -341,11 +365,11 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
                                                 pixel[3] = pxl[offset].a;
                                             }
 
-                                            int realx = ix + x;
+                                            int realx = ix + xoff;
                                             // int realy = iy + y + bearingY - ascender;
-                                            int realy = iy + y + ascender - bearingY;
+                                            int realy = iy + info.y + ascender - bearingY;
 
-                                            iv->drawPixels(realx, realy, pixel);
+                                            info.iv->drawPixels(realx, realy, pixel);
                                         }
                                     }
                                 }
@@ -358,7 +382,7 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
                             delete[] pxl;
                         }
 
-                        x += (face->glyph->advance.x >> 6) + 2 * outline_width;
+                        xoff += (face->glyph->advance.x >> 6) + ::ceil(2 * info.outline_width);
                     }
                 }
             }
@@ -368,8 +392,7 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
     return 0;
 }
 
-int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
-    std::shared_ptr<ImageView> iv, DrawMode mode)
+int FreeTypeWrapper::drawString_Normal_Monochrome(const DrawInfo &info)
 {
     int berror = false;
     FT_Error err{};
@@ -377,7 +400,7 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
 
     do
     {
-        if (x < 0 || y < 0 || !iv)
+        if (info.x < 0 || info.y < 0 || !info.iv || !info.utf8_str)
         {
             xlog_err("invalid args");
             berror = true;
@@ -393,9 +416,9 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
 
         std::vector<uint32_t> utf32_str;
 
-        utf32_str = enc_utf8_2_utf32(utf8_str);
+        utf32_str = enc_utf8_2_utf32(*info.utf8_str);
 
-        err = FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size);
+        err = FT_Set_Pixel_Sizes(_state->ft_face, 0, info.font_size);
         if (err)
         {
             xlog_err("FT_Set_Char_Size failed");
@@ -408,20 +431,26 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
         slot = _state->ft_face->glyph;
 
         // int iv_width = iv->width();
-        int iv_height = iv->height();
+        int iv_height = info.iv->height();
 
         /* 注意：freetype 坐标系为笛卡尔坐标系 */
         
-        pen.x = INT_TO_FP_26_6(x);
-        pen.y = INT_TO_FP_26_6(iv_height - y);
+        pen.x = INT_TO_FP_26_6(info.x);
+        pen.y = INT_TO_FP_26_6(iv_height - info.y);
 
-        if (Normal == mode)
+        if (DrawMode::Normal == info.mode)
         {
             load_flags = FT_LOAD_RENDER;
         }
-        else if (Monochrome == mode)
+        else if (DrawMode::Monochrome == info.mode)
         {
             load_flags = FT_LOAD_RENDER | FT_LOAD_MONOCHROME;
+        }
+        else 
+        {
+            xlog_err("invalid mode");
+            berror = true;
+            break;
         }
 
         for (int i = 0; i < (int)utf32_str.size(); ++i)
@@ -453,10 +482,10 @@ int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size
              * 实际测试，ascender的大小即为字符的高度。
              **/
 
-            drawBitmap(iv, 
+            drawBitmap(info.iv, 
                 slot->bitmap_left, 
                 iv_height - 1 - slot->bitmap_top + ascender,
-                &slot->bitmap);
+                &slot->bitmap, info.foreground, info.background);
 
             pen.x += slot->advance.x;
             pen.y += slot->advance.y;
@@ -505,7 +534,9 @@ std::shared_ptr<FreeTypeWrapper::State> FreeTypeWrapper::init()
 }
 
 /* 注：这里以左上角为原点 */
-int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap)
+int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap, 
+        std::shared_ptr<std::vector<uint8_t>> foreground,
+        std::shared_ptr<std::vector<uint8_t>> background)
 {
     xlog_trc("[x=%d,y=%d][w=%d, h=%d]", 
         x, y, 
@@ -513,7 +544,7 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
 
     int berror = false;
 
-    if (!bitmap || !iv)
+    if (!bitmap || !iv || !foreground || !background)
     {
         xlog_err("null");
         berror = true;
@@ -571,6 +602,8 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
                 }
             }
 
+            
+#if 0
             if (!_state->color_map)
             {
                 for (auto & r : pixel)
@@ -590,6 +623,7 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
                     xlog_err("color map null");
                 }
             }
+#endif 
 
             iv->drawPixels(dst_x, dst_y, pixel);
         }

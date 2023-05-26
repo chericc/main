@@ -1,5 +1,9 @@
 #pragma once
 
+#include <functional>
+#include <vector>
+#include <stdint.h>
+#include <memory>
 #include <string>
 
 #include <ft2build.h>
@@ -8,38 +12,41 @@
 #include FT_STROKER_H
 #include FT_BITMAP_H
 
-
-#include <functional>
-
 #include "imageview.hpp"
 
 class FreeTypeWrapper
 {
 public:
-    FreeTypeWrapper(const std::string &font_path);
-    ~FreeTypeWrapper();
 
-    using FuncColorMap = std::function<std::shared_ptr<std::vector<uint8_t>>(uint8_t)>;
-
-    /* 将 uint8_t 映射为一个具体的像素 */
-    int setColorMap(FuncColorMap colorMap);
-
-    int drawString(const std::string &utf8_str, int font_size, int x, int y,
-        std::shared_ptr<ImageView> iv);
-    int drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
-        std::shared_ptr<ImageView> iv);
-    int drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
-        uint8_t outline_color, float outline_width,
-        std::shared_ptr<ImageView> iv);
-
-private:
-    enum DrawMode
+    enum class DrawMode
     {
         Normal,
         Monochrome,
+        Outline,
     };
-    int drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
-        std::shared_ptr<ImageView> iv, DrawMode mode);
+
+    struct DrawInfo
+    {
+        std::shared_ptr<std::string> utf8_str;
+        std::shared_ptr<ImageView> iv;
+        int x{0};
+        int y{0};
+        int font_size{0};
+        double outline_width{0.0};
+        std::shared_ptr<std::vector<uint8_t>> foreground;
+        std::shared_ptr<std::vector<uint8_t>> background;
+        std::shared_ptr<std::vector<uint8_t>> outline;
+        DrawMode mode{DrawMode::Normal};
+    };
+
+    FreeTypeWrapper(const std::string &font_path);
+    ~FreeTypeWrapper();
+
+    int drawString(const DrawInfo &info);
+
+private:
+    int drawString_Normal_Monochrome(const DrawInfo &info);
+    int drawString_Outline(const DrawInfo &info);
     
 private:
     struct State
@@ -47,13 +54,13 @@ private:
         FT_Library ft_library{nullptr};
         FT_Face ft_face{nullptr};
 
-        std::shared_ptr<FuncColorMap> color_map;
-
         ~State();
     };
 
     std::shared_ptr<State> init();
-    int drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap);
+    int drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap, 
+        std::shared_ptr<std::vector<uint8_t>> foreground,
+        std::shared_ptr<std::vector<uint8_t>> background);
 
     const std::string _font_path;
 
