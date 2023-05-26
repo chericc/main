@@ -29,7 +29,7 @@ public:
     int drawStringMonochrome(const std::string &utf8_str, int font_size, int x, int y,
         std::shared_ptr<ImageView> iv);
     int drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
-        uint8_t outline_color, float output_width,
+        uint8_t outline_color, float outline_width,
         std::shared_ptr<ImageView> iv);
 
 private:
