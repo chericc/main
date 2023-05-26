@@ -158,9 +158,9 @@ void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, con
 
     for (auto &it : s_fps)
     {
-        fprintf(it, "[%s %d %s] ", xlog_shortfilepath(file).c_str(), line, func);
         fprintf(it, "[%s]", now_str().c_str());
         fprintf(it, "[%s]", xlog_getlevel(level));
+        fprintf(it, "[%s %d %s] ", xlog_shortfilepath(file).c_str(), line, func);
         va_start (ap, format);
         vfprintf(it, format, ap);
         va_end (ap);
