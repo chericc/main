@@ -188,9 +188,8 @@ int FreeTypeWrapper::drawStringMonochrome(const std::string &utf8_str, int font_
     return ret;
 }
 
-#if 1
 int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_size, int x, int y,
-    uint8_t , float outline_width,
+    uint8_t outline_color, float outline_width,
     std::shared_ptr<ImageView> iv)
 {
     FT_Face &face = _state->ft_face;
@@ -198,149 +197,168 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
 
     std::vector<uint32_t> utf32_str;
     utf32_str = enc_utf8_2_utf32(utf8_str);
-    uint32_t ch = utf32_str.front();
+    // uint32_t ch = utf32_str.front();
 
     float &outlineWidth = outline_width;
 
     Pixel32 outlineCol = Pixel32(0, 0, 0);
     Pixel32 fontCol = Pixel32(255, 255, 255);
 
-    // Set the size to use.
-    // if (FT_Set_Char_Size(face, size << 6, size << 6, 90, 90) == 0)
-    if (FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size) == 0)
+    for (const auto & ref_utf32_c : utf32_str)
     {
-        // Load the glyph we are looking for.
-        FT_UInt gindex = FT_Get_Char_Index(face, ch);
-        if (FT_Load_Glyph(face, gindex, FT_LOAD_NO_BITMAP) == 0)
+        // Set the size to use.
+        // if (FT_Set_Char_Size(face, size << 6, size << 6, 90, 90) == 0)
+        if (FT_Set_Pixel_Sizes(_state->ft_face, 0, font_size) == 0)
         {
-            // Need an outline for this to work.
-            if (face->glyph->format == FT_GLYPH_FORMAT_OUTLINE)
+            // Load the glyph we are looking for.
+            FT_UInt gindex = FT_Get_Char_Index(face, ref_utf32_c);
+            if (FT_Load_Glyph(face, gindex, FT_LOAD_NO_BITMAP) == 0)
             {
-                // Render the basic glyph to a span list.
-                Spans spans;
-                RenderSpans(library, &face->glyph->outline, &spans);
-
-                // Next we need the spans for the outline.
-                Spans outlineSpans;
-
-                // Set up a stroker.
-                FT_Stroker stroker;
-                FT_Stroker_New(library, &stroker);
-                FT_Stroker_Set(stroker,
-                               (int)(outlineWidth * 64),
-                               FT_STROKER_LINECAP_ROUND,
-                               FT_STROKER_LINEJOIN_ROUND,
-                               0);
-
-                FT_Glyph glyph;
-                if (FT_Get_Glyph(face->glyph, &glyph) == 0)
+                // Need an outline for this to work.
+                if (face->glyph->format == FT_GLYPH_FORMAT_OUTLINE)
                 {
-                    FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1);
-                    // Again, this needs to be an outline to work.
-                    if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
-                    {
-                        // Render the outline spans to the span list
-                        FT_Outline *o =
-                            &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
-                        RenderSpans(library, o, &outlineSpans);
-                    }
+                    // Render the basic glyph to a span list.
+                    Spans spans;
+                    RenderSpans(library, &face->glyph->outline, &spans);
 
-                    // Clean up afterwards.
-                    FT_Stroker_Done(stroker);
-                    FT_Done_Glyph(glyph);
+                    // Next we need the spans for the outline.
+                    Spans outlineSpans;
 
-                    // Now we need to put it all together.
-                    if (!spans.empty())
+                    // Set up a stroker.
+                    FT_Stroker stroker;
+                    FT_Stroker_New(library, &stroker);
+                    FT_Stroker_Set(stroker,
+                                (int)(outlineWidth * 64),
+                                FT_STROKER_LINECAP_ROUND,
+                                FT_STROKER_LINEJOIN_ROUND,
+                                0);
+
+                    FT_Glyph glyph;
+                    if (FT_Get_Glyph(face->glyph, &glyph) == 0)
                     {
-                        // Figure out what the bounding rect is for both the span lists.
-                        Rect rect(spans.front().x,
-                                  spans.front().y,
-                                  spans.front().x,
-                                  spans.front().y);
-                        for (Spans::iterator s = spans.begin();
-                             s != spans.end(); ++s)
+                        FT_Glyph_StrokeBorder(&glyph, stroker, 0, 1);
+                        // Again, this needs to be an outline to work.
+                        if (glyph->format == FT_GLYPH_FORMAT_OUTLINE)
                         {
-                            rect.Include(Vec2(s->x, s->y));
-                            rect.Include(Vec2(s->x + s->width - 1, s->y));
-                        }
-                        for (Spans::iterator s = outlineSpans.begin();
-                             s != outlineSpans.end(); ++s)
-                        {
-                            rect.Include(Vec2(s->x, s->y));
-                            rect.Include(Vec2(s->x + s->width - 1, s->y));
+                            // Render the outline spans to the span list
+                            FT_Outline *o =
+                                &reinterpret_cast<FT_OutlineGlyph>(glyph)->outline;
+                            RenderSpans(library, o, &outlineSpans);
                         }
 
-#if 0
-            // This is unused in this test but you would need this to draw
-            // more than one glyph.
-            float bearingX = face->glyph->metrics.horiBearingX >> 6;
-            float bearingY = face->glyph->metrics.horiBearingY >> 6;
-            float advance = face->glyph->advance.x >> 6;
-#endif
+                        // Clean up afterwards.
+                        FT_Stroker_Done(stroker);
+                        FT_Done_Glyph(glyph);
 
-                        // Get some metrics of our image.
-                        int imgWidth = rect.Width(),
-                            imgHeight = rect.Height(),
-                            imgSize = imgWidth * imgHeight;
-
-                        // Allocate data for our image and clear it out to transparent.
-                        Pixel32 *pxl = new Pixel32[imgSize];
-                        memset(pxl, 0xff, sizeof(Pixel32) * imgSize);
-
-                        // Loop over the outline spans and just draw them into the
-                        // image.
-                        for (Spans::iterator s = outlineSpans.begin();
-                             s != outlineSpans.end(); ++s)
-                            for (int w = 0; w < s->width; ++w)
-                                pxl[(int)((imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w)] =
-                                    Pixel32(outlineCol.r, outlineCol.g, outlineCol.b,
-                                            s->coverage);
-
-                        // Then loop over the regular glyph spans and blend them into
-                        // the image.
-                        for (Spans::iterator s = spans.begin();
-                             s != spans.end(); ++s)
-                            for (int w = 0; w < s->width; ++w)
+                        // Now we need to put it all together.
+                        if (!spans.empty())
+                        {
+                            // Figure out what the bounding rect is for both the span lists.
+                            Rect rect(spans.front().x,
+                                    spans.front().y,
+                                    spans.front().x,
+                                    spans.front().y);
+                            for (Spans::iterator s = spans.begin();
+                                s != spans.end(); ++s)
                             {
-                                Pixel32 &dst =
-                                    pxl[(int)((imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w)];
-                                Pixel32 src = Pixel32(fontCol.r, fontCol.g, fontCol.b,
-                                                      s->coverage);
-                                dst.r = (int)(dst.r + ((src.r - dst.r) * src.a) / 255.0f);
-                                dst.g = (int)(dst.g + ((src.g - dst.g) * src.a) / 255.0f);
-                                dst.b = (int)(dst.b + ((src.b - dst.b) * src.a) / 255.0f);
-                                dst.a = MIN(255, dst.a + src.a);
+                                rect.Include(Vec2(s->x, s->y));
+                                rect.Include(Vec2(s->x + s->width - 1, s->y));
+                            }
+                            for (Spans::iterator s = outlineSpans.begin();
+                                s != outlineSpans.end(); ++s)
+                            {
+                                rect.Include(Vec2(s->x, s->y));
+                                rect.Include(Vec2(s->x + s->width - 1, s->y));
                             }
 
-                        // Dump the image to disk.
-                        // WriteTGA(fileName, pxl, imgWidth, imgHeight);
-                        {
-                            std::vector<uint8_t> pixel(iv->depth());
-                            if (pixel.size() >= 3U)
-                            {
-                                for (int iy = 0; iy < imgHeight; ++iy)
+                            // This is unused in this test but you would need this to draw
+                            // more than one glyph.
+                            float bearingX = face->glyph->metrics.horiBearingX >> 6;
+                            float bearingY = face->glyph->metrics.horiBearingY >> 6;
+                            float advance = face->glyph->advance.x >> 6;
+                            float ascender = face->size->metrics.ascender >> 6;
+
+                            // Get some metrics of our image.
+                            int imgWidth = rect.Width(),
+                                imgHeight = rect.Height(),
+                                imgSize = imgWidth * imgHeight;
+
+                            // Allocate data for our image and clear it out to transparent.
+                            Pixel32 *pxl = new Pixel32[imgSize];
+                            memset(pxl, 0xff, sizeof(Pixel32) * imgSize);
+
+                            // Loop over the outline spans and just draw them into the
+                            // image.
+                            for (Spans::iterator s = outlineSpans.begin();
+                                s != outlineSpans.end(); ++s)
+                                for (int w = 0; w < s->width; ++w)
                                 {
-                                    for (int ix = 0; ix < imgWidth; ++ix)
+                                    pxl[(int)((imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w)] =
+                                        Pixel32(outlineCol.r, outlineCol.g, outlineCol.b,
+                                                s->coverage);
+                                }
+
+                            // Then loop over the regular glyph spans and blend them into
+                            // the image.
+                            for (Spans::iterator s = spans.begin();
+                                s != spans.end(); ++s)
+                                for (int w = 0; w < s->width; ++w)
+                                {
+                                    Pixel32 &dst =
+                                        pxl[(int)((imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w)];
+                                    Pixel32 src = Pixel32(fontCol.r, fontCol.g, fontCol.b,
+                                                        s->coverage);
+                                    dst.r = (int)(dst.r + ((src.r - dst.r) * src.a) / 255.0f);
+                                    dst.g = (int)(dst.g + ((src.g - dst.g) * src.a) / 255.0f);
+                                    dst.b = (int)(dst.b + ((src.b - dst.b) * src.a) / 255.0f);
+                                    dst.a = MIN(255, dst.a + src.a);
+                                }
+
+                            // Dump the image to disk.
+                            // WriteTGA(fileName, pxl, imgWidth, imgHeight);
+                            {
+                                xlog_trc("[%04x]: [w=%d,h=%d][bx=%d,by=%d,ad=%d,as=%d]",
+                                    (unsigned int)ref_utf32_c,
+                                    imgWidth, imgHeight,
+                                    (int)bearingX,
+                                    (int)bearingY,
+                                    (int)advance,
+                                    (int)ascender);
+
+                                std::vector<uint8_t> pixel(iv->depth());
+                                if (pixel.size() >= 3U)
+                                {
+                                    for (int iy = 0; iy < imgHeight; ++iy)
                                     {
-                                        int offset = iy * imgWidth + ix;
-                                        pixel[0] = pxl[offset].b;
-                                        pixel[1] = pxl[offset].g;
-                                        pixel[2] = pxl[offset].r;
+                                        for (int ix = 0; ix < imgWidth; ++ix)
+                                        {
+                                            int offset = iy * imgWidth + ix;
+                                            pixel[0] = pxl[offset].b;
+                                            pixel[1] = pxl[offset].g;
+                                            pixel[2] = pxl[offset].r;
+                                            if (pixel.size() >= 4)
+                                            {
+                                                pixel[3] = pxl[offset].a;
+                                            }
 
-                                        int realx = ix + x;
-                                        int realy = iy + y;
+                                            int realx = ix + x;
+                                            // int realy = iy + y + bearingY - ascender;
+                                            int realy = iy + y + ascender - bearingY;
 
-                                        iv->drawPixels(realx, realy, pixel);
+                                            iv->drawPixels(realx, realy, pixel);
+                                        }
                                     }
                                 }
+                                else 
+                                {
+                                    xlog_err("depth error");
+                                }
                             }
-                            else 
-                            {
-                                xlog_err("depth error");
-                            }
+
+                            delete[] pxl;
                         }
 
-                        delete[] pxl;
+                        x += (face->glyph->advance.x >> 6) + 2 * outline_width;
                     }
                 }
             }
@@ -349,7 +367,6 @@ int FreeTypeWrapper::drawStringOutline(const std::string &utf8_str, int font_siz
 
     return 0;
 }
-#endif 
 
 int FreeTypeWrapper::drawStringNormal(const std::string &utf8_str, int font_size, int x, int y,
     std::shared_ptr<ImageView> iv, DrawMode mode)

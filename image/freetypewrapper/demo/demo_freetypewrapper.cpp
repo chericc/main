@@ -29,8 +29,8 @@ int main()
     std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
     // std::string font_path = std::string() + RES_FONT_PATH + "/simsun.ttc";
 
-    int width = 500;
-    int height = 200;
+    int width = 640;
+    int height = 360;
     std::vector<uint8_t> pixel_init(s_pixel_depth, 0xff);
 
     std::shared_ptr<ImageView> iv;
@@ -44,13 +44,20 @@ int main()
         ft.setColorMap(color_mapper);
         
         // std::string utf8_str = "2023-05-22 星期一 14:14:43";
+        std::string utf8_str = "0123456789星期一123:-";
         // std::string utf8_str = "A";
-        std::string utf8_str = "星";
+        // std::string utf8_str = "星";
 
         // 72 * 360 / 1440 = 18
         // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
         // ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
-        ft.drawStringOutline(utf8_str, 72 * 360 / 1440, 0, 0, 0x80, 0.1, iv);
+        ft.drawStringOutline(utf8_str, 72 * 360 / 1440, 0, 0, 0x80, 0.15, iv);
+        // ft.drawStringOutline(utf8_str, 72, 0, 0, 0x80, 0.5, iv);
+    }
+
+    // convert to 1555
+    {
+        // for ()
     }
 
     {
