@@ -16,6 +16,29 @@ static int s_log_mask = 0xffffffff;
 static std::vector<FILE *> s_fps;
 static std::mutex s_call_mutex;
 
+std::string xlog_shortfilepath(const std::string &path)
+{
+    char token[] = { '/', '\\'};
+    std::size_t token_pos = 0;
+    bool found = false;
+    for (auto const& r : token)
+    {
+        std::size_t pos = path.rfind(r);
+        if (pos != std::string::npos && pos >= token_pos)
+        {
+            found = true;
+            token_pos = pos;
+        }
+    }
+    
+    if (!found)
+    {
+        return path;
+    }
+
+    return std::string(path, token_pos + 1);
+}
+
 static const char *xlog_getlevel (XLOG_LEVEL level)
 {
     int i = 0;
@@ -122,27 +145,28 @@ void xlog(XLOG_LEVEL level, const char *format, ...)
     return ;
 }
 
-
-std::string xlog_shortfilepath(const std::string &path)
+void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...)
 {
-    char token[] = { '/', '\\'};
-    std::size_t token_pos = 0;
-    bool found = false;
-    for (auto const& r : token)
+    va_list ap;
+
+    std::unique_lock<std::mutex> lock(s_call_mutex);
+
+    if (! (level & s_log_mask))
     {
-        std::size_t pos = path.rfind(r);
-        if (pos != std::string::npos && pos >= token_pos)
-        {
-            found = true;
-            token_pos = pos;
-        }
-    }
-    
-    if (!found)
-    {
-        return path;
+        return ;
     }
 
-    return std::string(path, token_pos + 1);
+    for (auto &it : s_fps)
+    {
+        fprintf(it, "[%s %d %s] ", xlog_shortfilepath(file).c_str(), line, func);
+        fprintf(it, "[%s]", now_str().c_str());
+        fprintf(it, "[%s]", xlog_getlevel(level));
+        va_start (ap, format);
+        vfprintf(it, format, ap);
+        va_end (ap);
+        fprintf(it, "\n");
+        fflush(it);
+    }
 
+    return ;
 }
