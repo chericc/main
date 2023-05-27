@@ -95,7 +95,7 @@ bool XConfigImp::Exist(const std::string &section, const std::string &key)
     if (! m_file_loaded__)
     {
         xlog_err("Not loaded\n");
-        return -1;
+        return false;
     }
 
     if (! DataExist__(section, key))
@@ -191,7 +191,6 @@ std::string XConfigImp::LoadFileAsText__()
     std::string text;
 
     FILE* fp = nullptr;
-    int ret = 0;
 
     do
     {
@@ -210,7 +209,7 @@ std::string XConfigImp::LoadFileAsText__()
                 break;
             }
 
-            ret = fread(buffer, 1, sizeof(buffer) - 1, fp);
+            std::size_t ret = fread(buffer, 1, sizeof(buffer) - 1, fp);
             if (ret > 0)
             {
                 buffer[ret] = '\0';
