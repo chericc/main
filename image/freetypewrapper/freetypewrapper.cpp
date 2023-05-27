@@ -309,8 +309,9 @@ int FreeTypeWrapper::drawString_Outline(const DrawInfo &info)
                                 imgSize = imgWidth * imgHeight;
 
                             // Allocate data for our image and clear it out to transparent.
-                            Pixel32 *pxl = new Pixel32[imgSize];
-                            memset(pxl, 0xff, sizeof(Pixel32) * imgSize);
+                            // Pixel32 *pxl = new Pixel32[imgSize];
+                            // memset(pxl, 0xff, sizeof(Pixel32) * imgSize);
+                            std::vector<Pixel32> pxl(imgSize);
 
                             // Loop over the outline spans and just draw them into the
                             // image.
@@ -350,40 +351,34 @@ int FreeTypeWrapper::drawString_Outline(const DrawInfo &info)
                                     (int)advance,
                                     (int)ascender);
 
-                                std::vector<uint8_t> pixel(info.iv->depth());
-                                if (pixel.size() >= 3U)
+                                // here, 
+                                // [255,255,255,255] -> forground
+                                // [0,0,0,255] -> outline
+                                // [x,x,x,0] -> background
+                                for (int iy = 0; iy < imgHeight; ++iy)
                                 {
-                                    for (int iy = 0; iy < imgHeight; ++iy)
+                                    for (int ix = 0; ix < imgWidth; ++ix)
                                     {
-                                        for (int ix = 0; ix < imgWidth; ++ix)
-                                        {
-                                            int offset = iy * imgWidth + ix;
-                                            pixel[0] = pxl[offset].b;
-                                            pixel[1] = pxl[offset].g;
-                                            pixel[2] = pxl[offset].r;
-                                            if (pixel.size() >= 4)
-                                            {
-                                                pixel[3] = pxl[offset].a;
-                                            }
+                                        int offset = iy * imgWidth + ix;
+                                        uint8_t color = pxl[offset].r;  // use red as color
+                                        uint8_t alpha = pxl[offset].a;  //
 
-                                            int realx = ix + xoff;
-                                            // int realy = iy + y + bearingY - ascender;
-                                            int realy = iy + info.y + ascender - bearingY;
+                                        PixelColorPtr mid_fore_out = mid(info.outline, info.foreground, color);
+                                        PixelColorPtr mid_foreout_back = mid(info.background, mid_fore_out, alpha);
 
-                                            info.iv->drawPixels(realx, realy, pixel);
-                                        }
+                                        int realx = ix + xoff + bearingX;
+                                        int realy = iy + info.y + ascender - bearingY;
+
+                                        info.iv->drawPixels(realx, realy, *mid_foreout_back);
                                     }
-                                }
-                                else 
-                                {
-                                    xlog_err("depth error");
                                 }
                             }
 
-                            delete[] pxl;
+                            // delete[] pxl;
                         }
 
-                        xoff += (face->glyph->advance.x >> 6) + ::ceil(2 * info.outline_width);
+                        // xoff += (face->glyph->advance.x >> 6) + ::ceil(2 * info.outline_width);
+                        xoff += ((face->glyph->metrics.horiAdvance >> 6) + ::ceil(2 * info.outline_width));
                     }
                 }
             }
@@ -607,7 +602,7 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
                 break;
             }
 
-            std::shared_ptr<PixelColor> pixel = mid(background, foreground, color);
+            PixelColorPtr pixel = mid(background, foreground, color);
             if (!pixel)
             {
                 xlog_err("mid failed");
@@ -622,9 +617,9 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
     return (berror ? -1 : 0);
 }
 
-std::shared_ptr<FreeTypeWrapper::PixelColor> FreeTypeWrapper::mid(std::shared_ptr<PixelColor> background, std::shared_ptr<PixelColor> foreground, uint8_t color)
+FreeTypeWrapper::PixelColorPtr FreeTypeWrapper::mid(PixelColorPtr background, PixelColorPtr foreground, uint8_t color)
 {
-    std::shared_ptr<PixelColor> pixel;
+    PixelColorPtr pixel;
     int berror = false;
 
     const std::uint8_t color_max = std::numeric_limits<uint8_t>().max();

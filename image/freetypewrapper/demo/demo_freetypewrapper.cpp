@@ -16,8 +16,9 @@ int main()
     std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
     // std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
     // std::string font_path = std::string() + RES_FONT_PATH + "/simsun.ttc";
+    // std::string font_path = std::string() + RES_FONT_PATH + "/STHUPO.TTF";
 
-    int width = 640;
+    int width = 1440;
     int height = 360;
     std::vector<uint8_t> pixel_init(s_pixel_depth, 0xff);
 
@@ -32,6 +33,7 @@ int main()
         
         // std::string utf8_str = "2023-05-22 星期一 14:14:43";
         std::string utf8_str = "0123456789星期一123:-";
+        // std::string utf8_str = "China 中国，全球 01";
         // std::string utf8_str = "A";
         // std::string utf8_str = "星";
 
@@ -48,9 +50,12 @@ int main()
         drawinfo.x = 0;
         drawinfo.y = 0;
         drawinfo.font_size = 72 * 360 / 1440;
-        drawinfo.outline_width = 0.0;
-        drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_black);
+        // drawinfo.font_size = 72;
+        drawinfo.outline_width = 1.0;
+        drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_white);
         drawinfo.background = std::make_shared<std::vector<uint8_t>>(pixel_white);
+        drawinfo.outline = std::make_shared<std::vector<uint8_t>>(pixel_black);
+        drawinfo.mode = FreeTypeWrapper::DrawMode::Outline;
 
         ft.drawString(drawinfo);
     }

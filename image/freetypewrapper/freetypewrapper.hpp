@@ -26,6 +26,8 @@ public:
     };
 
     using PixelColor = std::vector<uint8_t>;
+    using PixelColorPtr = std::shared_ptr<PixelColor>;
+    using PixelColorConstPtr = std::shared_ptr<const PixelColor>;
 
     struct DrawInfo
     {
@@ -35,9 +37,9 @@ public:
         int y{0};
         int font_size{0};
         double outline_width{0.0};
-        std::shared_ptr<PixelColor> foreground;
-        std::shared_ptr<PixelColor> background;
-        std::shared_ptr<PixelColor> outline;
+        PixelColorPtr foreground;
+        PixelColorPtr background;
+        PixelColorPtr outline;
         DrawMode mode{DrawMode::Normal};
     };
 
@@ -65,7 +67,7 @@ private:
         std::shared_ptr<std::vector<uint8_t>> background);
 
     /* color 0-->background 255-->foreground */
-    std::shared_ptr<PixelColor> mid(std::shared_ptr<PixelColor> background, std::shared_ptr<PixelColor> foreground, uint8_t color);
+    PixelColorPtr mid(PixelColorPtr background, PixelColorPtr foreground, uint8_t color);
 
     const std::string _font_path;
 
