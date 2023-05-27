@@ -13,8 +13,8 @@ int main()
         xlog_setoutput(fps);
     }
 
-    // std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
-    std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
+    std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
+    // std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
     // std::string font_path = std::string() + RES_FONT_PATH + "/simsun.ttc";
 
     int width = 640;
@@ -49,8 +49,8 @@ int main()
         drawinfo.y = 0;
         drawinfo.font_size = 72 * 360 / 1440;
         drawinfo.outline_width = 0.0;
-        drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_white);
-        drawinfo.background = std::make_shared<std::vector<uint8_t>>(pixel_black);
+        drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_black);
+        drawinfo.background = std::make_shared<std::vector<uint8_t>>(pixel_white);
 
         ft.drawString(drawinfo);
     }

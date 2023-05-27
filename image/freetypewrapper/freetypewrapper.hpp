@@ -25,6 +25,8 @@ public:
         Outline,
     };
 
+    using PixelColor = std::vector<uint8_t>;
+
     struct DrawInfo
     {
         std::shared_ptr<std::string> utf8_str;
@@ -33,9 +35,9 @@ public:
         int y{0};
         int font_size{0};
         double outline_width{0.0};
-        std::shared_ptr<std::vector<uint8_t>> foreground;
-        std::shared_ptr<std::vector<uint8_t>> background;
-        std::shared_ptr<std::vector<uint8_t>> outline;
+        std::shared_ptr<PixelColor> foreground;
+        std::shared_ptr<PixelColor> background;
+        std::shared_ptr<PixelColor> outline;
         DrawMode mode{DrawMode::Normal};
     };
 
@@ -61,6 +63,9 @@ private:
     int drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap, 
         std::shared_ptr<std::vector<uint8_t>> foreground,
         std::shared_ptr<std::vector<uint8_t>> background);
+
+    /* color 0-->background 255-->foreground */
+    std::shared_ptr<PixelColor> mid(std::shared_ptr<PixelColor> background, std::shared_ptr<PixelColor> foreground, uint8_t color);
 
     const std::string _font_path;
 

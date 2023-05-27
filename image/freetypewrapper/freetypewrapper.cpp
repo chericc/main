@@ -1,6 +1,7 @@
 #include "freetypewrapper.hpp"
 
 #include <math.h>
+#include <limits>
 
 #include "xlog.hpp"
 #include "utf8_enc.hpp"
@@ -551,8 +552,6 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
         return -1;
     }
 
-    std::vector<uint8_t> pixel(iv->depth());
-
     for (unsigned int j = 0; j < bitmap->rows; ++j)
     {
         for (unsigned int i = 0; i < bitmap->width; ++i)
@@ -597,37 +596,82 @@ int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_
                 }
                 default:
                 {
-                    xlog_err("");
+                    xlog_err("pixel mode not support");
+                    berror = true;
                     break;
                 }
             }
 
-            
-#if 0
-            if (!_state->color_map)
+            if (berror)
             {
-                for (auto & r : pixel)
-                {
-                    r = color;
-                }
+                break;
             }
-            else 
-            {
-                auto pixel_map = (*_state->color_map)(color);
-                if (pixel_map)
-                {
-                    pixel = *pixel_map;
-                }
-                else 
-                {
-                    xlog_err("color map null");
-                }
-            }
-#endif 
 
-            iv->drawPixels(dst_x, dst_y, pixel);
+            std::shared_ptr<PixelColor> pixel = mid(background, foreground, color);
+            if (!pixel)
+            {
+                xlog_err("mid failed");
+                berror = true;
+                break;
+            }
+
+            iv->drawPixels(dst_x, dst_y, *pixel);
         }
     }
     
     return (berror ? -1 : 0);
+}
+
+std::shared_ptr<FreeTypeWrapper::PixelColor> FreeTypeWrapper::mid(std::shared_ptr<PixelColor> background, std::shared_ptr<PixelColor> foreground, uint8_t color)
+{
+    std::shared_ptr<PixelColor> pixel;
+    int berror = false;
+
+    const std::uint8_t color_max = std::numeric_limits<uint8_t>().max();
+    const std::uint8_t color_min = std::numeric_limits<uint8_t>().min();
+
+    static_assert(color_max == 255, "unexpected");
+    static_assert(color_min == 0, "unexpected");
+
+    do 
+    {
+        if (!background || !foreground)
+        {
+            xlog_err("invalid arg");
+            berror = true;
+            break;
+        }
+
+        if (background->size() != foreground->size())
+        {
+            xlog_err("invalid arg");
+            berror = true;
+            break;
+        }
+
+        if (color_min == color)
+        {
+            pixel = background;
+            break;
+        }
+        else if (color_max == color)
+        {
+            pixel = foreground;
+            break;
+        }
+
+        std::size_t pixel_bytes = background->size();
+        pixel = std::make_shared<PixelColor>(pixel_bytes);
+        for (std::size_t i = 0; i < pixel_bytes; ++i)
+        {
+            int back = background->at(i);
+            int fore = foreground->at(i);
+            int middle = back + (fore - back) * (color - color_min) / (color_max - color_min);
+            
+            pixel->operator[](i) = (uint8_t)middle;
+        }
+    }
+    while (0);
+
+    return (berror ? nullptr : pixel);
 }
