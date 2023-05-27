@@ -93,7 +93,7 @@ private:
     bool m_readonly__;
 
     bool m_file_loaded__;  // Indicate file load successfully.
-    bool m_modify_state__;  // Indicate content changed but hasn't write to file yet.
+    // bool m_modify_state__;  // Indicate content changed but hasn't write to file yet.
     std::map<std::string, std::map<std::string,std::string> > m_map_data__;
     std::mutex m_mutex__;
 };

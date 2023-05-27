@@ -351,6 +351,7 @@ void md5_process_block(const void *buffer, size_t len, struct md5_ctx *ctx)
 #define TOLOWER(Ch) tolower (Ch)
 // #define OPENOPTS(BINARY) "r"
 
+#if 0
 /* The minimum length of a valid digest line in a file produced
    by `md5sum FILE' and read by `md5sum -c'.  This length does
    not include any newline character at the end of a line.  */
@@ -358,7 +359,6 @@ static const int MIN_DIGEST_LINE_LENGTH = 35; /* 32 - message digest length
                                       2 - blank and binary indicator
                                       1 - minimum filename length */
 
-#if 0
 static int have_read_stdin; /* Nonzero if any of the files read were
                                the standard input. */
 

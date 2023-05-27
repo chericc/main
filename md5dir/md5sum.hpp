@@ -67,7 +67,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
-#include <endian.h>
+// #include <endian.h>
 
 // #include "busybox.h"
 //----------------------------------------------------------------------------
