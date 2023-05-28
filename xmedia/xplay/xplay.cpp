@@ -896,6 +896,12 @@ int XPlay::videoThread()
         pts = (frame->pts == AV_NOPTS_VALUE) ? (NAN) : (frame->pts * av_q2d(tb));
         ret = queuePicture(frame, pts, duration, frame->pkt_pos, 0);
         av_frame_unref(frame);
+
+        if (ret < 0)
+        {
+            xlog_trc("video thread break");
+            break;
+        }
     }
 
     av_frame_free(&frame);
@@ -972,9 +978,32 @@ int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration, int64_t
 {
     xlog_dbg("push pic");
 
-    saveFrame(src_frame);
+    Frame* vp = nullptr;
 
-    av_frame_unref(src_frame);
+    vp = is_->pictq->peek_writable();
+
+    if (!vp)
+    {
+        return -1;
+    }
+
+    vp->sar = src_frame->sample_aspect_ratio;
+    vp->uploaded = 0;
+
+    vp->width = src_frame->width;
+    vp->height = src_frame->height;
+    vp->format = src_frame->format;
+
+    vp->pts = pts;
+    vp->duration = duration;
+    vp->pos = pos;
+    vp->serial = serial;
+
+    //saveFrame(src_frame);
+    //av_frame_unref(src_frame);
+
+    av_frame_move_ref(vp->frame, src_frame);
+    is_->pictq->push();
 
     return 0;
 }
