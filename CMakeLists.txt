@@ -128,7 +128,9 @@ add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(audio/aac/fdkaac_wrapper)
 add_subdirectory(xmedia/xplay)
 add_subdirectory(textenc)
-if(!{msvc})
-add_subdirectory(xmedia/xdisplay)
+
+if(${gnu})
 add_subdirectory(md5dir)
 endif()
+
+#add_subdirectory(xmedia/xdisplay)

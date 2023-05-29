@@ -47,6 +47,11 @@ private:
         int pic_width, int pic_height, AVRational pic_sar);
     void setSDLYUVConversionMode(AVFrame* frame);
     int uploadTexture(SDL_Texture** tex, AVFrame* frame);
+    void getSDLPixFmtAndBlendMode(int format, uint32_t* sdl_pix_fmt,
+        SDL_BlendMode* sdl_blendmode);
+    int reallocTexture(SDL_Texture** texture, uint32_t new_format,
+        int new_width, int new_height, SDL_BlendMode blendmode,
+        int init_texture);
     
     std::shared_ptr<State> init();
 

@@ -44,10 +44,11 @@ void MyThread::join()
     }
 }
 
-int FrameQueue::init(std::shared_ptr<PacketQueue> pktq_v, int max_size)
+int FrameQueue::init(std::shared_ptr<PacketQueue> pktq_v, int max_size, int keep_last)
 {
     pktq = pktq_v;
     queue.resize(max_size);
+    keep_last = !!keep_last;
     for (auto &r : queue)
     {
         r.frame = av_frame_alloc();
@@ -99,6 +100,7 @@ Frame *FrameQueue::peek_writable()
     while (size >= queue.size()
         && !pktq->abort_request)
     {
+        xlog_trc("frame queue full, wait");
         cond.wait(lock);
     }
 
@@ -134,6 +136,7 @@ void FrameQueue::push()
     }
     std::unique_lock<std::mutex> lock(mutex);
     ++size;
+    xlog_trc("framequeue.push, size=%d", size);
     cond.notify_one();
 }
 
@@ -153,6 +156,7 @@ void FrameQueue::next()
 
     std::unique_lock<std::mutex> lock(mutex);
     --size;
+    xlog_trc("framequque.next, size=%d", size);
     cond.notify_one();
 }
 
@@ -434,7 +438,7 @@ std::shared_ptr<VideoState> XPlay::streamOpen(const OptValues &opt)
         is->videoq = std::make_shared<PacketQueue>();
         is->pictq = std::make_shared<FrameQueue>();
 
-        if (is->pictq->init(is->videoq, 16) < 0)
+        if (is->pictq->init(is->videoq, 16, true) < 0)
         {
             xlog_err("pic queue init failed");
             break;

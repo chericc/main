@@ -97,7 +97,7 @@ public:
     std::condition_variable cond;
     std::shared_ptr<PacketQueue> pktq;
 
-    int init(std::shared_ptr<PacketQueue> pktq, int max_size);
+    int init(std::shared_ptr<PacketQueue> pktq, int max_size, int keep_last);
     void destroy();
     void signal();
     Frame *peek();
