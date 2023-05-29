@@ -1,5 +1,5 @@
 #include "container.h"
-#include "../utility.h"
+#include "utility.h"
 
 #include <vector>
 #include <list>
@@ -66,7 +66,7 @@ void TEST::test_array()
 		{
 			a.at(a.size()) = 0;
 		}
-		catch (std::out_of_range ex)
+		catch (std::out_of_range &ex)
 		{
 			cout << "catch exception, " << ex.what() << endl;
 		}

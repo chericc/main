@@ -225,6 +225,7 @@ void TEST::test_regular_expression()
 
 		cout << endl;
 	}
+	#if 0
 	/* regex flag */
 	{
 		std::regex_constants::syntax_option_type f;
@@ -240,6 +241,7 @@ void TEST::test_regular_expression()
 		f1 = std::regex_constants::match_not_null;
 		f1 = std::regex_constants::match_not_bol;
 	}
+	#endif 
 	/* regex exception */
 	{
 	}

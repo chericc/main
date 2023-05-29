@@ -106,7 +106,7 @@ void TEST::test_async_future()
 	{
 		cout << "TEST passing argument" << endl;
 		int nParam = 5;
-		std::future<int> result(std::async(std::launch::deferred, func4, 5));
+		std::future<int> result(std::async(std::launch::deferred, func4, nParam));
 		int nResult = result.get();
 		cout << "result=" << nResult << endl;
 		cout << endl;
@@ -238,7 +238,7 @@ namespace
 
 		printA(text);
 	}
-
+#if 0
 	void quickLocker()
 	{
 		std::lock_guard<std::mutex> l(g_mutexMutex);
@@ -248,6 +248,7 @@ namespace
 	{
 
 	}
+#endif 
 }
 
 void TEST::test_mutex_lock()
@@ -271,7 +272,7 @@ void TEST::test_mutex_lock()
 			std::future<void> future = std::async(std::launch::async, callPrint, "First thread");
 			future.get();
 		}
-		catch (std::system_error e)
+		catch (std::system_error &e)
 		{
 			cout << "catch exception: e.code().message()=" << e.code().message() << endl;
 		}

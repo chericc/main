@@ -127,7 +127,17 @@ void TEST::test_chrono_duration()
 template <typename _ClockT>
 void PrintClock()
 {
-	//using _ClockT::duration::rep
+	// now
+	{
+		auto now = _ClockT().now();
+		auto dur = now.time_since_epoch();
+
+		auto hour = std::chrono::duration_cast<std::chrono::hours>(dur).count() % 24;
+		auto min = std::chrono::duration_cast<std::chrono::minutes>(dur).count() % 60;
+		auto secs = std::chrono::duration_cast<std::chrono::seconds>(dur).count() % 60;
+
+		cout << "[h.m.s]=[" << hour << "." << min << "." << secs << "]" << endl;
+	}
 }
 
 void TEST::test_chrono_clock()
@@ -139,3 +149,7 @@ void TEST::test_chrono_clock()
 	cout << endl;
 }
 
+void TEST::test_chrono_timepoint()
+{
+
+}

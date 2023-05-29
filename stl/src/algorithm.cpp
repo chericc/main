@@ -8,7 +8,7 @@
 #include <deque>
 #include <random>
 
-#include "../utility.h"
+#include "utility.h"
 
 void TEST::test_algorithm_nonmodifying()
 {

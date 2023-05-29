@@ -108,6 +108,9 @@ set(G_XPLAY_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/xplay)
 # md5dir
 set(G_MD5DIR xmd5dir)
 
+# stl
+
+
 # add googletest include path
 
 link_directories(${G_GOOGLETEST_LIB_PATH})
@@ -126,11 +129,11 @@ add_subdirectory(xtools)
 add_subdirectory(image)
 add_subdirectory(audio/wav/demuxer)
 #add_subdirectory(audio/aac/fdkaac_wrapper)
-add_subdirectory(xmedia/xplay)
+#add_subdirectory(xmedia/xplay)
 add_subdirectory(textenc)
 
 if(${gnu})
 add_subdirectory(md5dir)
 endif()
-
 #add_subdirectory(xmedia/xdisplay)
+add_subdirectory(stl)

@@ -22,7 +22,7 @@ int main()
 	// TEST::test_typetrait_const();
     // TEST::test_typetrait_relation();
 	// TEST::test_chrono_duration();
-	// TEST::test_chrono_clock();
+	TEST::test_chrono_clock();
 	// TEST::test_ratio();
 	// TEST::test_numeric_limit();
 	// TEST::test_min_max_find_sort_reverse();
@@ -58,7 +58,7 @@ int main()
 	// TEST::test_stringstream();
 	// TEST::test_coupling();
 	// TEST::test_locale();
-	TEST::test_random_number();
+	// TEST::test_random_number();
 	// TEST::test_ditributeion();
 	// TEST::test_async_future();
 	// TEST::test_thread();
