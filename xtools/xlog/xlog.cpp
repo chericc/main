@@ -76,11 +76,11 @@ static const char *xlog_getlevel (XLOG_LEVEL level)
 static std::string now_str()
 {
     auto now = std::chrono::system_clock::now();
-    std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+    auto secs = std::chrono::time_point_cast<std::chrono::seconds>(now).time_since_epoch().count();
     auto msecs = std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count() % 1000;
     
     std::stringstream ss;
-    ss << now_time << ":" << std::setw(3) << std::setfill('0') << msecs;
+    ss << secs << ":" << std::setw(3) << std::setfill('0') << msecs;
     return ss.str();
 }
 
