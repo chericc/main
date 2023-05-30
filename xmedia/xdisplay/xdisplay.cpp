@@ -182,16 +182,20 @@ void XDisplay::videoRefresh(double& remaining_time)
 {
     VideoState& vs = _st->xplay->vs();
 
-    if (vs.pictq->numRemaining() == 0)
+    if (vs.pictq->nb_remaining() == 0)
     {
         xlog_trc("picq empty");
     }
     else
     {
-
+        xlog_trc("next");
+        vs.pictq->next();
+        _st->force_refresh = true;
     }
 
     videoDisplay();
+
+    _st->force_refresh = false;
 }
 
 void XDisplay::videoDisplay()

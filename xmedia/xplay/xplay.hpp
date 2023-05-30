@@ -97,6 +97,7 @@ public:
     std::condition_variable cond;
     std::shared_ptr<PacketQueue> pktq;
 
+    void unref_item(Frame *vp);
     int init(std::shared_ptr<PacketQueue> pktq, int max_size, int keep_last);
     void destroy();
     void signal();
@@ -107,8 +108,8 @@ public:
     Frame *peek_readable();
     void push();
     void next();
-    int numRemaining();
-    int64_t lastPos();
+    int nb_remaining();
+    int64_t last_pos();
 };
 
 class Decoder

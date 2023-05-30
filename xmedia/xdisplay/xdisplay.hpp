@@ -20,6 +20,8 @@ struct State
     int width{ 0 };
     int height{ 0 };
 
+    bool force_refresh{false};
+
     SDL_Texture* video_texture{ nullptr };
 
     ~State();

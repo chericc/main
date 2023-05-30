@@ -44,6 +44,12 @@ void MyThread::join()
     }
 }
 
+void FrameQueue::unref_item(Frame *vp)
+{
+    av_frame_unref(vp->frame);
+    // avsubtitle_free(&vp->sub);
+}
+
 int FrameQueue::init(std::shared_ptr<PacketQueue> pktq_v, int max_size, int keep_last)
 {
     pktq = pktq_v;
@@ -118,6 +124,7 @@ Frame *FrameQueue::peek_readable()
     while (size - rindex_shown <= 0
         && !pktq->abort_request)
     {
+        xlog_trc("read wait");
         cond.wait(lock);
     }
 
@@ -148,10 +155,10 @@ void FrameQueue::next()
         return ;
     }
 
-    if (queue[rindex].frame)
+    unref_item(&queue[rindex]);
+    if (++rindex == queue.size())
     {
-        av_frame_unref(queue[rindex].frame);
-        av_frame_free(&queue[rindex].frame);
+        rindex = 0;
     }
 
     std::unique_lock<std::mutex> lock(mutex);
@@ -160,12 +167,12 @@ void FrameQueue::next()
     cond.notify_one();
 }
 
-int FrameQueue::numRemaining()
+int FrameQueue::nb_remaining()
 {
     return size - rindex_shown;
 }
 
-int64_t FrameQueue::lastPos()
+int64_t FrameQueue::last_pos()
 {
     Frame *fp = &queue[rindex];
     if (rindex_shown && fp->serial == pktq->serial)
