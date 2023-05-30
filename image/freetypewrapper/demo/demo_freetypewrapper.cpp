@@ -61,8 +61,20 @@ int main()
     }
 
     // convert to 1555
+    if (true)
     {
-        // for ()
+        for (int y = 0; y < iv->height(); ++y)
+        {
+            for (int x = 0; x < iv->width(); ++x)
+            {
+                auto pixel = iv->pixels(x, y, 1);
+                for (auto &ref : pixel)
+                {
+                    ref = (ref & 0xf8);
+                }
+                iv->drawPixels(x, y, pixel);
+            }
+        }
     }
 
     {

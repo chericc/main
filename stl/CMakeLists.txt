@@ -7,3 +7,7 @@ add_executable(
     ${STL_DEMO}
     ${src_stl_demo}
 )
+
+if (${gnu})
+target_link_libraries(${STL_DEMO} pthread)
+endif()
