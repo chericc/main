@@ -94,6 +94,10 @@ std::shared_ptr<State> XDisplay::init()
         st->renderer = SDL_CreateRenderer(st->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         if (!st->renderer)
         {
+            st->renderer = SDL_CreateRenderer(st->window, -1, 0);
+        }
+        if (!st->renderer)
+        {
             xlog_err("SDL_CreateRenderer failed");
             berror = true;
             break;

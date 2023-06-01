@@ -1,5 +1,3 @@
-#include <SDL.h>
-
 #include "xdisplay.hpp"
 #include "xlog.hpp"
 
@@ -19,7 +17,11 @@ int main(int argc, char *argv[])
 
     std::string path = std::string() + RES_VIDEO_PATH + "/demo.mp4";
 
-    dis.open(path);
+    if (dis.open(path) < 0)
+    {
+        xlog_err("open failed");
+        return -1;
+    }
 
-    return dis.exec();
+    return dis.exec();;
 }

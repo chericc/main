@@ -31,7 +31,7 @@ add_library(${G_IMAGE}
     ${src_freetypewrapper})
 target_link_libraries(${G_IMAGE}
     ${G_XTOOLS}
-    freetyped
+    freetype
     ${G_TEXTENC})
 
 if(${gnu})
