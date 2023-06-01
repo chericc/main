@@ -40,7 +40,7 @@ public:
 
 private:
 
-    void videoRefresh(double &remaining_time);
+    void videoRefresh(double *remaining_time);
     void videoDisplay();
     int videoOpen();
     void videoImageDisplay();

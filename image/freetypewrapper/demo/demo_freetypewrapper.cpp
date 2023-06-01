@@ -11,6 +11,7 @@ int main()
     {
         std::vector<FILE*> fps = {stdout};
         xlog_setoutput(fps);
+        xlog_setmask(XLOG_MASK_ERR);
     }
 
     std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";

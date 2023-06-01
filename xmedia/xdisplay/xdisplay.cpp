@@ -162,7 +162,7 @@ int XDisplay::exec()
             }
             remaininig_time = 0.01;
 
-            videoRefresh(remaininig_time);
+            videoRefresh(&remaininig_time);
 
             SDL_PumpEvents();
         }
@@ -182,7 +182,7 @@ int XDisplay::exec()
     }
 }
 
-void XDisplay::videoRefresh(double& remaining_time)
+void XDisplay::videoRefresh(double *remaining_time)
 {
     VideoState& vs = _st->xplay->vs();
 

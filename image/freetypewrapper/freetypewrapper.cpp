@@ -315,30 +315,40 @@ int FreeTypeWrapper::drawString_Outline(const DrawInfo &info)
 
                             // Loop over the outline spans and just draw them into the
                             // image.
-                            for (Spans::iterator s = outlineSpans.begin();
-                                s != outlineSpans.end(); ++s)
+                            for (Spans::iterator s = outlineSpans.begin(); s != outlineSpans.end(); ++s)
+                            {
                                 for (int w = 0; w < s->width; ++w)
                                 {
-                                    pxl[(int)((imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w)] =
-                                        Pixel32(outlineCol.r, outlineCol.g, outlineCol.b,
-                                                s->coverage);
+                                    std::size_t offset = (imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w;
+                                    if (offset >= pxl.size())
+                                    {
+                                        xlog_err("offset error(%d,%d)", (int)offset, (int)pxl.size());
+                                        continue;
+                                    }
+                                    pxl[offset] = Pixel32(outlineCol.r, outlineCol.g, outlineCol.b, s->coverage);
                                 }
+                            }
 
                             // Then loop over the regular glyph spans and blend them into
                             // the image.
-                            for (Spans::iterator s = spans.begin();
-                                s != spans.end(); ++s)
+                            for (Spans::iterator s = spans.begin(); s != spans.end(); ++s)
+                            {
                                 for (int w = 0; w < s->width; ++w)
                                 {
-                                    Pixel32 &dst =
-                                        pxl[(int)((imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w)];
-                                    Pixel32 src = Pixel32(fontCol.r, fontCol.g, fontCol.b,
-                                                        s->coverage);
+                                    std::size_t offset = (imgHeight - 1 - (s->y - rect.ymin)) * imgWidth + s->x - rect.xmin + w;
+                                    if (offset >= pxl.size())
+                                    {
+                                        xlog_err("offset error(%d,%d)", (int)offset, (int)pxl.size());
+                                        continue;
+                                    }
+                                    Pixel32 &dst = pxl[offset];
+                                    Pixel32 src = Pixel32(fontCol.r, fontCol.g, fontCol.b, s->coverage);
                                     dst.r = (int)(dst.r + ((src.r - dst.r) * src.a) / 255.0f);
                                     dst.g = (int)(dst.g + ((src.g - dst.g) * src.a) / 255.0f);
                                     dst.b = (int)(dst.b + ((src.b - dst.b) * src.a) / 255.0f);
                                     dst.a = MIN(255, dst.a + src.a);
                                 }
+                            }
 
                             // Dump the image to disk.
                             // WriteTGA(fileName, pxl, imgWidth, imgHeight);

@@ -123,13 +123,13 @@ void xlog_setoutput(const std::vector<FILE*> &fps)
 void xlog(XLOG_LEVEL level, const char *format, ...)
 {
     va_list ap;
-
-    std::unique_lock<std::mutex> lock(s_call_mutex);
-
+    
     if (! (level & s_log_mask))
     {
         return ;
     }
+
+    std::unique_lock<std::mutex> lock(s_call_mutex);
 
     for (auto &it : s_fps)
     {

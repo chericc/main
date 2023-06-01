@@ -82,7 +82,7 @@ std::vector<uint8_t> ImageView::pixels(int x, int y, int num_pixels) const
             break;
         }
 
-        if (x < 0 || y < 0 || num_pixels < 0)
+        if (x < 0 || y < 0 || num_pixels <= 0)
         {
             xlog_err("invalid arg");
             berror = true;
@@ -97,9 +97,9 @@ std::vector<uint8_t> ImageView::pixels(int x, int y, int num_pixels) const
             break;
         }
 
-        if (!pixelAt(x, y, num_pixels))
+        if (!pixelAt(x, y, num_pixels - 1))
         {
-            xlog_err("over");
+            xlog_err("over[%d,%d,%d]", x, y, num_pixels);
             berror = true;
             break;
         }
@@ -139,7 +139,14 @@ int ImageView::drawPixels(int x, int y, const std::vector<uint8_t> &pixels)
 
         int num_pixels = pixels.size() / _state->depth;
 
-        if (!pixelAt(x, y, num_pixels))
+        if (num_pixels <= 0)
+        {
+            xlog_err("invalid args");
+            berror = true;
+            break;
+        }
+
+        if (!pixelAt(x, y, num_pixels - 1))
         {
             xlog_err("invalid args[over]");
             berror = true;
