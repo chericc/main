@@ -181,7 +181,7 @@ int PacketQueue::get(AVPacket* pkt, int block, int* serial)
             av_packet_free(&pkt1.pkt);
             ret = 1;
             
-            xlog_trc("packet queue.nb=%d", nb_packets);
+            xlog_trc("get packet, queue.nb=%d", nb_packets);
 
             break;
         }
@@ -192,6 +192,7 @@ int PacketQueue::get(AVPacket* pkt, int block, int* serial)
         }
         else
         {
+            xlog_trc("packet queue empty, wait...");
             cond.wait(lock);
         }
     }
@@ -624,18 +625,21 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
             {
                 packet_pending = 0;
             }
-            int old_serial = pkt_serial;
-            xlog_trc("getting packet");
-            if (queue->get(pkt, 1, &pkt_serial) < 0)
+            else 
             {
-                return -1;
-            }
-            if (old_serial != pkt_serial)
-            {
-                avcodec_flush_buffers(avctx);
-                finished = 0;
-                next_pts = start_pts;
-                next_pts_tb = start_pts_tb;
+                int old_serial = pkt_serial;
+                xlog_trc("getting packet");
+                if (queue->get(pkt, 1, &pkt_serial) < 0)
+                {
+                    return -1;
+                }
+                if (old_serial != pkt_serial)
+                {
+                    avcodec_flush_buffers(avctx);
+                    finished = 0;
+                    next_pts = start_pts;
+                    next_pts_tb = start_pts_tb;
+                }
             }
             if (queue->serial == pkt_serial)
             {
