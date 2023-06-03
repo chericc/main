@@ -12,38 +12,6 @@ typedef struct MyAVPacketList {
     int serial{ 0 };
 } MyAVPacketList;
 
-MyThread::MyThread(MyFunc func_tmp)
-{
-    func = func_tmp;
-}
-
-MyThread::~MyThread()
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    if (trd && trd->joinable())
-    {
-        trd->join();
-    }
-}
-
-void MyThread::start()
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    if (!trd)
-    {
-        trd = std::make_shared<std::thread>(func);
-    }
-}
-
-void MyThread::join()
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    if (trd && trd->joinable())
-    {
-        trd->join();
-    }
-}
-
 void FrameQueue::unref_item(Frame *vp)
 {
     av_frame_unref(vp->frame);
@@ -280,7 +248,7 @@ int PacketQueue::init()
     return 0;
 }
 
-int PacketQueue::putNullPacket(AVPacket* pkt, int stream_index)
+int PacketQueue::put_null_packet(AVPacket* pkt, int stream_index)
 {
     pkt->stream_index = stream_index;
     return put(pkt);
@@ -300,7 +268,7 @@ int PacketQueue::put(AVPacket* pkt)
     av_packet_move_ref(pkt1, pkt);
 
     std::unique_lock<std::mutex> lock(mutex);
-    ret = putPrivate(pkt1);
+    ret = put_private(pkt1);
     lock.unlock();
 
     if (ret < 0)
@@ -310,7 +278,7 @@ int PacketQueue::put(AVPacket* pkt)
     return ret;
 }
 
-int PacketQueue::putPrivate(AVPacket* pkt)
+int PacketQueue::put_private(AVPacket* pkt)
 {
     MyAVPacketList pkt1{};
     int ret{};
@@ -333,7 +301,7 @@ int PacketQueue::putPrivate(AVPacket* pkt)
     duration += pkt1.pkt->duration;
     cond.notify_one();
 
-    xlog_trc("packet queue.nb=%d", nb_packets);
+    xlog_trc("packet.put queue.nb=%d", nb_packets);
 
     return 0;
 }
@@ -462,7 +430,7 @@ std::shared_ptr<VideoState> XPlay::streamOpen(const OptValues &opt)
         is->cond_continue_read_thread = std::make_shared<std::condition_variable>();
 
         auto lambda_readtrd = [&](){this->readThread();};
-        is->trd_read = std::make_shared<MyThread>(lambda_readtrd);
+        is->trd_read = std::make_shared<XThread>(lambda_readtrd);
     }
     while (0);
 
@@ -599,7 +567,7 @@ int Decoder::init(AVCodecContext *avctx_tmp, PacketQueue *queue_tmp, std::shared
 int Decoder::start(std::function<int()> func, const char *thread_name)
 {
     queue->start();
-    trd_decoder = std::make_shared<MyThread>(func);
+    trd_decoder = std::make_shared<XThread>(func);
     trd_decoder->start();
     return 0;
 }
@@ -815,7 +783,7 @@ int XPlay::readThread()
                 {
                     if (is_->video_stream >= 0)
                     {
-                        is_->videoq->putNullPacket(pkt, is_->video_stream);
+                        is_->videoq->put_null_packet(pkt, is_->video_stream);
                     }
                     is_->eof = 1;
                     xlog_trc("read eof");

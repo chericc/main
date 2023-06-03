@@ -5,12 +5,15 @@ aux_source_directory(. src_xdisplay)
 
 add_definitions(-DRES_VIDEO_PATH="${G_RESOURCE_PATH}/video")
 
+include_directories(
+	${G_XTOOLS_XTHREAD_HEADER_PATH}
+	${G_XTOOLS_XUTILITY_HEADER_PATH}
+)
+
 link_directories(
 	${G_SDL2_LIB_PATH}
 	${G_FFMPEG_LIB_PATH}
 )
-
-add_definitions(-DRES_VIDEO_PATH="${G_RESOURCE_PATH}/video")
 
 add_executable(
 	${L_XDISPLAY} WIN32

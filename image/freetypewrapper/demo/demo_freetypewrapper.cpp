@@ -50,8 +50,8 @@ int main()
         drawinfo.iv = iv;
         drawinfo.x = 0;
         drawinfo.y = 0;
-        drawinfo.font_size = 72 * 360 / 1440;
-        // drawinfo.font_size = 72;
+        // drawinfo.font_size = 72 * 360 / 1440;
+        drawinfo.font_size = 72;
         drawinfo.outline_width = 1.0;
         drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_white);
         drawinfo.background = std::make_shared<std::vector<uint8_t>>(pixel_white);

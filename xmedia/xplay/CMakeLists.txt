@@ -8,6 +8,8 @@ include_directories(
     ${G_XTOOLS_XLOG_HEADER_PATH}
     ${G_GOOGLETEST_INC_PATH}
     ${G_XPLAY_HEADER_PATH}
+    ${G_XTOOLS_XTHREAD_HEADER_PATH}
+    ${G_XTOOLS_XUTILITY_HEADER_PATH}
 )
 
 link_directories(

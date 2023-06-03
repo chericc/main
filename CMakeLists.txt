@@ -84,6 +84,8 @@ set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include/freetype2)
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
 set(G_XTOOLS_XIO_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xio)
+set(G_XTOOLS_XTHREAD_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xthread)
+set(G_XTOOLS_XUTILITY_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xutility)
 
 # wav
 set(G_XWAV_DEMUXER xwav_demuxer)

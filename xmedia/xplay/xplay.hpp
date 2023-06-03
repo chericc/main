@@ -15,31 +15,11 @@ extern "C"
 #include <libavutil/fifo.h>
 }
 
+#include "xthread.hpp"
+
 struct OptValues
 {
     std::string filename;
-};
-
-class NonCopyableObject
-{
-public:
-    NonCopyableObject() = default;
-    NonCopyableObject(NonCopyableObject const&) = delete;
-    NonCopyableObject& operator=(NonCopyableObject const&) = delete;
-};
-
-class MyThread : public NonCopyableObject
-{
-public:
-    using MyFunc=std::function<void(void)>;
-    MyThread(MyFunc func);
-    ~MyThread();
-    void start();
-    void join();
-private:
-    std::shared_ptr<std::thread> trd;
-    MyFunc func;
-    std::mutex mutex;
 };
 
 class PacketQueue
@@ -56,8 +36,8 @@ public:
 
     int init();
     int put(AVPacket* pkt);
-    int putPrivate(AVPacket* pkt);
-    int putNullPacket(AVPacket* pkt, int stream_index);
+    int put_private(AVPacket* pkt);
+    int put_null_packet(AVPacket* pkt, int stream_index);
     void flush();
     void destroy();
     void abort();
@@ -119,7 +99,7 @@ public:
     AVCodecContext *avctx{nullptr};
     PacketQueue *queue{nullptr};
 
-    std::shared_ptr<MyThread> trd_decoder;
+    std::shared_ptr<XThread> trd_decoder;
 
     int pkt_serial{};
     int finished{};
@@ -140,7 +120,7 @@ class VideoState
 public:
     std::string filename;
 
-    std::shared_ptr<MyThread> trd_read;
+    std::shared_ptr<XThread> trd_read;
 
     AVFormatContext *ic{nullptr};
 
