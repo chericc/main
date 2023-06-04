@@ -651,13 +651,9 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
 
 
         // send packet
-        if (avctx->codec_type == AVMEDIA_TYPE_SUBTITLE)
+        if (avctx->codec_type == AVMEDIA_TYPE_VIDEO)
         {
-            av_packet_unref(pkt);
-        }
-        else
-        {
-            xlog_trc("sending packet");
+            xlog_trc("sending packet(codec_type=%d)", avctx->codec_type);
             if (avcodec_send_packet(avctx, pkt) == AVERROR(EAGAIN))
             {
                 xlog_err("error");
@@ -666,6 +662,11 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
             {
                 av_packet_unref(pkt);
             }
+        }
+        else
+        {
+            xlog_trc("packet ignored(codec_type=%d)", avctx->codec_type);
+            av_packet_unref(pkt);
         }
     }
 
@@ -739,18 +740,6 @@ int XPlay::readThread()
 
         xlog_trc("video.index=%d", st_index[AVMEDIA_TYPE_VIDEO]);
 
-#if 0
-        st_index[AVMEDIA_TYPE_AUDIO] = 
-            av_find_best_stream(ic, AVMEDIA_TYPE_AUDIO, 
-                                st_index[AVMEDIA_TYPE_AUDIO],
-                                st_index[AVMEDIA_TYPE_VIDEO], nullptr, 0);
-
-        if (st_index[AVMEDIA_TYPE_AUDIO] >= 0)
-        {
-            streamComponentOpen(st_index[AVMEDIA_TYPE_AUDIO]);
-        }
-#endif 
-
         if (st_index[AVMEDIA_TYPE_VIDEO] >= 0)
         {
             streamComponentOpen(st_index[AVMEDIA_TYPE_VIDEO]);
@@ -774,7 +763,7 @@ int XPlay::readThread()
             {
                 /* wait some time */
                 std::unique_lock<std::mutex> lock(wait_mutex);
-                xlog_trc("queue full, wait");
+                xlog_trc("packet queue full, wait");
                 is_->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
                 continue;
             }
@@ -811,12 +800,12 @@ int XPlay::readThread()
             if (pkt->stream_index == is_->video_stream
                 && !(is_->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC))
             {
-                xlog_trc("put packet");
+                xlog_trc("put packet(si=%d)", pkt->stream_index);
                 is_->videoq->put(pkt);
             }
             else
             {
-                xlog_trc("discard packet");
+                xlog_trc("discard packet(si=%d)", pkt->stream_index);
                 av_packet_unref(pkt);
             }
         }
