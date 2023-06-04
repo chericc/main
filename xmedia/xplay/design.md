@@ -1,6 +1,6 @@
 # Design
 
-## Layers
+## Structures
 
 ```
 XPlay::doOpen()

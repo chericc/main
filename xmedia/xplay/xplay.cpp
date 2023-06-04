@@ -204,6 +204,7 @@ void PacketQueue::start()
     std::unique_lock<std::mutex> lock;
     abort_request = 0;
     serial++;
+    xlog_trc("packetqueue.start,serial=%d", serial);
     return;
 }
 
@@ -235,6 +236,7 @@ void PacketQueue::flush()
     size = 0;
     duration = 0;
     serial++;
+    xlog_trc("packetqueue.flush(),serial=%d", serial);
     return;
 }
 
@@ -302,7 +304,7 @@ int PacketQueue::put_private(AVPacket* pkt)
     duration += pkt1.pkt->duration;
     cond.notify_one();
 
-    xlog_trc("packet.put queue.nb=%d", nb_packets);
+    xlog_trc("packet.put(),serial=%d,queue.nb=%d", serial, nb_packets);
 
     return 0;
 }
@@ -633,6 +635,7 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
                 {
                     return -1;
                 }
+                xlog_trc("pkt: serial=%d(old=%d)", pkt_serial, old_serial);
                 if (old_serial != pkt_serial)
                 {
                     avcodec_flush_buffers(avctx);
@@ -718,6 +721,8 @@ int XPlay::readThread()
             break;
         }
         is_->ic = ic;
+
+        is_->max_frame_duration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
         for (i = 0; i < array_sizeof(st_index); ++i)
         {

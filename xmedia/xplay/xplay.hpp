@@ -13,6 +13,7 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/fifo.h>
+#include <libavutil/time.h>
 }
 
 #include "xthread.hpp"
@@ -137,6 +138,8 @@ public:
     int eof{};
 
     std::shared_ptr<std::condition_variable> cond_continue_read_thread;
+
+    double max_frame_duration{ 0.0 };
 };
 
 class XWindow

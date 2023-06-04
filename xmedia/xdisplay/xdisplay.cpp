@@ -192,9 +192,47 @@ void XDisplay::videoRefresh(double *remaining_time)
     }
     else
     {
-        xlog_trc("next");
-        vs.pictq->next();
-        _st->force_refresh = true;
+        Frame* vp = nullptr;
+        Frame* last_vp = nullptr;
+        double last_duration = 0.0;
+        double duration = 0.0;
+        double delay = 0.0;
+        double time = 0.0;
+
+        do
+        {
+            last_vp = vs.pictq->peek_last();
+            vp = vs.pictq->peek();
+
+            if (vp->serial != vs.videoq->serial)
+            {
+                xlog_trc("serial change, next");
+                vs.pictq->next();
+                continue;
+            }
+
+            if (last_vp->serial != vp->serial)
+            {
+                _st->frame_timer = av_gettime_relative() / 1000000;
+            }
+
+            last_duration = vp_duration(last_vp, vp);
+            delay = compute_target_delay(last_duration);
+
+            time = av_gettime_relative() / 1000000;
+            if (time < _st->frame_timer + delay)
+            {
+                *remaining_time = std::min(_st->frame_timer + delay - time, 
+                    *remaining_time);
+                break;
+            }
+
+            _st->frame_timer += delay;
+
+            vs.pictq->next();
+            _st->force_refresh = true;
+
+        } while (0);
     }
 
     videoDisplay();
@@ -397,4 +435,48 @@ int XDisplay::reallocTexture(SDL_Texture** texture, uint32_t new_format,
         av_log(NULL, AV_LOG_VERBOSE, "Created %dx%d texture with %s.\n", new_width, new_height, SDL_GetPixelFormatName(new_format));
     }
     return 0;
+}
+
+double XDisplay::vp_duration(Frame* vp, Frame* nextvp)
+{
+    auto max_frame_duration = _st->xplay->vs().max_frame_duration;
+    if (vp->serial == nextvp->serial) {
+        double duration = nextvp->pts - vp->pts;
+        if (isnan(duration) || duration <= 0 || duration > max_frame_duration)
+            return vp->duration;
+        else
+            return duration;
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double XDisplay::compute_target_delay(double delay)
+{
+    double sync_threshold, diff = 0;
+
+    /* update delay to follow master synchronisation source */
+    //if (get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER) {
+    //    /* if video is slave, we try to correct big delays by
+    //       duplicating or deleting a frame */
+    //    diff = get_clock(&is->vidclk) - get_master_clock(is);
+
+    //    /* skip or repeat frame. We take into account the
+    //       delay to compute the threshold. I still don't know
+    //       if it is the best guess */
+    //    sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
+    //    if (!isnan(diff) && fabs(diff) < is->max_frame_duration) {
+    //        if (diff <= -sync_threshold)
+    //            delay = FFMAX(0, delay + diff);
+    //        else if (diff >= sync_threshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD)
+    //            delay = delay + diff;
+    //        else if (diff >= sync_threshold)
+    //            delay = 2 * delay;
+    //    }
+    //}
+
+    xlog_trc("video: delay=%0.3f A-V=%f\n", delay, -diff);
+
+    return delay;
 }

@@ -22,6 +22,8 @@ struct State
 
     bool force_refresh{false};
 
+    double frame_timer{ 0.0 };
+
     SDL_Texture* video_texture{ nullptr };
 
     ~State();
@@ -54,6 +56,9 @@ private:
     int reallocTexture(SDL_Texture** texture, uint32_t new_format,
         int new_width, int new_height, SDL_BlendMode blendmode,
         int init_texture);
+
+    double vp_duration(Frame* vp, Frame* vp_last);
+    double compute_target_delay(double delay);
     
     std::shared_ptr<State> init();
 
