@@ -155,6 +155,7 @@ int XDisplay::exec()
         SDL_PumpEvents();
         while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
         {
+            xlog_trc("remaining time=%.2f", remaininig_time);
             if (remaininig_time > 0.0)
             {
                 std::this_thread::sleep_for(
@@ -199,27 +200,33 @@ void XDisplay::videoRefresh(double *remaining_time)
         double delay = 0.0;
         double time = 0.0;
 
-        do
+        for(;;)
         {
             last_vp = vs.pictq->peek_last();
             vp = vs.pictq->peek();
 
+            xlog_trc("serial(vp:%d,last_vp:%d,queue:%d)", 
+                vp->serial, last_vp->serial, vs.videoq->serial);
             if (vp->serial != vs.videoq->serial)
             {
-                xlog_trc("serial change, next");
+                xlog_trc("serial changed, next");
                 vs.pictq->next();
                 continue;
             }
 
             if (last_vp->serial != vp->serial)
             {
-                _st->frame_timer = av_gettime_relative() / 1000000;
+                _st->frame_timer = av_gettime_relative() / 1000000.0;
             }
 
             last_duration = vp_duration(last_vp, vp);
             delay = compute_target_delay(last_duration);
 
-            time = av_gettime_relative() / 1000000;
+            time = av_gettime_relative() / 1000000.0;
+
+            xlog_trc("time=%.2f,frame_timer=%.2f,delay=%.2f",
+                time, _st->frame_timer, delay);
+                
             if (time < _st->frame_timer + delay)
             {
                 *remaining_time = std::min(_st->frame_timer + delay - time, 
@@ -228,11 +235,16 @@ void XDisplay::videoRefresh(double *remaining_time)
             }
 
             _st->frame_timer += delay;
+            if (delay > 0 && time - _st->frame_timer > AV_SYNC_THRESHOLD_MAX)
+            {
+                _st->frame_timer = time;
+            }
 
             vs.pictq->next();
             _st->force_refresh = true;
 
-        } while (0);
+            break;
+        }
     }
 
     videoDisplay();

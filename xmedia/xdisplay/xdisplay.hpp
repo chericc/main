@@ -63,4 +63,6 @@ private:
     std::shared_ptr<State> init();
 
     std::shared_ptr<State> _st;
+
+    const double AV_SYNC_THRESHOLD_MAX{0.1};
 };

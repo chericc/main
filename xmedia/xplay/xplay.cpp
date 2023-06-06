@@ -871,7 +871,7 @@ int XPlay::videoThread()
             duration = av_q2d(frame_rate);
         }
         pts = (frame->pts == AV_NOPTS_VALUE) ? (NAN) : (frame->pts * av_q2d(tb));
-        ret = queuePicture(frame, pts, duration, frame->pkt_pos, 0);
+        ret = queuePicture(frame, pts, duration, frame->pkt_pos, is_->videoq->serial);
         av_frame_unref(frame);
 
         if (ret < 0)
@@ -978,6 +978,9 @@ int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration, int64_t
 
     //saveFrame(src_frame);
     //av_frame_unref(src_frame);
+    
+    xlog_trc("w%d:h%d:pts%.2f:serial%d", 
+        vp->width, vp->height, vp->pts, vp->serial);
 
     av_frame_move_ref(vp->frame, src_frame);
     is_->pictq->push();
