@@ -185,6 +185,11 @@ int XDisplay::exec()
 
 void XDisplay::videoRefresh(double *remaining_time)
 {
+    /*
+     can be moved to xplay as
+     xplay.video_refresh();
+    */
+
     VideoState& vs = _st->xplay->vs();
 
     if (vs.pictq->nb_remaining() == 0)
@@ -301,11 +306,14 @@ void XDisplay::videoImageDisplay()
 
     vp = vs.pictq->peek_last();
 
+    /* xplay.last_frame.rect */
     calDisplayRect(&rect, _st->xleft, _st->ytop, _st->width, _st->height,
         vp->width, vp->height, vp->sar);
 
+    /* xplay.last_frame */
     setSDLYUVConversionMode(vp->frame);
 
+    /* xplay.last_frame */
     if (!vp->uploaded)
     {
         if (uploadTexture(&_st->video_texture, vp->frame) < 0)

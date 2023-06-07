@@ -868,7 +868,7 @@ int XPlay::videoThread()
 
         if (frame_rate.num && frame_rate.den)
         {
-            duration = av_q2d((AVRational){frame_rate.den, frame_rate.num});
+            duration = av_q2d(AVRational{frame_rate.den, frame_rate.num});
         }
         else 
         {
