@@ -868,8 +868,13 @@ int XPlay::videoThread()
 
         if (frame_rate.num && frame_rate.den)
         {
-            duration = av_q2d(frame_rate);
+            duration = av_q2d((AVRational){frame_rate.den, frame_rate.num});
         }
+        else 
+        {
+            duration = 0;
+        }
+
         pts = (frame->pts == AV_NOPTS_VALUE) ? (NAN) : (frame->pts * av_q2d(tb));
         ret = queuePicture(frame, pts, duration, frame->pkt_pos, is_->videoq->serial);
         av_frame_unref(frame);
