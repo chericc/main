@@ -16,9 +16,13 @@ link_directories(
 )
 
 add_executable(
-	${L_XDISPLAY} WIN32
+	${L_XDISPLAY}
 	${src_xdisplay}
 )
+
+if(${msvc})
+target_compile_definitions(${L_XDISPLAY} PRIVATE X_WINDOWS_PLATFORM)
+endif()
 
 target_include_directories(
 	${L_XDISPLAY}

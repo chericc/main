@@ -1,6 +1,10 @@
 #include "xdisplay.hpp"
 #include "xlog.hpp"
 
+#if defined(X_WINDOWS_PLATFORM)
+#pragma comment(linker, "/subsystem:console")
+#endif 
+
 int main(int argc, char *argv[])
 {
     std::vector<FILE*> fps = { stdout };
