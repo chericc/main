@@ -327,7 +327,7 @@ int XPlay::open(const OptValues &opt)
 
     do 
     {
-        if (is_)
+        if (_is)
         {
             xlog_err("already opened");
             ret = -1;
@@ -346,7 +346,7 @@ int XPlay::close()
     CallLock calllock(mutex_call_);
     int ret = 0;
 
-    if (!is_)
+    if (!_is)
     {
         xlog_err("not opened");
     }
@@ -356,47 +356,42 @@ int XPlay::close()
     return ret;
 }
 
-VideoState &XPlay::vs()
-{
-    return *is_;
-}
-
 int XPlay::doOpen(const OptValues &opt)
 {
     int ret = 0;
 
-    if (is_)
+    if (_is)
     {
         doClose();
     }
 
-    assert(nullptr == is_);
+    assert(nullptr == _is);
 
-    is_ = streamOpen(opt);
+    _is = streamOpen(opt);
 
     /* 赋值之后再启动线程 */
-    if (is_ && is_->trd_read)
+    if (_is && _is->trd_read)
     {
-        is_->trd_read->start();
+        _is->trd_read->start();
     }
     
-    return is_ ? 0 : -1;
+    return _is ? 0 : -1;
 }
 
 int XPlay::doClose()
 {
     int ret = 0;
 
-    if (is_)
+    if (_is)
     {
-        if (streamClose(is_) < 0)
+        if (streamClose(_is) < 0)
         {
             xlog_err("close failed");
             ret = -1;
         }
     }
 
-    is_.reset();
+    _is.reset();
 
     return ret;
 }
@@ -462,7 +457,7 @@ int XPlay::streamComponentOpen(int stream_index)
             break;
         }
 
-        ic = is_->ic;
+        ic = _is->ic;
 
         if (avcodec_parameters_to_context(avctx, ic->streams[stream_index]->codecpar) < 0)
         {
@@ -491,9 +486,9 @@ int XPlay::streamComponentOpen(int stream_index)
             }
             case AVMEDIA_TYPE_VIDEO:
             {
-                is_->video_stream = stream_index;
-                is_->video_st = ic->streams[stream_index];
-                if (is_->viddec.init(avctx, is_->videoq.get(), is_->cond_continue_read_thread) < 0)
+                _is->video_stream = stream_index;
+                _is->video_st = ic->streams[stream_index];
+                if (_is->viddec.init(avctx, _is->videoq.get(), _is->cond_continue_read_thread) < 0)
                 {
                     berror = true;
                     xlog_err("decoderInit failed");
@@ -506,7 +501,7 @@ int XPlay::streamComponentOpen(int stream_index)
                 {
                     return this->videoThread();
                 };
-                if (is_->viddec.start(lambda_video_trd, "video_deocde") < 0)
+                if (_is->viddec.start(lambda_video_trd, "video_deocde") < 0)
                 {
                     berror = true;
                     xlog_err("decoderStart failed");
@@ -538,7 +533,7 @@ int XPlay::getVideoFrame(AVFrame* frame)
 {
     int got_picture = 0;
 
-    if ((got_picture = is_->viddec.decodeFrame(frame, nullptr)) < 0)
+    if ((got_picture = _is->viddec.decodeFrame(frame, nullptr)) < 0)
     {
         return -1;
     }
@@ -707,22 +702,22 @@ int XPlay::readThread()
             break;
         }
 
-        if (avformat_open_input(&ic, is_->filename.c_str(), nullptr, nullptr) < 0)
+        if (avformat_open_input(&ic, _is->filename.c_str(), nullptr, nullptr) < 0)
         {
             xlog_err("avformat_open_input failed");
             berror = true;
             break;
         }
 
-        if (is_->ic != nullptr)
+        if (_is->ic != nullptr)
         {
             xlog_err("inner error");
             berror = true;
             break;
         }
-        is_->ic = ic;
+        _is->ic = ic;
 
-        is_->max_frame_duration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
+        _is->max_frame_duration = (ic->iformat->flags & AVFMT_TS_DISCONT) ? 10.0 : 3600.0;
 
         for (i = 0; i < array_sizeof(st_index); ++i)
         {
@@ -763,13 +758,13 @@ int XPlay::readThread()
 
             // seek
 
-            if (is_->videoq->size > MAX_QUEUE_SIZE ||
-                streamHasEnoughPackets(is_->video_st, is_->video_stream, is_->videoq.get()))
+            if (_is->videoq->size > MAX_QUEUE_SIZE ||
+                streamHasEnoughPackets(_is->video_st, _is->video_stream, _is->videoq.get()))
             {
                 /* wait some time */
                 std::unique_lock<std::mutex> lock(wait_mutex);
                 xlog_trc("packet queue full, wait");
-                is_->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
+                _is->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
                 continue;
             }
 
@@ -777,13 +772,13 @@ int XPlay::readThread()
 
             if (ret < 0)
             {
-                if ((ret == AVERROR_EOF || avio_feof(ic->pb)) && !is_->eof)
+                if ((ret == AVERROR_EOF || avio_feof(ic->pb)) && !_is->eof)
                 {
-                    if (is_->video_stream >= 0)
+                    if (_is->video_stream >= 0)
                     {
-                        is_->videoq->put_null_packet(pkt, is_->video_stream);
+                        _is->videoq->put_null_packet(pkt, _is->video_stream);
                     }
-                    is_->eof = 1;
+                    _is->eof = 1;
                     xlog_trc("read eof");
                 }
                 if (ic->pb && ic->pb->error)
@@ -794,19 +789,19 @@ int XPlay::readThread()
 
                 std::unique_lock<std::mutex> lock(wait_mutex);
                 xlog_trc("read thread wait");
-                is_->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
+                _is->cond_continue_read_thread->wait_for(lock, std::chrono::seconds(10));
                 continue;
             }
             else
             {
-                is_->eof = 0;
+                _is->eof = 0;
             }
 
-            if (pkt->stream_index == is_->video_stream
-                && !(is_->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC))
+            if (pkt->stream_index == _is->video_stream
+                && !(_is->video_st->disposition & AV_DISPOSITION_ATTACHED_PIC))
             {
                 xlog_trc("put packet(si=%d)", pkt->stream_index);
-                is_->videoq->put(pkt);
+                _is->videoq->put(pkt);
             }
             else
             {
@@ -816,7 +811,7 @@ int XPlay::readThread()
         }
     }
     
-    if (ic && !is_->ic)
+    if (ic && !_is->ic)
     {
         avformat_close_input(&ic);
     }
@@ -839,8 +834,8 @@ int XPlay::videoThread()
     AVRational frame_rate{};
 
     frame = av_frame_alloc();
-    tb = is_->video_st->time_base;
-    frame_rate = av_guess_frame_rate(is_->ic, is_->video_st, nullptr);
+    tb = _is->video_st->time_base;
+    frame_rate = av_guess_frame_rate(_is->ic, _is->video_st, nullptr);
 
     if (!frame)
     {
@@ -876,7 +871,7 @@ int XPlay::videoThread()
         }
 
         pts = (frame->pts == AV_NOPTS_VALUE) ? (NAN) : (frame->pts * av_q2d(tb));
-        ret = queuePicture(frame, pts, duration, frame->pkt_pos, is_->videoq->serial);
+        ret = queuePicture(frame, pts, duration, frame->pkt_pos, _is->videoq->serial);
         av_frame_unref(frame);
 
         if (ret < 0)
@@ -962,7 +957,7 @@ int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration, int64_t
 
     Frame* vp = nullptr;
 
-    vp = is_->pictq->peek_writable();
+    vp = _is->pictq->peek_writable();
 
     if (!vp)
     {
@@ -988,7 +983,7 @@ int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration, int64_t
         vp->width, vp->height, vp->pts, vp->serial);
 
     av_frame_move_ref(vp->frame, src_frame);
-    is_->pictq->push();
+    _is->pictq->push();
 
     return 0;
 }
@@ -999,4 +994,119 @@ int XPlay::streamHasEnoughPackets(AVStream* st, int stream_id, PacketQueue* queu
         queue->abort_request ||
         (st->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
         ((queue->nb_packets > MIN_FRAMES) && (!queue->duration || av_q2d(st->time_base) * queue->duration > 1.0));
+}
+
+int XPlay::refresh(RefreshState *state)
+{
+    if (!_is)
+    {
+        xlog_err("null");
+        return -1;
+    }
+
+    doRefresh(state);
+
+    return 0;
+}
+
+int XPlay::doRefresh(RefreshState *state)
+{
+    if (_is->pictq->nb_remaining() == 0)
+    {
+        xlog_trc("picq empty");
+    }
+    else
+    {
+        Frame* vp = nullptr;
+        Frame* last_vp = nullptr;
+        double last_duration = 0.0;
+        double duration = 0.0;
+        double delay = 0.0;
+        double time = 0.0;
+
+        for(;;)
+        {
+            last_vp = _is->pictq->peek_last();
+            vp = _is->pictq->peek();
+
+            xlog_trc("serial(vp:%d,last_vp:%d,queue:%d)", 
+                vp->serial, last_vp->serial, _is->videoq->serial);
+            if (vp->serial != _is->videoq->serial)
+            {
+                xlog_trc("serial changed, next");
+                _is->pictq->next();
+                continue;
+            }
+
+            if (last_vp->serial != vp->serial)
+            {
+                _is->refreshctx.frame_timer = av_gettime_relative() / 1000000.0;
+            }
+
+            last_duration = vp_duration(last_vp, vp);
+            delay = compute_target_delay(last_duration);
+
+            time = av_gettime_relative() / 1000000.0;
+
+            xlog_trc("time=%.2f,frame_timer=%.2f,delay=%.2f",
+                time, _is->refreshctx.frame_timer, delay);
+                
+            if (time < _is->refreshctx.frame_timer + delay)
+            {
+                state->remaining_time = std::min(_is->refreshctx.frame_timer + delay - time, 
+                    state->remaining_time);
+                break;
+            }
+
+            _is->refreshctx.frame_timer += delay;
+            if (delay > 0 && time - _is->refreshctx.frame_timer > AV_SYNC_THRESHOLD_MAX)
+            {
+                _is->refreshctx.frame_timer = time;
+            }
+
+            _is->pictq->next();
+            _is->refreshctx.force_refresh = true;
+
+            break;
+        }
+    }
+
+    _is->refreshctx.force_refresh = false;
+
+    state->frame = _is->pictq->peek_last();
+
+    if (state->frame)
+    {
+        xlog_trc("state: [pts=%.2f, duration=%.2f, remaining_time=%.2f]", 
+            state->frame->pts,
+            state->frame->duration,
+            state->remaining_time);
+    }
+    else 
+    {
+        xlog_trc("state: [null, remaining_time=%.2f]",
+            state->remaining_time);
+    }
+
+    return 0;
+}
+
+double XPlay::vp_duration(Frame *vp, Frame *nextvp)
+{
+    auto max_frame_duration = _is->max_frame_duration;
+    if (vp->serial == nextvp->serial) {
+        double duration = nextvp->pts - vp->pts;
+        if (isnan(duration) || duration <= 0 || duration > max_frame_duration)
+            return vp->duration;
+        else
+            return duration;
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double XPlay::compute_target_delay(double delay)
+{
+    return delay;
 }

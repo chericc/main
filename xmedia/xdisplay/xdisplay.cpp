@@ -185,76 +185,8 @@ int XDisplay::exec()
 
 void XDisplay::videoRefresh(double *remaining_time)
 {
-    /*
-     can be moved to xplay as
-     xplay.video_refresh();
-    */
-
-    VideoState& vs = _st->xplay->vs();
-
-    if (vs.pictq->nb_remaining() == 0)
-    {
-        xlog_trc("picq empty");
-    }
-    else
-    {
-        Frame* vp = nullptr;
-        Frame* last_vp = nullptr;
-        double last_duration = 0.0;
-        double duration = 0.0;
-        double delay = 0.0;
-        double time = 0.0;
-
-        for(;;)
-        {
-            last_vp = vs.pictq->peek_last();
-            vp = vs.pictq->peek();
-
-            xlog_trc("serial(vp:%d,last_vp:%d,queue:%d)", 
-                vp->serial, last_vp->serial, vs.videoq->serial);
-            if (vp->serial != vs.videoq->serial)
-            {
-                xlog_trc("serial changed, next");
-                vs.pictq->next();
-                continue;
-            }
-
-            if (last_vp->serial != vp->serial)
-            {
-                _st->frame_timer = av_gettime_relative() / 1000000.0;
-            }
-
-            last_duration = vp_duration(last_vp, vp);
-            delay = compute_target_delay(last_duration);
-
-            time = av_gettime_relative() / 1000000.0;
-
-            xlog_trc("time=%.2f,frame_timer=%.2f,delay=%.2f",
-                time, _st->frame_timer, delay);
-                
-            if (time < _st->frame_timer + delay)
-            {
-                *remaining_time = std::min(_st->frame_timer + delay - time, 
-                    *remaining_time);
-                break;
-            }
-
-            _st->frame_timer += delay;
-            if (delay > 0 && time - _st->frame_timer > AV_SYNC_THRESHOLD_MAX)
-            {
-                _st->frame_timer = time;
-            }
-
-            vs.pictq->next();
-            _st->force_refresh = true;
-
-            break;
-        }
-    }
-
+    _st->xplay->refresh(&_st->state);
     videoDisplay();
-
-    _st->force_refresh = false;
 }
 
 void XDisplay::videoDisplay()
@@ -298,15 +230,17 @@ void XDisplay::videoImageDisplay()
 {
     xlog_trc("display");
 
-    Frame* vp = nullptr;
-    Frame* sp = nullptr;
+    const Frame* vp = nullptr;
+    const Frame* sp = nullptr;
     SDL_Rect rect{};
 
-    VideoState& vs = _st->xplay->vs();
+    vp = _st->state.frame;
 
-    vp = vs.pictq->peek_last();
+    if (!vp)
+    {
+        return ;
+    }
 
-    /* xplay.last_frame.rect */
     calDisplayRect(&rect, _st->xleft, _st->ytop, _st->width, _st->height,
         vp->width, vp->height, vp->sar);
 
@@ -314,23 +248,22 @@ void XDisplay::videoImageDisplay()
     setSDLYUVConversionMode(vp->frame);
 
     /* xplay.last_frame */
-    if (!vp->uploaded)
-    {
+    // if (!vp->uploaded)
+    // {
         if (uploadTexture(&_st->video_texture, vp->frame) < 0)
         {
             setSDLYUVConversionMode(nullptr);
             return;
         }
-        vp->uploaded = true;
-        vp->flip_v = vp->frame->linesize[0] < 0;
-    }
+        // vp->uploaded = true;
+        // vp->flip_v = vp->frame->linesize[0] < 0;
+    // }
 
     SDL_RenderCopyEx(_st->renderer, _st->video_texture, nullptr, &rect,
         0, nullptr, vp->flip_v ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
 
     setSDLYUVConversionMode(nullptr);
 }
-
 
 void XDisplay::calDisplayRect(SDL_Rect* rect,
     int scr_xleft, int scr_ytop, int scr_width, int scr_height,
@@ -359,7 +292,7 @@ void XDisplay::calDisplayRect(SDL_Rect* rect,
     rect->h = FFMAX((int)height, 1);
 }
 
-void XDisplay::setSDLYUVConversionMode(AVFrame* frame)
+void XDisplay::setSDLYUVConversionMode(const AVFrame* frame)
 {
 #if SDL_VERSION_ATLEAST(2,0,8)
     SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
@@ -455,48 +388,4 @@ int XDisplay::reallocTexture(SDL_Texture** texture, uint32_t new_format,
         av_log(NULL, AV_LOG_VERBOSE, "Created %dx%d texture with %s.\n", new_width, new_height, SDL_GetPixelFormatName(new_format));
     }
     return 0;
-}
-
-double XDisplay::vp_duration(Frame* vp, Frame* nextvp)
-{
-    auto max_frame_duration = _st->xplay->vs().max_frame_duration;
-    if (vp->serial == nextvp->serial) {
-        double duration = nextvp->pts - vp->pts;
-        if (isnan(duration) || duration <= 0 || duration > max_frame_duration)
-            return vp->duration;
-        else
-            return duration;
-    }
-    else {
-        return 0.0;
-    }
-}
-
-double XDisplay::compute_target_delay(double delay)
-{
-    double sync_threshold, diff = 0;
-
-    /* update delay to follow master synchronisation source */
-    //if (get_master_sync_type(is) != AV_SYNC_VIDEO_MASTER) {
-    //    /* if video is slave, we try to correct big delays by
-    //       duplicating or deleting a frame */
-    //    diff = get_clock(&is->vidclk) - get_master_clock(is);
-
-    //    /* skip or repeat frame. We take into account the
-    //       delay to compute the threshold. I still don't know
-    //       if it is the best guess */
-    //    sync_threshold = FFMAX(AV_SYNC_THRESHOLD_MIN, FFMIN(AV_SYNC_THRESHOLD_MAX, delay));
-    //    if (!isnan(diff) && fabs(diff) < is->max_frame_duration) {
-    //        if (diff <= -sync_threshold)
-    //            delay = FFMAX(0, delay + diff);
-    //        else if (diff >= sync_threshold && delay > AV_SYNC_FRAMEDUP_THRESHOLD)
-    //            delay = delay + diff;
-    //        else if (diff >= sync_threshold)
-    //            delay = 2 * delay;
-    //    }
-    //}
-
-    xlog_trc("video: delay=%0.3f A-V=%f\n", delay, -diff);
-
-    return delay;
 }

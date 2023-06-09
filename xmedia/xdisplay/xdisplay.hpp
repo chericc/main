@@ -26,6 +26,8 @@ struct State
 
     SDL_Texture* video_texture{ nullptr };
 
+    RefreshState state{};
+
     ~State();
 };
 
@@ -49,7 +51,7 @@ private:
     void calDisplayRect(SDL_Rect* rect,
         int scr_xleft, int scr_ytop, int scr_width, int scr_height,
         int pic_width, int pic_height, AVRational pic_sar);
-    void setSDLYUVConversionMode(AVFrame* frame);
+    void setSDLYUVConversionMode(const AVFrame* frame);
     int uploadTexture(SDL_Texture** tex, AVFrame* frame);
     void getSDLPixFmtAndBlendMode(int format, uint32_t* sdl_pix_fmt,
         SDL_BlendMode* sdl_blendmode);

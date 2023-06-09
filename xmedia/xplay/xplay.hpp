@@ -140,12 +140,18 @@ public:
     std::shared_ptr<std::condition_variable> cond_continue_read_thread;
 
     double max_frame_duration{ 0.0 };
+
+    struct RefreshCtx
+    {
+        double frame_timer{0.0};
+        bool force_refresh{false};
+    } refreshctx;
 };
 
-class XWindow
+struct RefreshState
 {
-public:
-    XWindow();
+    const Frame *frame{nullptr};
+    double remaining_time{0.0};
 };
 
 class XPlay
@@ -155,7 +161,8 @@ public:
     ~XPlay();
     int open(const OptValues &opt);
     int close();
-    VideoState& vs();
+
+    int refresh(RefreshState *state);
 private:
     int doOpen(const OptValues &opt);
     int doClose();
@@ -173,7 +180,11 @@ private:
 
     int streamHasEnoughPackets(AVStream* st, int stream_id, PacketQueue* queue);
 private:
-    std::shared_ptr<VideoState> is_;
+    int doRefresh(RefreshState *state);
+    double vp_duration(Frame *vp, Frame *nextvp);
+    double compute_target_delay(double delay);
+private:
+    std::shared_ptr<VideoState> _is;
 
     std::mutex mutex_call_;
     using CallLock = std::lock_guard<std::mutex>;
@@ -183,4 +194,5 @@ private:
         MIN_FRAMES = 25,
         MAX_QUEUE_SIZE = 15 * 1024 * 1024,
     };
+    const double AV_SYNC_THRESHOLD_MAX{0.1};
 };

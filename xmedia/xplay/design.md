@@ -5,7 +5,7 @@
 ```
 XPlay::doOpen()
 
-  - streamOpen() --> is_
+  - streamOpen() --> _is
 
     - videoq(PacketQueue) & .init
     - pictq(FrameQueue) & .init
