@@ -117,7 +117,7 @@ std::shared_ptr<VideoState> XPlay::streamOpen(const OptValues &opt)
             break;
         }
 
-        if (is->videoq->init() < 0)
+        if (!is->videoq->ok())
         {
             xlog_err("video q init failed");
             break;
@@ -188,7 +188,7 @@ int XPlay::streamComponentOpen(int stream_index)
             {
                 _is->video_stream = stream_index;
                 _is->video_st = ic->streams[stream_index];
-                if (_is->viddec.init(avctx, _is->videoq.get(), _is->cond_continue_read_thread) < 0)
+                if (_is->viddec.init(avctx, _is->videoq, _is->cond_continue_read_thread) < 0)
                 {
                     berror = true;
                     xlog_err("decoderInit failed");
@@ -247,7 +247,8 @@ int XPlay::getVideoFrame(AVFrame* frame)
 }
 
 
-int Decoder::init(AVCodecContext *avctx_tmp, PacketQueue *queue_tmp, std::shared_ptr<std::condition_variable> empty_queue_cond_tmp)
+int Decoder::init(AVCodecContext *avctx_tmp, std::shared_ptr<PacketQueue> queue_tmp,
+    std::shared_ptr<std::condition_variable> empty_queue_cond_tmp)
 {
     pkt = av_packet_alloc();
     if (!pkt)
@@ -256,7 +257,7 @@ int Decoder::init(AVCodecContext *avctx_tmp, PacketQueue *queue_tmp, std::shared
         return -1;
     }
     avctx = avctx_tmp;
-    queue = queue_tmp;
+    packet_queue = queue_tmp;
     empty_queue_cond = empty_queue_cond_tmp;
     
     return 0;
@@ -264,7 +265,7 @@ int Decoder::init(AVCodecContext *avctx_tmp, PacketQueue *queue_tmp, std::shared
 
 int Decoder::start(std::function<int()> func, const char *thread_name)
 {
-    queue->start();
+    packet_queue->start();
     trd_decoder = std::make_shared<XThread>(func);
     trd_decoder->start();
     return 0;
@@ -314,7 +315,7 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
 
         do
         {
-            if (queue->nb_packets == 0)
+            if (packet_queue->empty())
             {
                 empty_queue_cond->notify_one();
             }
@@ -326,7 +327,7 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
             {
                 int old_serial = pkt_serial;
                 xlog_trc("getting packet");
-                if (queue->get(pkt, 1, &pkt_serial) < 0)
+                if (packet_queue->get(pkt, 1, &pkt_serial) < 0)
                 {
                     return -1;
                 }
@@ -339,7 +340,7 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub)
                     next_pts_tb = start_pts_tb;
                 }
             }
-            if (queue->serial == pkt_serial)
+            if (packet_queue->serial() == pkt_serial)
             {
                 break;
             }
@@ -458,8 +459,8 @@ int XPlay::readThread()
 
             // seek
 
-            if (_is->videoq->size > MAX_QUEUE_SIZE ||
-                streamHasEnoughPackets(_is->video_st, _is->video_stream, _is->videoq.get()))
+            if (_is->videoq->size() > MAX_QUEUE_SIZE ||
+                streamHasEnoughPackets(_is->video_st, _is->video_stream, _is->videoq))
             {
                 /* wait some time */
                 std::unique_lock<std::mutex> lock(wait_mutex);
@@ -571,7 +572,7 @@ int XPlay::videoThread()
         }
 
         pts = (frame->pts == AV_NOPTS_VALUE) ? (NAN) : (frame->pts * av_q2d(tb));
-        ret = queuePicture(frame, pts, duration, frame->pkt_pos, _is->videoq->serial);
+        ret = queuePicture(frame, pts, duration, frame->pkt_pos, _is->videoq->serial());
         av_frame_unref(frame);
 
         if (ret < 0)
@@ -688,12 +689,12 @@ int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration, int64_t
     return 0;
 }
 
-int XPlay::streamHasEnoughPackets(AVStream* st, int stream_id, PacketQueue* queue)
+int XPlay::streamHasEnoughPackets(AVStream* st, int stream_id, std::shared_ptr<PacketQueue> queue)
 {
     return stream_id < 0 ||
-        queue->abort_request ||
+        queue->abort_request() ||
         (st->disposition & AV_DISPOSITION_ATTACHED_PIC) ||
-        ((queue->nb_packets > MIN_FRAMES) && (!queue->duration || av_q2d(st->time_base) * queue->duration > 1.0));
+        ((queue->nb_packets() > MIN_FRAMES) && (!queue->duration() || av_q2d(st->time_base) * queue->duration() > 1.0));
 }
 
 int XPlay::refresh(RefreshState *state)
@@ -730,8 +731,8 @@ int XPlay::doRefresh(RefreshState *state)
             vp = _is->pictq->peek();
 
             xlog_trc("serial(vp:%d,last_vp:%d,queue:%d)", 
-                vp->serial, last_vp->serial, _is->videoq->serial);
-            if (vp->serial != _is->videoq->serial)
+                vp->serial, last_vp->serial, _is->videoq->serial());
+            if (vp->serial != _is->videoq->serial())
             {
                 xlog_trc("serial changed, next");
                 _is->pictq->next();

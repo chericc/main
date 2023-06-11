@@ -63,13 +63,13 @@ Frame* FrameQueue::peek_writable()
 {
     std::unique_lock<std::mutex> lock(mutex);
     while (size >= queue.size()
-        && !pktq->abort_request)
+        && !pktq->abort_request())
     {
         xlog_trc("frame queue full, wait");
         cond.wait(lock);
     }
 
-    if (pktq->abort_request)
+    if (pktq->abort_request())
     {
         return nullptr;
     }
@@ -81,13 +81,13 @@ Frame* FrameQueue::peek_readable()
 {
     std::unique_lock<std::mutex> lock(mutex);
     while (size - rindex_shown <= 0
-        && !pktq->abort_request)
+        && !pktq->abort_request())
     {
         xlog_trc("read wait");
         cond.wait(lock);
     }
 
-    if (pktq->abort_request)
+    if (pktq->abort_request())
     {
         return nullptr;
     }
@@ -134,7 +134,7 @@ int FrameQueue::nb_remaining()
 int64_t FrameQueue::last_pos()
 {
     Frame* fp = &queue[rindex];
-    if (rindex_shown && fp->serial == pktq->serial)
+    if (rindex_shown && fp->serial == pktq->serial())
     {
         return fp->pos;
     }

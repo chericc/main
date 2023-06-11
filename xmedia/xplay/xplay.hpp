@@ -16,7 +16,8 @@ class Decoder
 public:
     AVPacket *pkt{nullptr};
     AVCodecContext *avctx{nullptr};
-    PacketQueue *queue{nullptr};
+
+    std::shared_ptr<PacketQueue> packet_queue;
 
     std::shared_ptr<XThread> trd_decoder;
 
@@ -29,7 +30,8 @@ public:
     int64_t next_pts{};
     AVRational next_pts_tb{};
 
-    int init(AVCodecContext *avctx, PacketQueue *queue, std::shared_ptr<std::condition_variable> empty_queue_cond);
+    int init(AVCodecContext *avctx, std::shared_ptr<PacketQueue> queue, 
+            std::shared_ptr<std::condition_variable> empty_queue_cond);
     int start(std::function<int()> func, const char *thread_name);
     int decodeFrame(AVFrame* frame, AVSubtitle* sub);
 };
@@ -96,7 +98,7 @@ private:
 
     int queuePicture(AVFrame* src_frame, double pts, double duration, int64_t pos, int serial);
 
-    int streamHasEnoughPackets(AVStream* st, int stream_id, PacketQueue* queue);
+    int streamHasEnoughPackets(AVStream* st, int stream_id, std::shared_ptr<PacketQueue> queue);
 private:
     int doRefresh(RefreshState *state);
     double vp_duration(Frame *vp, Frame *nextvp);
