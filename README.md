@@ -35,3 +35,19 @@ sudo apt-get install libsdl2...(dev / 2.x)
 ```bash
 cmake ../freetype-2.10.2/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=true -DFT_DISABLE_BROTLI=ON -DFT_DISABLE_BZIP2=ON -DFT_DISABLE_HARFBUZZ=ON -DFT_DISABLE_PNG=ON -DFT_DISABLE_ZLIB=ON -DFT_REQUIRE_BROTLI=ON -DFT_REQUIRE_BZIP2=ON -DFT_REQUIRE_HARFBUZZ=ON
 ```
+
+## How to build cmake?
+
+```bash
+# downlaod cmake
+wget https://cmake.org/files/v3.26/cmake-3.26.4.tar.gz
+../cmake-3.26.4/configure
+```
+
+## How to build openssl?
+
+```bash
+../openssl-3.1.0/Configure
+make
+make install
+```

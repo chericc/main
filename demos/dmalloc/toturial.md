@@ -1137,7 +1137,131 @@ sanitizer: 消毒剂
 
 ### 4.4 使用
 
+#### 4.4.1 编译
+
 编译选项增加`-fsanitize=address -fno-omit-frame-pointer`即可。
+
+```bash
+g++ -c test.cpp -fsanitize=address -fno-omit-frame-pointer -std=c++11
+g++ test.o -o a.out -fsanitize=address -fno-omit-frame-pointer
+```
+
+#### 4.4.2 选项
+
+##### 4.4.2.1 输出所有选项
+
+```bash
+ASAN_OPTIONS=help=1 ./a.out
+```
+
+##### 4.4.2.2 错误后继续
+
+```bash
+注：效果和gcc版本有关
+
+g++ -c test.cpp -fsanitize-recover=all -fno-omit-frame-pointer -std=c++11
+g++ test.o -o a.out -fsanitize-recover=all -fno-omit-frame-pointer
+```
+
+#### 4.4.3 堆越界演示
+
+```c++
+#include <stdlib.h>
+int main()
+{
+        char *p = (char*)malloc(32);
+        p[32] = 0;
+        p[33] = 0;
+        return 0;
+}
+```
+
+```bash
+$ g++ test.cpp -fsanitize=address -fno-omit-frame-pointer -std=c++11
+$ ./a.out
+=================================================================
+==22143==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60300000f000 at pc 0x000000400788 bp 0x7fff3f9dd1a0 sp 0x7fff3f9dd190
+WRITE of size 1 at 0x60300000f000 thread T0
+    #0 0x400787 in main (/home/test/tmp/a.out+0x400787)
+    #1 0x7fda1341583f in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2083f)
+    #2 0x400668 in _start (/home/test/tmp/a.out+0x400668)
+
+0x60300000f000 is located 0 bytes to the right of 32-byte region [0x60300000efe0,0x60300000f000)
+allocated by thread T0 here:
+    #0 0x7fda13857602 in malloc (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x98602)
+    #1 0x400747 in main (/home/test/tmp/a.out+0x400747)
+    #2 0x7fda1341583f in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2083f)
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow ??:0 main
+Shadow bytes around the buggy address:
+  0x0c067fff9db0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9dc0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9dd0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9de0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9df0: fa fa fa fa fa fa fa fa fa fa fa fa 00 00 00 00
+=>0x0c067fff9e00:[fa]fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9e10: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9e20: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9e30: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9e40: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c067fff9e50: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07
+  Heap left redzone:       fa
+  Heap right redzone:      fb
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack partial redzone:   f4
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+==22143==ABORTING
+```
+
+#### 4.4.4 内存泄漏演示
+
+```c++
+#include <stdlib.h>
+int main()
+{
+        char *p = (char*)malloc(32);
+		char *q = (char*)malloc(64);
+        return 0;
+}
+```
+
+```bash
+$ g++ -c test.cpp -fsanitize=address -fno-omit-frame-pointer -std=c++11
+$ g++ test.o -o a.out -fsanitize=address -fno-omit-frame-pointer
+
+$ ./a.out
+
+=================================================================
+==22154==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 64 byte(s) in 1 object(s) allocated from:
+    #0 0x7f7b3a7b7602 in malloc (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x98602)
+    #1 0x400705 in main (/home/test/tmp/a.out+0x400705)
+    #2 0x7f7b3a37583f in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2083f)
+
+Direct leak of 32 byte(s) in 1 object(s) allocated from:
+    #0 0x7f7b3a7b7602 in malloc (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x98602)
+    #1 0x4006f7 in main (/home/test/tmp/a.out+0x4006f7)
+    #2 0x7f7b3a37583f in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2083f)
+
+SUMMARY: AddressSanitizer: 96 byte(s) leaked in 2 allocation(s).
+```
+
+
 
 ### 4.5 demo演示
 
