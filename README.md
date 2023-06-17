@@ -61,3 +61,13 @@ make install
 make
 make install
 ```
+
+## How to install plantuml?
+
+```bash
+sudo apt-get install openjdk-19-jdk
+sudo apt-get install graphviz
+sudo apt-get install plantuml
+```
+
+## 

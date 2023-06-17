@@ -1,0 +1,19 @@
+
+@startuml
+title 符号表
+participant "字符流" as A
+participant "符号流" as B
+participant "语法树" as C
+participant "语法树" as D
+participant "中间表示形式" as E
+participant "中间表示形式" as F
+participant "目标机器语言" as G
+participant "目标机器语言" as H
+A -> B: 语法分析器
+B -> C: 语法分析
+C -> D: 语义分析
+D -> E: 中间代码生成器
+E -> F: 机器无关代码优化器
+F -> G: 代码生成器
+G -> H: 机器相关代码优化器
+@enduml
