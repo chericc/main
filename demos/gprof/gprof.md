@@ -6,200 +6,141 @@
 // test.cpp
 int g_a = 0;
 
-void fun1()
+void fun3()
 {
-    for (int i = 0; i < 100 * 1000 * 1000; ++i)
+    for (int i = 0; i < 50; ++i)
     {
-        g_a += (g_a % 5);
+        g_a += (i % 5);
     }
 }
 
 void fun2()
 {
-    g_a += 2;
+    for (int i = 0; i < 100; ++i)
+    {
+        g_a += (i % 5);
+    }
+}
+
+void fun1()
+{
+    for (int i = 0; i < 1 * 1000 * 1000; ++i)
+    {
+        g_a += (i % 5);
+
+        fun2();
+        fun3();
+    }
 }
 
 int main()
 {
     fun1();
-    fun2();
-
-    for (int i = 0; i < 10; ++i)
-    {
-        fun1();
-    }
-
-    for (int i = 0; i < 10; ++i)
-    {
-        fun2();
-    }
 
     return g_a;
 }
 ```
 
-## cmds
+## steps
 
 ```bash
-g++ -c -pg test.cpp
+g++ -c -pg test.cpp -O0
 g++ test.o -pg
 ./a.out
-gprof a.out gmon.out
 ```
 
 ```bash
+gprof a.out gmon.out -b
 Flat profile:
 
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total
  time   seconds   seconds    calls  ms/call  ms/call  name
-100.00      5.20     5.20       11   472.73   472.73  fun1()
-  0.00      5.20     0.00       11     0.00     0.00  fun2()
-
- %         the percentage of the total running time of the
-time       program used by this function.
-
-cumulative a running sum of the number of seconds accounted
- seconds   for by this function and those listed above it.
-
- self      the number of seconds accounted for by this
-seconds    function alone.  This is the major sort for this
-           listing.
-
-calls      the number of times this function was invoked, if
-           this function is profiled, else blank.
-
- self      the average number of milliseconds spent in this
-ms/call    function per call, if this function is profiled,
-           else blank.
-
- total     the average number of milliseconds spent in this
-ms/call    function and its descendents per call, if this
-           function is profiled, else blank.
-
-name       the name of the function.  This is the minor sort
-           for this listing. The index shows the location of
-           the function in the gprof listing. If the index is
-           in parenthesis it shows where it would appear in
-           the gprof listing if it were to be printed.
+ 72.22      0.26     0.26  1000000     0.00     0.00  fun2()
+ 25.00      0.35     0.09  1000000     0.00     0.00  fun3()
+  2.78      0.36     0.01        1    10.00   360.00  fun1()
 
 
-Copyright (C) 2012-2022 Free Software Foundation, Inc.
-
-Copying and distribution of this file, with or without modification,
-are permitted in any medium without royalty provided the copyright
-notice and this notice are preserved.
+                        Call graph
 
 
-                     Call graph (explanation follows)
-
-
-granularity: each sample hit covers 4 byte(s) for 0.19% of 5.20 seconds
+granularity: each sample hit covers 4 byte(s) for 2.78% of 0.36 seconds
 
 index % time    self  children    called     name
                                                  <spontaneous>
-[1]    100.0    0.00    5.20                 main [1]
-                5.20    0.00      11/11          fun1() [2]
-                0.00    0.00      11/11          fun2() [9]
+[1]    100.0    0.00    0.36                 main [1]
+                0.01    0.35       1/1           fun1() [2]
 -----------------------------------------------
-                5.20    0.00      11/11          main [1]
-[2]    100.0    5.20    0.00      11         fun1() [2]
+                0.01    0.35       1/1           main [1]
+[2]    100.0    0.01    0.35       1         fun1() [2]
+                0.26    0.00 1000000/1000000     fun2() [3]
+                0.09    0.00 1000000/1000000     fun3() [4]
 -----------------------------------------------
-                0.00    0.00      11/11          main [1]
-[9]      0.0    0.00    0.00      11         fun2() [9]
+                0.26    0.00 1000000/1000000     fun1() [2]
+[3]     72.2    0.26    0.00 1000000         fun2() [3]
 -----------------------------------------------
-
- This table describes the call tree of the program, and was sorted by
- the total amount of time spent in each function and its children.
-
- Each entry in this table consists of several lines.  The line with the
- index number at the left hand margin lists the current function.
- The lines above it list the functions that called this function,
- and the lines below it list the functions this one called.
- This line lists:
-     index      A unique number given to each element of the table.
-                Index numbers are sorted numerically.
-                The index number is printed next to every function name so
-                it is easier to look up where the function is in the table.
-
-     % time     This is the percentage of the `total' time that was spent
-                in this function and its children.  Note that due to
-                different viewpoints, functions excluded by options, etc,
-                these numbers will NOT add up to 100%.
-
-     self       This is the total amount of time spent in this function.
-
-     children   This is the total amount of time propagated into this
-                function by its children.
-
-     called     This is the number of times the function was called.
-                If the function called itself recursively, the number
-                only includes non-recursive calls, and is followed by
-                a `+' and the number of recursive calls.
-
-     name       The name of the current function.  The index number is
-                printed after it.  If the function is a member of a
-                cycle, the cycle number is printed between the
-                function's name and the index number.
-
-
- For the function's parents, the fields have the following meanings:
-
-     self       This is the amount of time that was propagated directly
-                from the function into this parent.
-
-     children   This is the amount of time that was propagated from
-                the function's children into this parent.
-
-     called     This is the number of times this parent called the
-                function `/' the total number of times the function
-                was called.  Recursive calls to the function are not
-                included in the number after the `/'.
-
-     name       This is the name of the parent.  The parent's index
-                number is printed after it.  If the parent is a
-                member of a cycle, the cycle number is printed between
-                the name and the index number.
-
- If the parents of the function cannot be determined, the word
- `<spontaneous>' is printed in the `name' field, and all the other
- fields are blank.
-
- For the function's children, the fields have the following meanings:
-
-     self       This is the amount of time that was propagated directly
-                from the child into the function.
-
-     children   This is the amount of time that was propagated from the
-                child's children to the function.
-
-     called     This is the number of times the function called
-                this child `/' the total number of times the child
-                was called.  Recursive calls by the child are not
-                listed in the number after the `/'.
-
-     name       This is the name of the child.  The child's index
-                number is printed after it.  If the child is a
-                member of a cycle, the cycle number is printed
-                between the name and the index number.
-
- If there are any cycles (circles) in the call graph, there is an
- entry for the cycle-as-a-whole.  This entry shows who called the
- cycle (as parents) and the members of the cycle (as children.)
- The `+' recursive calls entry shows the number of function calls that
- were internal to the cycle, and the calls entry for each member shows,
- for that member, how many times it was called from other members of
- the cycle.
-
-
-Copyright (C) 2012-2022 Free Software Foundation, Inc.
-
-Copying and distribution of this file, with or without modification,
-are permitted in any medium without royalty provided the copyright
-notice and this notice are preserved.
+                0.09    0.00 1000000/1000000     fun1() [2]
+[4]     25.0    0.09    0.00 1000000         fun3() [4]
+-----------------------------------------------
 
 
 Index by function name
 
-   [2] fun1()                  [9] fun2()
+   [2] fun1()                  [3] fun2()                  [4] fun3()
 ```
+
+## explain
+
+一共输出两张表：第一张为flat profile，即所有函数的耗时及调用次数；第二张为call graph，展示每个函数被谁调用，调用了谁，以及次数，并且也有每个函数的子调用的估计耗时；
+
+### flat profile
+
+% time 函数总的运行时间；
+
+cumulative seconds 该函数及之上函数的总时长；
+
+self seconds 该函数总时长；
+
+calls 调用次数；
+
+self ms/call 函数的每次调用平均耗时（毫秒）；
+
+total ms/call 函数及其子调用的每次调用平均耗时（毫秒）；
+
+### call graph
+
+index 表的索引编号
+
+% time 函数及其子调用占用的时间百分比
+
+self 函数自身花费的总时间
+
+children 函数子调用花费的总时间
+
+called 函数被调用的次数，如果为递归调用，a+b，其中b为调用调用次数；
+
+对于某个函数的调用函数和被调用函数，结果中仅显示调用路径中的花费时间和次数；
+
+## example
+
+### 初步分析
+
+结合对 test_bmp 的一个分析结果进行优化：
+
+内容参考 output.txt
+
+由 flat profile 可知，大部分都与 vector<char...>有关；
+
+然后观察 call graph ，
+
+第一个函数：
+
+对于 bmp_decoder_read_test_Test ，其时间占用为 71.4% ，并且其子函数调用次数不多，并且self耗时均为0（很小），因此判定这个调用路径耗时不大；
+
+第二个函数：
+
+首先，self有不为0的值，并且调用次数很大，因此判定，这个是第一个要解决的性能瓶颈位置；
+
+### 找到第二个函数的位置
+
+直接搜索 [2] ，就可以找到输出中的所有使用第二个函数的位置，其调用者包括 vector::resize, vector比较，vector拷贝构造

@@ -70,4 +70,20 @@ sudo apt-get install graphviz
 sudo apt-get install plantuml
 ```
 
-## 
+## How to build valgrind
+
+```bash
+../valgrind-3.20.0/configure --prefix=$(pwd)/output
+```
+
+## How to build libunwind
+
+```bash
+../libunwind-1.70/configure --prefix=$(pwd)/output
+```
+
+## How to build gperftools
+
+```bash
+cmake ../gperftools-gperftools-2.10/ -DCMAKE_REQUIRED_LIBRARIES=/home/test/opensrc/libunwind/build/output/lib -DCMAKE_REQUIRED_INCLUDES=/home/test/opensrc/libunwind/build/output/include
+```
