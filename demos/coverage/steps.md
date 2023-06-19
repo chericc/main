@@ -1,44 +1,72 @@
 # steps of coverage with gcov
 
-## compile and linking 
+## about
 
-```bash
-mkdir build
+主要用来统计被测代码的覆盖率；
 
-cd build
+也可以用来统计代码执行次数（辅助帮助性能分析）；
 
-g++ -c -fprofile-arcs -ftest-coverage -fprofile-abs-path ../test.cpp -o test.o
+## src
 
-ls
-test.gcno  test.o
+```c++
+// test.cpp
+#include <stdio.h>
 
-g++ test.o -lgcov -o test.out
+int add(int a, int b)
+{
+    return a + b;
+}
 
-ls
-test.gcno  test.o  test.out
+int minus(int a, int b)
+{
+    return a - b;
+}
+
+int main()
+{
+    int c = add(1,2);
+    int d = minus(3,4);
+    return c;
+}
 ```
 
-## running
+## eg1
 
 ```bash
+g++ -c --coverage test.cpp -o test.o
+g++ test.o --coverage -o test.out
+
 ./test.out
 
-ls
-test.gcda  test.gcno  test.o  test.out
-```
+# gcov
+gcov -m test.cpp
 
-## parsing
+cat test.cpp.gcov
+        -:    0:Source:../test.cpp
+        -:    0:Graph:test.gcno
+        -:    0:Data:test.gcda
+        -:    0:Runs:1
+        -:    1:#include <stdio.h>
+        -:    2:
+        1:    3:int add(int a, int b)
+        -:    4:{
+        1:    5:    return a + b;
+        -:    6:}
+        -:    7:
+        1:    8:int minus(int a, int b)
+        -:    9:{
+        1:   10:    return a - b;
+        -:   11:}
+        -:   12:
+        1:   13:int main()
+        -:   14:{
+        1:   15:    int c = add(1,2);
+        1:   16:    int d = minus(3,4);
+        1:   17:    return c;
+        -:   18:}
 
-```bash
-# sudo apt-get install lcov
-
+# lcov
 lcov -c -d . -o test.info
-
-ls
-test.gcda  test.gcno  test.info  test.o  test.out
-
 genhtml -o test_coverage test.info
-
-ls
-test_coverage  test.gcda  test.gcno  test.info  test.o  test.out
 ```
+
