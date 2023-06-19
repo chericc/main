@@ -128,8 +128,13 @@ include(CTest)
 SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_BUILD_TYPE "Release")
 
-add_compile_options(--coverage)
-add_link_options(--coverage)
+# coverage 
+# add_compile_options(--coverage)
+# add_link_options(--coverage)
+
+# performance analysis
+# add_compile_options(-pg)
+# add_link_options(-pg)
 
 # targets
 add_subdirectory(xtools)
