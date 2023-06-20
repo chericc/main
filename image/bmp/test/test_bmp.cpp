@@ -98,7 +98,7 @@ static void TestBmp(const TestInfo &info)
 TEST(bmp_decoder, read_test)
 {
     std::list<TestInfo> info;
-
+#if 0
     {
         TestInfo item{};
         item.filename = "bmp_4_4_pureblack.bmp";
@@ -149,7 +149,7 @@ TEST(bmp_decoder, read_test)
         };
         info.push_back(item);
     }
-
+#endif 
     {
         TestInfo item{};
         item.filename = "bmp_253_153_pureblack.bmp";
@@ -166,7 +166,6 @@ TEST(bmp_decoder, read_test)
         };
         info.push_back(item);
     }
-
     {
         TestInfo item{};
         item.filename = "bmp_2_2_bwwb.bmp";

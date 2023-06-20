@@ -106,9 +106,10 @@ std::shared_ptr<std::vector<uint8_t>> BmpDecoder::getContent(int pos, int numPix
 
         buf->reserve(depth_bytes * numPixels);
 
-        /* 每一行按4字节对齐 */
+        /* 每一行对齐后的字节数 */
         int width_pad_bytes = WIDTH_PAD_BYTES(_load_info->width * depth_bytes);
 
+#if 1
         /* 按行读取性能更优 */
         for (int i = pos; i < pos + numPixels; ++i)
         {
@@ -123,9 +124,51 @@ std::shared_ptr<std::vector<uint8_t>> BmpDecoder::getContent(int pos, int numPix
                 buf->push_back(ref);
             }
         }
+#else 
+        {
+            int width = _load_info->width;
+            int x = pos % width;
+            int y = pos / width;
+            int read_pixels_count = 0;
+
+
+            while (read_pixels_count < numPixels)
+            {
+                int offset_begin = _load_info->data_offset + y * width_pad_bytes + x * depth_bytes;
+                int offset_data_end = _load_info->data_offset + y * width_pad_bytes + width * depth_bytes;
+                int offset_line_end = _load_info->data_offset + (y + 1) * width_pad_bytes;
+
+                if (offset_begin != _load_info->xio->tell())
+                {
+                    _load_info->xio->seek(offset_begin, SEEK_SET);
+                }
+
+                auto data_row = _load_info->xio->read(offset_line_end - offset_begin);
+                if (offset_line_end > offset_data_end)
+                {
+                    data_row.resize(offset_data_end - offset_begin);
+                }
+                
+                for (int data_row_offset = 0; data_row_offset < data_row.size(); ++data_row_offset)
+                {
+                    if (read_pixels_count >= numPixels)
+                    {
+                        break;
+                    }
+                    for (int i = data_row_offset; i < data_row_offset + depth_bytes; ++i)
+                    {
+                        buf->push_back(data_row[i]);
+                    }
+                    data_row_offset += depth_bytes;
+                    ++read_pixels_count;
+                }
+                x = 0;
+                y += 1;
+            }
+        }
+#endif 
     }
     while (0);
-
     if (buf && buf->empty())
     {
         buf->shrink_to_fit();
@@ -262,9 +305,10 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
             for (int x = 0; x < info.width; ++x)
             {
                 std::size_t offset = (y * info.width + x) * bytespersample;
+                auto const& data = *info.data;
                 for (std::size_t i = 0; i < (std::size_t)bytespersample; ++i)
                 {
-                    buf_pixel[i] = (*info.data)[i + offset];
+                    buf_pixel[i] = data[i + offset];
                 }
                 xio->write(buf_pixel);
             }

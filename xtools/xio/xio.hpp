@@ -41,7 +41,7 @@ public:
     void wl24(uint32_t value);
     void wl32(uint32_t value);
     void wl64(uint64_t value);
-    virtual void write(std::vector<uint8_t> buffer) = 0;
+    virtual void write(const std::vector<uint8_t> &buffer) = 0;
 
 protected:
     class IOContext
@@ -73,7 +73,7 @@ public:
     std::vector<uint8_t> read(std::size_t size) override;
 
     void w8(uint8_t b) override;
-    void write(std::vector<uint8_t> buffer) override;
+    void write(const std::vector<uint8_t> &buffer) override;
 private:
 
     class IOFileContenxt

@@ -352,7 +352,7 @@ void XIOFile::w8(uint8_t b)
     return ;
 }
 
-void XIOFile::write(std::vector<uint8_t> buffer)
+void XIOFile::write(const std::vector<uint8_t> &buffer)
 {
     int berror = false;
 
