@@ -51,7 +51,11 @@ g++ test.cpp -c -g -o test.o
 g++ test.o -o test.out 
 LD_PRELOAD=/home/test/opensrc/gperftools/build/output/lib/libprofiler.so CPUPROFILE=/tmp/prof.out ./test.out
 
+# CPUPROFILE_FREQUENCY:interrupts/second
+LD_PRELOAD=/home/test/opensrc/gperftools/build/output/lib/libprofiler.so CPUPROFILE=/tmp/prof.out CPUPROFILE_FREQUENCY=100 ./test.out
+
 /home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --help
 /home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --text ./test.out /tmp/prof.out
 /home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --svg ./test.out /tmp/prof.out > output.svg
+/home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --svg --lines ./test.out /tmp/prof.out > output.svg
 ```

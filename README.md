@@ -81,8 +81,6 @@ sudo apt-get install plantuml
 ```bash
 # http://download.savannah.gnu.org/releases/libunwind/
 
-../libunwind-1.3.2/configure --prefix=$(pwd)/output CFLAGS=-fcommon
-
 ../libunwind-1.6.2/configure --prefix=$(pwd)/output
 ```
 
@@ -94,7 +92,7 @@ cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD
 
 # with libunwind
 # note: libunwind version is restricted
-CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=OFF
+CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON
 
 # run uni-test
 make test
