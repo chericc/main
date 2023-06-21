@@ -98,4 +98,5 @@ CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_P
 make test
 
 # note: uni-test failed, not knowing why.
+# libunwind is recommended
 ```
