@@ -77,7 +77,7 @@ LD_PRELOAD=/home/test/opensrc/gperftools/build/output/lib/libprofiler.so CPUPROF
 ### 看不到有效的信息或者信息不足
 
 ```
-因为统计的方式是采样，程序本身的负荷、运行时间和工具的采样频率，都会影响采样点的数量。可以调整CPUPROFILE_FREQUENCY来增加采样频率（每秒的采样点数）；
+因为统计的方式是采样，程序本身的负荷、工具的采样时间和采样频率，都会影响采样数据。可以调整CPUPROFILE_FREQUENCY来增加采样频率（每秒的采样点数）；
 ```
 
 ### 如果程序被strip或者没有加-g会如何
@@ -198,10 +198,10 @@ int main()
 g++ test.cpp -g -o test.out
 LD_PRELOAD=/home/test/opensrc/gperftools/build/output/lib/libprofiler.so CPUPROFILE=/tmp/prof.out CPUPROFILESIGNAL=12 CPUPROFILE_FREQUENCY=1000 ./test.out
 
-# start analysis
+# start profiler
 sudo killall -12 test.out 
 
-# stop analysis
+# stop profiler
 sudo killall -12 test.out 
 
 # output
@@ -296,5 +296,23 @@ LD_PRELOAD=/home/test/opensrc/gperftools/build/output/lib/libtcmalloc.so HEAPPRO
 /home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --svg --lines ./test.out /tmp/prof.out.0002.heap > output.svg
 # text
 /home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --text --lines ./test.out /tmp/prof.out.0002.heap
+# compare
+/home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --text --lines --base /tmp/prof.out.0005.heap ./test.out /tmp/prof.out.0010.heap
+```
+
+
+
+```bash
+# 这是一个对比的示例，可以看到大量内存的差异体现在fun2中；
+$ /home/test/opensrc/gperftools/build/output/bin/pprof-symbolize --text --lines --base /tmp/prof.out.0005.heap ./test.out /tmp/prof.out.0010.heap
+Using local file ./test.out.
+Using local file /tmp/prof.out.0010.heap.
+Total: 1.2 MB
+     1.2 100.0% 100.0%      1.2 100.0% fun2 /home/test/tmp/test.cpp:22
+     0.0   0.0% 100.0%      0.0   0.0% __gnu_cxx::new_allocator::allocate /usr/include/c++/11/ext/new_allocator.h:127
+     0.0   0.0% 100.0%      0.1   5.3% 0x00000002b19d8b7d ??:0
+     0.0   0.0% 100.0%      0.0   0.0% 0x0000002a00000000 ??:0
+     0.0   0.0% 100.0%      0.0   0.0% 0x0000002a00000001 ??:0
+     0.0   0.0% 100.0%      0.1   5.3% 0x00005633b0cf677f ??:0
 ```
 
