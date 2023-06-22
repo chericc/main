@@ -1,0 +1,5 @@
+digraph
+{
+    "position = initial + rate * 60" [id = 1]
+    1 -> 2
+}

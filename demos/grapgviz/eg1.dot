@@ -1,0 +1,13 @@
+digraph
+{
+    A [color = red]
+    A -> B
+    B -> C
+    C -> D [taillabel = "tail"]
+    D -> F
+
+    subgraph
+    {
+        rank = same; B; C;
+    }
+}
