@@ -1,0 +1,16 @@
+digraph
+{
+    subgraph cluster1
+    {
+        label="从名字到值的两步映射"
+        e1 [label = "名字"];
+        e2 [label = "内存位置"];
+        e3 [label = "值"];
+        e1 -> e2 [label = "环境"];
+        e2 -> e3 [label = "状态"];
+        subgraph 
+        {
+            rank = same; e1; e2; e3;
+        }
+    }
+}

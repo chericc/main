@@ -1,0 +1,23 @@
+digraph
+{
+    subgraph cluster1
+    {
+        label="Grammer Tree"
+        e1 [label = "="];
+        e2 [label = "<id,1>"];
+        e3 [label = "+"];
+        e1 -> e2;
+        e1 -> e3;
+        e4 [label = "<id,2>"];
+        e5 [label = "*"];
+        e2 -> null [style = invis];
+        e3 -> e4;
+        e3 -> e5;
+        e6 [label = "<id,3>"];
+        e7 [label = "60"];
+        e4 -> null [style = invis];
+        e5 -> e6;
+        e5 -> e7;
+        null [style = invis]
+    }
+}
