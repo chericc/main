@@ -1,10 +1,10 @@
-digraph
+graph
 {
     A [color = red]
-    A -> B
-    B -> C
-    C -> D [taillabel = "tail"]
-    D -> F
+    A -- B
+    B -- C
+    C -- D [label = "some label"]
+    D -- F
 
     subgraph
     {

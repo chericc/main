@@ -1,0 +1,17 @@
+digraph
+{
+    e1 [label = "源程序"]
+    e2 [label = "词法分析器"]
+    e3 [label = "词法单元"]
+    e4 [label = "语法分析器"]
+    e5 [label = "语法分析树"]
+    e6 [label = "中间代码生成器"]
+    e7 [label = "三地址代码"]
+    e8 [label = "符号表"]
+    e1 -> e2 -> e3 -> e4 -> e5 -> e6 -> e7
+    e2 -> e8
+    e4 -> e8
+    e6 -> e8
+    subgraph
+    { rank = same; e1; e2; e3; e4; e5; e6; e7}
+}

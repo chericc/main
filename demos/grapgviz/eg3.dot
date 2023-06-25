@@ -1,0 +1,16 @@
+digraph
+{
+
+    e000 [label = "a"]
+    e001 [label = "b"]
+    e002 [label = "c" style = "invis"]
+    e003 [label = "d"]
+    e004 [label = "e"]
+    e005 [label = "f" style = "invis"]
+
+    e000 -> e001 [sortv = 1]
+    e000 -> e002 [style = "invis"]
+    e001 -> e003
+    e001 -> e004
+    e001 -> e005 [style = "invis"]
+}
