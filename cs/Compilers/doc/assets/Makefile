@@ -3,7 +3,7 @@
 DOT = dot
 PLANTUML = plantuml
 
-SRC_DIRS = ./code
+SRC_DIRS = .
 RELEASE_DIR := .
 
 DOT_FILES = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.dot))
@@ -11,9 +11,6 @@ SVG_FROM_DOT_FILES = $(patsubst %.dot,%.svg, $(DOT_FILES))
 
 PLANTUML_FILES = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.plantuml))
 SVG_FROM_PLANTUML_FILES = $(patsubst %.plantuml,%.svg, $(PLANTUML_FILES))
-
-$(info $(DOT_FILES))
-$(info $(PLANTUML_FILES))
 
 all: $(addprefix $(RELEASE_DIR)/,$(SVG_FROM_DOT_FILES)) $(addprefix $(RELEASE_DIR)/,$(SVG_FROM_PLANTUML_FILES))
 .PHONY : clean all

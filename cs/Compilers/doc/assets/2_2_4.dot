@@ -1,0 +1,53 @@
+digraph
+{
+    label = "两种情况"
+    subgraph cluster1
+    {
+        label = "1"
+        e000 [label = "string"]
+        e010 [label = "string"]
+        e011 [label = "+"]
+        e012 [label = "string"]
+        e020 [label = "string"]
+        e021 [label = "-"]
+        e022 [label = "string"]
+        e023 [label = "2"]
+        e030 [label = "9"]
+        e031 [label = "5"]
+        e000 -> e010
+        e000 -> e011
+        e000 -> e012
+        e010 -> e020
+        e010 -> e021
+        e010 -> e022
+        e012 -> e023
+        e020 -> e030
+        e022 -> e031
+
+    }
+
+    subgraph cluster2
+    {
+        label = "2"
+        e100 [label = "string"]
+        e110 [label = "string"]
+        e111 [label = "-"]
+        e112 [label = "string"]
+        e120 [label = "9"]
+        e121 [label = "string"]
+        e122 [label = "+"]
+        e123 [label = "string"]
+        e130 [label = "5"]
+        e131 [label = "2"]
+        e100 -> e110
+        e100 -> e111
+        e100 -> e112
+        e110 -> e120
+        e112 -> e121
+        e112 -> e122
+        e112 -> e123
+        e121 -> e130
+        e123 -> e131
+
+    }
+}

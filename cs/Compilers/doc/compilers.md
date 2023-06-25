@@ -434,17 +434,9 @@ list
 
 `string --> string + string | string - string | [0-9]`
 
-此时，会有多棵语法分析树，第二种情况如下：
+此时，会有多棵语法分析树，两种情况如下：
 
-```mermaid
-graph TD
-A[string] --- B[string]
-A[string] --- C[-]
-A[string] --- D[string]
-D[string] --- E[string]
-D[string] --- F[+]
-D[string] --- G[string]
-```
+![](assets/2_2_4.svg)
 
 此时语法树对应的表达式为`9-(5+2)`。
 
