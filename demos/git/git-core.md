@@ -142,3 +142,44 @@ index 557db03..263414f 10064
 +It's a new day for git
 ```
 
+i.e. the diff of the change we caused by adding another line to hello.
+
+### Committing git state
+
+Now, we want to go to the next stage in Git, which is to take the files that Git knows about in the index, and commit them as a real tree. We do that in two phases: creating a tree object, and committing that tree object as a commit object together with an explanation of what the tree was all about, along with information of how we came to that state.
+
+Creating a tree object is trivial, and is done with git write-tree. There are no options or other input: git write-tree will take the current index state, and write an object that describes that whole index. In other words, we're now tying together all the different filenames with their contents (and their permissions), and we're creating the equivalent of a Git "directory" object:
+
+```bash
+git write-tree
+```
+
+and this will just output the name of the resulting tree, in this case (if you have done exactly as I've described) it should be 
+
+```bash
+8988da15d077d4829fc51d8544c097def6644dbb
+```
+
+which is another incomprehensible object name. Again, if you want to, you can use git cat-file -t 8988d... to see that this time the object is not a "blob" object, but a "tree" object (you can also use git cat-file to actually output the raw object contents, but you'll see mainly a binary mess, so that's less interesting).
+
+However - normally you'd never use git write-tree on its own, because normally you always commit a tree into a commit object using the git commit-tree command. In fact, it's easier to not actually use git write-tree on its own at all, but to just pass its result in as an argument to git commit-tree.
+
+git commit-tree normally takes several arguments - it wants to know what the parent of a commit was, but since this is the first commit ever in this new repository, and it has no parents, we only need to pass in the object name of the tree. However, git commit-tree also wants to get a commit message on its standard input, and it will write out the resulting object name for the commit to its standard output.
+
+And this is where we create the .git/refs/heads/master file which is pointed at by HEAD. This file is supposed to contain the reference to the top-of-tree of the master branch, and since that's exactly what git commit-tree spits out, we can do this all with a sequence of simple shell commands:
+
+```bash
+tree=$(git write-tree)
+commit=$(echo 'Initial commit' | git commit-tree $tree)
+git update-ref HEAD $commit
+```
+
+In this case this creates a totally new commit that is not related to anything else. Normally you do this only once for a project ever, and all later commits will be parented on top of an earlier commit.
+
+Again, normally you'd never actually do this by hand. There is a helpful script called git commit that will do all of this for you. So you could have just written git commit instead, and it would have done the above magic scripting for you.
+
+### Making a change
+
+Remember how we did the git update-index on file hello and then we changed hello afterward, and could compare the new state of hello with the state we saved in the index file?
+
+Further, remember how I said that git write-tree writes the contents of the index file to the tree, and thhus what we just committed was in fact the original contents of the file hello, not the new ones. We did that on purpose, to show the difference between the index state, and the state in the working tree, and how they don't have to match, even when we commit things.
