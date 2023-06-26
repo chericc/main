@@ -70,13 +70,13 @@ sudo apt-get install graphviz
 sudo apt-get install plantuml
 ```
 
-## How to build valgrind
+## How to build valgrind?
 
 ```bash
 ../valgrind-3.20.0/configure --prefix=$(pwd)/output
 ```
 
-## How to build libunwind
+## How to build libunwind?
 
 ```bash
 # http://download.savannah.gnu.org/releases/libunwind/
@@ -84,7 +84,7 @@ sudo apt-get install plantuml
 ../libunwind-1.6.2/configure --prefix=$(pwd)/output
 ```
 
-## How to build gperftools
+## How to build gperftools?
 
 ```bash
 # without libunwind
@@ -99,4 +99,10 @@ make test
 
 # note: uni-test failed, not knowing why.
 # libunwind is recommended
+```
+
+## How to build benchmark?
+
+```bash
+cmake ../benchmark-1.8.0/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGOOGLETEST_PATH=/home/test/opensrc/googletest/googletest-release-1.12.1
 ```
