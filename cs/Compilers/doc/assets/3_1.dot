@@ -1,0 +1,21 @@
+digraph
+{
+    label = "词法分析器与语法分析器之间的交互"
+    e1 [label = "源程序"]
+    e2 [label = "词法分析器"]
+    e3 [label = "语法分析器"]
+    e4 [label = "输出至\n语义分析"]
+    e5 [label = "符号表"]
+
+    e1 -> e2
+    e2 -> e3 [label = "词法单元"]
+    e3 -> e2 [label = "getNextToken"]
+    e3 -> e4
+    e2 -> e5 [dir = "both"]
+    e3 -> e5 [dir = "both"]
+
+    subgraph
+    {
+        rank = same; e1; e2; e3; e4;
+    }
+}
