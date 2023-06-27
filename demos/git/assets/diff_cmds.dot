@@ -1,0 +1,11 @@
+digraph
+{
+    e1 [label = "diff-tree"]
+    e2 [label = "Object DB\nBacking Store"]
+    e3 [label = "Index\n\"cache\""]
+    e4 [label = "Working\nDirectory"]
+    e1 -> e2
+    e2 -> e3 [label = "diff-index --cached"]
+    e3 -> e4 [label = "diff-files"]
+    e2 -> e4 [label = "diff-index"]
+}

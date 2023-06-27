@@ -183,3 +183,72 @@ Again, normally you'd never actually do this by hand. There is a helpful script 
 Remember how we did the git update-index on file hello and then we changed hello afterward, and could compare the new state of hello with the state we saved in the index file?
 
 Further, remember how I said that git write-tree writes the contents of the index file to the tree, and thhus what we just committed was in fact the original contents of the file hello, not the new ones. We did that on purpose, to show the difference between the index state, and the state in the working tree, and how they don't have to match, even when we commit things.
+
+As before, if we do git diff-files -p in our git-tutorial project, we'll still see the same difference we saw last time: the index file hasn't changed by the act of committing anything. However, now that we have committed something, we can also learn to use a new command: git diff-index.
+
+Unlike git diff-files, which showed the difference betweeen the index file and the working tree, git diff-index shows the differences between a committed tree and either the index file or the working tree. In other words, git diff-index wants a tree to be diffed against, and before we did the commit, we couldn't do that, because we didn't have anything to diff against.
+
+But now we can do
+
+```bash
+git diff-index -p HEAD
+```
+
+(where -p has the same meaning as it did in git diff-files), and it will show us the same difference, but for a totally different reason. Now we're comparing the working tree not against the index file, but against the tree we just wrote. It just so happens that those two are obviously the same, so we get the same result.
+
+Again, because this is a common operation, you can also just shorthand it with
+
+```bash
+git diff HEAD
+```
+
+which ends up doing the above for you.
+
+In other words, git diff-index normally compares a tree against the working tree, but when given the --cached flag, it is told to instead compare against just the index cache contents, and ignore the current working tree state entirely. Since we jsut wrote the index file to HEAD, doing git diff-index --cached -p HEAD should thus return an empty set of differences, and that's exantly what it does.
+
+Note
+
+git diff-index really always uses the index for its comparisons, and saying that it compares a tree against the working tree is thus not strictly accurate. In particular, the list of files to compare (the "meta-data") always comes from the index file, regardless of whether the --cached flag is used or not. The --cached flag really only determines wheter the file contents to be compared come from the working tree or not.
+
+This is not hard to understand, as soon as you realize that Git simply never knows (or cares) about files that it is not told about explicitly. Git will never go looking for files to compare, it expects you to tell it what the files are, and that's what the index is there for.
+
+However, our next step is to commit the change we did, and again, to understand what's going on, keep in mind the difference between "working tree contents", "index file" and "committed tree". We have changes in the working tree that we want to commit, and we always have to work through the index file, so the first thing we need to do is to update the index cache:
+
+```bash
+git update-index hello
+```
+
+(note how we didn't need the --add flag this time, since Git knew about the file already).
+
+Note what happens to the different git diff-* versions here. After we've updated hello in the index, git diff-files -p now shows no differneces, but git diff-index -p HEAD still dees show that the current state is different from the sate we committed. In fact, now git diff-index shows the same difference whether we use the --cached flag or not, since now the index is coherent with the working tree.
+
+Now, since we've updated hello in the index, we can commit the new version. We could do it by writing the tree by hand again, and committing the tree (this time we'd have to use the -p HEAD flag to tell commit that the HEAD was the parent of the new commit, and that this wasn't an initial commit any more), but you've done that once already, so let's just use the helpful script this time:
+
+```bash
+git commit
+```
+
+which starts an editor for you to write the commit message and tells you a bit about what you have done. 
+
+Write whatever message you want, and all the lines that start with # will be pruned out, and the rest will be used as the commit message for the change. If you decide you dont't want to commit anything after all at this point (you can continue to edit things and update the index), you can just leave an empty message. Otherwise git commit will commit the change for you.
+
+You've now made your first real Git commit. And if you're interested in looking at what git commit really does, feel free to investigate: it's a few very simple shell scripts to generate the helpful (?) commit message headers, and a few one-liners that actually do the commit itself (git commit).
+
+### Inspecting changes
+
+While creating changes is useful, it's even more useful if you can tell later what changed. The most useful command for this is another of the diff family, namely git diff-tree.
+
+git diff-tree can be given two arbitrary trees, and it will tell you the differences between them. Perhaps even more commonly, though, you can give it just a single commit object, and it will figure out the parent of that commit itself, and show the difference directly. Thus, to get the same diff that we've already seen several times, we can now do
+
+```bash
+git diff-tree -p HEAD
+```
+
+(again, -p means to show the difference as a human-readable pathc), and it will show what the last commit (in HEAD) actually changed.
+
+Note
+
+Here is a graph that illustrates how various diff-* commands compare things.
+
+![](assets/diff_cmds.svg)
+
