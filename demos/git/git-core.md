@@ -252,3 +252,72 @@ Here is a graph that illustrates how various diff-* commands compare things.
 
 ![](assets/diff_cmds.svg)
 
+More interestingly, you can also give git diff-tree the --pretty flag, which tells it to also show the commit message and author and date of the commit, and you can tell it to show a whole series of diffs. Alternatively, you can tell it to be "silent", and not show the diffs at all, but just show the actual commit message.
+
+In fact, together with the git rev-list program (which generates a list of revisions), git diff-tree ends up being a veritable fount of changes. You can emulate git log, git log -p, etc. with a trivial script that pipes the output of git rev-list to git diff-tree --stdin, which was exactly how early versions of git log were implemented.
+
+### Tagging a version
+
+In Git, there are two kinds of tags, a "light" one, and an "annotated tag".
+
+A "light" tag is technically nothing more than a branch, except we put it in the .git/refs/tags/ subdirectory instead of calling it a head. So the simplest form of tag involves nothing more than
+
+```bash
+git tag my-first-tag
+```
+
+which just writes the current HEAD into the .git/refs/tags/my-first-tag file, after which point you can then use this symbolic name for that particular state. You can, for example, do
+
+```bash
+git diff my-first-tag
+```
+
+to diff your current state against that tag which at this point will obviously be an empty diff, but if you continue to develop and commit stuff, you can use your tag as an "anchor-point" to see what has changed since you tagged it.
+
+An "annotated tag" is actually a real Git object, and contains not only a pointer to the state you want to tag, but also a small tag name and message, along with optionally a PGP signature that says that yes, you really did that tag. You create these annotated tags with either the -a or -s flag to git tag:
+
+```bash
+git tag -s <tagname>
+```
+
+which will sign the current HEAD (but you can also give it another argument that specifies the thing to tag, e.g., you could have tagged the current my-branch point by using git tag <tagname> my-branch).
+
+You normally only do signed tags for major releases or things like that , while the light-weight tags are useful for any marking you want to do - any time you decide that you want to remember a certain point, just create a private tag for it, and you have a nice symbolic name for the state at that point.
+
+### Copying repositories
+
+Git repositories are normally totally self-sufficient and relocatable. Unlike CVS, for example, there is no separate notion of "repository" and "working tree". A Git repository normally is the working tree, with the local Git information hidden in the .git subdirectory. There is nothing else. What you see is what you got.
+
+> Note
+
+> You can tell Git to split the Git internal information from the directory that it tracks, but we'll ignore that for now: it's not how normal projects work, and it's really only meant for special uses. So the mental model of "the Git information is always tied directly to the working tree that it describes" may not be technically 100% accurate, but it's a good model for all normal use.
+
+This has two implications:
+
+- If you grow bored with the tutorial repository you created (or you've made a mistake and want to start all over), you can just do simple
+
+  ```bash
+  rm -rf git-tutorial
+  ```
+
+  and it will be gone. There's no external repository, and there's no history outside the project you created.
+
+- if you want to move or duplicate a Git repository, you can do so. There is git clone command, but if all you want to doo is just to create a copy of your repository (with all the full history that went along with it), you can do so with a regular cp -a git-tutorial new-git-tutorial.
+
+  Note that when you've moved or copied a Git repository, your Git index file (which caches various information, notably some of the "stat" information for the files involved) will likely need to be refreshed. So after you do a cp -a to create a new copy, you'll want to do
+
+  ```bash
+  git update-index --refresh
+  ```
+
+  in the new repository to make sure that the index file is up to date.
+
+Note that the second point is true even across machines. You can duplicate a remote Git repository with any regular copy mechanism, be it scp, rsync or wget.
+
+When copying a remote repository, you'll want to at a minimum update the index cache when you do this, and especially with other peoples' repositories you often want to make sure that the index cache is in some known state (you don't know what they've done and not yet checked in), so usually you'll precede the git update-index with a
+
+```bash
+git read-tree --reset HEAD
+git update-index --refresh
+```
+
