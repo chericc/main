@@ -321,3 +321,54 @@ git read-tree --reset HEAD
 git update-index --refresh
 ```
 
+which will force a total index re-build from the tree pointed to by HEAD. It resets the index contents to HEAD, and then the git update-index makes sure to match up all index entries with the check-out files. If the original repository had uncommitted changes in its working tree, git update-index --refresh notices them and tells you they need to be updated.
+
+The above can also be written as simply
+
+```bash
+git reset
+```
+
+and in fact a lot of the common Git command combinations can be scripted with the git xyz interfaces. You can learn things by just looking at what the various git scripts do. For example, git reset used to be the above two lines implemented in git reset, but some things like git status and git commit are slightly more complex scripts around the basic Git commands.
+
+Many public remove repositories will not contain any of the checked out files or even an index file, and will only contain the actual core Git files. Such a repository usually doesn't even have the .git subdirectory, but has all the Git files directly in the repository.
+
+To create your own local live copy of such a "raw" Git repository, you'd first create your own subdirectory for the project, and then copy the raw repository contents into the .git directory. For example, to create your own copy of the Git repository, you'd do the following
+
+```bash
+mkdir my-git
+cdd my-git
+rsync -rL rsync://rsync.kernel.org/pub/scm/git/git.git/ .git
+```
+
+followed by
+
+```bash
+git read-tree HEAD
+```
+
+to populate the index. However, now you have populated the index, and you have all the Git internal files, but you will notice that you don't actually have any of the working tree files to work on. To get those, you'd check them out with
+
+```bash
+git checkout-index -u -a
+```
+
+where the -u flag means that you want the checkout to keep the index up to date (so that you don't have to refresh it afterward), and the -a flag means "check out all files" (if you have a stale copy or an older version of a checked out tree you may also need to add the -f flag first, to tell git checkout-index to force overwriting of any old files).
+
+Again, this can all be simplified with
+
+```bash
+git clone git://git.kernel.org/pub/scm/git/git.git/ my-git
+cd my-git
+git checkout
+```
+
+which will end up doing all of the above for you.
+
+You have now successfully copied somebody else's (mine) remove repository, and checked it out.
+
+### Creating a new branch
+
+Branches in Git are really nothing more than pointers into the Git object database from within the .git/refs/ subdirectory, and as we already discussed, the HEAD branch is nothing but a symlink to one of these object pointers.
+
+You can at any time create a new branch by just picking an arbitrary point in the project history, and just writing the SHA-1 name of that object into a file under .git/refs/heads/. You can use any filename want (and indeed, subdirectories), but the convention is that the "normal" branch is called amaster. That's just a convention, though, and nothing enforces it.
