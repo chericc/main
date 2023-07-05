@@ -36,3 +36,4 @@
 .vs
 out
 output
+__pycache__
