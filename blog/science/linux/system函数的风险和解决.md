@@ -1,4 +1,4 @@
-# linux上system函数的风险和解决
+# system函数的风险和解决
 
 ## 源码摘录
 
@@ -104,7 +104,7 @@ do_system (const char *line)
 }
 ```
 
-主要步骤有，忽略信号SIGINT和SIGQUIT，阻塞信号SIGCHLD，创建子进程，
+主要步骤有：忽略信号SIGINT和SIGQUIT，阻塞信号SIGCHLD，创建子进程执行shell并执行命令，等待子进程（退出），恢复信号；
 
 ## 主要问题和注意事项
 
@@ -170,7 +170,38 @@ diff: 22/0
 
 ### 信号处理
 
+#### 为什么要忽略信号SIGINT和SIGQUIT
 
+一个解释：这两个信号在终端产生，并且是发送给所有前台进程组中的进程的。当调用system()运行一个前台程序时，如果此时触发了信号，则这个信号只应该影响system()调用的程序，而不应该影响调用system()的程序。
+
+一个示例如下：
+
+```c++
+#include <stdlib.h>
+#include <stdio.h>
+#include <thread>
+
+int main()
+{
+    system("vim");
+    printf("end\n");
+
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
+    return 0;
+}
+```
+
+程序运行后，按下"Ctrl C"，退出vim后，发现主程序继续运行。如果system()没有处理SIGINT信号，则当vim退出后，主程序也会一并退出。
+
+#### 为什么要阻塞信号SIGCHLD
+
+这是因为system()的实现中使用了waitpid()来获取进程执行的结果。可以参考man 2 waitpid。
+
+主要原因是如果一个进程忽略了SIGCHLD（这也是默认行为），则其子进程在结束后，waitpid会等待子进程的结束，然后返回错误（不会得到正常的返回值）。
 
 ### 返回值
 
