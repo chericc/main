@@ -1,5 +1,67 @@
 # ffmpeg
 
+## 基本形式
+
+```bash
+ffmpeg [global-options] {[input_file_options] -i input_url} ... {[output_file_options] output_url}
+```
+
+## 流选择
+
+### 获取媒体的流列表
+
+可以通过`ffprobe`获取媒体的流列表，举例如下：
+
+```bash
+  Duration: 00:07:26.29, start: 0.000000, bitrate: 891 kb/s
+  Stream #0:0: Video: h264 (High), yuv420p(tv, bt709/unknown/bt709, progressive), 852x480 [SAR 640:639 DAR 16:9], 24 fps, 24 tbr, 1k tbn
+    Metadata:
+      DURATION        : 00:07:26.249000000
+  Stream #0:1: Audio: aac (LC), 48000 Hz, stereo, fltp
+    Metadata:
+      DURATION        : 00:07:26.293000000
+```
+
+其中，`Stream #0:1`表示这是第一个输入文件（序号为0）的第二个流（序号为1）；
+
+## 视频编码
+
+### 指定视频帧数量
+
+```bash
+-frames:v 2400
+```
+
+### 指定视频编码格式
+
+```bash
+-c:v hevc
+```
+
+### 指定帧率
+
+```bash
+-r 24
+```
+
+### 指定编码码率
+
+```bash
+-b:v 256k
+```
+
+### 缩放
+
+```bash
+-vf scale=640:-1
+```
+
+### 
+
+## 音频编码
+
+
+
 ## encode
 
 ```
