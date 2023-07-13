@@ -1,22 +1,34 @@
 project(main)
 cmake_minimum_required(VERSION 3.0)
 
+# bin names
 set(LIBNAME_WEBTRC_AUDIO webrtc_audio)
+set(TEST_LOUDNESS_HISTOGRAM test_loudness_histogram)
 
 # paths
-set(MODULE_AUDIO_PROCESSING_PATH ${CMAKE_SOURCE_DIR}/modules/audio_processing)
+set(MODULES_PATH ${CMAKE_SOURCE_DIR}/modules)
+set(MODULE_AUDIO_PROCESSING_PATH ${MODULES_PATH}/audio_processing)
 set(MODULE_AUDIO_PROCESSING_AGC_PATH ${MODULE_AUDIO_PROCESSING_PATH}/agc)
+set(MODULE_AUDIO_PROCESSING_AGC2_PATH ${MODULE_AUDIO_PROCESSING_PATH}/agc2)
 set(MODULE_AUDIO_PROCESSING_VAD_PATH ${MODULE_AUDIO_PROCESSING_PATH}/vad)
+set(MODULE_AUDIO_PROCESSING_LOGGING_PATH ${MODULE_AUDIO_PROCESSING_PATH}/logging)
 set(COMMON_AUDIO_PATH ${CMAKE_SOURCE_DIR}/common_audio)
 set(COMMON_AUDIO_VAD_PATH ${COMMON_AUDIO_PATH}/vad)
 set(COMMON_AUDIO_SIGNAL_PROCESSING ${COMMON_AUDIO_PATH}/signal_processing)
 set(COMMON_AUDIO_THIRD_PARTY_OOURA_FFT_SIZE_256_PATH ${COMMON_AUDIO_PATH}/third_party/ooura/fft_size_256)
 set(COMMON_AUDIO_RESAMPLER_PATH ${COMMON_AUDIO_PATH}/resampler)
-set(MODULE_AUDIO_CODING_CODECS_ISAC_PATH ${CMAKE_SOURCE_DIR}/modules/audio_coding/codecs/isac)
+set(MODULE_AUDIO_CODING_CODECS_ISAC_PATH ${MODULES_PATH}/audio_coding/codecs/isac/main/source)
+set(RTC_BASE_PATH ${CMAKE_SOURCE_DIR}/rtc_base)
+set(SYSTEM_WRAPPERS_SOURCE ${CMAKE_SOURCE_DIR}/system_wrappers/source)
 
-# deps/lib-inc/abseil
+# deps/abseil
 set(ABSEIL_INCLUDE_PATH /home/test/opensrc/abseil/build/output/include)
 set(ABSEIL_LIB_PATH /home/test/opensrc/abseil/build/output/lib)
+
+# deps/gtest
+set(GTEST_INCLUDE_PATH /home/test/opensrc/googletest/build/output/include)
+set(GTEST_LIB_PATH /home/test/opensrc/googletest/build/output/lib)
+set(GTEST_TESTING_INCLUDE_PATH /home/test/opensrc/googletest/build/output)
 
 # source
 set(SRC_AGC
@@ -25,6 +37,9 @@ set(SRC_AGC
     ${MODULE_AUDIO_PROCESSING_AGC_PATH}/loudness_histogram.cc
     ${MODULE_AUDIO_PROCESSING_AGC_PATH}/utility.cc
 )
+
+set(SRC_AGC2
+    ${MODULE_AUDIO_PROCESSING_AGC2_PATH}/input_volume_stats_reporter.cc)
 
 set(SRC_VAD
     ${MODULE_AUDIO_PROCESSING_VAD_PATH}/voice_activity_detector.cc
@@ -67,19 +82,55 @@ set(SRC_THIRD_OOURA
 set(SRC_RESAMPLE
     ${COMMON_AUDIO_RESAMPLER_PATH}/resampler.cc)
 
+set(SRC_RTC_BASE
+    ${RTC_BASE_PATH}/checks.cc
+#    ${RTC_BASE_PATH}/logging.cc
+)
+
+set(SRC_AUDIO_PROCESSING_LOGGING
+    ${MODULE_AUDIO_PROCESSING_LOGGING_PATH}/apm_data_dumper.cc)
+
+set(SRC_SYSTEM_WRAPPER
+    ${SYSTEM_WRAPPERS_SOURCE}/metrics.cc
+    ${SYSTEM_WRAPPERS_SOURCE}/field_trial.cc)
+
+# common include directories
+set(COMMON_INC_DIRECTORY 
+    ${ABSEIL_INCLUDE_PATH}
+    ${CMAKE_SOURCE_DIR}
+    ${GTEST_TESTING_INCLUDE_PATH}
+    ${GTEST_INCLUDE_PATH})
+
 add_library(${LIBNAME_WEBTRC_AUDIO} SHARED
     ${SRC_AGC}
+    ${SRC_AGC2}
     ${SRC_VAD}
-    ${SRC_COMMON_AUDIO_VAD})
+    ${SRC_COMMON_AUDIO_VAD}
+    ${SRC_RTC_BASE}
+    ${SRC_ISAC}
+    ${SRC_RESAMPLE}
+    ${SRC_THIRD_OOURA}
+    ${SRC_SIGNAL_PROCESSING}
+    ${SRC_AUDIO_PROCESSING_LOGGING}
+    ${SRC_SYSTEM_WRAPPER})
 
 target_include_directories(
     ${LIBNAME_WEBTRC_AUDIO}
-    PRIVATE ${ABSEIL_INCLUDE_PATH}
-    PRIVATE ${CMAKE_SOURCE_DIR}
+    PRIVATE ${COMMON_INC_DIRECTORY}
 )
 
 target_compile_definitions(${LIBNAME_WEBTRC_AUDIO}
     PRIVATE WEBRTC_APM_DEBUG_DUMP=0
-    PRIVATE WEBRTC_POSIX)
+    PRIVATE WEBRTC_POSIX
+    RTC_DISABLE_LOGGING # logging relies some modules
+)
 
-# add_executable()
+# test: loudness_histogram
+add_executable(${TEST_LOUDNESS_HISTOGRAM}
+    ${MODULE_AUDIO_PROCESSING_AGC_PATH}/loudness_histogram_unittest.cc)
+target_link_libraries(${TEST_LOUDNESS_HISTOGRAM}
+    PRIVATE ${LIBNAME_WEBTRC_AUDIO} gtest)
+target_link_directories(${TEST_LOUDNESS_HISTOGRAM} 
+    PRIVATE ${GTEST_LIB_PATH})
+target_include_directories(${TEST_LOUDNESS_HISTOGRAM}
+    PRIVATE ${COMMON_INC_DIRECTORY})
