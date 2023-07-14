@@ -19,6 +19,7 @@ set(COMMON_AUDIO_THIRD_PARTY_OOURA_FFT_SIZE_256_PATH ${COMMON_AUDIO_PATH}/third_
 set(COMMON_AUDIO_RESAMPLER_PATH ${COMMON_AUDIO_PATH}/resampler)
 set(MODULE_AUDIO_CODING_CODECS_ISAC_PATH ${MODULES_PATH}/audio_coding/codecs/isac/main/source)
 set(RTC_BASE_PATH ${CMAKE_SOURCE_DIR}/rtc_base)
+set(RTC_BASE_STRINGS_PATH ${RTC_BASE_PATH}/strings)
 set(SYSTEM_WRAPPERS_SOURCE ${CMAKE_SOURCE_DIR}/system_wrappers/source)
 
 # deps/abseil
@@ -39,7 +40,10 @@ set(SRC_AGC
 )
 
 set(SRC_AGC2
-    ${MODULE_AUDIO_PROCESSING_AGC2_PATH}/input_volume_stats_reporter.cc)
+    ${MODULE_AUDIO_PROCESSING_AGC2_PATH}/input_volume_stats_reporter.cc
+    ${MODULE_AUDIO_PROCESSING_AGC2_PATH}/clipping_predictor.cc
+    ${MODULE_AUDIO_PROCESSING_AGC2_PATH}/clipping_predictor_level_buffer.cc
+)
 
 set(SRC_VAD
     ${MODULE_AUDIO_PROCESSING_VAD_PATH}/voice_activity_detector.cc
@@ -50,6 +54,10 @@ set(SRC_VAD
     ${MODULE_AUDIO_PROCESSING_VAD_PATH}/gmm.cc
     ${MODULE_AUDIO_PROCESSING_VAD_PATH}/pole_zero_filter.cc
     ${MODULE_AUDIO_PROCESSING_VAD_PATH}/pitch_internal.cc
+)
+
+set(SRC_COMMON_AUDIO
+    ${COMMON_AUDIO_PATH}/audio_util.cc
 )
 
 set(SRC_COMMON_AUDIO_VAD
@@ -84,7 +92,11 @@ set(SRC_RESAMPLE
 
 set(SRC_RTC_BASE
     ${RTC_BASE_PATH}/checks.cc
-#    ${RTC_BASE_PATH}/logging.cc
+    ${RTC_BASE_PATH}/string_encode.cc
+)
+
+set(SRC_RYC_BASE_STRINGS
+    ${RTC_BASE_STRINGS_PATH}/string_builder.cc
 )
 
 set(SRC_AUDIO_PROCESSING_LOGGING
@@ -105,8 +117,10 @@ add_library(${LIBNAME_WEBTRC_AUDIO} SHARED
     ${SRC_AGC}
     ${SRC_AGC2}
     ${SRC_VAD}
+    ${SRC_COMMON_AUDIO}
     ${SRC_COMMON_AUDIO_VAD}
     ${SRC_RTC_BASE}
+    ${SRC_RYC_BASE_STRINGS}
     ${SRC_ISAC}
     ${SRC_RESAMPLE}
     ${SRC_THIRD_OOURA}
@@ -125,9 +139,25 @@ target_compile_definitions(${LIBNAME_WEBTRC_AUDIO}
     RTC_DISABLE_LOGGING # logging relies some modules
 )
 
+
+# test part
+
+set(TEST_SUPPORT_PATH
+    ${CMAKE_SOURCE_DIR}/test/testsupport
+)
+
+set(TEST_SRC_TEST_SUPPORT
+    ${TEST_SUPPORT_PATH}/file_utils_override.cc
+)
+
+set(TEST_SRC
+    ${TEST_SRC_TEST_SUPPORT}
+)
+
 # test: loudness_histogram
 add_executable(${TEST_LOUDNESS_HISTOGRAM}
-    ${MODULE_AUDIO_PROCESSING_AGC_PATH}/loudness_histogram_unittest.cc)
+    ${MODULE_AUDIO_PROCESSING_AGC_PATH}/loudness_histogram_unittest.cc
+    ${TEST_SRC})
 target_link_libraries(${TEST_LOUDNESS_HISTOGRAM}
     PRIVATE ${LIBNAME_WEBTRC_AUDIO} gtest)
 target_link_directories(${TEST_LOUDNESS_HISTOGRAM} 
