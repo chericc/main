@@ -696,6 +696,19 @@ $$
 \begin{aligned}
 digit &\to [0-9] \\
 digits &\to digit+ \\
-number &\to digits(. digits)?(E[+-]?digits)?
+number &\to digits(. digits)?(E[+-]?digits)? \\
+letter &\to [A-Za-z] \\
+id &\to letter(letter | digit)* \\
+if &\to if \\
+then &\to then \\
+else &\to else \\
+relop &\to <|>|<=|>=|<>
 \end{aligned}
 $$
+为了简化问题，做出如下假设：关键字也是保留字。也就是说，它们不是标识符，虽然它们的词素和标识符的模式匹配。
+
+词法分析器还负责消除空白符，方法是识别如下词法单元$\omega s$：
+$$
+\omega s \to (blank | tab | newline)^+
+$$
+这里，`blank,tab,newline`适用于表示具有同样名字的ASCII字符和抽象符号。词法单元$\omega s$同其它词法单元的不同之处在于：当识别到$\omega s$时，词法分析器不将其返回给语法分析器，而是从这个空白之后的字符开始继续进行词法分析。返回给词法分析器的是下一个词法单元。
