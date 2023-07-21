@@ -372,3 +372,88 @@ You have now successfully copied somebody else's (mine) remove repository, and c
 Branches in Git are really nothing more than pointers into the Git object database from within the .git/refs/ subdirectory, and as we already discussed, the HEAD branch is nothing but a symlink to one of these object pointers.
 
 You can at any time create a new branch by just picking an arbitrary point in the project history, and just writing the SHA-1 name of that object into a file under .git/refs/heads/. You can use any filename want (and indeed, subdirectories), but the convention is that the "normal" branch is called amaster. That's just a convention, though, and nothing enforces it.
+
+To show that as an example, let's go back to the git-tutorial repository we used earlier, and create a branch in it. You do that by simply just saying that you want to check out a new branch:
+
+```bash
+git switch -c mybranch
+```
+
+will create a new branch based at the current HEAD position, and switch to it.
+
+> Note 
+>
+> If you make the decision to start your new branch at some other point in the history than the current HEAD, you can do so by just telling git switch what the base of the checkout would be. In other words, if you have an earlier tag or branch, you'd just do 
+>
+> ```bash
+> git switch -c mybrach earlier-commit
+> ```
+>
+> and it would create the new branch mybranch at the earlier commit, and check out the state at that time.
+
+You can always just jump back to your original master branch by doing 
+
+```bash
+git switch master
+```
+
+(or any other branch-name, for that matter) and if you forget which branch you happen to be on, a simple
+
+```bash
+cat .git/HEAD
+```
+
+will tell you where it's pointing. To get the list of branches you have, you can say 
+
+```bash
+git branch
+```
+
+which used to be nothing more than a simple script around ls .git/refs/heads. There will be an asterisk in front of the branch you are currently on.
+
+Sometimes you may wish to create a new branch without actually checking it out and switching to it. If so, just use the command
+
+```bash
+git branch <branchname> [startingpoint]
+```
+
+which will simply create the branch, but will not do anything further. You then later - once you decide that you want to actually develop on that branch - switch to that branch with a regular git switch with the branchname as the argument.
+
+## Merging two branches
+
+One of the ideas of having a branch is that you so some (possibly experimental) wirk in it, and eventually merge it back to the main branch. So assuming you created the above mybranch that started out being the same as the original master branch, let's make sure we're in that branch, and do some work there.
+
+```bash
+git switch mybranch
+echo "Wrok, work, work" >> hello
+git commit -m "Some work." -i hello
+```
+
+Here, we just added another line to hello, and we used a shorthand for doing both git update-index hello and git commit by just giving the filename directly to git commit, with an -i flag (it tells Git to include that file in addition to what you have done to the index file so far when making the commit). The -m flag is to give the commit log message from the command line.
+
+Now, to make it a bit more interesting, let's assume that somebody else does some work in the original branch, and simulate that by going back to the master branch, and editing the same file differently there:
+
+```bash
+git switch master
+```
+
+Here, take a moment to look at the contents of hello, and notice how they don't contain the work we just did in mybranch - because that work hasn't happened in the master branch at all. Then do
+
+```bash
+echo "Play, play, play" >> hello
+echo "Lots of fun" >> example
+git commit -m "Some fun." -i hello example
+```
+
+since the master branch is obviously in a much better mood.
+
+Now, you've got two branches, and you decide that you want to merge the work done. Before we do that, let's introduce a cool graphical tool that helps you view what's going on:
+
+```bash
+gitk --all
+```
+
+will show you graphically both of your branches (that's what the --all means: normally it will just show you your current HEAD) and their histories. You can also see exactly how they came to be from a common source.
+
+Anyway, let's exit gitk (^Q or the File menu), and decide that we want to merge the work we did on the mybranch branch into the master branch (which is currently our HEAD too). To do that, 
+
