@@ -1,0 +1,28 @@
+@startuml
+
+hide empty description
+
+
+
+[*] -> 0: start
+
+state "4*" as 4
+state "8*" as 8
+
+0 -up-> 1: <
+1 -up-> 2: =
+1 -right-> 3: >
+1 -right-> 4: other
+0 -right-> 5: =
+0 -down-> 6: >
+6 -right-> 7: =
+6 -down-> 8: other
+
+note right of 2: return (relop, LE)
+note right of 3: return (relop, NE)
+note right of 4: return (relop, LT)
+note right of 5: return (relop, EQ)
+note right of 7: return (relop, GE)
+note right of 8: return (relop, GT)
+
+@enduml
