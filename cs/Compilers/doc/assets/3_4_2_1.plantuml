@@ -1,0 +1,16 @@
+@startuml
+
+title id和关键字的状态转换图
+
+hide empty description
+
+state "11*" as 11
+
+[*] -> 9: start
+9 -> 10: letter
+10 -up-> 10: letter or digit
+10 -down-> 11: other
+
+note right of 11: return (getToken(), installID())
+
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+
+title 无符号数字的状态转换图
+
+hide empty description
+
+state "19*" as 19 
+state "20*" as 20
+state "21*" as 21
+
+[*] -> 12: start
+12 -> 13: digit
+13 -> 13: digit
+13 -> 14: point
+13 --> 20: other
+13 -> 16: E
+14 -> 15: digit
+15 -> 15: digit
+15 -> 16: E
+15 --> 21: other
+16 -> 17: "+ or -"
+16 -> 18: digit
+17 -> 18: digit
+18 -> 18: digit
+18 -> 19: other
+
+
+@enduml

@@ -1,8 +1,8 @@
 @startuml
 
+title 词法单元relop的状态转换图
+
 hide empty description
-
-
 
 [*] -> 0: start
 
