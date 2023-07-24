@@ -1,0 +1,14 @@
+@startuml
+
+title 空白符的状态转换图
+
+hide empty description
+
+state "24*" as 24
+
+[*] -> 22: start
+22 -> 23: delim
+23 -> 23: delim
+23 -> 24: other
+
+@enduml
