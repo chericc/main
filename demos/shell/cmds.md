@@ -108,3 +108,10 @@ md5sum $OUTPUT
 cp -f $SRC $SRC.bak
 openssl des3 -in $OUTPUT -d -k $PASS -pbkdf2 -nosalt | tar zxf -
 ```
+
+## 跟踪某个文件的写入
+
+```bash
+tail -f -s 1 [file]
+```
+
