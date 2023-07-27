@@ -285,11 +285,11 @@ Now: 2023-07-27 19:27:24
 
 ## 一些解决办法
 
-### 使用CLOCK_MONOTONIC
+### 使用c++11/timed_mutex
 
 可以利用c++提供的一些库来实现：
 
-```
+```c++
 /**
  * This is a demo showing what will happen when changing 
  * system time while doing sem_timedwait.
@@ -329,7 +329,11 @@ int main()
 
     printf("Waiting %d secs\n", wait_duration);
 
+	timed_mutex.lock();
+
     auto begin_ms = now();
+	auto now_tp = std::chrono::steady_clock::now();
+	timed_mutex.try_lock_until(now_tp + std::chrono::seconds(wait_duration));
     auto end_ms = now();
 
     printf("Time passed: %d ms\n", (int)(end_ms - begin_ms));
@@ -339,3 +343,27 @@ int main()
     return 0;
 }
 ```
+
+将系统时间减慢，输出如下：
+
+```bash
+$ ./a.out
+Now: 2023-07-27 08:00:29
+Waiting 30 secs
+Time passed: 30000 ms
+Now: 2023-07-27 08:00:44
+```
+
+将系统时间加快，输出如下：
+
+```bash
+$ ./a.out
+Now: 2023-07-27 08:01:43
+Waiting 30 secs
+Time passed: 30000 ms
+Now: 2023-07-27 08:02:13
+```
+
+查阅`std::timed_mutex`的源码，可以发现其使用了`pthread_mutex_clocklock`。
+
+类似的还有`std::condition_variable::wait_until`，查阅源代码可以发现其使用了`pthread_cond_clockwait`。
