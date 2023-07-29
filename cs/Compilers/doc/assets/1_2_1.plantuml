@@ -1,5 +1,6 @@
 
 @startuml
+skinparam monochrome true
 title 符号表
 participant "字符流" as A
 participant "符号流" as B

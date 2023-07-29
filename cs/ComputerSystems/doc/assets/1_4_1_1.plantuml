@@ -1,0 +1,33 @@
+@startuml
+
+skinparam monochrome true
+
+title 一个典型系统的硬件组成
+
+database HardDisk
+
+node CPU {
+    [PC]
+    [Register File] <-> [ALU]
+    [Register File] <--> [Bus Interface]
+}
+
+[Bus Interface] <-> [I/O Bridge]: System Bus
+
+[I/O Bridge] <-> [Memory]: Memory Bus
+
+[I/O Bridge] <--> [USB Controler]: IO Bus
+
+[I/O Bridge] <--> [Graphphics Adapter]: IO Bus
+
+[I/O Bridge] <--> [HardDisk Controler]: IO Bus
+
+[I/O Bridge] <--> [Other Slots ...]: IO Bus
+
+[USB Controler] <--> [Mouse, Keyboard]
+
+[Graphphics Adapter] <--> [Monitor]
+
+[HardDisk Controler] <--> [HardDisk]
+
+@enduml

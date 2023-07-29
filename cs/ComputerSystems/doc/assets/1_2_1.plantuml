@@ -1,0 +1,14 @@
+
+@startuml
+skinparam monochrome true
+title 编译系统
+participant "源程序(hello.c)" as A
+participant "修改了的源程序(hello.i)" as B
+participant "汇编程序(hello.s)" as C
+participant "可重定位目标程序(hello.o)" as D
+participant "可执行目标程序(hello)" as E
+A -> B: 预处理器（cpp）
+B -> C: 编译器（ccl）
+C -> D: 汇编器（as）
+D -> E: 链接器（ld）
+@enduml

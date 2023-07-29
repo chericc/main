@@ -1,0 +1,18 @@
+@startuml
+
+skinparam monochrome true
+
+title 高速缓存存储器
+
+node CPU {
+    [Cache Memory] <-> [Register File]
+    [Register File] <-> [ALU]
+    [Cache Memory] <--> [Bus Interface]
+    [Register File] <--> [Bus Interface]
+}
+
+[Bus Interface] <-> [IO Bridge]: System Bus
+
+[IO Bridge] <-> [Memory]: Memory Bus
+
+@enduml
