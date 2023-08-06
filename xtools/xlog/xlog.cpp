@@ -13,7 +13,7 @@
 #include <iomanip>
 
 static int s_log_mask = 0xffffffff;
-static std::vector<FILE *> s_fps;
+static std::vector<FILE *> s_fps = {stdout};
 static std::mutex s_call_mutex;
 
 std::string xlog_shortfilepath(const std::string &path)

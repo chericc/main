@@ -4,36 +4,54 @@
 #include <chrono>
 #include <functional>
 
+#include "xutility.hpp"
+
 enum XTimerType 
 {
     Realtime,
     Monotonic,
 };
 
-using XTimerID = nullptr_t;
-using XTimerTask = std::function<void(void)>;
+using XTimerID = int;
+
+enum 
+{
+    XTIMER_ID_INVALID = -1,
+};
+
+enum 
+{
+    XTIMER_MAX_TASK_NB = 19200,
+};
+
+using XTimerFunc = std::function<void(void)>;
 using XTimerDuration = std::chrono::milliseconds;
 
 class XTimer
 {
 public:
-
     virtual ~XTimer() = 0;
 
-    virtual XTimerID createTimer(XTimerTask task, XTimerDuration interval) = 0;
-    virtual int destroyTimer(XTimerID XTimerID) = 0;
-    virtual XTimerDuration updateTimer(XTimerID XTimerID, XTimerDuration interval) = 0;
+    virtual XTimerID createTimer(XTimerFunc task, XTimerDuration duration) = 0;
+    virtual int destroyTimer(XTimerID id) = 0;
+    virtual XTimerDuration updateTimer(XTimerID id, XTimerDuration duration) = 0;
 };
 
-class XTimerIndependent : public XTimer
+class XTimerIndependent : public XTimer, public XNonCopyableObject
 {
 public:
     XTimerIndependent(XTimerType type);
     ~XTimerIndependent() override;
-    XTimerID createTimer(XTimerTask task, XTimerDuration interval) override;
-    int destroyTimer(XTimerID XTimerID) override;
-    XTimerDuration updateTimer(XTimerID XTimerID, XTimerDuration interval) override;
+    bool ok();
+    XTimerID createTimer(XTimerFunc task, XTimerDuration duration) override;
+    int destroyTimer(XTimerID id) override;
+    XTimerDuration updateTimer(XTimerID id, XTimerDuration duration) override;
 private:
     struct PrivateData;
-    std::unique_ptr<PrivateData> _d;
+    std::shared_ptr<PrivateData> _d;
+    std::mutex mutex_call;
+private:
+    std::shared_ptr<PrivateData> init();
+    void destroy();
+    void work_loop();
 };
