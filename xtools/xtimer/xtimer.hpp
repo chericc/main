@@ -37,11 +37,11 @@ public:
     virtual XTimerDuration updateTimer(XTimerID id, XTimerDuration duration) = 0;
 };
 
-class XTimerIndependent : public XTimer, public XNonCopyableObject
+class XTimerHeap : public XTimer, public XNonCopyableObject
 {
 public:
-    XTimerIndependent(XTimerType type);
-    ~XTimerIndependent() override;
+    XTimerHeap(XTimerType type);
+    ~XTimerHeap() override;
     bool ok();
     XTimerID createTimer(XTimerFunc task, XTimerDuration duration) override;
     int destroyTimer(XTimerID id) override;

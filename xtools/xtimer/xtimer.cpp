@@ -10,6 +10,8 @@
 #include "xlog.hpp"
 #include "xthread.hpp"
 
+// https://www.cnblogs.com/sunsky303/p/14154190.html
+
 /*********************************** TYPES *********************************/
 
 struct XTimerTaskCtx
@@ -23,7 +25,7 @@ struct XTimerTaskCtx
 
 using XTimerTaskCtxPtr = std::shared_ptr<XTimerTaskCtx>;
 
-struct XTimerIndependent::PrivateData
+struct XTimerHeap::PrivateData
 {
 public:
     XTimerType timer_type{Realtime};
@@ -42,7 +44,7 @@ public:
 
 /*********************************** DEFS *********************************/
 
-XTimerIndependent::XTimerIndependent(XTimerType type)
+XTimerHeap::XTimerHeap(XTimerType type)
 {
     std::lock_guard<std::mutex> lock_call(mutex_call);
     _d = init();
@@ -52,19 +54,19 @@ XTimerIndependent::XTimerIndependent(XTimerType type)
     }
 }
 
-XTimerIndependent::~XTimerIndependent()
+XTimerHeap::~XTimerHeap()
 {
     std::lock_guard<std::mutex> lock_call(mutex_call);
     destroy();
 }
 
-bool XTimerIndependent::ok()
+bool XTimerHeap::ok()
 {
     std::lock_guard<std::mutex> lock_call(mutex_call);
     return (_d != nullptr);
 }
 
-XTimerID XTimerIndependent::createTimer(XTimerFunc task, XTimerDuration duration)
+XTimerID XTimerHeap::createTimer(XTimerFunc task, XTimerDuration duration)
 {
     XTimerID id = XTIMER_ID_INVALID;
 
@@ -133,7 +135,7 @@ XTimerID XTimerIndependent::createTimer(XTimerFunc task, XTimerDuration duration
     return id;
 }
 
-int XTimerIndependent::destroyTimer(XTimerID id)
+int XTimerHeap::destroyTimer(XTimerID id)
 {
     bool berror_flag = false;
 
@@ -146,7 +148,7 @@ int XTimerIndependent::destroyTimer(XTimerID id)
 
 }
 
-std::shared_ptr<XTimerIndependent::PrivateData> XTimerIndependent::init()
+std::shared_ptr<XTimerHeap::PrivateData> XTimerHeap::init()
 {
     std::shared_ptr<PrivateData> data;
 
