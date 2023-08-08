@@ -3,49 +3,33 @@
 #include <memory>
 #include <chrono>
 #include <functional>
+#include <mutex>
 
 #include "xutility.hpp"
 
-enum XTimerType 
-{
-    Realtime,
-    Monotonic,
-};
-
-using XTimerID = int;
-
-enum 
-{
-    XTIMER_ID_INVALID = -1,
-};
-
-enum 
-{
-    XTIMER_MAX_TASK_NB = 19200,
-};
+using XTimerID = void*;
+#define XTIMER_ID_INVALID nullptr
 
 using XTimerFunc = std::function<void(void)>;
 using XTimerDuration = std::chrono::milliseconds;
 
-class XTimer
+class XTimer : public XNonCopyableObject
 {
 public:
-    virtual ~XTimer() = 0;
-
+    virtual ~XTimer() = default;
+    virtual bool ok() = 0;
     virtual XTimerID createTimer(XTimerFunc task, XTimerDuration duration) = 0;
     virtual int destroyTimer(XTimerID id) = 0;
-    virtual XTimerDuration updateTimer(XTimerID id, XTimerDuration duration) = 0;
 };
 
-class XTimerHeap : public XTimer, public XNonCopyableObject
+class XTimerHeap : public XTimer
 {
 public:
-    XTimerHeap(XTimerType type);
+    XTimerHeap();
     ~XTimerHeap() override;
-    bool ok();
+    bool ok() override;
     XTimerID createTimer(XTimerFunc task, XTimerDuration duration) override;
     int destroyTimer(XTimerID id) override;
-    XTimerDuration updateTimer(XTimerID id, XTimerDuration duration) override;
 private:
     struct PrivateData;
     std::shared_ptr<PrivateData> _d;
