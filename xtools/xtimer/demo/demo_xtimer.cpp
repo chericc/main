@@ -10,13 +10,16 @@ int main()
 
     std::shared_ptr<XTimer> timer = std::make_shared<XTimerHeap>();
 
-    auto fun1 = []() { printf("hello 1\n"); };
-    auto fun2 = []() { printf("hello 2\n"); };
+    auto fun = []() { printf("hello\n"); };
 
-    timer->createTimer(fun1, std::chrono::milliseconds(1000));
-    timer->createTimer(fun2, std::chrono::milliseconds(2000));
+    for (int i = 0; i < 10; ++i)
+    {
+        timer->createTimer(fun, std::chrono::milliseconds(i * 1000));
+    }
 
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(50));
+
+    timer.reset();
 
     xlog_dbg("main out");
 

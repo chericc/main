@@ -26,17 +26,20 @@ struct XTimerTaskCtx
 
 using XTimerTaskCtxPtr = std::shared_ptr<XTimerTaskCtx>;
 
-struct XTimerTaskCtxCmp
+struct XTimerTaskCtxGTCmp
 {
     bool operator()(XTimerTaskCtxPtr r1, XTimerTaskCtxPtr r2)
     {
         auto tp1 = r1->tp_start_steady + r1->duration;
         auto tp2 = r2->tp_start_steady + r2->duration;
-        return tp1 < tp2;
+
+        // Note: priority queue returns largest element first
+
+        return tp1 > tp2;
     }
 };
 
-using XTimerTaskQueueT = std::priority_queue<XTimerTaskCtxPtr, std::vector<XTimerTaskCtxPtr>, XTimerTaskCtxCmp>;
+using XTimerTaskQueueT = std::priority_queue<XTimerTaskCtxPtr, std::vector<XTimerTaskCtxPtr>, XTimerTaskCtxGTCmp>;
 
 struct XTimerHeap::PrivateData
 {
@@ -204,10 +207,11 @@ void XTimerHeap::work_loop()
         }
 
         std::unique_lock<std::mutex> lock_task(_d->mutex_task);
-        while (_d->queue_task->empty())
+        if (_d->queue_task->empty())
         {
             xlog_trc("no job, waiting");
             _d->cond_task.wait(lock_task);
+            continue;
         }
 
         XTimerTaskCtxPtr top_task = _d->queue_task->top();
