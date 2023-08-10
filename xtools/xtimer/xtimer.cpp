@@ -120,7 +120,7 @@ bool XTimerSimple::ok()
     return (_d != nullptr);
 }
 
-XTimerID XTimerSimple::createTimer(XTimerTask &&task, XTimerDuration &&duration)
+XTimerID XTimerSimple::createTimer(XTimerTask task, XTimerDuration duration)
 {
     std::lock_guard<std::mutex> lock_call(mutex_call);
 
@@ -155,7 +155,7 @@ XTimerID XTimerSimple::createTimer(XTimerTask &&task, XTimerDuration &&duration)
     return id;
 }
 
-XTimerID XTimerSimple::createTimer(XTimerTask &&task, XTimerTimepoint &&timepoint)
+XTimerID XTimerSimple::createTimer(XTimerTask task, XTimerTimepoint timepoint)
 {
     std::lock_guard<std::mutex> lock_call(mutex_call);
 

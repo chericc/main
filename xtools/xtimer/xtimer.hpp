@@ -21,10 +21,10 @@ public:
     virtual bool ok() = 0;
 
     /* A task with a duration uses steady clock. */
-    virtual XTimerID createTimer(XTimerTask &&task, XTimerDuration &&duration) = 0;
+    virtual XTimerID createTimer(XTimerTask task, XTimerDuration duration) = 0;
 
     /* A task with a timepoint uses system clock. */
-    virtual XTimerID createTimer(XTimerTask &&task, XTimerTimepoint &&timepoint) = 0;
+    virtual XTimerID createTimer(XTimerTask task, XTimerTimepoint timepoint) = 0;
     virtual int destroyTimer(XTimerID id) = 0;
 };
 
@@ -34,8 +34,8 @@ public:
     XTimerSimple();
     ~XTimerSimple() override;
     bool ok() override;
-    XTimerID createTimer(XTimerTask &&task, XTimerDuration &&duration) override;
-    XTimerID createTimer(XTimerTask &&task, XTimerTimepoint &&timepoint) override;
+    XTimerID createTimer(XTimerTask task, XTimerDuration duration) override;
+    XTimerID createTimer(XTimerTask task, XTimerTimepoint timepoint) override;
     int destroyTimer(XTimerID id) override;
 private:
     struct PrivateData;
