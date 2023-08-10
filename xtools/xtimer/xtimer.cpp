@@ -75,13 +75,19 @@ struct XTimerTaskCtxGTCmp
 
 using XTimerTaskQueueT = std::priority_queue<XTimerTaskCtxPtr, std::vector<XTimerTaskCtxPtr>, XTimerTaskCtxGTCmp>;
 
-struct XTimerSimple::PrivateData
+struct XTimerSimple::PerThreadCtx
 {
     std::shared_ptr<XTimerTaskQueueT> queue_task;
     std::mutex mutex_task;
     std::condition_variable cond_task;
-
     std::shared_ptr<XThread> trd_worker;
+};
+
+struct XTimerSimple::PrivateData
+{
+    std::shared_ptr<PerThreadCtx> trd_ctx_steady;
+    std::shared_ptr<PerThreadCtx> trd_ctx_system;
+
     bool break_flag{false};
 };
 
@@ -97,7 +103,8 @@ XTimerSimple::XTimerSimple()
     }
     else 
     {
-        _d->trd_worker->start();
+        _d->trd_ctx_steady->trd_worker->start();
+        _d->trd_ctx_system->trd_worker->start();
     }
 }
 
@@ -136,9 +143,9 @@ XTimerID XTimerSimple::createTimer(XTimerTask &&task, XTimerDuration &&duration)
         auto ctx_ptr = std::make_shared<XTimerTaskCtx>(ctx);
 
         {
-            std::lock_guard<std::mutex> lock_task(_d->mutex_task);
-            _d->queue_task->push(ctx_ptr);
-            _d->cond_task.notify_one();
+            std::lock_guard<std::mutex> lock_task(_d->trd_ctx_steady->mutex_task);
+            _d->trd_ctx_steady->queue_task->push(ctx_ptr);
+            _d->trd_ctx_steady->cond_task.notify_one();
         }
 
         id = ctx_ptr.get();
@@ -170,9 +177,9 @@ XTimerID XTimerSimple::createTimer(XTimerTask &&task, XTimerTimepoint &&timepoin
         auto ctx_ptr = std::make_shared<XTimerTaskCtx>(ctx);
 
         {
-            std::lock_guard<std::mutex> lock_task(_d->mutex_task);
-            _d->queue_task->push(ctx_ptr);
-            _d->cond_task.notify_one();
+            std::lock_guard<std::mutex> lock_task(_d->trd_ctx_system->mutex_task);
+            _d->trd_ctx_system->queue_task->push(ctx_ptr);
+            _d->trd_ctx_system->cond_task.notify_one();
         }
 
         id = ctx_ptr.get();
@@ -197,19 +204,49 @@ int XTimerSimple::destroyTimer(XTimerID id)
             break;
         }
 
-        std::size_t size_queue_old = _d->queue_task->size();
+        if (!destroyTimerOfQueue(id, _d->trd_ctx_steady))
+        {
+            break;
+        }
+
+        if (!destroyTimerOfQueue(id, _d->trd_ctx_system))
+        {
+            break;
+        }
+
+        berror_flag = true;
+    }
+    while(0);
+
+    return berror_flag ? -1 : 0;
+}
+
+int XTimerSimple::destroyTimerOfQueue(XTimerID id, std::shared_ptr<PerThreadCtx> ctx)
+{
+    bool berror_flag = false;
+
+    do 
+    {
+        if (!_d)
+        {
+            xlog_err("null");
+            berror_flag = true;
+            break;
+        }
+
+        std::size_t size_queue_old = ctx->queue_task->size();
         auto newq = std::make_shared<XTimerTaskQueueT>();
 
-        std::lock_guard<std::mutex> lock_task(_d->mutex_task);
-        while (!_d->queue_task->empty())
+        std::lock_guard<std::mutex> lock_task(ctx->mutex_task);
+        while (!ctx->queue_task->empty())
         {
-            if (_d->queue_task->top().get() != id)
+            if (ctx->queue_task->top().get() != id)
             {
-                newq->push(_d->queue_task->top());
+                newq->push(ctx->queue_task->top());
             }
-            _d->queue_task->pop();
+            ctx->queue_task->pop();
         }
-        _d->queue_task = newq;
+        ctx->queue_task = newq;
 
         if (newq->size() == size_queue_old)
         {
@@ -218,7 +255,7 @@ int XTimerSimple::destroyTimer(XTimerID id)
         }
         
         // 令loop重新选择任务
-        _d->cond_task.notify_one();
+        ctx->cond_task.notify_one();
     }
     while(0);
 
@@ -232,10 +269,15 @@ std::shared_ptr<XTimerSimple::PrivateData> XTimerSimple::init()
     do 
     {
         data = std::make_shared<PrivateData>();
-        data->queue_task = std::make_shared<XTimerTaskQueueT>();
+        data->trd_ctx_steady = std::make_shared<PerThreadCtx>();
+        data->trd_ctx_system = std::make_shared<PerThreadCtx>();
+        data->trd_ctx_steady->queue_task = std::make_shared<XTimerTaskQueueT>();
+        data->trd_ctx_system->queue_task = std::make_shared<XTimerTaskQueueT>();
 
-        auto lambda_func = [&](){return this->work_loop();};
-        data->trd_worker = std::make_shared<XThread>(lambda_func);
+        auto lambda_func_steady = [this](){return this->workLoop(this->_d->trd_ctx_steady);};
+        auto lambda_func_system = [this](){return this->workLoop(this->_d->trd_ctx_system);};
+        data->trd_ctx_steady->trd_worker = std::make_shared<XThread>(lambda_func_steady);
+        data->trd_ctx_system->trd_worker = std::make_shared<XThread>(lambda_func_system);
     }
     while (0);
     
@@ -254,8 +296,10 @@ void XTimerSimple::destroy()
         xlog_dbg("destroying");
 
         _d->break_flag = true;
-        _d->cond_task.notify_one();
-        _d->trd_worker->join();
+        _d->trd_ctx_steady->cond_task.notify_one();
+        _d->trd_ctx_system->cond_task.notify_one();
+        _d->trd_ctx_steady->trd_worker->join();
+        _d->trd_ctx_system->trd_worker->join();
 
         _d.reset();
     }
@@ -264,7 +308,7 @@ void XTimerSimple::destroy()
     return ;
 }
 
-void XTimerSimple::work_loop()
+void XTimerSimple::workLoop(std::shared_ptr<PerThreadCtx> ctx)
 {
     while (true)
     {
@@ -274,26 +318,26 @@ void XTimerSimple::work_loop()
             break;
         }
 
-        std::unique_lock<std::mutex> lock_task(_d->mutex_task);
-        if (_d->queue_task->empty())
+        std::unique_lock<std::mutex> lock_task(ctx->mutex_task);
+        if (ctx->queue_task->empty())
         {
             xlog_trc("no job, waiting");
-            _d->cond_task.wait(lock_task);
+            ctx->cond_task.wait(lock_task);
             continue;
         }
 
-        XTimerTaskCtxPtr top_task = _d->queue_task->top();
+        XTimerTaskCtxPtr top_task = ctx->queue_task->top();
         std::cv_status wait_ret{};
         if (TaskType::Steady == top_task->type)
         {
             auto timepoint_task = top_task->timepoint.steady.tp_start_steady + 
                 top_task->timepoint.steady.duration;
-            wait_ret = _d->cond_task.wait_until(lock_task, timepoint_task);
+            wait_ret = ctx->cond_task.wait_until(lock_task, timepoint_task);
         }
         else if (TaskType::System == top_task->type)
         {
             auto timepoint_task = top_task->timepoint.system.tp_start_system;
-            wait_ret = _d->cond_task.wait_until(lock_task, timepoint_task);
+            wait_ret = ctx->cond_task.wait_until(lock_task, timepoint_task);
         }
         else 
         {
@@ -305,7 +349,7 @@ void XTimerSimple::work_loop()
         {
             xlog_trc("job timeout, running it");
             top_task->task();
-            _d->queue_task->pop();
+            ctx->queue_task->pop();
         }
     }
 }

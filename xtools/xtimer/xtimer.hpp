@@ -14,9 +14,6 @@ using XTimerTask = std::function<void(void)>;
 using XTimerDuration = std::chrono::milliseconds;
 using XTimerTimepoint = std::chrono::time_point<std::chrono::system_clock>;
 
-/**
- * One xtimer run all tasks in one thread.
-*/
 class XTimer : public XNonCopyableObject
 {
 public:
@@ -42,10 +39,12 @@ public:
     int destroyTimer(XTimerID id) override;
 private:
     struct PrivateData;
+    struct PerThreadCtx;
     std::shared_ptr<PrivateData> _d;
     std::mutex mutex_call;
 private:
     std::shared_ptr<PrivateData> init();
     void destroy();
-    void work_loop();
+    void workLoop(std::shared_ptr<PerThreadCtx>);
+    int destroyTimerOfQueue(XTimerID id, std::shared_ptr<PerThreadCtx>);
 };
