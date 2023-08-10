@@ -6,6 +6,8 @@ set(XTOOL_TEST_XSTRING test_xtools_xstring)
 set(XTOOL_TEST_XIO test_xtools_xio)
 set(XTOOL_TEST_XTHREAD test_xtools_xthread)
 set(XTOOL_DEMO_XTIMER demo_xtools_xtimer)
+set(XTOOL_DEMO_XTEST_CLOCK demo_xtools_xtest_clock)
+set(XTOOL_TEST_XTEST_CLOCK test_xtools_xtest_clock)
 
 aux_source_directory(xconfig src_xconfig)
 aux_source_directory(xlog src_xlog)
@@ -13,6 +15,7 @@ aux_source_directory(xstring src_xstring)
 aux_source_directory(xio src_xio)
 aux_source_directory(xthread src_xthread)
 aux_source_directory(xtimer src_xtimer)
+aux_source_directory(xtest src_xtest)
 
 aux_source_directory(xconfig/test src_xconfig_test)
 aux_source_directory(xlog/demo src_xlog_demo)
@@ -21,6 +24,8 @@ aux_source_directory(xstring/test src_xstring_test)
 aux_source_directory(xio/test src_xio_test)
 aux_source_directory(xthread/test src_xthread_test)
 aux_source_directory(xtimer/demo src_xtimer_demo)
+aux_source_directory(xtest/demo_xtest_clock src_xtest_clock_demo)
+aux_source_directory(xtest/test_xtest_clock src_xtest_clock_test)
 
 include_directories(
         xconfig
@@ -30,10 +35,18 @@ include_directories(
         xthread
         xutility
         xtimer
+        xtest
         ${G_GOOGLETEST_INC_PATH}
 )
 
-add_library(${G_XTOOLS} SHARED ${src_xlog} ${src_xconfig} ${src_xstring} ${src_xio} ${src_xthread} ${src_xtimer})
+add_library(${G_XTOOLS} SHARED 
+        ${src_xlog} 
+        ${src_xconfig} 
+        ${src_xstring} 
+        ${src_xio} 
+        ${src_xthread} 
+        ${src_xtimer}
+        ${src_xtest})
 
 # tests
 
@@ -96,3 +109,15 @@ add_test(NAME ${XTOOL_TEST_XIO}
 add_executable(${XTOOL_DEMO_XTIMER} 
         ${src_xtimer_demo})
 target_link_libraries(${XTOOL_DEMO_XTIMER} ${COMMON_LIB})
+
+# demo_xtest_clock
+add_executable(${XTOOL_DEMO_XTEST_CLOCK}
+        ${src_xtest_clock_demo})
+target_link_libraries(${XTOOL_DEMO_XTEST_CLOCK} ${COMMON_LIB})
+
+add_executable(${XTOOL_TEST_XTEST_CLOCK}
+        ${src_xtest_clock_test}
+        ${G_GOOGLETEST_MAIN_SRCFILE})
+target_link_libraries(${XTOOL_TEST_XTEST_CLOCK} ${COMMON_LIB})
+add_test(NAME ${XTOOL_TEST_XTEST_CLOCK}
+        COMMAND ${XTOOL_TEST_XTEST_CLOCK})
