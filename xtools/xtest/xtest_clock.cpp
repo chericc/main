@@ -3,6 +3,8 @@
 #include <condition_variable>
 #include <time.h>
 
+#include <stdio.h>
+
 #include "xlog.hpp"
 
 struct XTestClock::InnerData
@@ -131,12 +133,34 @@ std::shared_ptr<XTestClock::InnerData> XTestClock::init()
 XTestClock::Timepoint xtestclock_generate_timepoint(const std::string &str)
 {
     struct tm stm{};
-    if (!strptime(str.c_str(), "%F %T", &stm))
+
+    /* str eg: "2010-01-01 15:30:55" */
+
+    int year = 0, month = 0, day = 0;
+    int hour = 0, minute = 0, second = 0;
+    int ret = sscanf(str.c_str(), "%d-%d-%d %d:%d:%d",
+        &year, &month, &day, &hour, &minute, &second);
+    if (ret != 6)
     {
+        xlog_err("invalid input string");
         return XTestClock::Timepoint{};
     }
+
+    stm.tm_year = 1900 + year;
+    stm.tm_mon = month - 1;
+    stm.tm_mday = day;
+    stm.tm_hour = hour;
+    stm.tm_min = minute;
+    stm.tm_sec = second;
     
     time_t time_input = mktime(&stm);
+
+    if (time_input == (time_t)(-1))
+    {
+        xlog_err("invalid input string");
+        return XTestClock::Timepoint{};
+    }
+
     XTestClock::Clock::duration dur(
         std::chrono::duration_cast<XTestClock::Duration>(std::chrono::seconds(time_input)));
     return XTestClock::Timepoint{} + dur;
