@@ -15,7 +15,7 @@ class XTestClock
 public:
     using Clock = std::chrono::steady_clock;
     using Timepoint = Clock::time_point;
-    using Duration = std::chrono::milliseconds;
+    using Duration = Clock::duration;
 
     XTestClock();
 

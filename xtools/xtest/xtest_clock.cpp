@@ -70,7 +70,7 @@ void XTestClock::jump(Timepoint timepoint)
         return ;
     }
 
-    _d->dur_diff = std::chrono::duration_cast<Duration>(timepoint - Clock::now());
+    _d->dur_diff = timepoint - Clock::now();
 
     _d->cond.notify_all();
 }
@@ -89,7 +89,7 @@ void XTestClock::waitUntil(Timepoint timepoint)
     {
         auto real_timepoint = timepoint - _d->dur_diff;
         auto ret = _d->cond.wait_until(lock_call, real_timepoint);
-        if (ret == std::cv_status::timeout)
+        if (std::cv_status::timeout == ret)
         {
             break;
         }
@@ -115,7 +115,7 @@ void XTestClock::waitFor(Duration duration)
 
         auto real_timepoint = Clock::now() + duration - diff;
         auto ret = _d->cond.wait_until(lock_call, real_timepoint);
-        if (ret == std::cv_status::timeout)
+        if (std::cv_status::timeout == ret)
         {
             break;
         }
@@ -146,7 +146,7 @@ XTestClock::Timepoint xtestclock_generate_timepoint(const std::string &str)
         return XTestClock::Timepoint{};
     }
 
-    stm.tm_year = 1900 + year;
+    stm.tm_year = year + 1900;
     stm.tm_mon = month - 1;
     stm.tm_mday = day;
     stm.tm_hour = hour;
@@ -155,13 +155,12 @@ XTestClock::Timepoint xtestclock_generate_timepoint(const std::string &str)
     
     time_t time_input = mktime(&stm);
 
-    if (time_input == (time_t)(-1))
+    if ((time_t)(-1) == time_input)
     {
         xlog_err("invalid input string");
         return XTestClock::Timepoint{};
     }
 
-    XTestClock::Clock::duration dur(
-        std::chrono::duration_cast<XTestClock::Duration>(std::chrono::seconds(time_input)));
+    XTestClock::Clock::duration dur = std::chrono::seconds(time_input);
     return XTestClock::Timepoint{} + dur;
 }
