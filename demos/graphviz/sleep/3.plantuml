@@ -1,0 +1,27 @@
+@startuml
+
+title "08:00:00 - 20:00:00 问题场景 - 预期行为"
+
+concise "用户操作" as User
+robust "休眠状态" as State
+
+@00:00:00
+User is {hidden}
+State is "休眠"
+
+@4:00:00
+User is "唤醒"
+State is "唤醒"
+
+@6:00:00
+User is "重启"
+State is "唤醒"
+
+@8:00:00
+State is "唤醒"
+User is {hidden}
+
+@20:00:00
+State is "休眠"
+
+@enduml

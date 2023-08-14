@@ -1,0 +1,22 @@
+@startuml
+
+title "08:00:00 - 20:00:00 重复唤醒计划 - 无操作"
+
+concise "用户操作" as User
+robust "休眠状态" as State
+
+@00:00:00
+User is {hidden}
+State is "休眠"
+
+@4:00:00
+
+@6:00:00
+
+@8:00:00
+State is "唤醒"
+
+@20:00:00
+State is "休眠"
+
+@enduml
