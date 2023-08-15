@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="203px" preserveAspectRatio="none" style="width:606px;height:203px;" version="1.1" viewBox="0 0 606 203" width="606px" zoomAndPan="magnify"><defs/><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="269" x="167.5" y="26.708">"08:00:00 - 20:00:00 问题场景"</text><line style="stroke: #000000; stroke-width: 1.7;" x1="10" x2="10" y1="30.9531" y2="172.8281"/><line style="stroke: #000000; stroke-width: 1.7;" x1="594" x2="594" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="39" x2="39" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="89" x2="89" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="139" x2="139" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="189" x2="189" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="239" x2="239" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="289" x2="289" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="339" x2="339" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="389" x2="389" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="439" x2="439" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="489" x2="489" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="539" x2="539" y1="30.9531" y2="172.8281"/><line style="stroke: #AAAAAA; stroke-width: 0.5; stroke-dasharray: 3.0,5.0;" x1="589" x2="589" y1="30.9531" y2="172.8281"/><line style="stroke: #000000; stroke-width: 1.7;" x1="10" x2="594" y1="30.9531" y2="30.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="48" x="15" y="42.0918">用户操作</text><line style="stroke: #000000; stroke-width: 1.0;" x1="10" x2="64" y1="45.9219" y2="45.9219"/><line style="stroke: #000000; stroke-width: 1.0;" x1="64" x2="74" y1="45.9219" y2="30.9531"/><polygon fill="#D7E0F2" points="151,52.8906,177,52.8906,189,64.8906,177,76.8906,151,76.8906,139,64.8906" style="stroke: #038048; stroke-width: 1.5;"/><polygon fill="#D7E0F2" points="201,52.8906,227,52.8906,239,64.8906,227,76.8906,201,76.8906,189,64.8906" style="stroke: #038048; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="24" x="152" y="69.0449">唤醒</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="24" x="202" y="69.0449">重启</text><line style="stroke: #000000; stroke-width: 1.7;" x1="10" x2="594" y1="94.8906" y2="94.8906"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="48" x="15" y="106.0293">休眠状态</text><line style="stroke: #000000; stroke-width: 1.0;" x1="10" x2="64" y1="109.8594" y2="109.8594"/><line style="stroke: #000000; stroke-width: 1.0;" x1="64" x2="74" y1="109.8594" y2="94.8906"/><line style="stroke: #038048; stroke-width: 1.5;" x1="39" x2="139" y1="142.8281" y2="142.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="139" x2="189" y1="122.8281" y2="122.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="189" x2="239" y1="142.8281" y2="142.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="239" x2="539" y1="122.8281" y2="122.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="539" x2="589" y1="142.8281" y2="142.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="139" x2="139" y1="122.8281" y2="142.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="189" x2="189" y1="122.8281" y2="142.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="239" x2="239" y1="122.8281" y2="142.8281"/><line style="stroke: #038048; stroke-width: 1.5;" x1="539" x2="539" y1="122.8281" y2="142.8281"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="24" x="15" y="139.998">休眠</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="24" x="15" y="119.998">唤醒</text><line style="stroke: #000000; stroke-width: 2.0;" x1="39" x2="39" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="89" x2="89" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="139" x2="139" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="189" x2="189" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="239" x2="239" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="289" x2="289" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="339" x2="339" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="389" x2="389" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="439" x2="439" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="489" x2="489" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="539" x2="539" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="589" x2="589" y1="172.8281" y2="177.8281"/><line style="stroke: #000000; stroke-width: 2.0;" x1="39" x2="589" y1="172.8281" y2="172.8281"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="48" x="15" y="189.9668">0:00:00</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="48" x="115" y="189.9668">4:00:00</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="48" x="165" y="189.9668">6:00:00</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="48" x="215" y="189.9668">8:00:00</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="56" x="511" y="189.9668">20:00:00</text><!--MD5=[3c1ca7fc31307688be0cad2c20157697]
+@startuml
+
+title "08:00:00 - 20:00:00 问题场景"
+
+concise "用户操作" as User
+robust "休眠状态" as State
+
+@00:00:00
+User is {hidden}
+State is "休眠"
+
+@4:00:00
+User is "唤醒"
+State is "唤醒"
+
+@6:00:00
+User is "重启"
+State is "休眠"
+
+@8:00:00
+State is "唤醒"
+User is {hidden}
+
+@20:00:00
+State is "休眠"
+
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 18:22:07 CST 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 19.0.2+7-Ubuntu-0ubuntu322.04
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
