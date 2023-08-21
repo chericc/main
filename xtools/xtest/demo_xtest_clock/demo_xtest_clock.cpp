@@ -11,8 +11,9 @@ void funA()
 
     for (int i = 0; i < 3; ++i)
     {
-        xlog_dbg("wait begin");
-        s_clock.waitFor(std::chrono::seconds(1));
+        int seconds = 1;
+        xlog_dbg("wait for begin: (%d seconds)", seconds);
+        s_clock.waitFor(std::chrono::seconds(seconds));
         xlog_dbg("wait end");
     }
 
@@ -26,8 +27,8 @@ void funB()
     auto now = XTestClock::Clock::now();
     for (int i = 0; i < 3; ++i)
     {
-        XTestClock::Timepoint tp = now + std::chrono::seconds(1);
-        xlog_dbg("wait begin");
+        XTestClock::Timepoint tp = now + std::chrono::seconds(i + 1);
+        xlog_dbg("wait until begin: (%d)", std::chrono::time_point_cast<std::chrono::seconds>(tp).time_since_epoch().count());
         s_clock.waitUntil(std::move(tp));
         xlog_dbg("wait end");
     }
