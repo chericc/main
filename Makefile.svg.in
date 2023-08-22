@@ -1,4 +1,6 @@
 # This makefile is used to generate svg files.
+# v1.1 20230822
+# Add support for svg and png.
 
 DOT = dot
 PLANTUML = plantuml
@@ -11,15 +13,27 @@ SVG_FROM_DOT_FILES = $(patsubst %.dot,%.svg, $(DOT_FILES))
 
 PLANTUML_FILES = $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.plantuml))
 SVG_FROM_PLANTUML_FILES = $(patsubst %.plantuml,%.svg, $(PLANTUML_FILES))
+PNG_FROM_PLANTUML_FILES = $(patsubst %.plantuml,%.png, $(PLANTUML_FILES))
 
-all: $(addprefix $(RELEASE_DIR)/,$(SVG_FROM_DOT_FILES)) $(addprefix $(RELEASE_DIR)/,$(SVG_FROM_PLANTUML_FILES))
-.PHONY : clean all
+svg: $(addprefix $(RELEASE_DIR)/,$(SVG_FROM_DOT_FILES)) $(addprefix $(RELEASE_DIR)/,$(SVG_FROM_PLANTUML_FILES))
+png: $(addprefix $(RELEASE_DIR)/,$(PNG_FROM_PLANTUML_FILES))
+all: svg png
 
 $(RELEASE_DIR)/%.svg:%.dot
 	$(DOT) -Tsvg $^ -o $@
 
 $(RELEASE_DIR)/%.svg:%.plantuml
-	$(PLANTUML) -tsvg $^ > $@
+	$(PLANTUML) -tsvg $^
 
-clean:
-	rm -v *.svg
+$(RELEASE_DIR)/%.png:%.plantuml
+	$(PLANTUML) -tpng $^
+
+clean_svg:
+	@rm -vf *.svg
+
+clean_png:
+	@rm -vf *.png
+
+clean: clean_svg clean_png
+
+.PHONY : clean clean_svg clean_png all svg png 
