@@ -276,6 +276,26 @@ C语言提供了一组逻辑运算符`||`、`&&`、`！`，分别对应于命题
 
 ### 2.2 整数表示
 
+$B: \text{Binary}$
+
+$T: \text{Complement}$
+
+$U: \text{Unsigned}$
+
+$\omega: \text{bit length}$
+
+| 符号             | 类型 | 含义             |
+| ---------------- | ---- | ---------------- |
+| $B2T_{\omega}$   | 函数 | 二进制转补码     |
+| $B2U_{\omega}$   | 函数 | 二进制转无符号数 |
+| $T2U_{\omega}$   | 函数 | 补码转无符号数   |
+| $TMin_{\omega}$  | 常数 | 最小补码值       |
+| $UMax_{\omega}$  | 常数 | 最大无符号数     |
+| $+_{\omega}^{t}$ | 操作 | 补码加法         |
+| $+_{\omega}^{u}$ | 操作 | 无符号数加法     |
+| $-_{\omega}^{t}$ | 操作 | 补码取反         |
+| $-_{\omega}^{u}$ | 操作 | 无符号数取反     |
+
 #### 2.2.1 整型数据类型
 
 C语言支持多种整型数据类型：表示有限范围内的整数。
@@ -391,3 +411,70 @@ $x +_{\omega}^{u} y = \begin{cases}x+y, &x+y < 2^{\omega} \\ x + y - 2^{\omega},
 **原理**：检测无符号数加法中的溢出
 
 对在范围$0\le x,y \le UMax_{\omega}$中的$x$和$y$，令$s\doteq x+_{\omega}^{u} y$。则对计算$s$，当且仅当$s < x$（或者$s < y$时），发生了溢出。
+
+**原理**：无符号数求反
+
+对满足$0 \le x < 2^{\omega}$的任意$x$，其$\omega$位的无符号逆元$-_{\omega}^{u}x$由下式给出：
+
+$-_{\omega}^{u}x=\begin{cases}x, &x = 0 \\ 2^{\omega} - x, & x > 0\end{cases}$
+
+#### 2.3.2 补码加法
+
+对于补码加法，我们必须确定当结果太大或者太小时，应该做些什么。
+
+**原理**：补码加法
+
+对满足$-2^{\omega - 1} \le x$， $y \le 2^{\omega - 1}-1$的整数$x$和$y$，有：
+$$
+x+_{\omega}^{t}y=
+\begin{cases}
+x+y-2^{\omega}, &2^{\omega - 1} \le x + y, &\text{positive overflow} \\
+x+y, &-2^{\omega - 1}\le x + y < 2^{\omega - 1}, &\text{normal} \\
+x+y+2^{\omega}, &x+y<-2^{\omega - 1}, &\text{negative overflow}
+\end{cases}
+$$
+当和$x+y$超过$TMax_{\omega}$时，发生了正溢出，在这种情况下，截断的结果是从和数中减去$2^{\omega}$。当和$x+y$小于$TMin_{\omega}$时，发生了负溢出。在这种情况下，截断的结果是把和数加上$2^{\omega}$。
+
+两个数的$\omega$位补码之和与无符号之和有完全相同的位级表示。实际上，大多数计算机使用同样的机器指令来执行无符号或者有符号加法。
+
+**原理**：检测补码加法中的溢出
+
+对满足$TMin_{\omega}\le x, y\le TMax_{\omega}$的$x$和$y$，令$s\doteq x+_{\omega}^{t}y$。当且仅当$x>0$，$y>0$，但$s\le 0$时，计算$s$发生了正溢出。当且仅当$x<0$，$y<0$，但$s\ge 0$时，计算$s$发生了负溢出。
+
+#### 2.3.3 补码的非
+
+我们将$-_{\omega}^{t}x$表示如下：
+
+**原理**：补码的非
+
+对满足$TMin_{\omega}\le x \le TMax_{\omega}$的$x$，其补码的非$-_{\omega}^{t}x$由下式给出
+$$
+-_{\omega}^{t}x = \begin{cases}
+TMin_{\omega}, & x = TMin_{\omega} \\
+-x, & x > TMin_{\omega}
+\end{cases}
+$$
+
+```c++
+// eg. negative(TMin) = TMin
+#include <stdio.h>
+#include <limits>
+
+int main()
+{
+    short c = std::numeric_limits<short>().min();
+    short h = (-c);
+
+    printf("c=%hd,h=%hd\n", c, h);
+    return 0;
+}
+```
+
+```bash
+c=-32768,h=-32768
+```
+
+注意，补码的最小值没有一个直接可以对应的非值，其非值不变。
+
+#### 2.3.4 无符号乘法
+
