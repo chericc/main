@@ -42,7 +42,3 @@
 - 条件变量加锁的问题
 
 - linux/udev
-
-- xtools/xlog: <https://zhuanlan.zhihu.com/p/55768933>
-
-- demos/printf

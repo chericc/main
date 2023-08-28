@@ -31,8 +31,17 @@ typedef enum XLOG_LEVEL
 #define XLOG_MASK_ERR (~((unsigned int)XLOG_LEVEL_INFORMATION | XLOG_LEVEL_LOG \
                         | XLOG_LEVEL_DEBUG | XLOG_LEVEL_TRACE))
 
-void xlog(XLOG_LEVEL level, const char *format, ...);
-void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...);
+
+#if defined(X_PLATFORM_GNU)
+#define XLOG_VAR_CHECK __attribute__((format(printf,2,3)))
+#define XLOG_VAR_CHECK_EX __attribute__((format(printf,5,6)))
+#else 
+#define XLOG_VAR_CHECK 
+#define XLOG_VAR_CHECK_EX
+#endif
+
+void xlog(XLOG_LEVEL level, const char *format, ...) XLOG_VAR_CHECK;
+void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...) XLOG_VAR_CHECK_EX;
 void xlog_setmask(unsigned int mask);
 void xlog_setoutput(const std::vector<FILE*> &fps);
 std::string xlog_shortfilepath(const std::string &path);

@@ -1,5 +1,7 @@
 #include "bmp.hpp"
 
+#include <inttypes.h>
+
 #include "xlog.hpp"
 
 #define MKLE16(a,b) ((a) | ((uint16_t)b << 8))
@@ -549,7 +551,7 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
         info->data_offset = info->fileheader.bitmapoffset;
         info->data_size = info->width * info->height * (info->bitmapheader.bitsperpixel / 8);
 
-        xlog_trc("dataoffset=%d,datasize=%d,filesize=%d",
+        xlog_trc("dataoffset=%d,datasize=%d,filesize=%" PRId64,
             (int)info->data_offset, (int)info->data_size,
             info->xio->size());
 

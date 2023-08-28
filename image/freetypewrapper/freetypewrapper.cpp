@@ -477,9 +477,9 @@ int FreeTypeWrapper::drawString_Normal_Monochrome(const DrawInfo &info)
             xlog_trc("[left=%d,top=%d][ascender=%d, descender=%d, height=%d]",
                 (int)slot->bitmap_left,
                 (int)slot->bitmap_top,
-                FP_26_6_TO_INT(metrics.ascender), 
-                FP_26_6_TO_INT(metrics.descender),
-                FP_26_6_TO_INT(metrics.height));
+                (int)FP_26_6_TO_INT(metrics.ascender), 
+                (int)FP_26_6_TO_INT(metrics.descender),
+                (int)FP_26_6_TO_INT(metrics.height));
 
             /** 
              * 注：如果传入的图片高度为100，则bitmap_top为100+，即笛卡尔坐标系 

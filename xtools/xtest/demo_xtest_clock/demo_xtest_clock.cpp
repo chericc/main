@@ -3,6 +3,8 @@
 #include "xlog.hpp"
 #include "xthread.hpp"
 
+#include "inttypes.h"
+
 XTestClock s_clock;
 
 void funA()
@@ -28,7 +30,7 @@ void funB()
     for (int i = 0; i < 3; ++i)
     {
         XTestClock::Timepoint tp = now + std::chrono::seconds(i + 1);
-        xlog_dbg("wait until begin: (%d)", std::chrono::time_point_cast<std::chrono::seconds>(tp).time_since_epoch().count());
+        xlog_dbg("wait until begin: (%" PRId64 ")", (int64_t)std::chrono::time_point_cast<std::chrono::seconds>(tp).time_since_epoch().count());
         s_clock.waitUntil(std::move(tp));
         xlog_dbg("wait end");
     }

@@ -6,6 +6,9 @@ project(main)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "AppleClang" clang)
+set(G_PLATFORM_MSVC "X_PLATFORM_MSVC")
+set(G_PLATFORM_GNU "X_PLATFORM_GNU")
+set(G_PLATFORM_CLANG "X_PLATFORM_CLANG")
 
 # dirs
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -135,6 +138,18 @@ SET(CMAKE_BUILD_TYPE "Debug")
 # performance analysis
 # add_compile_options(-pg)
 # add_link_options(-pg)
+
+set(G_PLATFORM_MSVC "X_PLATFORM_MSVC")
+set(G_PLATFORM_GNU "X_PLATFORM_GNU")
+set(G_PLATFORM_CLANG "X_PLATFORM_CLANG")
+# platform
+if(${msvc})
+add_definitions(-D${G_PLATFORM_MSVC})
+elseif(${gnu})
+add_definitions(-D${G_PLATFORM_GNU})
+elseif(${clang})
+add_definitions(-D${G_PLATFORM_CLANG})
+endif()
 
 # targets
 add_subdirectory(xtools)
