@@ -42,3 +42,5 @@
 - 条件变量加锁的问题
 
 - linux/udev
+
+- xtools/xstring/xstringview + .arg(val) + .split(spliter) + ...
