@@ -117,6 +117,8 @@ set(G_MD5DIR xmd5dir)
 
 # stl
 
+# net
+set(G_NET net)
 
 # add googletest include path
 
@@ -161,7 +163,9 @@ add_subdirectory(textenc)
 
 if(${gnu})
 add_subdirectory(md5dir)
+add_subdirectory(net)
 endif()
+
 # add_subdirectory(xmedia/xdisplay)
 add_subdirectory(stl)
 # add_subdirectory(demos/ffmpeg)
