@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "utils.hpp"
+#include "net_utils.hpp"
 #include "xlog.hpp"
 
 namespace {

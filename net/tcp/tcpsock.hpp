@@ -21,11 +21,11 @@ class TCPSocket
     TCPSocket(const TCPSocketOption &option);
     ~TCPSocket();
 
-    int open(const std::string &uri);
+    int open(const std::string &url);
     
 private:
     struct Data;
     std::shared_ptr<Data> _d;
 
-    std::shared_ptr<Data> init();
+    std::shared_ptr<Data> init(const TCPSocketOption &option);
 };
