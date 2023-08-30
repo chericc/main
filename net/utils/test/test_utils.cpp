@@ -92,7 +92,7 @@ TEST_P(UrlTest, basetest)
     int choice = GetParam();
     const UrlTestItem &item = items.at(choice);
 
-    UrlSplitResult result = url_split(item.url);
+    UrlSplitResult result = net_utils_url_split(item.url);
     EXPECT_EQ(result.proto, item.expected_result.proto);
     EXPECT_EQ(result.authorization, item.expected_result.authorization);
     EXPECT_EQ(result.hostname, item.expected_result.hostname);

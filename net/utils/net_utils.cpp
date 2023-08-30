@@ -2,7 +2,12 @@
 
 #include <string.h>
 
-UrlSplitResult url_split(const std::string &url)
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <xlog.hpp>
+
+UrlSplitResult net_utils_url_split(const std::string &url)
 {
     // scheme:[//[user[:password]@]host[:port]][/path][?query][#fragment]
     // proto://host path

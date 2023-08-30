@@ -12,11 +12,7 @@ struct UrlSplitResult
 };
 
 /*
-
 URL:
-
 scheme:[//[user[:password]@host][:port]][/path][?query][#fragment]
-
 */
-
-UrlSplitResult url_split(const std::string &url);
+UrlSplitResult net_utils_url_split(const std::string &url);

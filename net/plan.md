@@ -92,3 +92,16 @@ curl_easy_setopt
 | 3    | TCP封装自测     | 20230906   |
 | 4    | TCP封装结果讨论 | 20230907   |
 
+## 4. 过程中的问题
+
+### 4.1 tcp.c中绑定两次的问题
+
+在tcp_open中，customize_fd以及后续的ff_listen都进行了bind操作。
+
+### 4.2 tcp.c的实现和当前的需求可能并不完全对应
+
+建议先把http.c的代码梳理清楚之后，再开始tcp.c的代码整理；
+
+主要问题是：http.c是如何调用tcp.c完成数据传输的。
+
+注：tcp.c在ffmpeg中是作为tcp://host，即一种独立的协议对待的。当前需求中，tcp仅仅需要作为http的底层实现对待。
