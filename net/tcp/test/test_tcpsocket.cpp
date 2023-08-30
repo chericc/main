@@ -9,5 +9,5 @@ TEST(tcpsocket, base)
     opt.listen = 0;
 
     TCPSocket tcp(opt);
-    tcp.open("tcp://baidu.com:80");
+    tcp.tcp_open("tcp://baidu.com:80");
 }

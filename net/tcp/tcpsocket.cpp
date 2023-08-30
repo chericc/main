@@ -66,7 +66,7 @@ TCPSocket::TCPSocket(const TCPSocketOption &option)
     _d = data;
 }
 
-int TCPSocket::open(const std::string &url)
+int TCPSocket::tcp_open(const std::string &url)
 {
     UrlSplitResult url_info;
     int port = -1;
@@ -197,6 +197,10 @@ int TCPSocket::open(const std::string &url)
     ai = nullptr;
 
     return (berror ? -1 : 0);
+}
+
+int TCPSocket::tcp_accept()
+{
 }
 
 // Try a new connection to another address after 200 ms, as suggested in
@@ -576,16 +580,51 @@ int TCPSocket::customize_fd(int fd, int family)
 int TCPSocket::ff_listen(int fd, const struct sockaddr *addr,
             socklen_t addrlen)
 {
-    ;
+    int ret;
+    int reuse = 1;
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse))) 
+    {
+        xlog_err("setsockopt(SO_REUSEADDR) failed\n");
+    }
+    ret = bind(fd, addr, addrlen);
+    if (ret)
+        return ff_neterrno();
+
+    ret = listen(fd, 1);
+    if (ret)
+        return ff_neterrno();
+    return ret;
 }
 
 int TCPSocket::ff_accept(int fd, int timeout)
 {
+    int ret;
+    struct pollfd lp = { fd, POLLIN, 0 };
 
+    ret = ff_poll_interrupt(&lp, 1, timeout, _d->tcp_ctx.option.interrupt_callback);
+    if (ret < 0)
+        return ret;
+
+    ret = accept(fd, NULL, NULL);
+    if (ret < 0)
+        return ff_neterrno();
+    if (ff_socket_nonblock(ret, 1) < 0)
+    {
+        xlog_err("ff_socket_nonblock failed\n");
+    }
+
+    return ret;
 }
 
 int TCPSocket::ff_listen_bind(int fd, const struct sockaddr *addr,
                 socklen_t addrlen, int timeout)
 {
-
+    int ret;
+    if ((ret = ff_listen(fd, addr, addrlen)) < 0)
+        return ret;
+    if ((ret = ff_accept(fd, timeout)) < 0)
+        return ret;
+    closesocket(fd);
+    return ret;
 }
+

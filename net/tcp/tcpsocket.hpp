@@ -30,8 +30,8 @@ public:
     TCPSocket(const TCPSocketOption &option);
     ~TCPSocket() = default;
 
-    int open(const std::string &url);
-    int accept();
+    int tcp_open(const std::string &url);
+    int tcp_accept();
     
 private:
     struct Data;
@@ -48,6 +48,9 @@ private:
 
     int start_connect_attempt(struct ConnectionAttempt *attempt,
                                  struct addrinfo **ptr, int timeout_ms);
+    int ff_accept(int fd, int timeout);
+    int ff_listen_bind(int fd, const struct sockaddr *addr,
+                   socklen_t addrlen, int timeout);
 
     static int64_t av_gettime_relative();
     static int ff_socket(int af, int type, int proto);
@@ -61,7 +64,4 @@ private:
     static int av_strerror(int errnum, char *errbuf, size_t errbuf_size);
     static int ff_listen(int fd, const struct sockaddr *addr,
               socklen_t addrlen);
-    static int ff_accept(int fd, int timeout);
-    static int ff_listen_bind(int fd, const struct sockaddr *addr,
-                   socklen_t addrlen, int timeout);
 };
