@@ -44,3 +44,11 @@
 - linux/udev
 
 - xtools/xstring/xstringview + .arg(val) + .split(spliter) + ...
+
+- linux/net
+
+  网络数据包在两个进程之间的流动路径；UDP方式发送数据包时，哪些位置可能出现丢包；出现丢包时，如何确认丢包的原因；
+
+  CPU中断在丢包中扮演的角色
+
+- CPU中断与网络负载，CPU中断的分配，CPU中断的分析
