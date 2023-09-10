@@ -29,7 +29,7 @@ wget https://cmake.org/files/v3.26/cmake-3.26.4.tar.gz
 # PlantUML
 sudo apt-get install openjdk-19-jdk
 sudo apt-get install graphviz
-sudo apt-get install plantuml
+`sudo apt-get install plantuml`
 
 # valgrind
 ../valgrind-3.20.0/configure --prefix=$(pwd)/output
@@ -59,4 +59,7 @@ cmake ../abseil-cpp/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DABSL_PROPAGATE_CXX_S
 # plantuml
 sudo sh -c 'echo "java -Djava.awt.headless=true -jar /home/test/opensrc/plantuml/plantuml.1.2023.7.jar \$*" > /usr/bin/plantuml'
 sudo chmod 775 /usr/bin/plantuml
+
+# iperf3
+../iperf-3.1.3/configure --prefix=$(pwd)/output
 ```
