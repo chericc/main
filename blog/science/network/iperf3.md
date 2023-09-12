@@ -9,7 +9,7 @@ iperf3 -s -p 11111
 
 ```
 # client side
-# client send, server receives
+# client --> server
 iperf3 -c localhost -p 11111 -t 10000
 ```
 
@@ -17,10 +17,10 @@ iperf3 -c localhost -p 11111 -t 10000
 
 ```
 # normal
-# client send, server receive
+# client --> server
 
 # reverse mode
-# client receive, server send
+# server --> client
 iperf3 -c localhost -p 11111 -R -t 10000
 ```
 
