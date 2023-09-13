@@ -228,9 +228,9 @@ ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop 0 -i 8K1_10s.ts -c:
 
 input text udp://239.239.3.3:5140
 
+input text rtsp://192.168.1.222/8K-HEVC190M.ts
 input text rtsp://192.168.1.222/8K-HEVC125M.ts
+input text rtsp://192.168.1.222/8K-HEVC41M.ts
 input text rtsp://192.168.1.222/2_2.ts
-
-input text rtsp://192.168.1.222/8K-HEVC125M.ts
 
 ```

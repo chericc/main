@@ -115,3 +115,8 @@ openssl des3 -in $OUTPUT -d -k $PASS -pbkdf2 -nosalt | tar zxf -
 tail -f -s 1 [file]
 ```
 
+## mount tmpfs
+
+```bash
+mount tmpfs ./tmpfs -t tmpfs -o size=1G
+```
