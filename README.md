@@ -2,7 +2,7 @@
 
 ( 0_0 )
 
-## How to build depends?
+## Some 3rd libraries
 
 ```bash
 # GoogleTest
@@ -62,4 +62,10 @@ sudo chmod 775 /usr/bin/plantuml
 
 # iperf3
 ../iperf-3.1.3/configure --prefix=$(pwd)/output
+
+# irqbalance
+# irqbalance-1.9.2 >
+./autogen.sh
+# build > 
+../irqbalance-1.9.2/configure --prefix=$(pwd)/output --without-irqbalance-ui
 ```
