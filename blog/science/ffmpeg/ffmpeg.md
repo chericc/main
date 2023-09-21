@@ -68,15 +68,24 @@
 ffplay [url] -x 640 -y 320
 ```
 
-## ffmpeg命令基本形式
+## ffmpeg
+
+### ffmpeg命令基本形式
 
 ```bash
 ffmpeg [global-options] {[input_file_options] -i input_url} ... {[output_file_options] output_url}
 ```
 
-## 流选择
+### 封装形式
 
-### 从多个文件中选择特定的流
+```bash
+# mp4 --> mkv
+ffmpeg -i video.mp4 video.mkv
+```
+
+### 流选择
+
+#### 从多个文件中选择特定的流
 
 先用"ffprobe"获取流列表（参考ffprobe功能 ）；
 
@@ -86,91 +95,94 @@ ffmpeg [global-options] {[input_file_options] -i input_url} ... {[output_file_op
 ffmpeg -i 1.mkv -i 2.mkv -map 0:0 -map 1:1 output.mkv
 ```
 
-### 屏蔽所有视频流
+#### 屏蔽所有视频流
 
 ```bash
 -vn
 ```
 
-### 屏蔽所有音频流
+#### 屏蔽所有音频流
 
 ```bash
 -an
 ```
 
-## 时长
+### 时长
 
-### 从某刻开始一定时间
+#### 从某刻开始一定时间
 
 ```bash
 -ss time_point -t duration
 ```
 
-### 从某刻到某刻
+#### 从某刻到某刻
 
 ```bash
 -ss time_point1 -to time_point2
 ```
 
-## 视频编码
+### 视频编码
 
-### 指定视频帧数量
+#### 指定视频帧数量
 
 ```bash
 -frames:v 2400
 ```
 
-### 指定视频编码格式
+#### 指定视频编码格式
 
 ```bash
 -c:v hevc
+-c:v copy
+
+-codec copy
 ```
 
-### 指定帧率
+#### 指定帧率
 
 ```bash
 -r 24
 ```
 
-### 指定编码码率
+#### 指定编码码率
 
 ```bash
 -b:v 256k
 ```
 
-### 缩放
+#### 缩放
 
 ```bash
 -vf scale=640:-1
 ```
 
-## 音频编码
+### 音频编码
 
-### 音频通道数
+#### 音频通道数
 
 ```bash
 -ac 2
 ```
 
-### 音频编码格式
+#### 音频编码格式
 
 ```bash
 -c:a libopus
 ```
 
-### 码率
+#### 码率
 
 ```bash
 -b:a 96k
 ```
 
-### 采样率
+#### 采样率
 
 ```bash
 -ar 48000
 ```
 
-## 编码器特有选项
+### 编码器特有选项
 
 如：
 
@@ -184,15 +196,15 @@ libx265 AVOptions:
   -udu_sei           <boolean>    E..V....... Use user data unregistered SEI if available (default false)
   -x265-params       <dictionary> E..V....... set the x265 configuration using a :-separated list of key=value parameters
 
-## yuv
+### yuv
 
-### 编码YUV
+#### 编码YUV
 
 ```bash
 ffmpeg -pix_fmt nv21 -s 640*360 -i output.yuv -r 20 output.mp4
 ```
 
-### 解码为YUV
+#### 解码为YUV
 
 指定后缀名为YUV即可；
 
@@ -200,23 +212,23 @@ ffmpeg -pix_fmt nv21 -s 640*360 -i output.yuv -r 20 output.mp4
 ffmpeg -i input.file output.yuv
 ```
 
-## 性能
+### 性能
 
-### 线程
+#### 线程
 
 ```bash
 -threads
 ```
 
-## 其它
+### 其它
 
-### 提取关键帧
+#### 提取关键帧
 
 ```bash
 ffmpeg -i test.mp4 -vf select='eq(pict_type\,I)' -vsync 2 -f image2 kf-%02d.bmp
 ```
 
-## 组播
+### 组播
 
 ```bash
 ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i 8K-HEVC41M.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140

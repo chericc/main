@@ -13,6 +13,17 @@ DeviceModel = IPC_NYX_JZ_ID_P10
 echo "AAA_BV1 = CCC_DV123" | sed "s/.*= *\(.*\)/\1/g"
 ```
 
+## 按列求和
+
+```bash
+line 761, (rtsp_ts) send seq(38691), expect seq(38690), lost num(1), sum(1302), timeout_ms(101)
+line 761, (rtsp_ts) send seq(40251), expect seq(40250), lost num(1), sum(1210), timeout_ms(101)
+
+找出其中lost num后所有数字的和
+
+cat file | sed -E "s/.*lost num\(([^\)]+)\).*/\1/g" | awk '{sum+=$1}END{print sum}'
+```
+
 ## md5sum 过滤掉路径
 
 ```bash
