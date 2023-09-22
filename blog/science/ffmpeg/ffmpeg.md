@@ -242,8 +242,10 @@ ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop 0 -i 8K1_10s.ts -c:
 
 input text udp://239.239.3.3:5140
 
+input text rtsp://192.168.2.222/8K-HEVC350M_custom.ts
 input text rtsp://192.168.2.222/8K-HEVC190M.ts
 input text rtsp://192.168.2.222/8K-HEVC125M.ts
+input text rtsp://192.168.2.222/8K-HEVC125M-30s.ts
 input text rtsp://192.168.2.222/8K-HEVC41M.ts
 input text rtsp://192.168.2.222/8KWorld120M.ts
 input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
@@ -263,5 +265,14 @@ done
 
 # once
 ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop 0 -i Worldcup_HEVC_AAC_120M_gop25-output.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140
+
+# encode
+./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 180M -x265-params pass=1:vbv-maxrate=180000:vbv-bufsize=24000 -c:a copy -f mpegts -y /dev/null
+./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 120M -x265-params pass=2:vbv-maxrate=120000:vbv-bufsize=24000 -c:a copy -f mpegts -y 8K-HEVC120M.ts
+
+./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 80M -x265-params pass=1:vbv-maxrate=80000:vbv-bufsize=18000 -c:a copy -f mpegts -y /dev/null
+./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 80M -x265-params pass=2:vbv-maxrate=80000:vbv-bufsize=18000 -c:a copy -f mpegts -y 8K-HEVC80M_custom.ts
+
+./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 80M -s 3840x2160 -c:a copy -f mpegts -y 8K-HEVC80M_custom_4K.ts
 
 ```
