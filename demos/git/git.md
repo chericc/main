@@ -1,14 +1,67 @@
 # git
 
-## 版本回退
+## 分支
 
 ```bash
-1、git reset --mixed 版本号:此为默认方式，不带任何参数的at reset，即时这种方式，它回退到某个版本，只保留源码，回跟commitoindex信息
-本地工作目录内容以及暂存区内容保留
-2、git reset --soft 版本号: 回退到某个版本，只回退了commt 的信息，不会恢复到index fle-级，如果还要提交，直接COmm调期可本地工作目录内容以及暂存区内容全部回退至某一个版本
-3、git reset --hard 版本号: 彻底回退到某人版本，本地的源码也会变为某个版本的内容
+
+# 列出分支
+git branch
+
+# 列出远程分支
+git branch -r
+
+# 切换分支
+git checkout `branchname`
+
+# 删除本地分支
+git -d `branchname`
+
+# 拉取远程分支
+git checkout -b `branchname` origin/`branchname`
+
 ```
 
+## 撤销提交
+
+```bash
+
+# 回退上一次提交
+git reset --mixed HEAD^
+
+# 回退两次提交
+git reset --mixed HEAD~2
+
+```
+
+## 查看远程地址
+
+```bash
+
+git remote -v
+
+```
+
+## 撤销临时修改
+
+```bash
+
+# 撤销工作区的修改
+git checkout filename
+git checkout .
+
+# 撤销暂存区的修改
+git rm --cached filename
+
+```
+
+## 提交
+
+```bash
+
+# 从指定文件读取commit内容
+git commit -F filename
+
+```
 
 ## git review 前
 
