@@ -131,3 +131,16 @@ tail -f -s 1 [file]
 ```bash
 mount tmpfs ./tmpfs -t tmpfs -o size=1G
 ```
+## date
+
+```bash
+# 2023-09-26 08:58:35
+date +"%F %T"
+```
+
+## script
+
+```bash
+# script会记录会话的内容
+script
+```
