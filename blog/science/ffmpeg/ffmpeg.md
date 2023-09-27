@@ -154,6 +154,7 @@ ffmpeg -i 1.mkv -i 2.mkv -map 0:0 -map 1:1 output.mkv
 
 ```bash
 -vf scale=640:-1
+-filter:v scale=640:-1
 ```
 
 ### 音频编码
@@ -246,10 +247,12 @@ input text rtsp://192.168.2.222/8K-HEVC350M_custom.ts
 input text rtsp://192.168.2.222/8K-HEVC190M.ts
 input text rtsp://192.168.2.222/8K-HEVC125M.ts
 input text rtsp://192.168.2.222/8K-HEVC125M-30s.ts
+input text rtsp://192.168.2.222/8K-HEVC80M_custom_4K.ts
 input text rtsp://192.168.2.222/8K-HEVC41M.ts
 input text rtsp://192.168.2.222/8KWorld120M.ts
 input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
 input text rtsp://192.168.2.222/2_2.ts
+input text rtsp://192.168.2.222/case1.ts
 input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
 
 ```
@@ -274,5 +277,7 @@ done
 ./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 80M -x265-params pass=2:vbv-maxrate=80000:vbv-bufsize=18000 -c:a copy -f mpegts -y 8K-HEVC80M_custom.ts
 
 ./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 80M -s 3840x2160 -c:a copy -f mpegts -y 8K-HEVC80M_custom_4K.ts
+
+./ffmpeg -i 8KWorld120M.ts -c:v libx265 -b:v 80M -x265-params pass=1:vbv-maxrate=80000:vbv-bufsize=18000 -c:a copy -f mpegts -y /dev/null
 
 ```

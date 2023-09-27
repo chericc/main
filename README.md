@@ -12,6 +12,7 @@ cmake ../googletest-release-1.12.1/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD
 # FFMpeg
 ## install pkg-config...
 ../ffmpeg/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm
+../ffmpeg-4.4.4/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm
 
 # SDL2
 cmake ../SDL2-2.26.5/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DSDL_STATIC=OFF -DCMAKE_BUILD_TYPE=Release
