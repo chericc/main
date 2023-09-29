@@ -830,7 +830,7 @@ Disassembly of section .text:
    8:   e8 00 00 00 00          call   d <mulstore+0xd>
    d:   48 89 03                mov    %rax,(%rbx)
   10:   5b                      pop    %rbx
-  11:   c3
+  11:   c3                      ret
 ```
 
 也可以用GDB来分析这个目标文件：
@@ -853,3 +853,47 @@ gdb mstore.o
 
 生成实际可执行的代码需要对一组目标文件运行链接器，而这一组目标代码文件中必须含有一个`main`函数。假设在文件`main.c`中有下面代码：
 
+```c
+// file: main.c
+#include <stdio.h>
+void mulstore(long, long, long *);
+int main()
+{
+    long d;
+    mulstore(2, 3, &d);
+    printf("2 * 3 = %ld\n", d);
+    return 0;
+}
+int mult2(long a, long b)
+{
+    long s = a * b;
+    return s;
+}
+```
+
+用以下命令生成可执行文件`prog`：
+
+```bash
+gcc -Og -o prog main.c mstore.c
+```
+
+反汇编`prog`，如下：
+
+```bash
+objdump -d prog
+```
+
+其中也包含`mulstore`段，如下：
+
+```assembly
+00000000000011d6 <mulstore>:
+    11d6:       f3 0f 1e fa             endbr64
+    11da:       53                      push   %rbx
+    11db:       48 89 d3                mov    %rdx,%rbx
+    11de:       e8 e9 ff ff ff          call   11cc <mult2>
+    11e3:       48 89 03                mov    %rax,(%rbx)
+    11e6:       5b                      pop    %rbx
+    11e7:       c3                      ret
+```
+
+这段代码和`mstore.c`产生的代码几乎完全一样。其中一个主要的区别是左边列出的地址不同：链接器将这段代码的地址移到了一段不同的地址范围中。
