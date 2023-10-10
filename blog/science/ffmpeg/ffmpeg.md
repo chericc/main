@@ -229,6 +229,12 @@ ffmpeg -i input.file output.yuv
 ffmpeg -i test.mp4 -vf select='eq(pict_type\,I)' -vsync 2 -f image2 kf-%02d.bmp
 ```
 
+#### m3u8
+
+```bash
+ffmpeg -i ..\Left_Right_MIX.mp4 -c copy -f hls 111.m3u8
+```
+
 ### 组播
 
 ```bash
@@ -254,6 +260,8 @@ input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
 input text rtsp://192.168.2.222/2_2.ts
 input text rtsp://192.168.2.222/case1.ts
 input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
+
+input text http://192.168.2.30/001364/main.m3u8
 
 ```
 
