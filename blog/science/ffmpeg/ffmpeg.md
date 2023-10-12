@@ -261,7 +261,6 @@ input text rtsp://192.168.2.222/2_2.ts
 input text rtsp://192.168.2.222/case1.ts
 input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
 input text rtsp://192.168.2.222/4K_food.ts
-input text rtsp://192.168.2.222/4K_Word.mp4
 
 input text http://192.168.2.30/001364/main.m3u8
 
