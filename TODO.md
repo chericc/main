@@ -9,6 +9,7 @@
 - demos/memorypool
 - demos/kernelprograming
 - demos/networkprograming
+- demos/linux/pipe
 - gRPC
   
   写一个分层结构时，底层的模块一般只能由上层的模块调用。这引入了耦合。
