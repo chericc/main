@@ -261,6 +261,7 @@ input text rtsp://192.168.2.222/2_2.ts
 input text rtsp://192.168.2.222/case1.ts
 input text rtsp://192.168.2.222/Worldcup_HEVC_AAC_120M_gop25-output.ts
 input text rtsp://192.168.2.222/4K_food.ts
+input text rtsp://192.168.2.222/jlxiao/dump_20231030/8K/multicast/dump_4k_sanbeiji_50m50p8bit.ts
 
 input text http://192.168.2.30/001364/main.m3u8
 
@@ -277,6 +278,16 @@ done
 
 # once
 ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop 0 -i Worldcup_HEVC_AAC_120M_gop25-output.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140
+
+# loop
+{
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_igmp_ch25.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_igmp_ch26.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.4:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_sanbeiji_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.5:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_yangjiang_5_fenzhong_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.6:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_4k_16m_60fps_3min_logo4.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.7:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_samsung_4k_20m_cbr_60fps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.8:5140&
+}
 
 # encode
 ./ffmpeg -i 8K-World-\[H265-60p-CFR-150mbps\].mp4 -c:v libx265 -b:v 180M -x265-params pass=1:vbv-maxrate=180000:vbv-bufsize=24000 -c:a copy -f mpegts -y /dev/null
