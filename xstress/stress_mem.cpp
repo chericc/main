@@ -1,3 +1,6 @@
+
+// 分配多个指定大小的内存，并每个一定间隔去访问这些内存
+
 #include <stdio.h>
 #include <stdlib.h>
 
