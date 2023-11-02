@@ -44,6 +44,8 @@ public:
     virtual void write(const std::vector<uint8_t> &buffer) = 0;
 
 protected:
+    XIO(XIO&) = delete;
+    XIO& operator=(XIO&) = delete;
     class IOContext
     {
     public:
