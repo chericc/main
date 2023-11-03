@@ -4,8 +4,10 @@
 
 #include "xio.hpp"
 #include "xlog.hpp"
+#include "xutility.hpp"
 
-#define BT_SHB			0x0A0D0D0A
+#define BT_SHB			    0x0A0D0D0A
+#define BYTE_ORDER_MAGIC    0x1A2B3C4D
 
 struct PcapngParser::PcapngInfo
 {
@@ -33,6 +35,9 @@ PcapngParser::doParseHeader()
 {
     std::shared_ptr<PcapngInfo> info;
     uint32_t magic_number = 0x0;
+    uint32_t total_length = 0;
+    uint32_t byte_order_magic = 0x0;
+    bool swapped = false;
 
     do 
     {
@@ -57,7 +62,19 @@ PcapngParser::doParseHeader()
             break;
         }
 
-        
+        total_length = info->xio->rl32();
+
+        byte_order_magic = info->xio->rl32();
+        if (byte_order_magic != BYTE_ORDER_MAGIC)
+        {
+            byte_order_magic = xswap32(byte_order_magic);
+            if (byte_order_magic != BYTE_ORDER_MAGIC)
+            {
+                xlog_err("byte order check failed(%hx != %hx)", byte_order_magic, BYTE_ORDER_MAGIC);
+                break;
+            }
+            total_length = xswap32(total_length);
+        }
     }
     while (0);
 }

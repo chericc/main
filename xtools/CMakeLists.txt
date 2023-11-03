@@ -16,6 +16,7 @@ aux_source_directory(xio src_xio)
 aux_source_directory(xthread src_xthread)
 aux_source_directory(xtimer src_xtimer)
 aux_source_directory(xtest src_xtest)
+aux_source_directory(xutility src_xutility)
 
 aux_source_directory(xconfig/test src_xconfig_test)
 aux_source_directory(xlog/demo src_xlog_demo)
@@ -46,7 +47,8 @@ add_library(${G_XTOOLS} SHARED
         ${src_xio} 
         ${src_xthread} 
         ${src_xtimer}
-        ${src_xtest})
+        ${src_xtest}
+        ${src_xutility})
 
 # tests
 

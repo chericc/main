@@ -27,6 +27,8 @@ public:
 
     virtual void flush() = 0;
 
+    // 'l' stands for little endian
+
     // read
     virtual uint8_t r8() = 0;
     uint16_t rl16();
