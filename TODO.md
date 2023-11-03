@@ -58,3 +58,6 @@
 - C++正则匹配是栈上展开
 - https://github.com/gteall/pcap-parser
 - rtp推流服务器（可以参考ffmpeg）
+- cma内存与linux页迁移：
+  为什么scudo分配器，在分配小内存时，无法使用剩余很多的cma内存，而分配大内存时，可以使用剩余的cma内存？
+  页迁移：https://blog.csdn.net/21cnbao/article/details/108067917
