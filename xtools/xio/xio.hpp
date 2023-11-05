@@ -27,7 +27,8 @@ public:
 
     virtual void flush() = 0;
 
-    // 'l' stands for little endian
+    // 'l' stands for little endian(in the io device)
+    // 'b' stands for big endian
 
     // read
     virtual uint8_t r8() = 0;
@@ -35,6 +36,10 @@ public:
     uint32_t rl24();
     uint32_t rl32();
     uint64_t rl64();
+    uint16_t rb16();
+    uint32_t rb24();
+    uint32_t rb32();
+    uint64_t rb64();
     virtual std::vector<uint8_t> read(std::size_t size) = 0;
 
     // write
@@ -43,6 +48,10 @@ public:
     void wl24(uint32_t value);
     void wl32(uint32_t value);
     void wl64(uint64_t value);
+    void wb16(uint16_t value);
+    void wb24(uint32_t value);
+    void wb32(uint32_t value);
+    void wb64(uint64_t value);
     virtual void write(const std::vector<uint8_t> &buffer) = 0;
 
 protected:

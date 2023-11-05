@@ -8,6 +8,7 @@ set(XTOOL_TEST_XTHREAD test_xtools_xthread)
 set(XTOOL_DEMO_XTIMER demo_xtools_xtimer)
 set(XTOOL_DEMO_XTEST_CLOCK demo_xtools_xtest_clock)
 set(XTOOL_TEST_XTEST_CLOCK test_xtools_xtest_clock)
+set(XTOOL_TEST_XUTILITY test_xtools_xutility)
 
 aux_source_directory(xconfig src_xconfig)
 aux_source_directory(xlog src_xlog)
@@ -27,6 +28,7 @@ aux_source_directory(xthread/test src_xthread_test)
 aux_source_directory(xtimer/demo src_xtimer_demo)
 aux_source_directory(xtest/demo_xtest_clock src_xtest_clock_demo)
 aux_source_directory(xtest/test_xtest_clock src_xtest_clock_test)
+aux_source_directory(xutility/test src_xutility_test)
 
 include_directories(
         xconfig
@@ -123,3 +125,11 @@ add_executable(${XTOOL_TEST_XTEST_CLOCK}
 target_link_libraries(${XTOOL_TEST_XTEST_CLOCK} ${COMMON_LIB})
 add_test(NAME ${XTOOL_TEST_XTEST_CLOCK}
         COMMAND ${XTOOL_TEST_XTEST_CLOCK})
+
+# test_xutility
+add_executable(${XTOOL_TEST_XUTILITY} 
+${src_xutility_test}
+${G_GOOGLETEST_MAIN_SRCFILE})
+target_link_libraries(${XTOOL_TEST_XUTILITY} ${COMMON_LIB})
+add_test(NAME ${XTOOL_TEST_XUTILITY}
+COMMAND ${XTOOL_TEST_XUTILITY})

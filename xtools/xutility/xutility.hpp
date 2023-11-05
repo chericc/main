@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 class XNonCopyableObject
 {
 public:
@@ -14,4 +16,6 @@ public:
     XNonCopyableObject& operator=(XNonCopyableObject const&) = delete;
 };
 
-static uint32_t xswap32(uint32_t value);
+uint16_t xswap16(uint16_t value);
+uint32_t xswap32(uint32_t value);
+uint64_t xswap64(uint64_t value);

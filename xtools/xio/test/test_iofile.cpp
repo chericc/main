@@ -2,6 +2,7 @@
 #include <limits>
 
 #include "xio.hpp"
+#include "xutility.hpp"
 
 static size_t fileSize(FILE *fp)
 {
@@ -128,29 +129,42 @@ TEST_F(BaseFileIOTest, read_ele)
         r8 = iofile.r8();
         EXPECT_EQ(r8, data[offset]);
         offset += 1;
+        ASSERT_EQ((int64_t)offset, iofile.tell());
 
-        
         ASSERT_LT(offset + 2, data.size());
-        uint16_t r16 = iofile.rl16();
-        EXPECT_EQ(r16, *(uint16_t*)&data[offset]);
+        uint16_t rl16 = iofile.rl16();
+        iofile.seek(offset, SEEK_SET);
+        uint16_t rb16 = iofile.rb16();
+        EXPECT_EQ(rl16, *(uint16_t*)&data[offset]);
+        EXPECT_EQ(rb16, xswap16(rl16));
         offset += 2;
+        ASSERT_EQ((int64_t)offset, iofile.tell());
 
-
-        ASSERT_LT(offset + 4, data.size());
-        uint32_t r32 = iofile.rl24();
-        EXPECT_EQ(r32, (*(uint32_t*)&data[offset]) & 0x00ffffff);
+        ASSERT_LT(offset + 3, data.size());
+        uint32_t rl32 = iofile.rl24();
+        iofile.seek(offset, SEEK_SET);
+        uint32_t rb32 = iofile.rb24();
+        EXPECT_EQ(rl32, (*(uint32_t*)&data[offset]) & 0x00ffffff);
+        EXPECT_EQ(rb32, xswap32(rl32) >> 8);
         offset += 3;
+        ASSERT_EQ((int64_t)offset, iofile.tell());
 
         ASSERT_LT(offset + 4, data.size());
-        r32 = iofile.rl32();
-        EXPECT_EQ(r32, (*(uint32_t*)&data[offset]));
+        rl32 = iofile.rl32();
+        iofile.seek(offset, SEEK_SET);
+        rb32 = iofile.rb32();
+        EXPECT_EQ(rl32, (*(uint32_t*)&data[offset]));
+        EXPECT_EQ(rb32, xswap32(rl32));
         offset += 4;
+        ASSERT_EQ((int64_t)offset, iofile.tell());
 
         ASSERT_LT(offset + 8, data.size());
-        uint64_t r64 = iofile.rl64();
-        EXPECT_EQ(r64, (*(uint64_t*)&data[offset]));
+        uint64_t rl64 = iofile.rl64();
+        iofile.seek(offset, SEEK_SET);
+        uint64_t rb64 = iofile.rb64();
+        EXPECT_EQ(rl64, (*(uint64_t*)&data[offset]));
+        EXPECT_EQ(rb64, xswap64(rl64));
         offset += 8;
-        
         ASSERT_EQ((int64_t)offset, iofile.tell());
     }
     while (0);
@@ -185,7 +199,7 @@ TEST_F(BaseFileIOTest, write_ele)
     
     for (std::size_t count = 0; count < count_limit; ++count)
     {
-        if (count % 3 == 0)
+        if (count % 6 == 0)
         {
             iofile->wl64(v64);
             iofile->wl32(v32);
@@ -193,7 +207,7 @@ TEST_F(BaseFileIOTest, write_ele)
             iofile->wl16(v16);
             iofile->w8(v8);
         }
-        else if (count % 3 == 1)
+        else if (count % 6 == 1)
         {
             iofile->w8(v8);
             iofile->wl16(v16);
@@ -201,13 +215,37 @@ TEST_F(BaseFileIOTest, write_ele)
             iofile->wl32(v32);
             iofile->wl64(v64);
         }
-        else 
+        else if (count % 6 == 2)
         {
             iofile->wl32(v32);
             iofile->w8(v8);
             iofile->wl64(v64);
             iofile->wl16(v16);
             iofile->wl24(v24);
+        }
+        else if (count % 6 == 3)
+        {
+            iofile->wb64(v64);
+            iofile->wb32(v32);
+            iofile->wb24(v24);
+            iofile->wb16(v16);
+            iofile->w8(v8);
+        }
+        else if (count % 6 == 4)
+        {
+            iofile->w8(v8);
+            iofile->wb16(v16);
+            iofile->wb24(v24);
+            iofile->wb32(v32);
+            iofile->wb64(v64);
+        }
+        else
+        {
+            iofile->wb32(v32);
+            iofile->w8(v8);
+            iofile->wb64(v64);
+            iofile->wb16(v16);
+            iofile->wb24(v24);
         }
     }
 
@@ -217,7 +255,7 @@ TEST_F(BaseFileIOTest, write_ele)
 
     for (std::size_t count = 0; count < count_limit; ++count)
     {
-        if (count % 3 == 0)
+        if (count % 6 == 0)
         {
             EXPECT_EQ(v64, iofile->rl64());
             EXPECT_EQ(v32, iofile->rl32());
@@ -225,7 +263,7 @@ TEST_F(BaseFileIOTest, write_ele)
             EXPECT_EQ(v16, iofile->rl16());
             EXPECT_EQ(v8, iofile->r8());
         }
-        else if (count % 3 == 1)
+        else if (count % 6 == 1)
         {
             EXPECT_EQ(v8, iofile->r8());
             EXPECT_EQ(v16, iofile->rl16());
@@ -233,13 +271,37 @@ TEST_F(BaseFileIOTest, write_ele)
             EXPECT_EQ(v32, iofile->rl32());
             EXPECT_EQ(v64, iofile->rl64());
         }
-        else 
+        else if (count % 6 == 2)
         {
             EXPECT_EQ(v32, iofile->rl32());
             EXPECT_EQ(v8, iofile->r8());
             EXPECT_EQ(v64, iofile->rl64());
             EXPECT_EQ(v16, iofile->rl16());
             EXPECT_EQ(v24, iofile->rl24());
+        }
+        else if (count % 6 == 3)
+        {
+            EXPECT_EQ(v64, iofile->rb64());
+            EXPECT_EQ(v32, iofile->rb32());
+            EXPECT_EQ(v24, iofile->rb24());
+            EXPECT_EQ(v16, iofile->rb16());
+            EXPECT_EQ(v8, iofile->r8());
+        }
+        else if (count % 6 == 4)
+        {
+            EXPECT_EQ(v8, iofile->r8());
+            EXPECT_EQ(v16, iofile->rb16());
+            EXPECT_EQ(v24, iofile->rb24());
+            EXPECT_EQ(v32, iofile->rb32());
+            EXPECT_EQ(v64, iofile->rb64());
+        }
+        else
+        {
+            EXPECT_EQ(v32, iofile->rb32());
+            EXPECT_EQ(v8, iofile->r8());
+            EXPECT_EQ(v64, iofile->rb64());
+            EXPECT_EQ(v16, iofile->rb16());
+            EXPECT_EQ(v24, iofile->rb24());
         }
     }
 

@@ -149,12 +149,12 @@ void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, con
 {
     va_list ap;
 
-    std::unique_lock<std::mutex> lock(s_call_mutex);
-
     if (! (level & s_log_mask))
     {
         return ;
     }
+
+    std::unique_lock<std::mutex> lock(s_call_mutex);
 
     for (auto &it : s_fps)
     {
