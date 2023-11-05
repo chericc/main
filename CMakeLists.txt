@@ -120,6 +120,10 @@ set(G_MD5DIR xmd5dir)
 # net
 set(G_NET net)
 
+# pcap2ts
+set(G_PCAP2TS pcap2ts)
+set(G_PCAP2TS_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/pcap2ts)
+
 # add googletest include path
 
 link_directories(${G_GOOGLETEST_LIB_PATH})
@@ -159,6 +163,8 @@ add_subdirectory(image)
 add_subdirectory(audio/wav/demuxer)
 # add_subdirectory(audio/aac/fdkaac_wrapper)
 # add_subdirectory(xmedia/xplay)
+# add_subdirectory(xmedia/xdisplay)
+add_subdirectory(xmedia/pcap2ts)
 add_subdirectory(textenc)
 
 if(${gnu})
@@ -166,6 +172,5 @@ add_subdirectory(md5dir)
 add_subdirectory(net)
 endif()
 
-# add_subdirectory(xmedia/xdisplay)
 add_subdirectory(stl)
 add_subdirectory(demos/ffmpeg)
