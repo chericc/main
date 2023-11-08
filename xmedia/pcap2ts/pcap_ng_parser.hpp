@@ -25,12 +25,18 @@ private:
     struct InnerData;
     struct PcapngInfo;
 
+    struct Option;
+    struct Options;
+
     struct Block;
     struct SectionHeaderBlock;
     struct InterfaceDescriptionBlock;
     struct PacketBlock;
 
     std::shared_ptr<PcapngInfo> doParse();
+
+    /* Parse options from current location. */
+    std::shared_ptr<Options> doParserOptions(std::shared_ptr<PcapngInfo>);
 
     /* Parse from current location. */
     std::shared_ptr<Block> doProbeBlock(std::shared_ptr<PcapngInfo>);

@@ -17,6 +17,9 @@ public:
     uint32_t r24();
     uint32_t r32();
     uint64_t r64();
+
+    uint64_t tell();
+    int seek(uint64_t offset, int whence);
 private:
     bool _lendian = true;
     std::shared_ptr<XIO> _xio;

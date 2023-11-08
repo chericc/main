@@ -7,7 +7,7 @@ FileIO::FileIO(const std::string &url, const std::string &mode)
 
 FileIO::~FileIO()
 {
-
+    _xio.reset();
 }
 
 bool FileIO::ok()
@@ -101,4 +101,14 @@ uint64_t FileIO::r64()
         }
     }
     return value;
+}
+
+uint64_t FileIO::tell()
+{
+    return _xio->tell();
+}
+
+int FileIO::seek(uint64_t offset, int whence)
+{
+    return _xio->seek(offset, whence);
 }

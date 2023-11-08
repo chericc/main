@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <limits>
 #include <inttypes.h>
+#include <list>
 
 #include "fileio.hpp"
 #include "xlog.hpp"
@@ -26,6 +27,20 @@
 #define BT_SHB			    0x0A0D0D0A
 #define BT_SHB_INSANE_MAX       1024U*1024U*1U  /* 1MB should be enough */
 
+struct PcapngParser::Option
+{
+    uint16_t type;
+    uint16_t option_len;
+
+    /* May be store offset only is also OK. */
+    std::vector<uint8_t> data;
+};
+
+struct PcapngParser::Options
+{
+    std::list<Option> options;
+};
+
 struct PcapngParser::Block
 {
     uint32_t block_type;
@@ -41,6 +56,7 @@ struct PcapngParser::SectionHeaderBlock
     uint16_t minor_version;
     uint64_t section_length;
     /* options.. */
+    std::list<Option> options;
     uint32_t block_length_trailing;
 };
 
@@ -53,6 +69,7 @@ struct PcapngParser::InterfaceDescriptionBlock
     uint16_t reserved;
     uint32_t snap_length;
     /* options.. */
+    std::list<Option> options;
     uint32_t block_total_length_trailing;
 };
 
@@ -68,6 +85,7 @@ struct PcapngParser::PacketBlock
     uint32_t original_packet_length;
     /* packet data.. */
     /* options.. */
+    std::list<Option> options;
     uint32_t block_total_length_trailing;
 };
 
@@ -129,6 +147,9 @@ PcapngParser::doParse()
 
         for (;;)
         {
+            auto offset_now = info->fio->tell();
+            xlog_trc("offset_now=%" PRIu64, offset_now);
+
             auto block = doProbeBlock(info);
             if (!block)
             {
@@ -143,8 +164,13 @@ PcapngParser::doParse()
                 if (!shb)
                 {
                     xlog_err("Parse SHB failed");
-                    continue;
+                    break;
                 }
+            }
+            else 
+            {
+                xlog_err("Unknown block type(%#" PRIx32 ")", block->block_type);
+                break;
             }
         }
     }
@@ -158,10 +184,38 @@ PcapngParser::doParse()
     return info;
 }
 
+std::shared_ptr<PcapngParser::Options> 
+PcapngParser::doParserOptions(std::shared_ptr<PcapngParser::PcapngInfo> info)
+{
+    bool error = false;
+    std::shared_ptr<PcapngParser::Options> options;
+
+    do 
+    {
+        options = std::make_shared<Options>();
+        if (!options)
+        {
+            xlog_err("Alloc failed");
+            break;
+        }
+
+        
+    }
+    while (0);
+
+    if (error)
+    {
+        return nullptr;
+    }
+
+    return options;
+}
+
 std::shared_ptr<PcapngParser::Block> PcapngParser::doProbeBlock(std::shared_ptr<PcapngInfo> info)
 {
-    bool error= false;
+    bool error = false;
     std::shared_ptr<PcapngParser::Block> block;
+    uint64_t offset = 0;
 
     do
     {
@@ -173,7 +227,12 @@ std::shared_ptr<PcapngParser::Block> PcapngParser::doProbeBlock(std::shared_ptr<
             break;
         }
 
+        offset = info->fio->tell();
+
         block->block_type = info->fio->r32();
+
+        /* Restore offset. */
+        info->fio->seek(offset, SEEK_SET);
     }
     while(0);
 
@@ -199,6 +258,13 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(std::
             break;
         }
 
+        /* SHB size without options */
+        uint32_t other_option_len = 
+            (sizeof(shb->block_type) + sizeof(shb->block_length)
+                + sizeof(shb->byte_order_magic) + sizeof(shb->major_version)
+                + sizeof(shb->minor_version) + sizeof(shb->section_length)
+                + sizeof(shb->block_length_trailing));
+
         shb->block_type = info->fio->r32();
         shb->block_length = info->fio->r32();
         shb->byte_order_magic = info->fio->r32();
@@ -219,10 +285,10 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(std::
         }
         else 
         {
-            /* default case, do nothing */
+            /* Default case, do nothing */
         }
 
-        if (shb->block_length < sizeof(SectionHeaderBlock)
+        if (shb->block_length < other_option_len
             || shb->block_length > BT_SHB_INSANE_MAX)
         {
             xlog_err("SHB.block_length invalid: %" PRIu32, shb->block_length);
@@ -243,6 +309,12 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(std::
             break;
         }
 
+        /* Not important. */
+        shb->section_length = info->fio->r64();
+        
+        /* block_length >= other_option_len has been promised */
+        uint32_t option_len = shb->block_length - other_option_len;
+        shb->options.resize(option_len);
 
     }
     while (0);
