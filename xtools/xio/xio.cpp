@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "xlog.hpp"
+#include "xos_independent.hpp"
 
 XIO::XIO(const std::string &url, const std::string &mode)
 {
@@ -227,7 +228,7 @@ int XIOFile::seek(int64_t offset, int whence)
             break;
         }
 
-        if (fseek(iofctx_.fp, offset, whence) < 0)
+        if (x_fseek64(iofctx_.fp, offset, whence) < 0)
         {
             berror = true;
             break;
@@ -251,7 +252,7 @@ int64_t XIOFile::size()
             break;
         }
 
-        long old_offset = ftell(iofctx_.fp);
+        long old_offset = x_ftell64(iofctx_.fp);
 
         if (old_offset < 0)
         {
@@ -259,20 +260,20 @@ int64_t XIOFile::size()
             break;
         }
 
-        if (fseek(iofctx_.fp, 0, SEEK_END) < 0)
+        if (x_fseek64(iofctx_.fp, 0, SEEK_END) < 0)
         {
             berror = true;
             break;
         }
 
-        long size = ftell(iofctx_.fp);
+        long size = x_ftell64(iofctx_.fp);
         if (size < 0)
         {
             berror = true;
             break;
         }
 
-        if (fseek(iofctx_.fp, old_offset, SEEK_SET) < 0)
+        if (x_fseek64(iofctx_.fp, old_offset, SEEK_SET) < 0)
         {
             berror = true;
             break;
@@ -298,7 +299,7 @@ int64_t XIOFile::tell()
             break;
         }
 
-        long tell_ret = ftell(iofctx_.fp);
+        long tell_ret = x_ftell64(iofctx_.fp);
         if (tell_ret < 0)
         {
             berror = true;

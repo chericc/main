@@ -11,6 +11,7 @@ set(XTOOL_TEST_XTEST_CLOCK test_xtools_xtest_clock)
 set(XTOOL_TEST_XUTILITY test_xtools_xutility)
 
 aux_source_directory(xconfig src_xconfig)
+aux_source_directory(xcrossplatform src_xcrossplatform)
 aux_source_directory(xlog src_xlog)
 aux_source_directory(xstring src_xstring)
 aux_source_directory(xio src_xio)
@@ -32,6 +33,7 @@ aux_source_directory(xutility/test src_xutility_test)
 
 include_directories(
         xconfig
+        xcrossplatform
         xlog
         xstring
         xio
@@ -45,6 +47,7 @@ include_directories(
 add_library(${G_XTOOLS} SHARED 
         ${src_xlog} 
         ${src_xconfig} 
+        ${src_xcrossplatform}
         ${src_xstring} 
         ${src_xio} 
         ${src_xthread} 
