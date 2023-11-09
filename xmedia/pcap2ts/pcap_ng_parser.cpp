@@ -185,10 +185,12 @@ PcapngParser::doParse()
 }
 
 std::shared_ptr<PcapngParser::Options> 
-PcapngParser::doParserOptions(std::shared_ptr<PcapngParser::PcapngInfo> info)
+PcapngParser::doParserOptions(std::shared_ptr<PcapngParser::PcapngInfo> info, std::size_t options_size)
 {
     bool error = false;
     std::shared_ptr<PcapngParser::Options> options;
+
+    int64_t pos_initial = info->fio->tell();
 
     do 
     {
@@ -199,7 +201,36 @@ PcapngParser::doParserOptions(std::shared_ptr<PcapngParser::PcapngInfo> info)
             break;
         }
 
-        
+        for (;;)
+        {
+            Option option;
+            std::size_t minium_option_size = sizeof(option.type) + sizeof(option.option_len);
+            int64_t pos_now = info->fio->tell();
+            if (pos_initial + options_size < pos_now + minium_option_size)
+            {
+                xlog_trc("Met max size, break");
+                break;
+            }
+
+            option.type = info->fio->r16();
+            option.option_len = info->fio->r16();
+            if (!option.option_len)
+            {
+                xlog_err("Invalid option len");
+                error = true;
+                break;
+            }
+
+            option.data = info->fio->read(option.option_len);
+            if (option.data.size() != option.option_len)
+            {
+                xlog_err("Read option data failed");
+                error = true;
+                break;
+            }
+
+            options->options.push_back(std::move(option));
+        }
     }
     while (0);
 

@@ -17,9 +17,11 @@ public:
     uint32_t r24();
     uint32_t r32();
     uint64_t r64();
+    std::vector<uint8_t> read(std::size_t size);
 
-    uint64_t tell();
-    int seek(uint64_t offset, int whence);
+    int64_t tell();
+    int seek(int64_t offset, int whence);
+    int eof();
 private:
     bool _lendian = true;
     std::shared_ptr<XIO> _xio;

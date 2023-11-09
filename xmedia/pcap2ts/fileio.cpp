@@ -103,12 +103,26 @@ uint64_t FileIO::r64()
     return value;
 }
 
-uint64_t FileIO::tell()
+std::vector<uint8_t> FileIO::read(std::size_t size)
+{
+    if (_xio)
+    {
+        return _xio->read(size);
+    }
+    return std::vector<uint8_t>();
+}
+
+int64_t FileIO::tell()
 {
     return _xio->tell();
 }
 
-int FileIO::seek(uint64_t offset, int whence)
+int FileIO::seek(int64_t offset, int whence)
 {
     return _xio->seek(offset, whence);
+}
+
+int FileIO::eof()
+{
+    return _xio->eof();
 }

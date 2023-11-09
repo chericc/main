@@ -36,7 +36,7 @@ private:
     std::shared_ptr<PcapngInfo> doParse();
 
     /* Parse options from current location. */
-    std::shared_ptr<Options> doParserOptions(std::shared_ptr<PcapngInfo>);
+    std::shared_ptr<Options> doParserOptions(std::shared_ptr<PcapngInfo> info, std::size_t size);
 
     /* Parse from current location. */
     std::shared_ptr<Block> doProbeBlock(std::shared_ptr<PcapngInfo>);
