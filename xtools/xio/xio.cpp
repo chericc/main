@@ -133,6 +133,7 @@ XIOFile::IOFileContenxt::~IOFileContenxt()
     {
         fclose(fp);
         fp = nullptr;
+        xlog_trc("File closed");
     }
 }
 

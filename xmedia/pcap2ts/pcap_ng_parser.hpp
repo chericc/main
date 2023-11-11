@@ -31,7 +31,8 @@ private:
     struct Block;
     struct SectionHeaderBlock;
     struct InterfaceDescriptionBlock;
-    struct PacketBlock;
+    struct EnhancedPacketBlock;
+    struct SimplePacketBlock;
 
     std::shared_ptr<PcapngInfo> doParse();
 
@@ -42,6 +43,10 @@ private:
     std::shared_ptr<Block> doProbeBlock(std::shared_ptr<PcapngInfo>);
     std::shared_ptr<SectionHeaderBlock> doParseSHB(std::shared_ptr<PcapngInfo>);
     std::shared_ptr<InterfaceDescriptionBlock> doParseIDB(std::shared_ptr<PcapngInfo>);
+    std::shared_ptr<EnhancedPacketBlock> doParseEPB(std::shared_ptr<PcapngInfo>);
+    std::shared_ptr<SimplePacketBlock> doParseSPB(std::shared_ptr<PcapngInfo>);
+
+    uint32_t round_up_4(uint32_t v32);
 
     std::shared_ptr<InnerData> _d;
 };
