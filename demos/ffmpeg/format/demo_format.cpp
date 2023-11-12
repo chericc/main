@@ -14,7 +14,7 @@ static int open(const char *file)
 {
     bool berror = false;
     AVFormatContext *fc = nullptr;
-    bool open_suc_flag = false;
+    // bool open_suc_flag = false;
     int st_index[AVMEDIA_TYPE_NB]{};
 
     do 
@@ -33,14 +33,14 @@ static int open(const char *file)
             berror = true;
             break;
         }
-        open_suc_flag = true;
+        // open_suc_flag = true;
 
         for (auto &ref : st_index)
         {
             ref = -1;
         }
 
-        for (int i = 0; i < fc->nb_streams; ++i)
+        for (unsigned int i = 0; i < fc->nb_streams; ++i)
         {
             AVMediaType type = fc->streams[i]->codecpar->codec_type;
             if (type >= 0)

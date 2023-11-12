@@ -2,8 +2,6 @@
 
 #include "xlog.hpp"
 
-#define UNUSED_PARAMETER(x) do{(void)x;}while(0)
-
 int main(int argc, char** argv)
 {
 	std::vector<FILE*> fps = { stdout };

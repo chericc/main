@@ -8,6 +8,8 @@
 
 #include <cstdint>
 
+#define X_UNUSED_PARAMETER(x) do{(void)x;}while(0)
+
 class XNonCopyableObject
 {
 public:

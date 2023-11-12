@@ -325,7 +325,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     error = true;
                                     break;
                                 }
-                                static_assert(sizeof(content.interface.if_speed) == 8);
+                                static_assert(sizeof(content.interface.if_speed) == 8, "size error");
                                 content.interface.if_speed = to_uint64(info, it->data.data());
                                 break;
                             }
@@ -337,7 +337,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     error = true;
                                     break;
                                 }
-                                static_assert(sizeof(content.interface.if_tsresol) == 1);
+                                static_assert(sizeof(content.interface.if_tsresol) == 1, "size error");
                                 content.interface.if_tsresol = to_uint8(info, it->data.data());
                                 break;
                             }
@@ -349,7 +349,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     error = true;
                                     break;
                                 }
-                                static_assert(sizeof(content.interface.if_tzone) == 4);
+                                static_assert(sizeof(content.interface.if_tzone) == 4, "size error");
                                 content.interface.if_tzone = to_uint32(info, it->data.data());
                                 break;
                             }
@@ -366,7 +366,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     error = true;
                                     break;
                                 }
-                                static_assert(sizeof(content.interface.if_tsoffset) == 8);
+                                static_assert(sizeof(content.interface.if_tsoffset) == 8, "size error");
                                 content.interface.if_tsoffset = to_uint64(info, it->data.data());
                                 break;
                             }
@@ -383,7 +383,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     error = true;
                                     break;
                                 }
-                                static_assert(sizeof(content.interface.if_txspeed) == 8);
+                                static_assert(sizeof(content.interface.if_txspeed) == 8, "size error");
                                 content.interface.if_txspeed = to_uint64(info, it->data.data());
                                 break;
                             }
@@ -395,7 +395,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     error = true;
                                     break;
                                 }
-                                static_assert(sizeof(content.interface.if_rxspeed) == 8);
+                                static_assert(sizeof(content.interface.if_rxspeed) == 8, "size error");
                                 content.interface.if_rxspeed = to_uint64(info, it->data.data());
                                 break;
                             }
@@ -1107,6 +1107,7 @@ std::shared_ptr<PcapngParser::SimplePacketBlock> PcapngParser::doParseSPB(std::s
 
 uint8_t PcapngParser::to_uint8(std::shared_ptr<PcapngInfo> info, void *data)
 {
+    X_UNUSED_PARAMETER(info);
     return *(uint8_t*)(data);
 }
 
@@ -1136,7 +1137,7 @@ uint32_t PcapngParser::to_uint32(std::shared_ptr<PcapngInfo> info, void *data)
         value = (uint32_t)(pdata[0])
             + ((uint32_t)(pdata[1]) << 8)
             + ((uint32_t)(pdata[2]) << 16)
-            + ((uint32_t)(pdata[3]) << 32);
+            + ((uint32_t)(pdata[3]) << 24);
     }
     else 
     {

@@ -169,7 +169,7 @@ add_subdirectory(textenc)
 
 if(${gnu})
 add_subdirectory(md5dir)
-add_subdirectory(net)
+# add_subdirectory(net)
 endif()
 
 add_subdirectory(stl)

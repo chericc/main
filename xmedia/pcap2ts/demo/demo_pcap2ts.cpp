@@ -1,9 +1,13 @@
 #include "pcap_ng_parser.hpp"
 
 #include "xlog.hpp"
+#include "xutility.hpp"
 
 int main(int argc, char *argv[])
 {
+    X_UNUSED_PARAMETER(argc);
+    X_UNUSED_PARAMETER(argv);
+
     xlog_setmask(XLOG_MASK_ERR);
     xlog_dbg("hello world");
 
