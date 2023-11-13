@@ -287,6 +287,7 @@ done
   ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_yangjiang_5_fenzhong_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.6:5140&
   ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_4k_16m_60fps_3min_logo4.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.7:5140&
   ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_samsung_4k_20m_cbr_60fps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.8:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i /opt/fonsview/data/media/movie/4K/HD.Club-4K-Chimei-inn-60mbps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.9:5140&
 }
 
 # encode
