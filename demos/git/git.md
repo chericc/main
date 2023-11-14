@@ -19,6 +19,9 @@ git -d `branchname`
 # 拉取远程分支
 git checkout -b `branchname` origin/`branchname`
 
+# 查看分支信息
+git reflog --date=local --all
+
 ```
 
 ## 撤销提交
@@ -63,58 +66,14 @@ git commit -F filename
 
 ```
 
-## git review 前
-
-（1）
+## 比较
 
 ```bash
-git pull servers_0 master
-```
 
-（2）如果有冲突并本地还未commit
+# 比较某个提交的修改 ^表示其父提交
+git diff <commit-id> <commit-id>^
 
-```bash
-git stash save "save message"
-git pull servers_0 master
-git stash list 查看stash备份目录
-git stash apply stash@{0} 将备份目录中的stash@{0}的代码释放，与远程最新代码合并，再手动修改冲突
-```
+# 比较某个提交与其之前某个提交的修改 ~表示提前几个commit
+git diff <commit-id> <commit-id>~2
 
-（3）如果有冲突并本地已commit
-
-```bash
-git merge --abort
-git rebase origin/master
-```
-
-手动修改冲突
-
-```bash
-git add 修改的文件名
-git rebase --continue
-```
-
-
-
-## git review 后
-
-（1）已通过评审但有冲突导致无法submit
-
-```bash
-git fetch origin
-git rebase origin/master
-```
-
-手动修改冲突
-
-```bash
-git add 修改的文件名
-git rebase --continue
-git review
-```
-
-（2）评审有问题需要修改的情况
-
-```
-git commit --amend --no-edit
 ```
