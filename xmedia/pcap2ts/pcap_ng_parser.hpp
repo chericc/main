@@ -28,18 +28,18 @@ struct PcapngContentInterface
 {
     std::string if_name;
     std::string if_description;
-    std::array<uint8_t, 8> if_IPv4addr; // addr(4) + netmask(4)
-    std::list<std::array<uint8_t, 17>> if_IPV6addr;  // addr(16) + prefixlen(1)
+    std::list<std::array<uint8_t, 8>> if_IPv4addrs; // addr(4) + netmask(4)
+    std::list<std::array<uint8_t, 17>> if_IPV6addrs;  // addr(16) + prefixlen(1)
     std::array<uint8_t, 6> if_MACaddr;
     std::array<uint8_t, 8> if_EUIaddr;
-    uint64_t if_speed;  // bps
-    uint8_t if_tsresol; // 
-    uint32_t if_tzone;
+    uint64_t if_speed{0};  // bps
+    uint8_t if_tsresol{0}; // 
+    uint32_t if_tzone{0};
     std::string if_os;
-    uint64_t if_tsoffset;
+    uint64_t if_tsoffset{0};
     std::string if_hardware;
-    uint64_t if_txspeed;
-    uint64_t if_rxspeed;
+    uint64_t if_txspeed{0};
+    uint64_t if_rxspeed{0};
 };
 
 struct PcapngContentData

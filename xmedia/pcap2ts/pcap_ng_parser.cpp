@@ -273,13 +273,15 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                             }
                             case IDB_OPTION_IPV4ADDR:
                             {
-                                if (it->data.size() != content.interface.if_IPv4addr.size())
+                                std::array<uint8_t, 8> arr;
+                                if (it->data.size() != arr.size())
                                 {
                                     xlog_err("option.v4 size error");
                                     error = true;
                                     break;
                                 }
-                                memcpy(content.interface.if_IPv4addr.data(), it->data.data(), it->data.size());
+                                memcpy(arr.data(), it->data.data(), it->data.size());
+                                content.interface.if_IPv4addrs.push_back(std::move(arr));
                                 break;
                             }
                             case IDB_OPTION_IPV6ADDR:
@@ -292,7 +294,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                                     break;
                                 }
                                 memcpy(arr.data(), it->data.data(), it->data.size());
-                                content.interface.if_IPV6addr.push_back(std::move(arr));
+                                content.interface.if_IPV6addrs.push_back(std::move(arr));
                                 break;
                             }
                             case IDB_OPTION_MACADDR:
@@ -556,7 +558,7 @@ int PcapngParser::goThrough()
                 xlog_dbg("Unknown block type(%#" PRIx32 ")", block->block_type);
                 if (doSkipBlock(info) < 0)
                 {
-                    xlog_err("Skipping block failed");
+                    xlog_err("Skipping block failed(%#" PRIx32 ")", block->block_type);
                     break;
                 }
                 xlog_dbg("Skipping block successful");
@@ -681,6 +683,7 @@ PcapngParser::doParserOptions(std::shared_ptr<PcapngParser::PcapngInfo> info, st
 std::shared_ptr<PcapngParser::Block> PcapngParser::doProbeBlock(std::shared_ptr<PcapngInfo> info)
 {
     bool error = false;
+    bool file_end = false;
     std::shared_ptr<PcapngParser::Block> block;
     uint64_t offset = 0;
 
@@ -697,6 +700,14 @@ std::shared_ptr<PcapngParser::Block> PcapngParser::doProbeBlock(std::shared_ptr<
         offset = info->fio->tell();
 
         block->block_type = info->fio->r32();
+
+        if (info->fio->eof())
+        {
+            file_end = true;
+            xlog_dbg("Eof met");
+            break;
+        }
+
         block->block_length = info->fio->r32();
 
         /* Restore offset. */
@@ -705,6 +716,10 @@ std::shared_ptr<PcapngParser::Block> PcapngParser::doProbeBlock(std::shared_ptr<
     while(0);
 
     if (error)
+    {
+        return nullptr;
+    }
+    if (file_end)
     {
         return nullptr;
     }
