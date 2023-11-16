@@ -2,6 +2,16 @@
 
 ( 0_0 )
 
+## Ubuntu setup
+
+```bash
+
+sudo apt-get install bzip2 -y
+sudo apt-get install build-essential -y
+sudo apt-get install pkg-config  -y
+
+```
+
 ## Some 3rd libraries
 
 ```bash
