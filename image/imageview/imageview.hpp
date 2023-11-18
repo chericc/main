@@ -1,5 +1,6 @@
 /**
- * 定义一个在图片上进行操作的类。
+ * class ImageView
+ * Defines some operations on image.
  */
 
 #pragma once

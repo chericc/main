@@ -291,7 +291,7 @@ int WavDemuxer::readHeader(std::shared_ptr<LoadInfo> info)
         berror = true;
     }
 
-    // 为了读取的方便，做出一些限制
+    // Just for read convience
     if ((info->fmt.bits_per_sample % 8 != 0)
         || info->fmt.num_channels != 1)
     {

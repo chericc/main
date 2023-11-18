@@ -45,7 +45,6 @@ std::vector<uint32_t> enc_utf32_substr(const std::vector<uint32_t> &utf32_in, si
     return result;
 }
 
-/* 根据 utf8 首字节，得到 utf8 的字节数 */
 static int enc_get_utf8_size(uint8_t value)
 {
     int count = 0;
@@ -70,24 +69,7 @@ static int enc_get_utf8_size(uint8_t value)
     return (0 == count) ? 1 : count;
 }
 
-// #c---
-/*****************************************************************************
- * 将一个字符的Unicode(UCS-2和UCS-4)编码转换成UTF-8编码.
- *
- * 参数:
- *    unic     字符的Unicode编码值
- *    pOutput  指向输出的用于存储UTF8编码值的缓冲区的指针
- *    outsize  pOutput缓冲的大小
- *
- * 返回值:
- *    返回转换后的字符的UTF8编码所占的字节数, 如果出错则返回 0 .
- *
- * 注意:
- *     1. UTF8没有字节序问题, 但是Unicode有字节序要求;
- *        字节序分为大端(Big Endian)和小端(Little Endian)两种;
- *        在Intel处理器中采用小端法表示, 在此采用小端法表示. (低地址存低位)
- *     2. 请保证 pOutput 缓冲区有最少有 6 字节的空间大小!
- ****************************************************************************/
+
 static int enc_unicode_to_utf8_one(uint32_t unic, char *pOutput,
         int outSize)
 { 
@@ -151,28 +133,12 @@ static int enc_unicode_to_utf8_one(uint32_t unic, char *pOutput,
     return 0;
 }
 
-/*****************************************************************************
- * 将一个字符的UTF8编码转换成Unicode(UCS-2和UCS-4)编码.
- *
- * 参数:
- *    pInput      指向输入缓冲区, 以UTF-8编码
- *    Unic        指向输出缓冲区, 其保存的数据即是Unicode编码值,
- *                类型为unsigned long .
- *
- * 返回值:
- *    成功则返回该字符的UTF8编码所占用的字节数; 失败则返回0.
- *
- * 注意:
- *     1. UTF8没有字节序问题, 但是Unicode有字节序要求;
- *        字节序分为大端(Big Endian)和小端(Little Endian)两种;
- *        在Intel处理器中采用小端法表示, 在此采用小端法表示. (低地址存低位)
- ****************************************************************************/
+
 static int enc_utf8_to_unicode_one(const char* pInput, int utfbytes, uint32_t *Unic)
 { 
-    // b1 表示UTF-8编码的pInput中的高字节, b2 表示次高字节, ...
     char b1, b2, b3, b4, b5, b6;
   
-    *Unic = 0x0; // 把 *Unic 初始化为全零
+    *Unic = 0x0;
     // int utfbytes = enc_get_utf8_size(*pInput);
     unsigned char *pOutput = (unsigned char *) Unic;
   

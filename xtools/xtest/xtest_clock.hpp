@@ -5,10 +5,8 @@
 #include <mutex>
 
 /**
- * 模拟一个系统时钟，这个时钟可以调整时间；
- * 
- * 这个时钟提供了基于其时间的等待接口，对于时间的修改会影响到等待接口的行为；
-*/
+ * A simulation for system clock.
+ */
 
 class XTestClock
 {

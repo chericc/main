@@ -439,7 +439,7 @@ int FreeTypeWrapper::drawString_Normal_Monochrome(const DrawInfo &info)
         // int iv_width = iv->width();
         int iv_height = info.iv->height();
 
-        /* 注意：freetype 坐标系为笛卡尔坐标系 */
+        /* Note: freetype uses cartesian coordinate system */
         
         pen.x = INT_TO_FP_26_6(info.x);
         pen.y = INT_TO_FP_26_6(iv_height - info.y);
@@ -481,12 +481,9 @@ int FreeTypeWrapper::drawString_Normal_Monochrome(const DrawInfo &info)
                 (int)FP_26_6_TO_INT(metrics.descender),
                 (int)FP_26_6_TO_INT(metrics.height));
 
-            /** 
-             * 注：如果传入的图片高度为100，则bitmap_top为100+，即笛卡尔坐标系 
-             * 下为图片左上角的上方。
-             * 实际需要绘制到左上角的下方，因此作以下换算。
-             * 实际测试，ascender的大小即为字符的高度。
-             **/
+            /**
+             * If image.height = 100, then bitmap_top = 100+.
+             */
 
             drawBitmap(info.iv, 
                 slot->bitmap_left, 
@@ -539,7 +536,7 @@ std::shared_ptr<FreeTypeWrapper::State> FreeTypeWrapper::init()
     return state;
 }
 
-/* 注：这里以左上角为原点 */
+/* Here LeftTop --> (0,0) */
 int FreeTypeWrapper::drawBitmap(std::shared_ptr<ImageView> iv, int x, int y, FT_Bitmap *bitmap, 
         std::shared_ptr<std::vector<uint8_t>> foreground,
         std::shared_ptr<std::vector<uint8_t>> background)

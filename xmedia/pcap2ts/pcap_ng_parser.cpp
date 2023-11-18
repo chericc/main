@@ -132,7 +132,6 @@ struct PcapngParser::PcapngInfo
 {
     std::shared_ptr<FileIO> fio;
 
-    /* 用于内部将内存数据转换为整数值 */
     bool littleEndian;
 };
 
@@ -929,7 +928,6 @@ std::shared_ptr<PcapngParser::InterfaceDescriptionBlock> PcapngParser::doParseID
     return idb;
 }
 
-/* 整数向上4对齐 */
 uint32_t PcapngParser::round_up_4(uint32_t v32)
 {
     uint32_t ret = (v32 / 4) * 4 + ((v32 % 4) ? 4 : 0);

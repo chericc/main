@@ -125,7 +125,7 @@ public:
 
     PixFmt pixfmt();
 
-    /* 注：BMP图像数据的扫描方式是从左至右，从下到上的 */
+    /* Orientation of bmp is Down-Left */
     std::shared_ptr<std::vector<uint8_t>> getContent(int pos, int numPixels);
 
     struct BmpInfo
@@ -136,7 +136,7 @@ public:
         int height{0};
         std::shared_ptr<const std::vector<uint8_t>> data;
 
-        /* 如果存入的数据是从上到下扫描的，则传入0 */
+        /* Up to down: 0 */
         int invert_y{0};
     };
     static int saveBmp(const BmpInfo &info);

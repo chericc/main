@@ -1,6 +1,5 @@
 #include "content_utf8.hpp"
 
-//std::string g_utf8_20_words = "一二三四五六七八九十1234567890";
 std::string g_utf8_20_words = {
     (char)0xe4,
     (char)0xb8,
@@ -36,7 +35,6 @@ std::string g_utf8_20_words = {
     '2', // 16
     '3', '4', '5', '6', '7', '8', '9', '0'};
 
-//std::string g_utf8_20_words_0_1 = "一";
 std::string g_utf8_20_words_0_1 = {
     (char)0xe4,
     (char)0xb8,
@@ -44,7 +42,6 @@ std::string g_utf8_20_words_0_1 = {
 
 std::string g_utf8_20_words_0_0 = "";
 
-//std::string g_utf8_20_words_5_6 = "六七八九十1";
 std::string g_utf8_20_words_5_6 = {
     (char)0xe5,
     (char)0x85,

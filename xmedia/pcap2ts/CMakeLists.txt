@@ -13,6 +13,11 @@ add_library(
     ${G_PCAP2TS} SHARED ${src_pcap2ts}
 )
 
+target_link_libraries(
+    ${G_PCAP2TS}
+    PRIVATE ${G_XTOOLS}
+)
+
 add_executable(
     ${L_PCAP2TS_DEMO}
     ${src_pcap2ts_demo}
@@ -20,8 +25,8 @@ add_executable(
 
 target_link_libraries(
     ${L_PCAP2TS_DEMO} 
-    ${G_XTOOLS}
     ${G_PCAP2TS}
+    ${G_XTOOLS}
 )
 target_include_directories(
     ${L_PCAP2TS_DEMO} 

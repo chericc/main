@@ -7,7 +7,7 @@
 #include <memory>
 #include "xio.hpp"
 
-/* 参考 wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
+/* Ref: wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
 enum class RiffFmt
 {
     PCM = 0x1,

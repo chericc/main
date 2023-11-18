@@ -36,7 +36,7 @@ set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 
 # googletest
 if(${msvc})
-set(G_GOOGLETEST_PATH C:/Users/test/opensrc/googletest/install)
+set(G_GOOGLETEST_PATH D:/opensrc/googletest/install)
 elseif(${gnu})
 set(G_GOOGLETEST_PATH /home/test/opensrc/googletest/build/output)
 elseif(${clang})
@@ -47,7 +47,7 @@ set(G_GOOGLETEST_INC_PATH ${G_GOOGLETEST_PATH}/include)
 
 # ffmpeg
 if(${msvc})
-set(G_FFMPEG_PATH C:/Users/test/opensrc/ffmpeg/ffmpeg-6.0-full_build-shared)
+set(G_FFMPEG_PATH D:/opensrc/ffmpeg/ffmpeg-full_build-shared)
 elseif(${gnu})
 set(G_FFMPEG_PATH /home/test/opensrc/ffmpeg/build/output)
 elseif(${clang})
@@ -58,7 +58,7 @@ set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
 
 # SDL2
 if(${msvc})
-set(G_SDL2_PATH C:/Users/test/opensrc/SDL/install)
+set(G_SDL2_PATH D:/opensrc/SDL/install)
 elseif(${clang})
 set(G_SDL2_PATH ~/opensrc/SDL/build/output/)
 elseif(${gnu})
@@ -74,7 +74,7 @@ set(G_FDKAAC_INC_PATH ${G_FDKAAC_PATH}/include/fdk-aac)
 
 # freetype
 if(${msvc})
-set(G_FREETYPE_PATH C:/Users/test/opensrc/freetype/build/out)
+set(G_FREETYPE_PATH D:/opensrc/freetype/build/out)
 elseif(${gnu})
 set(G_FREETYPE_PATH ~/opensrc/freetype/build/output)
 elseif(${clang})

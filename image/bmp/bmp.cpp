@@ -6,7 +6,7 @@
 
 #define MKLE16(a,b) ((a) | ((uint16_t)b << 8))
 
-// 将宽度字节上对齐到4的倍数
+// Align to 4 bytes.
 #define WIDTH_PAD_BYTES(width_bytes) (((width_bytes) + 3) & (~0x3))
 
 BmpDecoder::BmpDecoder(const std::string &filename)
@@ -108,10 +108,9 @@ std::shared_ptr<std::vector<uint8_t>> BmpDecoder::getContent(int pos, int numPix
 
         buf->reserve(depth_bytes * numPixels);
 
-        /* 每一行对齐后的字节数 */
         int width_pad_bytes = WIDTH_PAD_BYTES(_load_info->width * depth_bytes);
 
-        /* 按行读取性能更优 */
+        /* TODO: performance improvement. */
         for (int i = pos; i < pos + numPixels; ++i)
         {
             int width = _load_info->width;
@@ -201,10 +200,8 @@ int BmpDecoder::saveBmp(const BmpInfo &info)
             break;
         }
 
-        // 每行对齐后的字节数
         int width_pad_bytes = WIDTH_PAD_BYTES(info.width * bytespersample);
 
-        // 每行因对齐额外增加的字节数
         int pad_bytes = width_pad_bytes - (info.width * bytespersample);
 
         fileheader.filetype = MKLE16('B','M');
@@ -510,7 +507,7 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
             break;
         }
 
-        /* 为求简单，不支持压缩 */
+        /* TODO. */
         if (comp != BMP_RGB)
         {
             xlog_err("bmp not support compression");
@@ -555,7 +552,7 @@ int BmpDecoder::readHeader(std::shared_ptr<LoadInfo> info)
             (int)info->data_offset, (int)info->data_size,
             info->xio->size());
 
-        /* 当前没有考虑调色板区域 */
+        /* TODO. */
         if (info->fileheader.bitmapoffset != 14 + info->bitmapheader.size)
         {
             xlog_err("bmp decode not support palette section");

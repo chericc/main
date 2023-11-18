@@ -32,11 +32,7 @@ int main()
     {
         FreeTypeWrapper ft(font_path);
         
-        // std::string utf8_str = "2023-05-22 星期一 14:14:43";
-        std::string utf8_str = "0123456789星期一123:-";
-        // std::string utf8_str = "China 中国，全球 01";
-        // std::string utf8_str = "A";
-        // std::string utf8_str = "星";
+        std::string utf8_str = u8"0123456789星期一123:-";
 
         // 72 * 360 / 1440 = 18
         // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
