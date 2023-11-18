@@ -9,7 +9,7 @@
 
 #define BYTE_ORDER_MAGIC    0x1A2B3C4D
 
-/*
+/*  
  * Current version number.  If major_version isn't PCAP_NG_VERSION_MAJOR,
  * or if minor_version isn't PCAP_NG_VERSION_MINOR or 2, that means that
  * this code can't read the file.
@@ -51,6 +51,15 @@
 
 #define BT_SHB_INSANE_MAX       (1024U*1024U*1U)  /* 1MB should be enough */
 #define PACKET_INSACE_MAX       (16U*1024U*1024U)
+
+#define CALLBACK_OR_BREAK(func, arg) \
+    { \
+        if (func(arg)) \
+        { \
+            xlog_dbg("Break"); \
+            break; \
+        } \
+    }
 
 struct PcapngParser::Option
 {
@@ -137,15 +146,11 @@ struct PcapngParser::PcapngInfo
 
 struct PcapngParser::InnerData
 {
-    std::string file;
 };
 
-PcapngParser::PcapngParser(const std::string &file)
+PcapngParser::PcapngParser()
 {
     _d = std::make_shared<InnerData>();
-    _d->file = file;
-
-    goThrough();
 }
 
 PcapngParser::~PcapngParser()
@@ -153,7 +158,7 @@ PcapngParser::~PcapngParser()
 
 }
 
-int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
+int PcapngParser::parse(const std::string &file, std::function<int(const PcapngContent &)> callback)
 {
     bool error = false;
     bool parse_end = false;
@@ -169,7 +174,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
             break;
         }
 
-        info->fio = std::make_shared<FileIO>(_d->file, "rb");
+        info->fio = std::make_shared<FileIO>(file, "rb");
         if (!info->fio || !info->fio->ok())
         {
             xlog_err("Open failed");
@@ -234,7 +239,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
             }
 
             content.type = PcapngContentType::Info;
-            callback(content);
+            CALLBACK_OR_BREAK(callback, content);
 
             /* iterate idbs and packets */
             for(;;)
@@ -415,7 +420,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                     }
                     
                     content.type = PcapngContentType::Interface;
-                    callback(content);
+                    CALLBACK_OR_BREAK(callback, content);
                 }
                 else if (BT_SPB == block_probe->block_type)
                 {
@@ -428,7 +433,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                     }
                     content.data.packet_data = spb->packet_data;
                     content.type = PcapngContentType::Data;
-                    callback(content);
+                    CALLBACK_OR_BREAK(callback, content);
                 }
                 else if (BT_EPB == block_probe->block_type)
                 {
@@ -441,7 +446,7 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
                     }
                     content.data.packet_data = epb->packet_data;
                     content.type = PcapngContentType::Data;
-                    callback(content);
+                    CALLBACK_OR_BREAK(callback, content);
                 }
                 else 
                 {
@@ -468,110 +473,6 @@ int PcapngParser::parse(std::function<void(const PcapngContent &)> callback)
     {
         return -1;
     }
-    return 0;
-}
-
-int PcapngParser::goThrough()
-{
-    bool error = false;
-    std::shared_ptr<PcapngInfo> info;
-
-    do 
-    {
-        info = std::make_shared<PcapngInfo>();
-        if (!info)
-        {
-            xlog_err("Alloc failed");
-            error = true;
-            break;
-        }
-
-        info->fio = std::make_shared<FileIO>(_d->file, "rb");
-        if (!info->fio || !info->fio->ok())
-        {
-            xlog_err("Open failed");
-            error = true;
-            break;
-        }
-        info->littleEndian = true;
-        info->fio->setLittleEndian(true);
-
-        for (;;)
-        {
-            auto offset_now = info->fio->tell();
-            xlog_dbg("offset_now=%" PRIu64, offset_now);
-
-            auto block = doProbeBlock(info);
-            if (!block)
-            {
-                xlog_dbg("Probe end");
-                break;
-            }
-
-            if (BT_SHB == block->block_type)
-            {
-                xlog_dbg("Parsing SHB...");
-                auto shb = doParseSHB(info);
-                if (!shb)
-                {
-                    xlog_err("Parse SHB failed");
-                    break;
-                }
-                xlog_dbg("Parsing SHB successful");
-            }
-            else if (BT_IDB == block->block_type)
-            {
-                xlog_dbg("Parsing IDB...");
-                auto idb = doParseIDB(info);
-                if (!idb)
-                {
-                    xlog_err("Parsing IDB failed");
-                    break;
-                }
-                xlog_dbg("Parsing IDB successful");
-            }
-            else if (BT_EPB == block->block_type)
-            {
-                xlog_dbg("Parsing EPG...");
-                auto epb = doParseEPB(info);
-                if (!epb)
-                {
-                    xlog_err("Parsing EPB failed");
-                    break;
-                }
-                xlog_dbg("Parsing EPG successful");
-            }
-            else if (BT_SPB == block->block_type)
-            {
-                xlog_dbg("Parsing SPB...");
-                auto spb = doParseSPB(info);
-                if (!spb)
-                {
-                    xlog_err("Parsing SPB failed");
-                    break;
-                }
-                xlog_dbg("Parsing SPB successful");
-            }
-            else 
-            {
-                xlog_dbg("Unknown block type(%#" PRIx32 ")", block->block_type);
-                if (doSkipBlock(info) < 0)
-                {
-                    xlog_err("Skipping block failed(%#" PRIx32 ")", block->block_type);
-                    break;
-                }
-                xlog_dbg("Skipping block successful");
-                break;
-            }
-        }
-    }
-    while (0);
-
-    if (error)
-    {
-        return -1;
-    }
-
     return 0;
 }
 

@@ -63,11 +63,10 @@ public:
     /*
      * resolution: 
     */
-    PcapngParser(const std::string &file);
+    PcapngParser();
     ~PcapngParser();
 
-    int parse(std::function<void(const PcapngContent &)>);
-    int goThrough();
+    int parse(const std::string &file, std::function<int(const PcapngContent &)>);
 
 private:
     struct InnerData;
