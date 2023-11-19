@@ -1,7 +1,8 @@
 
 #include "comm.hpp"
 
-#include "inttypes.h"
+#include <string.h>
+#include <inttypes.h>
 
 std::pair<std::string,std::string> str_ipv4addr(const std::array<uint8_t, 8> &ipv4)
 {
@@ -70,4 +71,63 @@ std::string str_bps(double bps)
     
     snprintf(str, sizeof(str), "%.1g %s", bitrate, speed_name[i_level].c_str());
     return std::string(str);
+}
+
+
+uint8_t net_u8(const void *ptr, std::size_t size)
+{
+    const uint8_t *pi = (const uint8_t *)ptr;
+    if (size < sizeof(uint8_t))
+    {
+        return 0;
+    }
+    return pi[0];
+}
+
+uint16_t net_u16(const void *ptr, std::size_t size)
+{
+    const uint8_t *pi = (const uint8_t *)ptr;
+    if (size < sizeof(uint16_t))
+    {
+        return 0;
+    }
+    return  pi[1] 
+        + ((uint16_t)pi[0] << 8);
+}
+
+uint32_t net_u32(const void *ptr, std::size_t size)
+{
+    const uint8_t *pi = (const uint8_t *)ptr;
+    if (size < sizeof(uint32_t))
+    {
+        return 0;
+    }
+    return  pi[3] 
+        + ((uint32_t)pi[2] << 8)
+        + ((uint32_t)pi[1] << 16)
+        + ((uint32_t)pi[0] << 24);
+}
+
+uint64_t net_u64(const void *ptr, std::size_t size)
+{
+    const uint8_t *pi = (const uint8_t *)ptr;
+    if (size < sizeof(uint64_t))
+    {
+        return 0;
+    }
+    return  pi[7] 
+        + ((uint64_t)pi[6] << 8)
+        + ((uint64_t)pi[5] << 16)
+        + ((uint64_t)pi[4] << 24)
+        + ((uint64_t)pi[3] << 32)
+        + ((uint64_t)pi[2] << 40)
+        + ((uint64_t)pi[1] << 48)
+        + ((uint64_t)pi[0] << 56);
+}
+
+std::size_t net_copy(void *dst, std::size_t dst_size, void *src, std::size_t src_size)
+{
+    std::size_t min_size = std::min(dst_size, src_size);
+    memcpy(dst, src, min_size);
+    return min_size;
 }

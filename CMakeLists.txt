@@ -137,6 +137,18 @@ include(CTest)
 SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_BUILD_TYPE "Release")
 
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+  set(
+    CMAKE_C_FLAGS
+    "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer"
+  )
+  set(
+    CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer"
+  )
+  add_link_options(-fsanitize=address -fno-omit-frame-pointer)
+endif()
+
 # coverage 
 # add_compile_options(--coverage)
 # add_link_options(--coverage)
@@ -144,6 +156,8 @@ SET(CMAKE_BUILD_TYPE "Debug")
 # performance analysis
 # add_compile_options(-pg)
 # add_link_options(-pg)
+
+# 
 
 set(G_PLATFORM_MSVC "X_PLATFORM_MSVC")
 set(G_PLATFORM_GNU "X_PLATFORM_GNU")

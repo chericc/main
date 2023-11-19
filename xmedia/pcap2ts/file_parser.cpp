@@ -121,7 +121,7 @@ int FileParser::dealPcapngContent(const PcapngContent &content)
 
             if (data.packet_data)
             {
-                _pcapng_ctx->pp->processEthenetPacket(data.packet_data);
+                _pcapng_ctx->pp->processEthernetData(data.packet_data);
                 _pcapng_ctx->packet_count += 1;
             }
             else 
