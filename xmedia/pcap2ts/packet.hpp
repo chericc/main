@@ -23,14 +23,39 @@ enum class EthernetSubType
     Butt,
 };
 
+/* To avoid data coping, we can use the same memory block 
+ * with different offsets and sizes.
+ */
+struct SharedPacketData
+{
+    std::shared_ptr<std::vector<uint8_t>> data;
+    std::size_t offset{0};
+    std::size_t size{0};
+
+    bool valid() const;
+    
+    // t means transparent
+    uint8_t *tdata()
+    {
+        if (data)
+        {
+            return data->data() + offset;
+        }
+        return nullptr;
+    }
+    std::size_t tsize()
+    {
+        return size;
+    }
+};
+
 class IPacket
 {
 public:
     virtual ~IPacket() = default;
-    virtual int assign(std::shared_ptr<std::vector<uint8_t>> data) = 0;
+    virtual int assign(SharedPacketData data) = 0;
     virtual PacketType type() const = 0;
-    virtual uint8_t *data() const = 0;
-    virtual std::size_t size() const = 0;
+    virtual SharedPacketData data() const = 0;
 
     static const char *typeName(PacketType packet_type);
 };
@@ -46,17 +71,17 @@ class EthernetPacket : public IPacket
 {
 public:
     ~EthernetPacket() override = default;
-    int assign(std::shared_ptr<std::vector<uint8_t>> data) override;
+    int assign(SharedPacketData data) override;
     PacketType type() const override;
-    uint8_t *data() const override;
-    std::size_t size() const override;
+    SharedPacketData data() const override;
 
     const EthernetStructure &eth() const;
 
     static EthernetSubType convertEthType(uint16_t eth_type);
     static const char *subTypeName(EthernetSubType subtype);
 private:
-    std::shared_ptr<std::vector<uint8_t>> _data;
+    /* Whole Ethernet Packet */
+    SharedPacketData _data;
     EthernetStructure _eth{};
 };
 
@@ -86,10 +111,9 @@ class IPv4EthernetPacket : public EthernetPacket
 {
 public:
     ~IPv4EthernetPacket() override = default;
-    int assign(std::shared_ptr<std::vector<uint8_t>> data) override;
+    int assign(SharedPacketData data) override;
     PacketType type() const override;
-    uint8_t *data() const override;
-    std::size_t size() const override;
+    SharedPacketData data() const override;
     
     const IPv4Structure& ipv4() const;
 private:

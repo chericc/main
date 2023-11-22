@@ -12,7 +12,7 @@ static void debug_packet(std::shared_ptr<IPacket> ipacket)
         xlog_dbg("Ethernet.dst_mac: %s", str_macaddr(ep->eth().mac_dst).c_str());
         xlog_dbg("Ethernet.src_mac: %s", str_macaddr(ep->eth().mac_src).c_str());
         xlog_dbg("Ethernet.sub_type: %s", ep->subTypeName(ep->convertEthType(ep->eth().type)));
-        xlog_dbg("Ethernet.sub_size: %zu", ep->size());
+        xlog_dbg("Ethernet.sub_size: %zu", ep->data().tsize());
     }
     else 
     {
@@ -43,8 +43,13 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
 
         xlog_dbg("packet.size(%zu)", data->size());
 
+        SharedPacketData tmp_data;
+        tmp_data.data = data;
+        tmp_data.offset = 0;
+        tmp_data.size = data->size();
+
         std::shared_ptr<IPacket> ipacket = std::make_shared<EthernetPacket>();
-        if (ipacket->assign(data) < 0)
+        if (ipacket->assign(tmp_data) < 0)
         {
             xlog_err("Assign ethernet packet failed");
             error = true;
