@@ -1,5 +1,8 @@
 
 #include "packet.hpp"
+
+#include <inttypes.h>
+
 #include "xlog.hpp"
 #include "comm.hpp"
 
@@ -201,15 +204,15 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
         uint8_t *pdata = data.tdata();
         std::size_t size = data.tsize();
 
-        const std::size_t min_head_size = sizeof(ipv4.version_and_len)
+        const std::size_t head_size_without_options = sizeof(ipv4.version_and_len)
             + sizeof(ipv4.differentialted_services_field) + sizeof(ipv4.total_length) + sizeof(ipv4.identification)
             + sizeof(ipv4.flag_and_fragment_offset) + sizeof(ipv4.time_to_live)
             + sizeof(ipv4.protocol) + sizeof(ipv4.header_checksum)
             + ipv4.ip_addr_src.size() + ipv4.ip_addr_dst.size();
 
-        if (size < min_head_size)
+        if (size < head_size_without_options)
         {
-            xlog_err("Size check failed");
+            xlog_err("Size check failed(%zu < %zu)", size, head_size_without_options);
             error = true;
             break;
         }
@@ -218,7 +221,33 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
         ipv4.version_and_len = net_u8(pdata, size);
         pdata += sizeof(ipv4.version_and_len);
         size -= sizeof(ipv4.version_and_len);
+
+        ipv4.version = ipv4_version(ipv4.version_and_len);
+        ipv4.len = ipv4_len(ipv4.version_and_len);
+
+        if (ipv4.version != 4) // version = 4 --> IPv4
+        {
+            xlog_err("Verson check failed(%" PRIu8 ")", ipv4.version);
+            error = true;
+            break;
+        }
+
+        if (ipv4.len < head_size_without_options)
+        {
+            xlog_err("ipv4.len check failed(%" PRIu8 ", %zu)", ipv4.len, head_size_without_options);
+            error = true;
+            break;
+        }
+
+        if (size < ipv4.len)
+        {
+            xlog_err("Size check failed(%zu < %" PRIu8 ")", size, ipv4.len);
+            error = true;
+            break;
+        }
         
+        std::size_t option_len = ipv4.len - head_size_without_options;
+
         static_assert(sizeof(ipv4.differentialted_services_field) == 1, "");
         ipv4.differentialted_services_field = net_u8(pdata, size);
         pdata += sizeof(ipv4.differentialted_services_field);
@@ -264,7 +293,28 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
         pdata += ipv4.ip_addr_dst.size();
         size -= ipv4.ip_addr_dst.size();
 
-        // todo
+        // skip ipv4 options
+        if (option_len > 0)
+        {
+            pdata += option_len;
+            size -= option_len;
+        }
+
+        SharedPacketData data_tmp{};
+        data_tmp.data= data.data;
+        data_tmp.offset = data.offset + ipv4.len;
+        data_tmp.size = data.size - ipv4.len;
+        if (data_tmp.offset < data.offset
+            || data_tmp.size > data.size)
+        {
+            xlog_err("Inner error");
+            error = true;
+            break;
+        }
+
+        // copy
+        _data = data_tmp;
+        _ipv4 = ipv4;
     }
     while (0);
 
@@ -283,10 +333,33 @@ PacketType IPv4EthernetPacket::type() const
 
 SharedPacketData IPv4EthernetPacket::data() const
 {
-    return SharedPacketData();
+    bool error = false;
+
+    do 
+    {
+
+    }
+    while (0);
+
+    if (error)
+    {
+        return SharedPacketData{};
+    }
+
+    return SharedPacketData{};
 }
 
 const IPv4Structure& IPv4EthernetPacket::ipv4() const
 {
     return _ipv4;
+}
+
+uint8_t IPv4EthernetPacket::ipv4_version(uint8_t version_and_len)
+{
+    return (version_and_len >> 4) & 0x0f;
+}
+
+uint8_t IPv4EthernetPacket::ipv4_len(uint8_t version_and_len)
+{
+    return (version_and_len & 0x0f);
 }

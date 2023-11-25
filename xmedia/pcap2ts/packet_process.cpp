@@ -14,6 +14,11 @@ static void debug_packet(std::shared_ptr<IPacket> ipacket)
         xlog_dbg("Ethernet.sub_type: %s", ep->subTypeName(ep->convertEthType(ep->eth().type)));
         xlog_dbg("Ethernet.sub_size: %zu", ep->data().tsize());
     }
+    else if(ipacket->type() == PacketType::IPv4)
+    {
+        std::shared_ptr<IPv4EthernetPacket> ipv4p = std::static_pointer_cast<IPv4EthernetPacket>(ipacket);
+        // xlog_dbg("Ipv4.")
+    }
     else 
     {
         xlog_dbg("Type not support(%d)", (int)ipacket->type());
@@ -56,7 +61,8 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
             break;
         }
 
-        ipacket = doProcessEthernetPacket(ipacket);
+        debug_packet(ipacket);
+        doProcessEthernetPacket(ipacket);
     }
     while (0);
 
@@ -68,8 +74,41 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
     return 0;
 }
 
-std::shared_ptr<IPacket> PacketProcess::doProcessEthernetPacket(std::shared_ptr<IPacket> ipacket)
+int PacketProcess::doProcessEthernetPacket(std::shared_ptr<IPacket> ipacket)
 {
-    debug_packet(ipacket);
-    return nullptr;
+    bool error = false;
+
+    do
+    {
+        std::shared_ptr<IPv4EthernetPacket> ipacket_new;
+
+        switch (ipacket->type())
+        {
+            case PacketType::IPv4:
+            {
+                ipacket_new = std::make_shared<IPv4EthernetPacket>();
+                if (ipacket_new->assign(ipacket->data()) < 0)
+                {
+                    xlog_err("Assign ipv4 packet failed");
+                    error = true;
+                    break;
+                }
+                debug_packet(ipacket);
+                break;
+            }
+            default:
+            {
+                xlog_dbg("Ignoring packet(type:%d)", (int)ipacket->type());
+                break;
+            }
+        }
+    }
+    while (0);
+
+    if (error)
+    {
+        return -1;
+    }
+
+    return 0;
 }

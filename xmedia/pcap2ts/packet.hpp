@@ -89,6 +89,8 @@ struct IPv4Structure
 {
     /* & 0xf0 = version, & 0x0f = len */
     uint8_t version_and_len;
+    uint8_t version;
+    uint8_t len;
 
     uint8_t differentialted_services_field;
     uint16_t total_length;
@@ -116,6 +118,9 @@ public:
     SharedPacketData data() const override;
     
     const IPv4Structure& ipv4() const;
+    static uint8_t ipv4_version(uint8_t version_and_len);
+    static uint8_t ipv4_len(uint8_t version_and_len);
 private:
-    IPv4Structure _ipv4;
+    SharedPacketData _data;
+    IPv4Structure _ipv4{};
 };
