@@ -69,11 +69,11 @@ int EthernetPacket::assign(SharedPacketData data)
         uint8_t *pdata = data.tdata();
         std::size_t size = data.tsize();
 
-        std::size_t min_size = eth.mac_dst.size()
+        std::size_t ethernet_header_size = eth.mac_dst.size()
             + eth.mac_src.size()
             + sizeof(eth.type);
 
-        if (size < min_size)
+        if (size < ethernet_header_size)
         {
             xlog_err("Size error");
             error = true;
@@ -96,7 +96,19 @@ int EthernetPacket::assign(SharedPacketData data)
         eth.type = net_u16(pdata, size);
 
         // copy
-        _data = data;
+        SharedPacketData data_tmp = data;
+        data_tmp.offset += ethernet_header_size;
+        data_tmp.size -= ethernet_header_size;
+
+        if (data_tmp.offset < data.offset
+            || data_tmp.size > data.size)
+        {
+            xlog_err("Inner error");
+            error = true;
+            break;
+        }
+
+        _data = data_tmp;
         _eth = eth;
     }
     while (0);
@@ -115,20 +127,12 @@ PacketType EthernetPacket::type() const
 
 SharedPacketData EthernetPacket::data() const
 {
-    const std::size_t before_data_size = _eth.mac_dst.size() + _eth.mac_src.size()
-        + sizeof(_eth.type);
-
-    SharedPacketData tmp_data = _data;
-
-    tmp_data.offset += before_data_size;
-    tmp_data.size -= before_data_size;
-
-    if (!tmp_data.valid())
+    if (!_data.valid())
     {
         return SharedPacketData();
     }
     
-    return tmp_data;
+    return _data;
 }
 
 const EthernetStructure& EthernetPacket::eth() const
@@ -234,7 +238,7 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
 
         if (ipv4.len < head_size_without_options)
         {
-            xlog_err("ipv4.len check failed(%" PRIu8 ", %zu)", ipv4.len, head_size_without_options);
+            xlog_err("Length check failed(%" PRIu8 ", %zu)", ipv4.len, head_size_without_options);
             error = true;
             break;
         }
@@ -258,6 +262,15 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
         pdata += sizeof(ipv4.total_length);
         size -= sizeof(ipv4.total_length);
 
+        if (ipv4.total_length > data.tsize())
+        {
+            xlog_err("Total length check failed(%" PRIu16 "> %zu)", ipv4.total_length, data.tsize());
+            error = true;
+            break;
+        }
+
+        ipv4.padding_size = data.tsize() - ipv4.total_length;
+
         static_assert(sizeof(ipv4.identification) == 2, "");
         ipv4.identification = net_u16(pdata, size);
         pdata += sizeof(ipv4.identification);
@@ -267,6 +280,9 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
         ipv4.flag_and_fragment_offset = net_u16(pdata, size);
         pdata += sizeof(ipv4.flag_and_fragment_offset);
         size -= sizeof(ipv4.flag_and_fragment_offset);
+
+        ipv4.flag = ipv4_flag(ipv4.flag_and_fragment_offset);
+        ipv4.fragment_offset = ipv4_fragment_offset(ipv4.flag_and_fragment_offset);
 
         static_assert(sizeof(ipv4.time_to_live) == 1, "");
         ipv4.time_to_live = net_u8(pdata, size);
@@ -300,10 +316,10 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
             size -= option_len;
         }
 
-        SharedPacketData data_tmp{};
-        data_tmp.data= data.data;
-        data_tmp.offset = data.offset + ipv4.len;
-        data_tmp.size = data.size - ipv4.len;
+        // EthernetPacketData = IPv4Packet + [padding]
+        SharedPacketData data_tmp = data;
+        data_tmp.offset += ipv4.len;
+        data_tmp.size = ipv4.total_length;
         if (data_tmp.offset < data.offset
             || data_tmp.size > data.size)
         {
@@ -333,20 +349,12 @@ PacketType IPv4EthernetPacket::type() const
 
 SharedPacketData IPv4EthernetPacket::data() const
 {
-    bool error = false;
-
-    do 
-    {
-
-    }
-    while (0);
-
-    if (error)
+    if (!_data.valid())
     {
         return SharedPacketData{};
     }
 
-    return SharedPacketData{};
+    return _data;
 }
 
 const IPv4Structure& IPv4EthernetPacket::ipv4() const
@@ -361,5 +369,39 @@ uint8_t IPv4EthernetPacket::ipv4_version(uint8_t version_and_len)
 
 uint8_t IPv4EthernetPacket::ipv4_len(uint8_t version_and_len)
 {
-    return (version_and_len & 0x0f);
+    return (version_and_len & 0x0f) * 4;
+}
+
+uint16_t IPv4EthernetPacket::ipv4_flag(uint16_t flag_and_fragment_offset)
+{
+    return (flag_and_fragment_offset >> 5) & 0x03;
+}
+
+uint16_t IPv4EthernetPacket::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
+{
+    return (flag_and_fragment_offset & 0x1f);
+}
+
+Protocol IPv4EthernetPacket::convertProtocol(uint8_t ipv4_protocol)
+{
+    Protocol protocol = Protocol::None;
+    switch (ipv4_protocol)
+    {
+        case 6:
+        {
+            protocol = Protocol::TCP;
+            break;   
+        }
+        case 17:
+        {
+            protocol = Protocol::UDP;
+            break;
+        }
+        default:
+        {
+            xlog_err("Unknown protocol");
+            break;
+        }
+    }
+    return protocol;
 }

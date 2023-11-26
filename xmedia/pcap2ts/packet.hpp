@@ -23,6 +23,14 @@ enum class EthernetSubType
     Butt,
 };
 
+enum class Protocol
+{
+    None,
+    UDP,
+    TCP,
+    Butt,
+};
+
 /* To avoid data coping, we can use the same memory block 
  * with different offsets and sizes.
  */
@@ -80,7 +88,7 @@ public:
     static EthernetSubType convertEthType(uint16_t eth_type);
     static const char *subTypeName(EthernetSubType subtype);
 private:
-    /* Whole Ethernet Packet */
+    /* Ethernet packet data(without Ethernet packet header) */
     SharedPacketData _data;
     EthernetStructure _eth{};
 };
@@ -89,8 +97,8 @@ struct IPv4Structure
 {
     /* & 0xf0 = version, & 0x0f = len */
     uint8_t version_and_len;
-    uint8_t version;
-    uint8_t len;
+    uint8_t version; // not in header
+    uint8_t len; // not in header
 
     uint8_t differentialted_services_field;
     uint16_t total_length;
@@ -98,6 +106,9 @@ struct IPv4Structure
 
     /* & 0xe0 = flag, & 0x1f = fragment_offset */
     uint16_t flag_and_fragment_offset;
+    uint16_t flag; // not in header
+    uint16_t fragment_offset; // not in header
+
     uint8_t time_to_live;
     uint8_t protocol;
     uint16_t header_checksum;
@@ -107,6 +118,8 @@ struct IPv4Structure
 
     /* options */
     /* sub_data */
+
+    std::size_t padding_size; // not in header
 };
 
 class IPv4EthernetPacket : public EthernetPacket
@@ -120,7 +133,17 @@ public:
     const IPv4Structure& ipv4() const;
     static uint8_t ipv4_version(uint8_t version_and_len);
     static uint8_t ipv4_len(uint8_t version_and_len);
+    static uint16_t ipv4_flag(uint16_t flag_and_fragment_offset);
+    static uint16_t ipv4_fragment_offset(uint16_t flag_and_fragment_offset);
+    static Protocol convertProtocol(uint8_t ipv4_protocol);
 private:
+    /* IPv4 packet data(without IPv4 packet header) */
     SharedPacketData _data;
     IPv4Structure _ipv4{};
+};
+
+class UDPPacket : public EthernetPacket
+{
+public:
+    
 };

@@ -3,6 +3,8 @@
 #include <string>
 #include <array>
 
+std::string str_ipv4(const std::array<uint8_t, 4> &ipv4);
+std::string str_ipv6(const std::array<uint8_t, 16> &ipv6);
 std::pair<std::string,std::string> str_ipv4addr(const std::array<uint8_t, 8> &ipv4);
 std::string str_ipv6addr(const std::array<uint8_t, 17> &ipv6);
 std::string str_macaddr(const std::array<uint8_t, 6> &mac);

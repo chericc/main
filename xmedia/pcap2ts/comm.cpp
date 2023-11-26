@@ -4,6 +4,29 @@
 #include <string.h>
 #include <inttypes.h>
 
+std::string str_ipv4(const std::array<uint8_t, 4> &ipv4)
+{
+    std::string ipstr;
+    char str_tmp[256];
+
+    snprintf(str_tmp, sizeof(str_tmp), "%" PRIu8 ".%" PRIu8 ".%" PRIu8 ".%" PRIu8, 
+        ipv4[0], ipv4[1], ipv4[2], ipv4[3]);
+    ipstr.assign(str_tmp);
+
+    return ipstr;
+}
+
+std::string str_ipv6(const std::array<uint8_t, 16> &ipv6)
+{
+    char str_tmp[256];
+    snprintf(str_tmp, sizeof(str_tmp), 
+        "%02" PRIx8 "%02" PRIx8 ".%02" PRIx8 "%02" PRIx8 ".%02" PRIx8 "%02" PRIx8 ".%02" PRIx8 "%02" PRIx8 
+        ".%02" PRIx8 "%02" PRIx8 ".%02" PRIx8 "%02" PRIx8 ".%02" PRIx8 "%02" PRIx8 ".%02" PRIx8 "%02" PRIx8,
+        ipv6[0], ipv6[1], ipv6[2], ipv6[3], ipv6[4], ipv6[5], ipv6[6], ipv6[7], 
+        ipv6[8], ipv6[9], ipv6[10], ipv6[11], ipv6[12], ipv6[13], ipv6[14], ipv6[15]);
+    return std::string(str_tmp);
+}
+
 std::pair<std::string,std::string> str_ipv4addr(const std::array<uint8_t, 8> &ipv4)
 {
     std::string ipstr;

@@ -75,6 +75,7 @@ int FileParser::dealPcapngContent(const PcapngContent &content)
         if (!_pcapng_ctx)
         {
             xlog_err("Null ctx");
+            error = true;
             break;
         }
 
@@ -121,8 +122,14 @@ int FileParser::dealPcapngContent(const PcapngContent &content)
 
             if (data.packet_data)
             {
-                _pcapng_ctx->pp->processEthernetData(data.packet_data);
                 _pcapng_ctx->packet_count += 1;
+                xlog_dbg("Processing packet(%" PRIu64 ")", _pcapng_ctx->packet_count);
+                if (_pcapng_ctx->pp->processEthernetData(data.packet_data) < 0)
+                {
+                    xlog_err("Process ethernet data failed");
+                    error = true;
+                    break;
+                }
             }
             else 
             {
