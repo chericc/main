@@ -4,6 +4,7 @@
 
 #include "xlog.hpp"
 #include "wav_demuxer.hpp"
+#include "test_comm.hpp"
 
 struct TestDemux
 {
@@ -16,42 +17,6 @@ struct TestDemux
     int samplebits;
     int samples;
 };
-
-static size_t fileSize(FILE *fp)
-{
-    size_t size_file = 0;
-    size_t size_origin = 0;
-    if (fp)
-    {
-        size_origin = ftell(fp);
-        fseek(fp, 0, SEEK_END);
-        size_file = ftell(fp);
-        fseek(fp, size_origin, SEEK_SET);
-    }
-
-    return size_file;
-}
-
-static std::vector<uint8_t> readFile(const std::string &filename)
-{
-    std::vector<uint8_t> buffer;
-    FILE *fp = fopen(filename.c_str(), "rb");
-
-    if (fp)
-    {
-        size_t filesize = fileSize(fp);
-
-        
-        buffer.resize(filesize);
-
-        fread(buffer.data(), 1, filesize, fp);
-
-        fclose(fp);
-        fp = nullptr;
-    }
-
-    return buffer;
-}
 
 static void testExtractRaw(const std::string &wavFile, const std::string &rawFile,
     int format, int channels, int samplerate, int samplebits, int samples)

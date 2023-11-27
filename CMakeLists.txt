@@ -83,6 +83,12 @@ endif()
 set(G_FREETYPE_LIB_PATH ${G_FREETYPE_PATH}/lib)
 set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include/freetype2)
 
+
+# test_comm just for test use
+set(G_TEST_COMM test_comm)
+set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
+set(G_TEST_COMM_LIB_PATH ${G_TSET_COMM_LIB_PATH}/lib)
+
 # xtools
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
@@ -172,6 +178,7 @@ add_definitions(-D${G_PLATFORM_CLANG})
 endif()
 
 # targets
+add_subdirectory(test_comm)
 add_subdirectory(xtools)
 add_subdirectory(image)
 add_subdirectory(audio/wav/demuxer)

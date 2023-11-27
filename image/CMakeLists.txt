@@ -35,11 +35,11 @@ target_link_libraries(${G_IMAGE}
     ${G_TEXTENC})
 
 if(${gnu})
-set(COMMON_LIB gtest ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC} pthread)
+set(COMMON_LIB gtest ${G_TEST_COMM} ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC} pthread)
 elseif(${msvc})
-set(COMMON_LIB gtest ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC})
+set(COMMON_LIB gtest ${G_TEST_COMM} ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC})
 elseif(${clang})
-set(COMMON_LIB gtest ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC})
+set(COMMON_LIB gtest ${G_TEST_COMM} ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC})
 endif()
 
 add_definitions(-DRES_BMP_PATH="${G_RESOURCE_PATH}/bmp")
@@ -50,6 +50,8 @@ add_executable(${L_IMAGE_BMP_TEST}
     ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${L_IMAGE_BMP_TEST}
     ${COMMON_LIB})
+target_include_directories(${L_IMAGE_BMP_TEST}
+    PRIVATE ${G_TSET_COMM_HEADER_PATH})
 add_test(NAME ${L_IMAGE_BMP_TEST}
         COMMAND ${L_IMAGE_BMP_TEST})
 
