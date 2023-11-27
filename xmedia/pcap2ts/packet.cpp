@@ -36,6 +36,7 @@ const char *PacketInfo::typeName(PacketType packet_type)
         "ARP",
         "IPv4",
         "IPv6",
+        "IPv4Done",
         "Butt",
     };
 

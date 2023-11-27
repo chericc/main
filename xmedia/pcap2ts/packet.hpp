@@ -13,6 +13,7 @@ enum class PacketType
     ARP,
     IPv4,
     IPv6,
+    IPv4Done,
     Butt,
 };
 
