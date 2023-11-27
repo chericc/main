@@ -4,19 +4,12 @@
 #include <stdint.h>
 #include <vector>
 #include <array>
+#include <list>
 
 enum class PacketType
 {
     None,
     Ethernet,
-    IPv4,
-    IPv6,
-    Butt,
-};
-
-enum class EthernetSubType
-{
-    None,
     ARP,
     IPv4,
     IPv6,
@@ -34,16 +27,21 @@ enum class Protocol
 /* To avoid data coping, we can use the same memory block 
  * with different offsets and sizes.
  */
-struct SharedPacketData
+class SharedData
 {
+public:
+    SharedData() = default;
+    SharedData(std::shared_ptr<std::vector<uint8_t>> adata, std::size_t aoffset, std::size_t asize)
+        : data(adata), offset(aoffset), size(asize) {}
+    SharedData(SharedData const&) = default;
+
     std::shared_ptr<std::vector<uint8_t>> data;
     std::size_t offset{0};
     std::size_t size{0};
 
     bool valid() const;
     
-    // t means transparent
-    uint8_t *tdata()
+    uint8_t *offsetData()
     {
         if (data)
         {
@@ -51,50 +49,38 @@ struct SharedPacketData
         }
         return nullptr;
     }
-    std::size_t tsize()
+    std::size_t offsetSize()
     {
         return size;
     }
 };
 
-class IPacket
+class PacketInfo
 {
 public:
-    virtual ~IPacket() = default;
-    virtual int assign(SharedPacketData data) = 0;
-    virtual PacketType type() const = 0;
-    virtual SharedPacketData data() const = 0;
+    virtual ~PacketInfo() = 0;
 
     static const char *typeName(PacketType packet_type);
 };
 
-struct EthernetStructure
-{
-    std::array<uint8_t, 6> mac_dst;
-    std::array<uint8_t, 6> mac_src;
-    uint16_t type;
-};
-
-class EthernetPacket : public IPacket
+class EthernetPacketInfo : public PacketInfo
 {
 public:
-    ~EthernetPacket() override = default;
-    int assign(SharedPacketData data) override;
-    PacketType type() const override;
-    SharedPacketData data() const override;
+    EthernetPacketInfo() = default;
+    ~EthernetPacketInfo() override = default;
 
-    const EthernetStructure &eth() const;
+    std::array<uint8_t, 6> mac_dst;
+    std::array<uint8_t, 6> mac_src;
+    uint16_t type = 0;
 
-    static EthernetSubType convertEthType(uint16_t eth_type);
-    static const char *subTypeName(EthernetSubType subtype);
-private:
-    /* Ethernet packet data(without Ethernet packet header) */
-    SharedPacketData _data;
-    EthernetStructure _eth{};
+    static PacketType convertEthType(uint16_t eth_type);
 };
 
-struct IPv4Structure
+class IPv4PacketInfo : public PacketInfo
 {
+public:
+    ~IPv4PacketInfo() override = default;
+
     /* & 0xf0 = version, & 0x0f = len */
     uint8_t version_and_len;
     uint8_t version; // not in header
@@ -120,17 +106,65 @@ struct IPv4Structure
     /* sub_data */
 
     std::size_t padding_size; // not in header
+    
+    static uint8_t ipv4_version(uint8_t version_and_len);
+    static uint8_t ipv4_len(uint8_t version_and_len);
+    static uint16_t ipv4_flag(uint16_t flag_and_fragment_offset);
+    static uint16_t ipv4_fragment_offset(uint16_t flag_and_fragment_offset);
+    static Protocol convertProtocol(uint8_t ipv4_protocol);
+};
+
+class SharedPacket
+{
+public:
+    SharedPacket() = default;
+    SharedPacket(SharedPacket const&) = default;
+    SharedPacket(PacketType a_cur_type, SharedData a_data)
+        : cur_type(a_cur_type), data(a_data) {};
+    PacketType cur_type;
+    SharedData data;
+    std::list<std::pair<PacketType, std::shared_ptr<PacketInfo>>> parsed_info;
+};
+
+#if 0
+class IPacket
+{
+public:
+    virtual ~IPacket() = default;
+    virtual int assign(SharedData data) = 0;
+    virtual PacketType type() const = 0;
+    virtual SharedData data() const = 0;
+
+    static const char *typeName(PacketType packet_type);
+};
+
+class EthernetPacket : public IPacket
+{
+public:
+    ~EthernetPacket() override = default;
+    int assign(SharedData data) override;
+    PacketType type() const override;
+    SharedData data() const override;
+
+    const EthernetPacketInfo &eth() const;
+
+    static EthernetSubType convertEthType(uint16_t eth_type);
+    static const char *subTypeName(EthernetSubType subtype);
+private:
+    /* Ethernet packet data(without Ethernet packet header) */
+    SharedData _data;
+    EthernetPacketInfo _eth{};
 };
 
 class IPv4EthernetPacket : public EthernetPacket
 {
 public:
     ~IPv4EthernetPacket() override = default;
-    int assign(SharedPacketData data) override;
+    int assign(SharedData data) override;
     PacketType type() const override;
-    SharedPacketData data() const override;
+    SharedData data() const override;
     
-    const IPv4Structure& ipv4() const;
+    const IPv4PacketInfo& ipv4() const;
     static uint8_t ipv4_version(uint8_t version_and_len);
     static uint8_t ipv4_len(uint8_t version_and_len);
     static uint16_t ipv4_flag(uint16_t flag_and_fragment_offset);
@@ -138,12 +172,7 @@ public:
     static Protocol convertProtocol(uint8_t ipv4_protocol);
 private:
     /* IPv4 packet data(without IPv4 packet header) */
-    SharedPacketData _data;
-    IPv4Structure _ipv4{};
+    SharedData _data;
+    IPv4PacketInfo _ipv4{};
 };
-
-class UDPPacket : public EthernetPacket
-{
-public:
-    
-};
+#endif 

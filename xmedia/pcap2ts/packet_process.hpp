@@ -14,5 +14,6 @@ public:
     int processEthernetData(std::shared_ptr<std::vector<uint8_t>> data);
 private:
     // 
-    int doProcessEthernetPacket(std::shared_ptr<IPacket> packet);
+    int processEthernetPacket(std::shared_ptr<SharedPacket> packet);
+    int processIPv4Packet(std::shared_ptr<SharedPacket> packet);
 };

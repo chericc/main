@@ -6,15 +6,41 @@
 #include "packet.hpp"
 #include "comm.hpp"
 
-static void debug_packet(std::shared_ptr<IPacket> ipacket)
+static void debug_packet(std::shared_ptr<SharedPacket> packet)
 {
+    xlog_dbg("PacketType: %s", PacketInfo::typeName(packet->cur_type));
+    xlog_dbg("PacketData: [%zu,%zu] in [%zu]", packet->data.offset, packet->data.size, packet->data.data->size());
+    xlog_dbg("PacketInfo: ");
+    for (auto it : packet->parsed_info)
+    {
+        switch(it.first)
+        {
+            case PacketType::Ethernet:
+            {
+                std::shared_ptr<EthernetPacketInfo> ep = std::static_pointer_cast<EthernetPacketInfo>(it.second);
+                xlog_dbg("Ethernet.dst_mac: %s", str_macaddr(ep->mac_dst).c_str());
+                xlog_dbg("Ethernet.src_mac: %s", str_macaddr(ep->mac_src).c_str());
+                xlog_dbg("Ethernet.sub_type: %s", PacketInfo::typeName(ep->convertEthType(ep->type)));
+                break;
+            }
+            case PacketType::IPv4:
+            {
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+#if 0
     if (ipacket->type() == PacketType::Ethernet)
     {
         std::shared_ptr<EthernetPacket> ep = std::static_pointer_cast<EthernetPacket>(ipacket);
-        xlog_dbg("Ethernet.dst_mac: %s", str_macaddr(ep->eth().mac_dst).c_str());
-        xlog_dbg("Ethernet.src_mac: %s", str_macaddr(ep->eth().mac_src).c_str());
-        xlog_dbg("Ethernet.sub_type: %s", ep->subTypeName(ep->convertEthType(ep->eth().type)));
-        xlog_dbg("Ethernet.sub_size: %zu", ep->data().tsize());
+        xlog_dbg("Ethernet.dst_mac: %s", str_macaddr(ep->mac_dst).c_str());
+        xlog_dbg("Ethernet.src_mac: %s", str_macaddr(ep->mac_src).c_str());
+        xlog_dbg("Ethernet.sub_type: %s", ep->subTypeName(ep->convertEthType(ep->type)));
+        xlog_dbg("Ethernet.sub_size: %zu", ep->data().offsetSize());
     }
     else if(ipacket->type() == PacketType::IPv4)
     {
@@ -37,6 +63,7 @@ static void debug_packet(std::shared_ptr<IPacket> ipacket)
     {
         xlog_dbg("Type not support(%d)", (int)ipacket->type());
     }
+#endif 
 }
 
 PacketProcess::PacketProcess()
@@ -62,25 +89,35 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
 
         xlog_dbg("packet.size(%zu)", data->size());
 
-        SharedPacketData tmp_data;
-        tmp_data.data = data;
-        tmp_data.offset = 0;
-        tmp_data.size = data->size();
+        std::shared_ptr<SharedPacket> shared_packet = std::make_shared<SharedPacket>
+            (PacketType::Ethernet, SharedData{data, 0, data->size()});
 
-        std::shared_ptr<IPacket> ipacket = std::make_shared<EthernetPacket>();
-        if (ipacket->assign(tmp_data) < 0)
+        bool end_flag = false;
+        for ( ; !error && !end_flag; )
         {
-            xlog_err("Assign ethernet packet failed");
-            error = true;
-            break;
-        }
-
-        debug_packet(ipacket);
-        if (doProcessEthernetPacket(ipacket) < 0)
-        {
-            xlog_err("Process ethernet packet failed");
-            error = true;
-            break;
+            switch (shared_packet->cur_type)
+            {
+                case PacketType::Ethernet:
+                {
+                    if (processEthernetPacket(shared_packet) < 0)
+                    {
+                        xlog_err("Process ethernet packet failed");
+                        error = true;
+                    }
+                    debug_packet(shared_packet);
+                    break;
+                }
+                case PacketType::IPv4:
+                {
+                    end_flag = true;
+                    break;
+                }
+                default:
+                {
+                    end_flag = true;
+                    break;
+                }
+            }
         }
     }
     while (0);
@@ -93,45 +130,74 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
     return 0;
 }
 
-int PacketProcess::doProcessEthernetPacket(std::shared_ptr<IPacket> ipacket)
+int PacketProcess::processEthernetPacket(std::shared_ptr<SharedPacket> packet)
 {
     bool error = false;
-
-    do
+    do 
     {
-        std::shared_ptr<IPacket> ipacket_sub;
-
-        if (ipacket->type() != PacketType::Ethernet)
+        if (!packet)
         {
+            xlog_err("Null packet");
             error = true;
-            xlog_err("Not ethernet packet");
             break;
         }
 
-        std::shared_ptr<EthernetPacket> ethernet_packet = 
-            std::static_pointer_cast<EthernetPacket>(ipacket);
-        EthernetSubType ethernet_subtype = EthernetPacket::convertEthType(ethernet_packet->eth().type);
+        SharedData& data = packet->data;
+        std::shared_ptr<EthernetPacketInfo> eth = std::make_shared<EthernetPacketInfo>();
 
-        switch (ethernet_subtype)
+        if (!data.valid())
         {
-            case EthernetSubType::IPv4:
-            {
-                ipacket_sub = std::make_shared<IPv4EthernetPacket>();
-                if (ipacket_sub->assign(ipacket->data()) < 0)
-                {
-                    xlog_err("Assign ipv4 packet failed");
-                    error = true;
-                    break;
-                }
-                debug_packet(ipacket_sub);
-                break;
-            }
-            default:
-            {
-                xlog_dbg("Ignoring packet(type:%d)", (int)ipacket->type());
-                break;
-            }
+            xlog_err("Invalid data");
+            error = true;
+            break;
         }
+
+        uint8_t *pdata = data.offsetData();
+        std::size_t size = data.offsetSize();
+
+        std::size_t ethernet_header_size = eth->mac_dst.size()
+            + eth->mac_src.size()
+            + sizeof(eth->type);
+
+        if (size < ethernet_header_size)
+        {
+            xlog_err("Size error");
+            error = true;
+            break;
+        }
+
+        // mac_dst
+        net_copy(eth->mac_dst.data(), eth->mac_dst.size(),
+            pdata, size);
+        
+        // mac_src
+        pdata += eth->mac_dst.size();
+        size -= eth->mac_dst.size();
+        net_copy(eth->mac_src.data(), eth->mac_src.size(),
+            pdata, size);
+
+        // type
+        pdata += eth->mac_src.size();
+        size -= eth->mac_src.size();
+        eth->type = net_u16(pdata, size);
+
+        // copy
+        SharedData data_tmp = data;
+        data_tmp.offset += ethernet_header_size;
+        data_tmp.size -= ethernet_header_size;
+
+        // integer limit check
+        if (data_tmp.offset < data.offset
+            || data_tmp.size > data.size)
+        {
+            xlog_err("Inner error");
+            error = true;
+            break;
+        }
+
+        data = data_tmp;
+        packet->parsed_info.push_back(std::make_pair(PacketType::Ethernet, eth));
+        packet->cur_type = EthernetPacketInfo::convertEthType(eth->type);
     }
     while (0);
 
@@ -139,6 +205,5 @@ int PacketProcess::doProcessEthernetPacket(std::shared_ptr<IPacket> ipacket)
     {
         return -1;
     }
-
     return 0;
 }

@@ -10,7 +10,7 @@
 #define ETHERNET_TYPE_IPv6  (0x86dd)
 #define ETHERNET_TYPE_ARP   (0x0806)
 
-bool SharedPacketData::valid() const
+bool SharedData::valid() const
 {
     if (data)
     {
@@ -25,11 +25,15 @@ bool SharedPacketData::valid() const
     return false;
 }
 
-const char *IPacket::typeName(PacketType packet_type)
+// pure function
+PacketInfo::~PacketInfo() {}
+
+const char *PacketInfo::typeName(PacketType packet_type)
 {
     const char *str[] = {
         "None",
         "Ethernet",
+        "ARP",
         "IPv4",
         "IPv6",
         "Butt",
@@ -47,117 +51,24 @@ const char *IPacket::typeName(PacketType packet_type)
     return "";
 }
 
-/*
-
-| mac_dst(6) | mac_src(6) | type(2) | sub_data |
-
-*/
-int EthernetPacket::assign(SharedPacketData data)
+PacketType EthernetPacketInfo::convertEthType(uint16_t eth_type)
 {
-    bool error = false;
-    do 
-    {
-        EthernetStructure eth{};
-
-        if (!data.valid())
-        {
-            xlog_err("Invalid data");
-            error = true;
-            break;
-        }
-
-        uint8_t *pdata = data.tdata();
-        std::size_t size = data.tsize();
-
-        std::size_t ethernet_header_size = eth.mac_dst.size()
-            + eth.mac_src.size()
-            + sizeof(eth.type);
-
-        if (size < ethernet_header_size)
-        {
-            xlog_err("Size error");
-            error = true;
-            break;
-        }
-
-        // mac_dst
-        net_copy(eth.mac_dst.data(), eth.mac_dst.size(),
-            pdata, size);
-        
-        // mac_src
-        pdata += eth.mac_dst.size();
-        size -= eth.mac_dst.size();
-        net_copy(eth.mac_src.data(), eth.mac_src.size(),
-            pdata, size);
-
-        // type
-        pdata += eth.mac_src.size();
-        size -= eth.mac_src.size();
-        eth.type = net_u16(pdata, size);
-
-        // copy
-        SharedPacketData data_tmp = data;
-        data_tmp.offset += ethernet_header_size;
-        data_tmp.size -= ethernet_header_size;
-
-        if (data_tmp.offset < data.offset
-            || data_tmp.size > data.size)
-        {
-            xlog_err("Inner error");
-            error = true;
-            break;
-        }
-
-        _data = data_tmp;
-        _eth = eth;
-    }
-    while (0);
-
-    if (error)
-    {
-        return -1;
-    }
-    return 0;
-}
-
-PacketType EthernetPacket::type() const
-{
-    return PacketType::Ethernet;
-}
-
-SharedPacketData EthernetPacket::data() const
-{
-    if (!_data.valid())
-    {
-        return SharedPacketData();
-    }
-    
-    return _data;
-}
-
-const EthernetStructure& EthernetPacket::eth() const
-{
-    return _eth;
-}
-
-EthernetSubType EthernetPacket::convertEthType(uint16_t eth_type)
-{
-    EthernetSubType type = EthernetSubType::None;
+    PacketType type = PacketType::None;
     switch (eth_type)
     {
         case ETHERNET_TYPE_IPv4:
         {
-            type = EthernetSubType::IPv4;
+            type = PacketType::IPv4;
             break;
         }
         case ETHERNET_TYPE_IPv6:
         {
-            type = EthernetSubType::IPv6;
+            type = PacketType::IPv6;
             break;
         }
         case ETHERNET_TYPE_ARP:
         {
-            type = EthernetSubType::ARP;
+            type = PacketType::ARP;
             break;
         }
         default:
@@ -168,29 +79,8 @@ EthernetSubType EthernetPacket::convertEthType(uint16_t eth_type)
     return type;
 }
 
-const char *EthernetPacket::subTypeName(EthernetSubType subtype)
-{
-    const char *str[] = {
-        "None",
-        "ARP",
-        "IPv4",
-        "IPv6",
-        "Butt",
-    };
-
-    const std::size_t str_size = sizeof(str)/sizeof(str[0]);
-    const std::size_t i_sub_type = (std::size_t)(subtype);
-
-    static_assert(str_size == (int)EthernetSubType::Butt + 1, "Size check failed");
-
-    if (i_sub_type < str_size)
-    {
-        return str[i_sub_type];
-    }
-    return "";
-}
-
-int IPv4EthernetPacket::assign(SharedPacketData data)
+#if 0
+int IPv4EthernetPacket::assign(SharedData data)
 {
     bool error = false;
 
@@ -317,7 +207,7 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
         }
 
         // EthernetPacketData = IPv4Packet + [padding]
-        SharedPacketData data_tmp = data;
+        SharedData data_tmp = data;
         data_tmp.offset += ipv4.len;
         data_tmp.size = ipv4.total_length;
         if (data_tmp.offset < data.offset
@@ -341,48 +231,29 @@ int IPv4EthernetPacket::assign(SharedPacketData data)
 
     return 0;
 }
+#endif 
 
-PacketType IPv4EthernetPacket::type() const
-{
-    return PacketType::IPv4;
-}
-
-SharedPacketData IPv4EthernetPacket::data() const
-{
-    if (!_data.valid())
-    {
-        return SharedPacketData{};
-    }
-
-    return _data;
-}
-
-const IPv4Structure& IPv4EthernetPacket::ipv4() const
-{
-    return _ipv4;
-}
-
-uint8_t IPv4EthernetPacket::ipv4_version(uint8_t version_and_len)
+uint8_t IPv4PacketInfo::ipv4_version(uint8_t version_and_len)
 {
     return (version_and_len >> 4) & 0x0f;
 }
 
-uint8_t IPv4EthernetPacket::ipv4_len(uint8_t version_and_len)
+uint8_t IPv4PacketInfo::ipv4_len(uint8_t version_and_len)
 {
     return (version_and_len & 0x0f) * 4;
 }
 
-uint16_t IPv4EthernetPacket::ipv4_flag(uint16_t flag_and_fragment_offset)
+uint16_t IPv4PacketInfo::ipv4_flag(uint16_t flag_and_fragment_offset)
 {
     return (flag_and_fragment_offset >> 5) & 0x03;
 }
 
-uint16_t IPv4EthernetPacket::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
+uint16_t IPv4PacketInfo::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
 {
     return (flag_and_fragment_offset & 0x1f);
 }
 
-Protocol IPv4EthernetPacket::convertProtocol(uint8_t ipv4_protocol)
+Protocol IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
 {
     Protocol protocol = Protocol::None;
     switch (ipv4_protocol)
