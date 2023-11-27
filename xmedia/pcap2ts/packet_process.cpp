@@ -349,3 +349,40 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet)
 
     return 0;
 }
+
+int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
+{
+    bool error = false;
+
+    do 
+    {
+        if (!packet)
+        {
+            xlog_err("Null packet");
+            error = true;
+            break;
+        }
+
+        SharedData &data = packet->data;
+        std::shared_ptr<UDPPacketInfo> udp = std::make_shared<UDPPacketInfo>();
+
+        if (!data.valid())
+        {
+            xlog_err("Invalid data");
+            error = true;
+            break;
+        }
+
+        uint8_t *pdata = data.offsetData();
+        std::size_t size = data.offsetSize();
+
+        std::size_t udp_header_size = sizeof(udp->port_src);
+    }
+    while (0);
+
+    if (error)
+    {
+        return -1;
+    }
+    return 0;
+}

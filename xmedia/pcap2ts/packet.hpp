@@ -59,6 +59,7 @@ public:
 class PacketInfo
 {
 public:
+    /* pure virtual with implementation in cpp. */
     virtual ~PacketInfo() = 0;
 
     static const char *typeName(PacketType packet_type);
@@ -115,6 +116,17 @@ public:
     static Protocol convertProtocol(uint8_t ipv4_protocol);
 };
 
+class UDPPacketInfo : public PacketInfo
+{
+public:
+    ~UDPPacketInfo() override = default;
+
+    uint16_t port_src;
+    uint16_t port_dst;
+    uint16_t total_length;
+    uint16_t checksum;
+};
+
 class SharedPacket
 {
 public:
@@ -126,3 +138,4 @@ public:
     SharedData data;
     std::list<std::pair<PacketType, std::shared_ptr<PacketInfo>>> parsed_info;
 };
+
