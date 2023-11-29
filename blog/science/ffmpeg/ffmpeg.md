@@ -229,6 +229,12 @@ ffmpeg -i input.file output.yuv
 ffmpeg -i test.mp4 -vf select='eq(pict_type\,I)' -vsync 2 -f image2 kf-%02d.bmp
 ```
 
+#### 检查关键帧信息
+
+```bash
+ffmpeg -i input.mp4 -vf showinfo -f null -
+```
+
 #### m3u8
 
 ```bash
