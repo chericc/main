@@ -58,11 +58,11 @@ add_library(${G_XTOOLS} SHARED
 # tests
 
 if(${gnu})
-set(COMMON_LIB gtest ${G_XTOOLS} pthread)
+set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XTOOLS} pthread)
 elseif(${msvc})
-set(COMMON_LIB gtest ${G_XTOOLS})
+set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XTOOLS})
 elseif(${clang})
-set(COMMON_LIB gtest ${G_XTOOLS})
+set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XTOOLS})
 endif()
 
 # demo_xlog
@@ -109,6 +109,8 @@ add_executable(${XTOOL_TEST_XIO}
         ${src_xio_test}
         ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${XTOOL_TEST_XIO} ${COMMON_LIB})
+target_include_directories(${XTOOL_TEST_XIO} 
+        PRIVATE ${G_TSET_COMM_HEADER_PATH})
 add_test(NAME ${XTOOL_TEST_XIO}
         COMMAND ${XTOOL_TEST_XIO})
 
