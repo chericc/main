@@ -13,7 +13,11 @@ enum class PacketType
     ARP,
     IPv4,
     IPv6,
-    IPv4Done,
+    IPv4Data,
+    UDP,
+    UDPData,
+    TCP,
+    TCPData,
     Butt,
 };
 
@@ -113,7 +117,7 @@ public:
     static uint8_t ipv4_len(uint8_t version_and_len);
     static uint16_t ipv4_flag(uint16_t flag_and_fragment_offset);
     static uint16_t ipv4_fragment_offset(uint16_t flag_and_fragment_offset);
-    static Protocol convertProtocol(uint8_t ipv4_protocol);
+    static PacketType convertProtocol(uint8_t ipv4_protocol);
 };
 
 class UDPPacketInfo : public PacketInfo

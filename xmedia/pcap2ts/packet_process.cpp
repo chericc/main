@@ -34,12 +34,20 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet)
                 xlog_dbg("ipv4->flag: %" PRIu16, ipv4p->flag);
                 xlog_dbg("ipv4->fragment_offset: %" PRIu16, ipv4p->fragment_offset);
                 xlog_dbg("ipv4->time_to_live: %" PRIu8, ipv4p->time_to_live);
-                xlog_dbg("ipv4->protocol: %" PRIu8, ipv4p->protocol);
+                xlog_dbg("ipv4->protocol: %s", it.second->typeName(ipv4p->convertProtocol(ipv4p->protocol)));
                 xlog_dbg("ipv4->header_checksum: %#" PRIx16, ipv4p->header_checksum);
                 xlog_dbg("ipv4->ip_src: %s", str_ipv4(ipv4p->ip_addr_src).c_str());
                 xlog_dbg("ipv4->ip_dst: %s", str_ipv4(ipv4p->ip_addr_dst).c_str());
                 xlog_dbg("ipv4->padding_size: %zu", ipv4p->padding_size);
                 break;
+            }
+            case PacketType::UDP:
+            {
+                std::shared_ptr<UDPPacketInfo> udp = std::static_pointer_cast<UDPPacketInfo>(it.second);
+                xlog_dbg("udp->port_src: %" PRIu16, udp->port_src);
+                xlog_dbg("udp->port_dst: %" PRIu16, udp->port_dst);
+                xlog_dbg("udp->total_length: %" PRIu16, udp->total_length);
+                xlog_dbg("udp->checksum: %" PRIx16, udp->checksum);
             }
             default:
             {
@@ -94,6 +102,15 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
                     if (processIPv4Packet(shared_packet) < 0)
                     {
                         xlog_err("Process ipv4 packet failed");
+                        error = true;
+                    }
+                    break;
+                }
+                case PacketType::UDP:
+                {
+                    if (processUDPPacket(shared_packet) < 0)
+                    {
+                        xlog_err("Process udp packet failed");
                         error = true;
                     }
                     break;
@@ -326,7 +343,7 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet)
         // EthernetPacketData = IPv4Packet + [padding]
         SharedData data_tmp = data;
         data_tmp.offset += ipv4->len;
-        data_tmp.size = ipv4->total_length;
+        data_tmp.size = ipv4->total_length - ipv4->len;
         if (data_tmp.offset < data.offset
             || data_tmp.size > data.size)
         {
@@ -338,7 +355,7 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet)
         // copy
         data = data_tmp;
         packet->parsed_info.push_back(std::make_pair(PacketType::IPv4, ipv4));
-        packet->cur_type = PacketType::IPv4Done;
+        packet->cur_type = ipv4->convertProtocol(ipv4->protocol);
     }
     while (0);
 
@@ -376,7 +393,55 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
         uint8_t *pdata = data.offsetData();
         std::size_t size = data.offsetSize();
 
-        std::size_t udp_header_size = sizeof(udp->port_src);
+        std::size_t udp_head_size = sizeof(udp->port_src) + sizeof(udp->port_dst)
+            + sizeof(udp->total_length) + sizeof(udp->checksum);
+        
+        if (size < udp_head_size)
+        {
+            xlog_err("Size check failed(%zu < %zu)", size, udp_head_size);
+            error = true;
+            break;
+        }
+
+        udp->port_src = net_u16(pdata, size);
+        pdata += sizeof(udp->port_src);
+        size -= sizeof(udp->port_src);
+
+        udp->port_dst = net_u16(pdata, size);
+        pdata += sizeof(udp->port_dst);
+        size -= sizeof(udp->port_dst);
+
+        udp->total_length = net_u16(pdata, size);
+        pdata += sizeof(udp->total_length);
+        size -= sizeof(udp->total_length);
+
+        if (udp->total_length < udp_head_size
+            || udp->total_length > data.offsetSize())
+        {
+            xlog_err("Total length check failed(%" PRIu16 ", %zu, %zu)", 
+                udp->total_length, udp_head_size, data.offsetSize());
+            error = true;
+            break;
+        }
+
+        udp->checksum = net_u16(pdata, size);
+        pdata += sizeof(udp->checksum);
+        size -= sizeof(udp->checksum);
+
+        SharedData data_tmp = data;
+        data_tmp.offset += udp_head_size;
+        data_tmp.size -= udp_head_size;
+        if (data_tmp.offset < data.offset
+            || data_tmp.size > data.size)
+        {
+            xlog_err("Inner error");
+            error = true;
+            break;
+        }
+
+        data = data_tmp;
+        packet->parsed_info.push_back(std::make_pair(PacketType::UDP, udp));
+        packet->cur_type = PacketType::UDPData;
     }
     while (0);
 

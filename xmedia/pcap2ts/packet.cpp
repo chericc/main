@@ -36,7 +36,11 @@ const char *PacketInfo::typeName(PacketType packet_type)
         "ARP",
         "IPv4",
         "IPv6",
-        "IPv4Done",
+        "IPv4Data",
+        "UDP",
+        "UDPData",
+        "TCP",
+        "TCPData",
         "Butt",
     };
 
@@ -100,19 +104,19 @@ uint16_t IPv4PacketInfo::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
     return (flag_and_fragment_offset & 0x1f);
 }
 
-Protocol IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
+PacketType IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
 {
-    Protocol protocol = Protocol::None;
+    PacketType protocol = PacketType::None;
     switch (ipv4_protocol)
     {
         case 6:
         {
-            protocol = Protocol::TCP;
+            protocol = PacketType::TCP;
             break;   
         }
         case 17:
         {
-            protocol = Protocol::UDP;
+            protocol = PacketType::UDP;
             break;
         }
         default:
