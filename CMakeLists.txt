@@ -140,10 +140,11 @@ include_directories(${G_GOOGLETEST_INC_PATH})
 include(CTest)
 
 # debug
-# SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_BUILD_TYPE "Release")
 
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
+option(USE_ASAN "use ASAN" OFF)
+if (USE_ASAN)
   set(
     CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer"
