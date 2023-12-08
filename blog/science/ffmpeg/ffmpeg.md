@@ -295,6 +295,7 @@ done
   ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_samsung_4k_20m_cbr_60fps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.8:5140&
   ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i /opt/fonsview/data/media/movie/4K/HD.Club-4K-Chimei-inn-60mbps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.9:5140&
   ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/problem/afamda_4K.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.10:5140&
+  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i demo2K.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.11:5140&
 }
 
 # encode
@@ -309,3 +310,5 @@ done
 ./ffmpeg -i 8KWorld120M.ts -c:v libx265 -b:v 80M -x265-params pass=1:vbv-maxrate=80000:vbv-bufsize=18000 -c:a copy -f mpegts -y /dev/null
 
 ```
+
+
