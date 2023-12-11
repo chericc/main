@@ -451,3 +451,8 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
     }
     return 0;
 }
+
+int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet)
+{
+    return 0;
+}

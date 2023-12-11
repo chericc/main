@@ -131,6 +131,12 @@ public:
     uint16_t checksum;
 };
 
+class RTPPacketInfo : public PacketInfo
+{
+public:
+    ~RTPPacketInfo() override = default;
+};
+
 class SharedPacket
 {
 public:

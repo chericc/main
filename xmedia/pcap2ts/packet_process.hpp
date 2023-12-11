@@ -17,4 +17,5 @@ private:
     int processEthernetPacket(std::shared_ptr<SharedPacket> packet);
     int processIPv4Packet(std::shared_ptr<SharedPacket> packet);
     int processUDPPacket(std::shared_ptr<SharedPacket> packet);
+    int processRTPPacket(std::shared_ptr<SharedPacket> packet);
 };
