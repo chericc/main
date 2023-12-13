@@ -452,7 +452,91 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
     return 0;
 }
 
+/*
+
+RTP header:
+
+V(2bit) | P(1bit) | X(1bit) | CC(4bit) | M(1bit) | PT(7bit) | SeqNum(16bit)
+TimeStamp(32bit)
+SSRCID(32bit)
+CSRCIDLIST(32bit)
+
+*/
 int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet)
 {
-    return 0;
+    bool error = false;
+
+    do 
+    {
+        if (!packet)
+        {
+            xlog_err("Null packet");
+            error = true;
+            break;
+        }
+
+        SharedData &data = packet->data;
+        std::shared_ptr<RTPPacketInfo> rtp = std::make_shared<RTPPacketInfo>();
+
+        if (!data.valid())
+        {
+            xlog_err("Invalid data");
+            error = true;
+            break;
+        }
+
+        uint8_t *pdata = data.offsetData();
+        std::size_t size = data.offsetSize();
+
+        const std::size_t header_size = 16;
+
+        if (size < header_size)
+        {
+            xlog_err("Size too small(%zd,%zd)", size, header_size);
+            error = true;
+            break;
+        }
+
+        uint8_t first_byte = pdata[0];
+        rtp->v = (first_byte >> 6) & 0x3;
+        rtp->p = (first_byte >> 5) & 0x1;
+        rtp->x = (first_byte >> 4) & 0x1;
+        rtp->cc = first_byte & 0xf;
+        pdata += sizeof(first_byte);
+        size -= sizeof(first_byte);
+
+        if (rtp->v != 2)
+        {
+            xlog_err("Version check failed");
+            error = true;
+            break;
+        }
+
+        uint8_t second_byte = pdata[0];
+        rtp->m = (second_byte >> 7) & 0x1;
+        rtp->pt = second_byte & 0x7f;
+        pdata += sizeof(second_byte);
+        size -= sizeof(second_byte);
+
+        rtp->sequence_number = net_u16(pdata, size);
+        pdata += sizeof(rtp->sequence_number);
+        size -= sizeof(rtp->sequence_number);
+
+        rtp->time_stamp = net_u32(pdata, size);
+        pdata += sizeof(rtp->time_stamp);
+        size -= sizeof(rtp->time_stamp);
+
+        rtp->ssrc_id = net_u32(pdata, size);
+        pdata += sizeof(rtp->ssrc_id);
+        size -= sizeof(rtp->ssrc_id);
+
+        rtp->csrc_id_list = net_u32(pdata, size);
+        pdata += sizeof(rtp->csrc_id_list);
+        size -= sizeof(rtp->csrc_id_list);
+
+
+    }
+    while (0);
+
+    return (error ? -1 : 0);
 }

@@ -135,6 +135,23 @@ class RTPPacketInfo : public PacketInfo
 {
 public:
     ~RTPPacketInfo() override = default;
+
+    /* Header contents */
+    uint8_t v = 0;  /* version */
+    uint8_t p = 0;  /* padding */
+    uint8_t x = 0;  /* expansion */
+    uint8_t cc = 0; /* CSRC Counter */
+    uint8_t m = 0;  /* flag */
+    uint8_t pt = 0; /* load type */
+    uint16_t sequence_number = 0;
+    uint32_t time_stamp = 0;
+    uint32_t ssrc_id = 0; /* SSRC: Synchronization Source */
+    uint32_t csrc_id_list = 0; /* CSRC: Contributing Source */
+
+    /* Extended header contents */
+    uint16_t defined_by_profile = 0;
+    uint16_t length = 0;
+    
 };
 
 class SharedPacket
