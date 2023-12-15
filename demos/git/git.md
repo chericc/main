@@ -64,6 +64,9 @@ git rm --cached filename
 # 从指定文件读取commit内容
 git commit -F filename
 
+# 修改上一次的提交
+git commit --amend
+
 ```
 
 ## 比较
@@ -75,5 +78,25 @@ git diff <commit-id> <commit-id>^
 
 # 比较某个提交与其之前某个提交的修改 ~表示提前几个commit
 git diff <commit-id> <commit-id>~2
+
+```
+
+
+## proxy
+
+```bash
+
+# for https
+git config --global http.proxy "socks5://192.168.1.203:51837"
+git config --global https.proxy "socks5://192.168.1.203:51837"
+
+# test proxy
+curl --socks5 192.168.1.203:51837 www.baidu.com
+curl --connect-timeout 2 -x 192.168.1.203:58591 www.baidu.com
+
+# for ssh
+Host github.com
+    User git
+    ProxyCommand nc -v -x 192.168.1.203:51837 %h %p
 
 ```
