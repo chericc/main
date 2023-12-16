@@ -115,6 +115,7 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
                     }
                     break;
                 }
+                case PacketType::UDPData:
                 default:
                 {
                     debug_packet(shared_packet);
@@ -126,12 +127,7 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
     }
     while (0);
 
-    if (error)
-    {
-        return -1;
-    }
-
-    return 0;
+    return (error ? -1 : 0);
 }
 
 int PacketProcess::processEthernetPacket(std::shared_ptr<SharedPacket> packet)
@@ -205,11 +201,7 @@ int PacketProcess::processEthernetPacket(std::shared_ptr<SharedPacket> packet)
     }
     while (0);
 
-    if (error)
-    {
-        return -1;
-    }
-    return 0;
+    return (error ? -1 : 0);
 }
 
 int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet)
@@ -356,15 +348,14 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet)
         data = data_tmp;
         packet->parsed_info.push_back(std::make_pair(PacketType::IPv4, ipv4));
         packet->cur_type = ipv4->convertProtocol(ipv4->protocol);
+        if (PacketType::None == packet->cur_type)
+        {
+            packet->cur_type = PacketType::IPv4Data;
+        }
     }
     while (0);
 
-    if (error)
-    {
-        return -1;
-    }
-
-    return 0;
+    return (error ? -1 : 0);
 }
 
 int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
@@ -445,14 +436,14 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
     }
     while (0);
 
-    if (error)
-    {
-        return -1;
-    }
-    return 0;
+    return (error ? -1 : 0);
 }
 
 /*
+
+ref:
+https://datatracker.ietf.org/doc/html/rfc3550
+
 
 RTP header:
 
@@ -530,11 +521,67 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet)
         pdata += sizeof(rtp->ssrc_id);
         size -= sizeof(rtp->ssrc_id);
 
-        rtp->csrc_id_list = net_u32(pdata, size);
-        pdata += sizeof(rtp->csrc_id_list);
-        size -= sizeof(rtp->csrc_id_list);
+        // todo ....
+        // rtp->csrc_id_list = net_u32(pdata, size);
+        // pdata += sizeof(rtp->csrc_id_list);
+        // size -= sizeof(rtp->csrc_id_list);
 
+        /* Extended header */
+        if (rtp->x)
+        {
+            if (size < 4)
+            {
+                xlog_err("Extention size check failed(%zu)", size);
+                error = true;
+                break;
+            }
 
+            rtp->defined_by_profile = net_u16(pdata, size);
+            pdata += sizeof(rtp->defined_by_profile);
+            size -= sizeof(rtp->defined_by_profile);
+
+            rtp->length = net_u16(pdata, size);
+            pdata += sizeof(rtp->length);
+            size -= sizeof(rtp->length);
+
+            if (rtp->length > 0)
+            {
+                if (size < rtp->length)
+                {
+                    xlog_err("Extension length check failed(%zu, %" PRIu16 ")", 
+                        size, rtp->length);
+                    error = true;
+                    break;
+                }
+
+                xlog_dbg("Skipping extension data");
+                pdata += rtp->length;
+                size -= rtp->length;
+            }
+
+            // copy
+            const std::size_t total_head_size = header_size + rtp->length;
+
+            SharedData data_tmp = data;
+            data_tmp.offset += total_head_size;
+            data_tmp.size -= total_head_size;
+
+            // integer limit check
+            if (data_tmp.offset < data.offset
+                || data_tmp.size > data.size)
+            {
+                xlog_err("Inner error");
+                error = true;
+                break;
+            }
+
+            packet->parsed_info.push_back(std::make_pair(PacketType::RTP, rtp));
+            packet->cur_type = RTPPacketInfo::rtpPayloadConvert(rtp->pt);
+            if (PacketType::None == packet->cur_type)
+            {
+                packet->cur_type = PacketType::RTPData;
+            }
+        }
     }
     while (0);
 

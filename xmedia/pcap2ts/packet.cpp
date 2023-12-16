@@ -41,6 +41,9 @@ const char *PacketInfo::typeName(PacketType packet_type)
         "UDPData",
         "TCP",
         "TCPData",
+        "RTP",
+        "RTPData",
+        "MP2T",
         "Butt",
     };
 
@@ -126,4 +129,24 @@ PacketType IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
         }
     }
     return protocol;
+}
+
+/* https://datatracker.ietf.org/doc/html/rfc3551#page-32 */
+PacketType RTPPacketInfo::rtpPayloadConvert(uint8_t pt)
+{
+    PacketType payload = PacketType::None;
+    switch (pt)
+    {
+        case 33:
+        {
+            payload = PacketType::MP2T;
+            break;
+        }
+        default:
+        {
+            xlog_err("Payload type not support(%" PRIu8 ")", pt);
+            break;
+        }
+    }
+    return payload;
 }
