@@ -48,6 +48,31 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet)
                 xlog_dbg("udp->port_dst: %" PRIu16, udp->port_dst);
                 xlog_dbg("udp->total_length: %" PRIu16, udp->total_length);
                 xlog_dbg("udp->checksum: %" PRIx16, udp->checksum);
+                break;
+            }
+            case PacketType::RTP:
+            {
+                std::shared_ptr<RTPPacketInfo> rtp = std::static_pointer_cast<RTPPacketInfo>(it.second);
+                xlog_dbg("rtp->v: %" PRIu8, rtp->v);
+                xlog_dbg("rtp->p: %" PRIu8, rtp->p);
+                xlog_dbg("rtp->x: %" PRIu8, rtp->x);
+                xlog_dbg("rtp->cc: %" PRIu8, rtp->cc);
+                xlog_dbg("rtp->m: %" PRIu8, rtp->m);
+                xlog_dbg("rtp->pt: %" PRIu8 "(%s)", rtp->pt, rtp->typeName(rtp->rtpPayloadConvert(rtp->pt)));
+                xlog_dbg("rtp->sequence_number: %" PRIu16, rtp->sequence_number);
+                xlog_dbg("rtp->time_stamp: %" PRIu32, rtp->time_stamp);
+                xlog_dbg("rtp->ssrc_id: %" PRIu32, rtp->ssrc_id);
+                xlog_dbg("rtp->csrc_id_list: %zu", rtp->csrc_id_list.size());
+                for (auto const& it : rtp->csrc_id_list)
+                {
+                    xlog_dbg("rtp->csrc_id_list: %" PRIu32, it);
+                }
+                if (rtp->has_extended_header)
+                {
+                    xlog_dbg("rtp->ext_defined_by_profile: %" PRIu32, rtp->defined_by_profile);
+                    xlog_dbg("rtp->ext_length: %" PRIu32, rtp->length);
+                }
+                break;
             }
             default:
             {
@@ -476,14 +501,14 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet)
             break;
         }
 
-        uint8_t *pdata = data.offsetData();
+        const uint8_t *pdata = data.offsetData();
         std::size_t size = data.offsetSize();
 
-        const std::size_t header_size = 16;
+        const std::size_t fixed_header_size = 12;
 
-        if (size < header_size)
+        if (size < fixed_header_size)
         {
-            xlog_err("Size too small(%zd,%zd)", size, header_size);
+            xlog_err("Size too small(%zd,%zd)", size, fixed_header_size);
             error = true;
             break;
         }
@@ -521,15 +546,30 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet)
         pdata += sizeof(rtp->ssrc_id);
         size -= sizeof(rtp->ssrc_id);
 
-        // todo ....
-        // rtp->csrc_id_list = net_u32(pdata, size);
-        // pdata += sizeof(rtp->csrc_id_list);
-        // size -= sizeof(rtp->csrc_id_list);
+        const std::size_t csrc_id_list_num = std::min(15u, (unsigned int)rtp->cc);
+        const std::size_t scrc_id_list_size = csrc_id_list_num * sizeof(rtp->csrc_id_list.front());
+        if (size < scrc_id_list_size)
+        {
+            xlog_err("csrc_id size check failed(%zu, %zu)", size, scrc_id_list_size);
+            error = true;
+            break;
+        }
+
+        /* 0-15 */
+        for (unsigned int i = 0; i < 15 && i < rtp->cc; ++i)
+        {
+            rtp->csrc_id_list.push_back(net_u32(pdata, size));
+            pdata += sizeof(rtp->csrc_id_list);
+            size -= sizeof(rtp->csrc_id_list);
+        }
 
         /* Extended header */
+        std::size_t extended_header_size = 0;
         if (rtp->x)
         {
-            if (size < 4)
+            const std::size_t fixed_extended_header_size = sizeof(rtp->defined_by_profile)
+                + sizeof(rtp->length);
+            if (size < fixed_extended_header_size)
             {
                 xlog_err("Extention size check failed(%zu)", size);
                 error = true;
@@ -544,43 +584,73 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet)
             pdata += sizeof(rtp->length);
             size -= sizeof(rtp->length);
 
+            extended_header_size += fixed_extended_header_size;
+
             if (rtp->length > 0)
             {
-                if (size < rtp->length)
+                const std::size_t head_extension_size = rtp->length * sizeof(uint32_t);
+                if (size < head_extension_size)
                 {
-                    xlog_err("Extension length check failed(%zu, %" PRIu16 ")", 
-                        size, rtp->length);
+                    xlog_err("Extension length check failed(%zu, %zu)", 
+                        size, head_extension_size);
                     error = true;
                     break;
                 }
 
                 xlog_dbg("Skipping extension data");
-                pdata += rtp->length;
-                size -= rtp->length;
+                pdata += head_extension_size;
+                size -= head_extension_size;
+                extended_header_size += head_extension_size;
             }
 
-            // copy
-            const std::size_t total_head_size = header_size + rtp->length;
+            rtp->has_extended_header = true;
+        }
 
-            SharedData data_tmp = data;
-            data_tmp.offset += total_head_size;
-            data_tmp.size -= total_head_size;
-
-            // integer limit check
-            if (data_tmp.offset < data.offset
-                || data_tmp.size > data.size)
+        // padding size
+        if (rtp->p)
+        {
+            if (size > 0)
             {
-                xlog_err("Inner error");
-                error = true;
-                break;
+                const uint8_t *pdata_last_byte = pdata + size - 1;
+                uint8_t padding_total_size = net_u8(pdata_last_byte, 1);
+                if (!padding_total_size)
+                {
+                    xlog_err("Invalid padding size(size: 0)");
+                    error = true;
+                    break;
+                }
+                if (padding_total_size > size)
+                {
+                    xlog_err("Padding size check failed(%" PRIu8 " > %zu)", padding_total_size, size);
+                    error = true;
+                    break;
+                }
+                xlog_dbg("Skipping padding size %" PRIu8, padding_total_size);
+                size -= padding_total_size;
             }
+        }
 
-            packet->parsed_info.push_back(std::make_pair(PacketType::RTP, rtp));
-            packet->cur_type = RTPPacketInfo::rtpPayloadConvert(rtp->pt);
-            if (PacketType::None == packet->cur_type)
-            {
-                packet->cur_type = PacketType::RTPData;
-            }
+        // copy
+        const std::size_t total_head_size = fixed_header_size + scrc_id_list_size + extended_header_size;
+
+        SharedData data_tmp = data;
+        data_tmp.offset += total_head_size;
+        data_tmp.size = size;
+
+        // integer limit check
+        if (data_tmp.offset < data.offset
+            || data_tmp.size > data.size)
+        {
+            xlog_err("Inner error");
+            error = true;
+            break;
+        }
+
+        packet->parsed_info.push_back(std::make_pair(PacketType::RTP, rtp));
+        packet->cur_type = RTPPacketInfo::rtpPayloadConvert(rtp->pt);
+        if (PacketType::None == packet->cur_type)
+        {
+            packet->cur_type = PacketType::RTPData;
         }
     }
     while (0);

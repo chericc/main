@@ -144,6 +144,7 @@ public:
     std::list<uint32_t> csrc_id_list; /* CSRC: Contributing Source */
 
     /* Extended header contents */
+    bool has_extended_header = false;
     uint16_t defined_by_profile = 0;
     uint16_t length = 0;
     
