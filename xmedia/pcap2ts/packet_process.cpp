@@ -325,6 +325,13 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet)
         ipv4->flag = ipv4->ipv4_flag(ipv4->flag_and_fragment_offset);
         ipv4->fragment_offset = ipv4->ipv4_fragment_offset(ipv4->flag_and_fragment_offset);
 
+        if (!(ipv4->flag & 0x2))
+        {
+            xlog_dbg("Fragmented ipv4 not supported, ignored"); 
+            packet->cur_type = PacketType::None;
+            break;
+        }
+
         static_assert(sizeof(ipv4->time_to_live) == 1, "");
         ipv4->time_to_live = net_u8(pdata, size);
         pdata += sizeof(ipv4->time_to_live);

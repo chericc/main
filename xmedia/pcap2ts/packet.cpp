@@ -99,7 +99,7 @@ uint8_t IPv4PacketInfo::ipv4_len(uint8_t version_and_len)
 
 uint16_t IPv4PacketInfo::ipv4_flag(uint16_t flag_and_fragment_offset)
 {
-    return (flag_and_fragment_offset >> 5) & 0x03;
+    return (flag_and_fragment_offset >> 13) & 0x7;
 }
 
 uint16_t IPv4PacketInfo::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
@@ -107,6 +107,12 @@ uint16_t IPv4PacketInfo::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
     return (flag_and_fragment_offset & 0x1f);
 }
 
+/*
+
+IGMP,       // ipv4.proto = 2
+PIM,        // ipv4.proto = 103
+
+*/
 PacketType IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
 {
     PacketType protocol = PacketType::None;
@@ -122,9 +128,15 @@ PacketType IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
             protocol = PacketType::UDP;
             break;
         }
+        case 2:
+        case 103:
+        {
+            xlog_dbg("Protocol(%d) ignored", (int)ipv4_protocol);
+            break;
+        }
         default:
         {
-            xlog_err("Unknown protocol");
+            xlog_err("Unknown protocol(%d)", (int)ipv4_protocol);
             break;
         }
     }
