@@ -44,6 +44,7 @@ const char *PacketInfo::typeName(PacketType packet_type)
         "RTP",
         "RTPData",
         "MP2T",
+        "Data",
         "Butt",
     };
 

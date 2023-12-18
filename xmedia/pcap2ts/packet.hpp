@@ -21,6 +21,7 @@ enum class PacketType
     RTP,
     RTPData,
     MP2T,
+    Data, /* Means no more header interested as packet. */
     Butt,
 };
 

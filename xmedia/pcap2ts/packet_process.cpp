@@ -65,7 +65,7 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet)
                 xlog_dbg("rtp->csrc_id_list: %zu", rtp->csrc_id_list.size());
                 for (auto const& it : rtp->csrc_id_list)
                 {
-                    xlog_dbg("rtp->csrc_id_list: %" PRIu32, it);
+                    xlog_dbg("rtp->csrc_id_list number: %" PRIu32, it);
                 }
                 if (rtp->has_extended_header)
                 {
@@ -141,6 +141,17 @@ int PacketProcess::processEthernetData(std::shared_ptr<std::vector<uint8_t>> dat
                     break;
                 }
                 case PacketType::UDPData:
+                {
+                    /* Try parsing it as RTP packet */
+                    if (!processRTPPacket(shared_packet))
+                    {
+                        break;
+                    }
+                    
+                    shared_packet->cur_type = PacketType::Data;
+                    break;
+                }
+                case PacketType::RTPData:
                 default:
                 {
                     debug_packet(shared_packet);
@@ -475,7 +486,6 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet)
 
 ref:
 https://datatracker.ietf.org/doc/html/rfc3550
-
 
 RTP header:
 
