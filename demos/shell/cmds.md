@@ -144,3 +144,16 @@ date +"%F %T"
 # script会记录会话的内容
 script
 ```
+
+## 遍历文件 
+
+```bash
+
+# 遍历所有文件，并修改封装格式(.mkv --> .mp4)
+for file in `ls ./*.mkv`
+do
+new_name=`echo $file | sed -E "s/(.*)\.mkv/\1.mp4/g"`
+echo "Processing: $file --> $new_name"
+ffmpeg -i $file -codec copy -y $new_name
+done
+```

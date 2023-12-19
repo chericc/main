@@ -150,7 +150,25 @@ ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a eac3 -y 4K_Food_HEVC_w6
 ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a mp2 -y 4K_Food_HEVC_w640_MP2.mkv
 ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_s24le -y 4K_Food_HEVC_w640_PCMS24LE.mkv
 
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a truehd -y 4K_Food_HEVC_w640_TRUEHD.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_bluray -y 4K_Food_HEVC_w640_PCMBLUERAY.img
+# wrapper
+4K_Food_AV1_MP2.mkv              4K_Food_HEVC_w640_MP3.mkv       4K_Food_JPEGLS_w640_AAC.mkv
+4K_Food_AVS2_AAC.mkv             4K_Food_HEVC_w640_PCMALAW.mkv   4K_Food_MJPEG_AAC.mkv
+4K_Food_H264_AAC.mkv             4K_Food_HEVC_w640_PCMMULAW.mkv  4K_Food.mkv
+4K_Food_H264_MP2.mkv             4K_Food_HEVC_w640_PCMS16BE.mkv  4K_Food_MPEG1_AAC.mkv
+4K_Food_H265_MP2.mkv             4K_Food_HEVC_w640_PCMS16LE.mkv  4K_Food_MPEG2_AAC.mkv
+4K_Food_HEVC_w640_AC3.mkv        4K_Food_HEVC_w640_PCMS24LE.mkv  4K_Food_MPEG4_AAC.mkv
+4K_Food_HEVC_w640_ADPCMG722.mkv  4K_Food_HEVC_w640_PCMU8.mkv     4K_Food_VC2_w640_AAC.mkv
+4K_Food_HEVC_w640_ALAC.mkv       4K_Food_HEVC_w640_VORBIS.mkv    4K_Food_VP8_MP2.mkv
+4K_Food_HEVC_w640_EAC3.mkv       4K_Food_HEVC_w640_WMAV1.mkv     4K_Food_VP9_MP2.mkv
+4K_Food_HEVC_w640_FLAC.mkv       4K_Food_HEVC_w640_WMAV2.mkv
+4K_Food_HEVC_w640_MP2.mkv        4K_Food_JPEG2000_w640_AAC.mkv
+
+for i in `ls ./`
+do
+echo "processing $i"
+ffmpeg -i $1 -codec copy $
+done
+
+ffmpeg -i 4K_Food_AV1_MP2.mkv
 
 ```
