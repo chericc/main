@@ -172,3 +172,67 @@ done
 ffmpeg -i 4K_Food_AV1_MP2.mkv
 
 ```
+
+
+## special encodes
+
+```bash
+
+MP3
+AAC
+WMA
+RM
+FLAC
+Ogg Vorbis
+Opus
+SRS Truvolume
+Dobly Audio
+DTS
+7.1/5.1
+
+AV1 MP-10 L6.1 8Kx4K 60fps
+VP9 Profile-2 6.1 8Kx4K 60fps
+H.265 HEVC MP-10 L6.1 8Kx4K 60fps
+AVS3 Phase 1 up to 8Kx4K 60fps
+AVS2-P2 Profile up to 8Kx4K 60fps
+H.264 AVC HP L5.1 up to 4Kx2K 30fps
+MPEG-4 ASP L5 up to 1080P 60fps
+WMV/VC-1 SP/MP/AP up to 1080P 60fps
+AVS-P16(AVS+)/AVS-P2 JiZhun Profile up to 1080P 60fps
+MPEG-2 MP/HL up to 1080P 60fps
+MPEG-1 MP/HL up to 1080P 60fps
+
+ffmpeg -help encoder=libsvtav1
+ffmpeg -help encoder=libaom-av1 
+ffmpeg -help encoder=libx265
+ffmpeg -help encoder=libxavs2
+ffmpeg -help encoder=libx264
+
+# preset 6 @ main
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libaom-av1 -vf scale=7680:4320 -r 60 -b:v 10M Food_AV1_7680x4320_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libvpx-vp9 -vf scale=7680:4320 -r 60 -b:v 10M Food_VP9_7680x4320_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -vf scale=7680:4320 -r 60 -b:v 10M Food_HEVC_7680x4320_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libxavs2 -vf scale=7680:4320 -r 60 -b:v 10M Food_AVS2_7680x4320_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx264 -profile:v high -level 5.1 -vf scale=3840:2160 -r 30 -b:v 10M Food_H264_3840x2160_30FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg4 -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG4_1920x1080_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=1920:1080 -r 60 -b:v 10M Food_WMV1_1920x1080_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=1920:1080 -r 60 -b:v 10M Food_WMV2_1920x1080_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG1_1920x1080_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG2_1920x1080_60FPS_AAC.mkv
+
+# reduce res
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libaom-av1 -vf scale=640:360 -r 60 -b:v 10M Food_AV1_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libvpx-vp9 -vf scale=640:360 -r 60 -b:v 10M Food_VP9_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -vf scale=640:360 -r 60 -b:v 10M Food_HEVC_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libxavs2 -vf scale=640:360 -r 60 -b:v 10M Food_AVS2_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx264 -profile:v high -level 5.1 -vf scale=640:360 -r 30 -b:v 10M Food_H264_640x360_30FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg4 -vf scale=640:360 -r 60 -b:v 10M Food_MPEG4_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=640:360 -r 60 -b:v 10M Food_WMV1_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=640:360 -r 60 -b:v 10M Food_WMV2_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=640:360 -r 60 -b:v 10M Food_MPEG1_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=640:360 -r 60 -b:v 10M Food_MPEG2_640x360_60FPS_AAC.mkv
+
+ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 10M food.h264
+
+```
+
