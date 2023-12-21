@@ -154,6 +154,27 @@ for file in `ls ./*.mkv`
 do
 new_name=`echo $file | sed -E "s/(.*)\.mkv/\1.mp4/g"`
 echo "Processing: $file --> $new_name"
-ffmpeg -i $file -codec copy -y $new_name
+ffmpeg -i $file -codec copy $new_name
 done
+```
+
+## 7z
+
+```bash
+
+sudo apt-get install p7zip-full
+
+7z a -t7z -m0=lzma -mx=1 -mfb=32 -md=256k -ms=on -mmt archive.7z dir1
+
+```
+
+## tmux
+
+```bash
+
+tmux new -s session_name
+
+tmux ls
+tmux at -t session_name
+
 ```

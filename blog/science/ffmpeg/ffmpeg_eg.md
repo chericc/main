@@ -221,18 +221,19 @@ ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=1920:1080 
 ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG2_1920x1080_60FPS_AAC.mkv
 
 # reduce res
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libaom-av1 -vf scale=640:360 -r 60 -b:v 10M Food_AV1_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libvpx-vp9 -vf scale=640:360 -r 60 -b:v 10M Food_VP9_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -vf scale=640:360 -r 60 -b:v 10M Food_HEVC_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libxavs2 -vf scale=640:360 -r 60 -b:v 10M Food_AVS2_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx264 -profile:v high -level 5.1 -vf scale=640:360 -r 30 -b:v 10M Food_H264_640x360_30FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg4 -vf scale=640:360 -r 60 -b:v 10M Food_MPEG4_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=640:360 -r 60 -b:v 10M Food_WMV1_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=640:360 -r 60 -b:v 10M Food_WMV2_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=640:360 -r 60 -b:v 10M Food_MPEG1_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=640:360 -r 60 -b:v 10M Food_MPEG2_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libsvtav1 -vf scale=640:360 -r 60 -b:v 2M Food_AV1_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libvpx-vp9 -vf scale=640:360 -r 60 -b:v 2M Food_VP9_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -vf scale=640:360 -r 60 -b:v 2M Food_HEVC_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libxavs2 -vf scale=640:360 -r 60 -b:v 2M Food_AVS2_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx264 -profile:v high -level 5.1 -vf scale=640:360 -r 30 -b:v 2M Food_H264_640x360_30FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg4 -vf scale=640:360 -r 60 -b:v 2M Food_MPEG4_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=640:360 -r 60 -b:v 2M Food_WMV1_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=640:360 -r 60 -b:v 2M Food_WMV2_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=640:360 -r 60 -b:v 2M Food_MPEG1_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=640:360 -r 60 -b:v 2M Food_MPEG2_640x360_60FPS_AAC.mkv
 
 ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 10M food.h264
+ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 10M food.ts
 
 ```
 
