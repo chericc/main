@@ -231,9 +231,24 @@ ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=640:360 -r 60 -b
 ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=640:360 -r 60 -b:v 2M Food_WMV2_640x360_60FPS_AAC.mkv
 ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=640:360 -r 60 -b:v 2M Food_MPEG1_640x360_60FPS_AAC.mkv
 ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=640:360 -r 60 -b:v 2M Food_MPEG2_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mjpeg -vf scale=640:360 -r 60 -b:v 2M Food_MJPEG_640x360_60FPS_AAC.mkv
+ffmpeg -i Food.mkv -an -vcodec rv10 -vf scale=640:320 -r 60 -b:v 2M Food_RV10_640x360_60FPS_AN.rm
+ffmpeg -i Food.mkv -an -vcodec rv20 -vf scale=640:320 -r 60 -b:v 2M Food_RV20_640x360_60FPS_AN.rm
 
-ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 10M food.h264
-ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 10M food.ts
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a libmp3lame -y Food_MP3.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_s16le -y Food_PCMS16LE.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a ac3 -y Food_AC3.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_alaw -y Food_PCMALAW.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_mulaw -y Food_PCMMULAW.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_s16be -y Food_PCMS16BE.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a flac -y Food_FLAC.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a wmav1 -y Food_WMAV1.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a wmav2 -y Food_WMAV2.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a alac -y Food_ALAC.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a libvorbis -y Food_VORBIS.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a eac3 -y Food_EAC3.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a mp2 -y Food_MP2.mkv
+ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_s24le -y Food_PCMS24LE.mkv
 
 ```
 
