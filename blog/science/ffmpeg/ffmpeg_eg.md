@@ -63,192 +63,62 @@ sudo apt-get install yasm libfdk-aac-dev libmp3lame-dev libopus-dev libsvtav1enc
 ## av1 vp9 uses HandBrake
 ../ffmpeg-6.1/configure --prefix=$(pwd)/output --disable-shared --enable-static --enable-gpl --enable-version3 --enable-nonfree --enable-libx264 --enable-libx265 --enable-libxavs2  --enable-libfdk-aac --enable-libopus --enable-libvorbis --enable-libmp3lame --disable-doc
 
-VFORMAT_MPEG12, --> mpeg1video mpeg2video
-VFORMAT_MPEG4, --> mpeg4
-VFORMAT_H264, --> libx264
-VFORMAT_MJPEG, --> mjpeg
-VFORMAT_REAL, --> rv10 rv20
-VFORMAT_JPEG, --> jpeg2000 ? jpegls ?
-VFORMAT_VC1, --> vc2 ?
-VFORMAT_AVS, --> libxavs(ubuntu源中没有，暂时不做)
-VFORMAT_SW, --> ??
-VFORMAT_H264MVC, --> ??
-VFORMAT_H264_4K2K, --> ??
-VFORMAT_HEVC, --> libx265
-VFORMAT_H264_ENC, --> none
-VFORMAT_JPEG_ENC, --> none
-VFORMAT_VP9, --> libvpx_vp9
-VFORMAT_AVS2, --> libxavs2
-VFORMAT_AV1, --> 
-VFORMAT_AVS3, --> Not support
-
-AFORMAT_MPEG              = 0,    --> libmp3lame ?
-AFORMAT_PCM_S16LE         = 1,    --> pcm_s16le
-AFORMAT_AAC               = 2,    --> libfdk-aac
-AFORMAT_AC3               = 3,    --> ac3
-AFORMAT_ALAW              = 4,    --> pcm_alaw
-AFORMAT_MULAW             = 5,    --> pcm_mulaw
-AFORMAT_DTS               = 6,    --> dca ?
-AFORMAT_PCM_S16BE         = 7,    --> pcm_s16be
-AFORMAT_FLAC              = 8,    --> flac
-AFORMAT_COOK              = 9,    --> ? (Real)
-AFORMAT_PCM_U8            = 10,   --> pcm_u8
-AFORMAT_ADPCM             = 11,   --> adpcm_g722 (多个)
-AFORMAT_AMR               = 12,   --> not support
-AFORMAT_RAAC              = 13,   --> ?
-AFORMAT_WMA               = 14,   --> wmav1 wmav2
-AFORMAT_WMAPRO            = 15,   --> ?
-AFORMAT_PCM_BLURAY        = 16,   --> pcm_bluray
-AFORMAT_ALAC              = 17,   --> alac
-AFORMAT_VORBIS            = 18,   --> libvorbis
-AFORMAT_AAC_LATM          = 19,   --> ?
-AFORMAT_APE               = 20,   --> not support
-AFORMAT_EAC3              = 21,   --> eac3
-AFORMAT_PCM_WIFIDISPLAY   = 22,   --> none
-AFORMAT_DRA               = 23,   --> ?
-AFORMAT_SIPR              = 24,   --> not support
-AFORMAT_TRUEHD            = 25,   --> truehd
-AFORMAT_MPEG1             = 26,   --> not support
-AFORMAT_MPEG2             = 27,   --> mp2 
-AFORMAT_WMAVOI            = 28,   --> ?
-AFORMAT_WMALOSSLESS       = 29,   --> ?
-AFORMAT_PCM_S24LE         = 30,   --> pcm_s24le
-AFORMAT_AV3A              = 31,   --> ?
-
-```
-
-```bash
-
-# video encode 
-ffmpeg -i 4K_Food.mkv -c:v mpeg1video -c:a libfdk_aac -y 4K_Food_MPEG1_AAC.mkv
-ffmpeg -i 4K_Food.mkv -c:v mpeg2video -c:a libfdk_aac -y 4K_Food_MPEG2_AAC.mkv
-ffmpeg -i 4K_Food.mkv -c:v mpeg4 -c:a libfdk_aac -y 4K_Food_MPEG4_AAC.mkv
-ffmpeg -i 4K_Food.mkv -c:v libx264 -c:a libfdk_aac -y 4K_Food_H264_AAC.mkv
-ffmpeg -i 4K_Food.mkv -c:v libx265 -c:a libfdk_aac -y 4K_Food_HEVC_AAC.mkv
-ffmpeg -i 4K_Food.mkv -c:v mjpeg -c:a libfdk_aac -y 4K_Food_MJPEG_AAC.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=1280:-1 -c:v rv10 -c:a libfdk_aac -y 4K_Food_RV10_w1280_AAC.rm
-ffmpeg -i 4K_Food.mkv -vf scale=1280:-1 -c:v rv20 -c:a libfdk_aac -y 4K_Food_RV20_w1280_AAC.rm
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v jpeg2000 -c:a libfdk_aac -y 4K_Food_JPEG2000_w640_AAC.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v jpegls -c:a libfdk_aac -y 4K_Food_JPEGLS_w640_AAC.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v vc2 -c:a libfdk_aac -y 4K_Food_VC2_w640_AAC.mkv
-ffmpeg -i 4K_Food.mkv -c:v libxavs2 -c:a libfdk_aac -y 4K_Food_AVS2_AAC.mkv
-
-# audio encode
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a libmp3lame -y 4K_Food_HEVC_w640_MP3.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_s16le -y 4K_Food_HEVC_w640_PCMS16LE.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a ac3 -y 4K_Food_HEVC_w640_AC3.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_alaw -y 4K_Food_HEVC_w640_PCMALAW.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_mulaw -y 4K_Food_HEVC_w640_PCMMULAW.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_s16be -y 4K_Food_HEVC_w640_PCMS16BE.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a flac -y 4K_Food_HEVC_w640_FLAC.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a adpcm_g722 -y 4K_Food_HEVC_w640_ADPCMG722.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a wmav1 -y 4K_Food_HEVC_w640_WMAV1.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a wmav2 -y 4K_Food_HEVC_w640_WMAV2.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a alac -y 4K_Food_HEVC_w640_ALAC.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a libvorbis -y 4K_Food_HEVC_w640_VORBIS.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a eac3 -y 4K_Food_HEVC_w640_EAC3.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a mp2 -y 4K_Food_HEVC_w640_MP2.mkv
-ffmpeg -i 4K_Food.mkv -vf scale=640:-1 -c:v libx265 -c:a pcm_s24le -y 4K_Food_HEVC_w640_PCMS24LE.mkv
-
-# wrapper
-4K_Food_AV1_MP2.mkv              4K_Food_HEVC_w640_MP3.mkv       4K_Food_JPEGLS_w640_AAC.mkv
-4K_Food_AVS2_AAC.mkv             4K_Food_HEVC_w640_PCMALAW.mkv   4K_Food_MJPEG_AAC.mkv
-4K_Food_H264_AAC.mkv             4K_Food_HEVC_w640_PCMMULAW.mkv  4K_Food.mkv
-4K_Food_H264_MP2.mkv             4K_Food_HEVC_w640_PCMS16BE.mkv  4K_Food_MPEG1_AAC.mkv
-4K_Food_H265_MP2.mkv             4K_Food_HEVC_w640_PCMS16LE.mkv  4K_Food_MPEG2_AAC.mkv
-4K_Food_HEVC_w640_AC3.mkv        4K_Food_HEVC_w640_PCMS24LE.mkv  4K_Food_MPEG4_AAC.mkv
-4K_Food_HEVC_w640_ADPCMG722.mkv  4K_Food_HEVC_w640_PCMU8.mkv     4K_Food_VC2_w640_AAC.mkv
-4K_Food_HEVC_w640_ALAC.mkv       4K_Food_HEVC_w640_VORBIS.mkv    4K_Food_VP8_MP2.mkv
-4K_Food_HEVC_w640_EAC3.mkv       4K_Food_HEVC_w640_WMAV1.mkv     4K_Food_VP9_MP2.mkv
-4K_Food_HEVC_w640_FLAC.mkv       4K_Food_HEVC_w640_WMAV2.mkv
-4K_Food_HEVC_w640_MP2.mkv        4K_Food_JPEG2000_w640_AAC.mkv
-
-for i in `ls ./`
-do
-echo "processing $i"
-ffmpeg -i $1 -codec copy $
-done
-
-ffmpeg -i 4K_Food_AV1_MP2.mkv
-
-```
-
 
 ## special encodes
 
 ```bash
-
-MP3
-AAC
-WMA
-RM
-FLAC
-Ogg Vorbis
-Opus
-SRS Truvolume
-Dobly Audio
-DTS
-7.1/5.1
-
-AV1 MP-10 L6.1 8Kx4K 60fps
-VP9 Profile-2 6.1 8Kx4K 60fps
-H.265 HEVC MP-10 L6.1 8Kx4K 60fps
-AVS3 Phase 1 up to 8Kx4K 60fps
-AVS2-P2 Profile up to 8Kx4K 60fps
-H.264 AVC HP L5.1 up to 4Kx2K 30fps
-MPEG-4 ASP L5 up to 1080P 60fps
-WMV/VC-1 SP/MP/AP up to 1080P 60fps
-AVS-P16(AVS+)/AVS-P2 JiZhun Profile up to 1080P 60fps
-MPEG-2 MP/HL up to 1080P 60fps
-MPEG-1 MP/HL up to 1080P 60fps
-
 ffmpeg -help encoder=libsvtav1
 ffmpeg -help encoder=libaom-av1 
 ffmpeg -help encoder=libx265
 ffmpeg -help encoder=libxavs2
 ffmpeg -help encoder=libx264
 
-# preset 6 @ main
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libaom-av1 -vf scale=7680:4320 -r 60 -b:v 10M Food_AV1_7680x4320_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libvpx-vp9 -vf scale=7680:4320 -r 60 -b:v 10M Food_VP9_7680x4320_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -vf scale=7680:4320 -r 60 -b:v 10M Food_HEVC_7680x4320_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libxavs2 -vf scale=7680:4320 -r 60 -b:v 10M Food_AVS2_7680x4320_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx264 -profile:v high -level 5.1 -vf scale=3840:2160 -r 30 -b:v 10M Food_H264_3840x2160_30FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg4 -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG4_1920x1080_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=1920:1080 -r 60 -b:v 10M Food_WMV1_1920x1080_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=1920:1080 -r 60 -b:v 10M Food_WMV2_1920x1080_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG1_1920x1080_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=1920:1080 -r 60 -b:v 10M Food_MPEG2_1920x1080_60FPS_AAC.mkv
-
-# reduce res
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libsvtav1 -vf scale=640:360 -r 60 -b:v 2M Food_AV1_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libvpx-vp9 -vf scale=640:360 -r 60 -b:v 2M Food_VP9_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -vf scale=640:360 -r 60 -b:v 2M Food_HEVC_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libxavs2 -vf scale=640:360 -r 60 -b:v 2M Food_AVS2_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec libx264 -profile:v high -level 5.1 -vf scale=640:360 -r 30 -b:v 2M Food_H264_640x360_30FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg4 -vf scale=640:360 -r 60 -b:v 2M Food_MPEG4_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv1 -vf scale=640:360 -r 60 -b:v 2M Food_WMV1_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec wmv2 -vf scale=640:360 -r 60 -b:v 2M Food_WMV2_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg1video -vf scale=640:360 -r 60 -b:v 2M Food_MPEG1_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mpeg2video -vf scale=640:360 -r 60 -b:v 2M Food_MPEG2_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -acodec aac -b:a 128K -vcodec mjpeg -vf scale=640:360 -r 60 -b:v 2M Food_MJPEG_640x360_60FPS_AAC.mkv
-ffmpeg -i Food.mkv -an -vcodec rv10 -vf scale=640:320 -r 60 -b:v 2M Food_RV10_640x360_60FPS_AN.rm
-ffmpeg -i Food.mkv -an -vcodec rv20 -vf scale=640:320 -r 60 -b:v 2M Food_RV20_640x360_60FPS_AN.rm
-
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a libmp3lame -y Food_MP3.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_s16le -y Food_PCMS16LE.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a ac3 -y Food_AC3.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_alaw -y Food_PCMALAW.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_mulaw -y Food_PCMMULAW.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_s16be -y Food_PCMS16BE.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a flac -y Food_FLAC.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a wmav1 -y Food_WMAV1.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a wmav2 -y Food_WMAV2.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a alac -y Food_ALAC.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a libvorbis -y Food_VORBIS.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a eac3 -y Food_EAC3.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a mp2 -y Food_MP2.mkv
-ffmpeg -i Food.mkv -vf scale=640:360 -c:v libx265 -r 60 -b:v 128K -c:a pcm_s24le -y Food_PCMS24LE.mkv
-
 ```
 
+
+```bash
+## 
+
+ffmpeg -i 4K_food.ts -codec copy -t 30 Food.mkv
+
+## pure video
+ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 50M -y Food_videosrc.mkv
+
+ffmpeg -i Food_videosrc.mkv -an -vcodec mpeg1video -b:v 2M -y Food_MPEG1.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec mpeg2video -b:v 2M -y Food_MPEG2.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec libx264 -profile:v high -level 5.1 -b:v 2M -y Food_H264_HIGH_51.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec mjpeg -b:v 2M -y Food_MJPEG.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec rv10 -vf scale=640:320 -b:v 2M -y Food_RV10.rm
+ffmpeg -i Food_videosrc.mkv -an -vcodec rv20 -vf scale=640:320 -b:v 2M -y Food_RV20.rm
+ffmpeg -i Food_videosrc.mkv -an -vcodec libx265 -profile:v main10 -x265-params level-idc=6.1 -b:v 2M -y Food_HEVC_MAIN10_61.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec libvpx-vp9 -b:v 2M Food_VP9.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec libxavs2 -b:v 2M Food_AVS2.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec libsvtav1 -b:v 2M Food_AV1.mkv
+ffmpeg -i Food_videosrc.mkv -an -vcodec mpeg4 -b:v 2M Food_MPEG4.mkv
+
+## pure audio
+ffmpeg -i Food.mkv -vn -c:a copy Food_audiosrc.mkv
+
+ffmpeg -i Food_audiosrc.mkv -c:a libmp3lame -y Food_MP3.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_s16le -y Food_PCMS16LE.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a aac -y Food_AAC.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a ac3 -y Food_AC3.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_alaw -y Food_PCMALAW.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_mulaw -y Food_PCMMULAW.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a dca -strict -2 -y Food_DTS.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_s16be -y Food_PCMS16BE.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a flac -y Food_FLAC.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_u8 -y Food_PCM_U8.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a adpcm_ms -y Food_ADPCM_MS.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a libopencore_amrnb -ar 8k -b:a 12.2k -ac 1 -y Food_AMR_NB.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a libvo_amrwbenc -ar 16k -b:a 23.85k -ac 1 -y Food_AMR_WB.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a wmav1 -y Food_WMAV1.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a wmav2 -y Food_WMAV2.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a alac -y Food_ALAC.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a libvorbis -y Food_VORBIS.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a eac3 -y Food_EAC3.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a truehd -strict -2 -y Food_TRUEHD.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a mp2 -y Food_MP2.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_s24le -y Food_PCMS24LE.mkv
+
+```

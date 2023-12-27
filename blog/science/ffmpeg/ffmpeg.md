@@ -183,6 +183,12 @@ ffmpeg -i 1.mkv -i 2.mkv -map 0:0 -map 1:1 output.mkv
 -ar 48000
 ```
 
+#### 声道
+
+```bash
+-ac 1
+```
+
 ### 编码器特有选项
 
 如：
