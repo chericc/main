@@ -81,8 +81,9 @@ ffmpeg -help encoder=libx264
 
 ffmpeg -i 4K_food.ts -codec copy -t 30 Food.mkv
 
-## pure video
+## video
 ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 50M -y Food_videosrc.mkv
+ffmpeg -i Food.mkv -vn -c:a copy Food_audiosrc.mkv
 
 ffmpeg -i Food_videosrc.mkv -an -vcodec mpeg1video -b:v 2M -y Food_MPEG1.mkv
 ffmpeg -i Food_videosrc.mkv -an -vcodec mpeg2video -b:v 2M -y Food_MPEG2.mkv
@@ -96,8 +97,21 @@ ffmpeg -i Food_videosrc.mkv -an -vcodec libxavs2 -b:v 2M Food_AVS2.mkv
 ffmpeg -i Food_videosrc.mkv -an -vcodec libsvtav1 -b:v 2M Food_AV1.mkv
 ffmpeg -i Food_videosrc.mkv -an -vcodec mpeg4 -b:v 2M Food_MPEG4.mkv
 
+ffmpeg -i Food_audiosrc.mkv -i Food_MPEG1.mkv -codec copy -y Food_MPEG1_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_MPEG2.mkv -codec copy -y Food_MPEG2_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_H264_HIGH_51.mkv -codec copy -y Food_H264_HIGH_51_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_MJPEG.mkv -codec copy -y Food_MJPEG_.mkv
+# ffmpeg -i Food_audiosrc.mkv -i Food_RV10.rm -codec copy -y Food_RV10_.rm
+# ffmpeg -i Food_audiosrc.mkv -i Food_RV20.rm -codec copy -y Food_RV20_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_HEVC_MAIN10_61.mkv -codec copy -y Food_HEVC_MAIN10_61_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_VP9.mkv -codec copy -y Food_VP9_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_AVS2.mkv -codec copy -y Food_AVS2_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_AV1.mkv -codec copy -y Food_AV1_.mkv
+ffmpeg -i Food_audiosrc.mkv -i Food_MPEG4.mkv -codec copy -y Food_MPEG4_.mkv
+
 ## pure audio
 ffmpeg -i Food.mkv -vn -c:a copy Food_audiosrc.mkv
+ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 2M -y Food_videosrc.mkv
 
 ffmpeg -i Food_audiosrc.mkv -c:a libmp3lame -y Food_MP3.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_s16le -y Food_PCMS16LE.mkv
@@ -120,5 +134,28 @@ ffmpeg -i Food_audiosrc.mkv -c:a eac3 -y Food_EAC3.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a truehd -strict -2 -y Food_TRUEHD.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a mp2 -y Food_MP2.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_s24le -y Food_PCMS24LE.mkv
+
+ffmpeg -i Food_videosrc.mkv -i Food_MP3.mkv -codec copy -y Food_MP3_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCMS16LE.mkv -codec copy -y Food_PCMS16LE_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_AAC.mkv -codec copy -y Food_AAC_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_AC3.mkv -codec copy -y Food_AC3_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCMALAW.mkv -codec copy -y Food_PCMALAW_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCMMULAW.mkv -codec copy -y Food_PCMMULAW_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_DTS.mkv -codec copy -y Food_DTS_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCMS16BE.mkv -codec copy -y Food_PCMS16BE_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_FLAC.mkv -codec copy -y Food_FLAC_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCM_U8.mkv -codec copy -y Food_PCM_U8_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_ADPCM_MS.mkv -codec copy -y Food_ADPCM_MS_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_AMR_NB.mkv -codec copy -y Food_AMR_NB_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_AMR_WB.mkv -codec copy -y Food_AMR_WB_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_WMAV1.mkv -codec copy -y Food_WMAV1_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_WMAV2.mkv -codec copy -y Food_WMAV2_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_ALAC.mkv -codec copy -y Food_ALAC_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_VORBIS.mkv -codec copy -y Food_VORBIS_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_EAC3.mkv -codec copy -y Food_EAC3_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_TRUEHD.mkv -codec copy -y Food_TRUEHD_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_MP2.mkv -codec copy -y Food_MP2_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCMS24LE.mkv -codec copy -y Food_PCMS24LE_.mkv
+
 
 ```
