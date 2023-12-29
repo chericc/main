@@ -178,3 +178,13 @@ tmux ls
 tmux at -t session_name
 
 ```
+
+## 匹配单词
+
+```bash
+
+\b 表示单词边界
+
+echo "abc abcd" | grep -E "\babc\b"
+
+```
