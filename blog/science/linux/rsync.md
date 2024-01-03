@@ -12,7 +12,7 @@
 
 ```bash
 
--rlptgoD
+-a --> -rlptgoD
 
 means:
 
