@@ -36,7 +36,15 @@ const char *PacketInfo::typeName(PacketType packet_type)
         "ARP",
         "IPv4",
         "IPv6",
-        "IPv4Done",
+        "IPv4Data",
+        "UDP",
+        "UDPData",
+        "TCP",
+        "TCPData",
+        "RTP",
+        "RTPData",
+        "MP2T",
+        "Data",
         "Butt",
     };
 
@@ -92,7 +100,7 @@ uint8_t IPv4PacketInfo::ipv4_len(uint8_t version_and_len)
 
 uint16_t IPv4PacketInfo::ipv4_flag(uint16_t flag_and_fragment_offset)
 {
-    return (flag_and_fragment_offset >> 5) & 0x03;
+    return (flag_and_fragment_offset >> 13) & 0x7;
 }
 
 uint16_t IPv4PacketInfo::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
@@ -100,26 +108,58 @@ uint16_t IPv4PacketInfo::ipv4_fragment_offset(uint16_t flag_and_fragment_offset)
     return (flag_and_fragment_offset & 0x1f);
 }
 
-Protocol IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
+/*
+
+IGMP,       // ipv4.proto = 2
+PIM,        // ipv4.proto = 103
+
+*/
+PacketType IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol)
 {
-    Protocol protocol = Protocol::None;
+    PacketType protocol = PacketType::None;
     switch (ipv4_protocol)
     {
         case 6:
         {
-            protocol = Protocol::TCP;
+            protocol = PacketType::TCP;
             break;   
         }
         case 17:
         {
-            protocol = Protocol::UDP;
+            protocol = PacketType::UDP;
+            break;
+        }
+        case 2:
+        case 103:
+        {
+            xlog_dbg("Protocol(%d) ignored", (int)ipv4_protocol);
             break;
         }
         default:
         {
-            xlog_err("Unknown protocol");
+            xlog_err("Unknown protocol(%d)", (int)ipv4_protocol);
             break;
         }
     }
     return protocol;
+}
+
+/* https://datatracker.ietf.org/doc/html/rfc3551#page-32 */
+PacketType RTPPacketInfo::rtpPayloadConvert(uint8_t pt)
+{
+    PacketType payload = PacketType::None;
+    switch (pt)
+    {
+        case 33:
+        {
+            payload = PacketType::MP2T;
+            break;
+        }
+        default:
+        {
+            xlog_err("Payload type not support(%" PRIu8 ")", pt);
+            break;
+        }
+    }
+    return payload;
 }

@@ -64,6 +64,9 @@ git rm --cached filename
 # 从指定文件读取commit内容
 git commit -F filename
 
+# 修改上一次的提交
+git commit --amend
+
 ```
 
 ## 比较

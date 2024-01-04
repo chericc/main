@@ -1,0 +1,16 @@
+@startuml
+
+title scudo/malloc
+
+:wrappers_c.inc::malloc;
+:combined.h::allocate;
+:local_cache.h::allocate;
+if (no cache) then (yes)
+    :local_cache.h::refill;
+    :primary32.h::popBatch;
+    :Sci->Stats.PoppedBlocks += B->getCount();
+else (no)
+endif
+:return ptr;
+
+@enduml

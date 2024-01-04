@@ -1,0 +1,18 @@
+@startuml
+
+title scudo/free
+
+:wrappers_c.inc::free;
+:combined.h::deallocate;
+:combined.h::quarantineOrDeallocateChunk;
+:local_cache.h::deallocate;
+
+if (cache full) then (yes)
+    :local_cache.h::drain;
+    :primary32.h::pushBatch;
+    :Sci->Stats.PushedBlocks += B->getCount();
+else (no)
+endif
+:return;
+
+@enduml

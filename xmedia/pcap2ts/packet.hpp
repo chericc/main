@@ -13,15 +13,15 @@ enum class PacketType
     ARP,
     IPv4,
     IPv6,
-    IPv4Done,
-    Butt,
-};
-
-enum class Protocol
-{
-    None,
+    IPv4Data,
     UDP,
+    UDPData,
     TCP,
+    TCPData,
+    RTP,
+    RTPData,
+    MP2T,
+    Data, /* Means no more header interested as packet. */
     Butt,
 };
 
@@ -59,6 +59,7 @@ public:
 class PacketInfo
 {
 public:
+    /* pure virtual with implementation in cpp. */
     virtual ~PacketInfo() = 0;
 
     static const char *typeName(PacketType packet_type);
@@ -112,7 +113,43 @@ public:
     static uint8_t ipv4_len(uint8_t version_and_len);
     static uint16_t ipv4_flag(uint16_t flag_and_fragment_offset);
     static uint16_t ipv4_fragment_offset(uint16_t flag_and_fragment_offset);
-    static Protocol convertProtocol(uint8_t ipv4_protocol);
+    static PacketType convertProtocol(uint8_t ipv4_protocol);
+};
+
+class UDPPacketInfo : public PacketInfo
+{
+public:
+    ~UDPPacketInfo() override = default;
+
+    uint16_t port_src;
+    uint16_t port_dst;
+    uint16_t total_length;
+    uint16_t checksum;
+};
+
+class RTPPacketInfo : public PacketInfo
+{
+public:
+    ~RTPPacketInfo() override = default;
+
+    /* Header contents */
+    uint8_t v = 0;  /* version */
+    uint8_t p = 0;  /* padding */
+    uint8_t x = 0;  /* extension */
+    uint8_t cc = 0; /* CSRC Counter */
+    uint8_t m = 0;  /* flag */
+    uint8_t pt = 0; /* load type */
+    uint16_t sequence_number = 0;
+    uint32_t time_stamp = 0;
+    uint32_t ssrc_id = 0; /* SSRC: Synchronization Source */
+    std::list<uint32_t> csrc_id_list; /* CSRC: Contributing Source */
+
+    /* Extended header contents */
+    bool has_extended_header = false;
+    uint16_t defined_by_profile = 0;
+    uint16_t length = 0;
+    
+    static PacketType rtpPayloadConvert(uint8_t pt);
 };
 
 class SharedPacket
@@ -126,3 +163,4 @@ public:
     SharedData data;
     std::list<std::pair<PacketType, std::shared_ptr<PacketInfo>>> parsed_info;
 };
+
