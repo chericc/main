@@ -140,7 +140,7 @@ include_directories(${G_GOOGLETEST_INC_PATH})
 include(CTest)
 
 # debug
-SET(CMAKE_BUILD_TYPE "Debug")
+# SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_BUILD_TYPE "Release")
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug")
