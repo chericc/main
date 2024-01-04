@@ -19,7 +19,7 @@ size_t fileSize(FILE *fp)
 std::vector<uint16_t> readFile16(const std::string &filename)
 {
     std::vector<uint16_t> buffer;
-    FILE *fp = fopen(filename.c_str(), "r");
+    FILE *fp = fopen(filename.c_str(), "rb");
 
     if (fp)
     {
@@ -43,7 +43,7 @@ std::vector<uint16_t> readFile16(const std::string &filename)
 std::vector<uint8_t> readFile8(const std::string &filename)
 {
     std::vector<uint8_t> buffer;
-    FILE *fp = fopen(filename.c_str(), "r");
+    FILE *fp = fopen(filename.c_str(), "rb");
 
     if (fp)
     {
@@ -72,7 +72,7 @@ std::vector<uint8_t> readFile(const std::string &filename)
 
 void saveFile(const std::string &filename, std::vector<uint8_t> data)
 {
-    FILE *fp = fopen(filename.c_str(), "w");
+    FILE *fp = fopen(filename.c_str(), "wb");
     if (fp)
     {
         std::size_t ret = fwrite(data.data(), 1, data.size(), fp);
