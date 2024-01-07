@@ -1,0 +1,18 @@
+@startuml
+
+title 图2.1 基于C++的图形应用概览
+
+actor :Final User: as FUser
+actor Programer as PUser
+
+FUser --> (monitor)
+FUser -> (C++/OpenGL Application)
+PUser -> (C++/OpenGL Application)
+PUser -> (GLSL)
+(C++/OpenGL Application) --> (GLSL)
+(C++/OpenGL Application) --> (CPU)
+(CPU) --> (GPU)
+(GLSL) --> (GPU): install
+(GPU) --> (monitor)
+
+@enduml

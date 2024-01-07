@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="429px" preserveAspectRatio="none" style="width:424px;height:429px;" version="1.1" viewBox="0 0 424 429" width="424px" zoomAndPan="magnify"><defs><filter height="300%" id="f1mtzfr9ykkjre" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="187" x="122.5" y="16.708">图2.1 基于C++的图形应用概览</text><!--MD5=[d47d11e342d683db00ec5cd08d4d65be]
+entity FUser--><ellipse cx="39.5" cy="60.4531" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="8" ry="8" style="stroke: #A80036; stroke-width: 1.5;"/><path d="M39.5,68.4531 L39.5,95.4531 M26.5,76.4531 L52.5,76.4531 M39.5,95.4531 L26.5,110.4531 M39.5,95.4531 L52.5,110.4531 " fill="none" filter="url(#f1mtzfr9ykkjre)" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="67" x="6" y="128.9482">Final User</text><!--MD5=[bae0a8c2278731b9d706eb7309797e94]
+entity PUser--><ellipse cx="144.5" cy="60.4531" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="8" ry="8" style="stroke: #A80036; stroke-width: 1.5;"/><path d="M144.5,68.4531 L144.5,95.4531 M131.5,76.4531 L157.5,76.4531 M144.5,95.4531 L131.5,110.4531 M144.5,95.4531 L157.5,110.4531 " fill="none" filter="url(#f1mtzfr9ykkjre)" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="72" x="108.5" y="128.9482">Programer</text><ellipse cx="97.4767" cy="403.4768" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="40.4767" ry="14.5236" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="53" x="70.9767" y="408.1252">monitor</text><ellipse cx="314.5673" cy="91.6666" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="99.0673" ry="22.2135" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="174" x="227.5673" y="96.315">C++/OpenGL Application</text><ellipse cx="179.5416" cy="207.4768" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="27.0416" ry="14.5236" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="34" x="162.5416" y="212.1252">GLSL</text><ellipse cx="297.5061" cy="207.4768" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="23.5061" ry="14.5236" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="29" x="283.0061" y="212.1252">CPU</text><ellipse cx="179.7132" cy="313.4768" fill="#FEFECE" filter="url(#f1mtzfr9ykkjre)" rx="24.2132" ry="14.5236" style="stroke: #A80036; stroke-width: 1.5;"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacingAndGlyphs" textLength="30" x="164.7132" y="318.1252">GPU</text><!--MD5=[24906a669e465a441f309f6ae426e210]
+link FUser to monitor--><path d="M46.9,132.0331 C59.55,199.5931 84.82,334.6531 94.03,383.9231 " fill="none" id="FUser-&gt;monitor" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="94.98,388.9531,97.2663,379.3733,94.0655,384.0375,89.4013,380.8366,94.98,388.9531" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[cb2ed275be0657cf7b4b4e956ca2f0e0]
+link FUser to C++/OpenGL Application--><path d="M73.23,56.6431 C83.52,48.2331 95.45,40.4031 108,35.9531 C166.07,15.3831 235.63,44.8031 277.38,68.0431 " fill="none" id="FUser-&gt;C++/OpenGL Application" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="281.83,70.5631,275.9666,62.6498,277.4783,68.101,272.0271,69.6126,281.83,70.5631" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[4834094171c6af996f701a6fdc588313]
+link PUser to C++/OpenGL Application--><path d="M180.69,91.4531 C190.56,91.4531 200.42,91.4531 210.29,91.4531 " fill="none" id="PUser-&gt;C++/OpenGL Application" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="215.45,91.4531,206.45,87.4531,210.45,91.4531,206.45,95.4531,215.45,91.4531" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[2210bc67d577004f25ffda0033b97e1a]
+link PUser to GLSL--><path d="M156.64,132.0031 C162.5,151.0731 169.24,173.0231 173.87,188.1231 " fill="none" id="PUser-&gt;GLSL" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="175.36,192.9631,176.5569,183.1873,173.8996,188.1811,168.9058,185.5239,175.36,192.9631" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[38cc896abbe70427f7ce4a4b6050ea44]
+link C++/OpenGL Application to GLSL--><path d="M290.36,112.8331 C263.55,135.4731 220.91,171.4931 197.08,191.6131 " fill="none" id="C++/OpenGL Application-&gt;GLSL" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="193.14,194.9331,202.5938,192.1716,196.9564,191.7028,197.4252,186.0654,193.14,194.9331" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[700c726d18d33c4a250f3fbc5e5146bb]
+link C++/OpenGL Application to CPU--><path d="M311.34,113.6331 C308.17,134.9031 303.33,167.3931 300.29,187.7431 " fill="none" id="C++/OpenGL Application-&gt;CPU" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="299.52,192.8931,304.8132,184.5876,300.2631,187.9487,296.902,183.3986,299.52,192.8931" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[69892ee56f1f8c931594ac1deda760c4]
+link CPU to GPU--><path d="M284.42,219.9831 C262.98,238.8731 220.36,276.4431 196.57,297.4131 " fill="none" id="CPU-&gt;GPU" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="192.64,300.8731,202.0354,297.9191,196.3896,297.5655,196.7432,291.9197,192.64,300.8731" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[afeb167afbf7c9249407ca25a0d8baff]
+link GLSL to GPU--><path d="M179.5,222.0531 C179.5,240.3431 179.5,272.9731 179.5,293.6231 " fill="none" id="GLSL-&gt;GPU" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="179.5,298.8531,183.5,289.8531,179.5,293.8531,175.5,289.8531,179.5,298.8531" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="37" x="180.5" y="265.02">install</text><!--MD5=[8edb79bd59003eb6d813d97c0c7b2056]
+link GPU to monitor--><path d="M168.1,326.6931 C153.78,342.0531 129.15,368.4931 113.09,385.7231 " fill="none" id="GPU-&gt;monitor" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="109.6,389.4631,118.6576,385.5952,113.0044,385.8012,112.7985,380.1481,109.6,389.4631" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[5fcb4db6c8a22be19c628bf1116b53ee]
+@startuml
+
+title 图2.1 基于C++的图形应用概览
+
+actor :Final User: as FUser
+actor Programer as PUser
+
+FUser - -> (monitor)
+FUser -> (C++/OpenGL Application)
+PUser -> (C++/OpenGL Application)
+PUser -> (GLSL)
+(C++/OpenGL Application) - -> (GLSL)
+(C++/OpenGL Application) - -> (CPU)
+(CPU) - -> (GPU)
+(GLSL) - -> (GPU): install
+(GPU) - -> (monitor)
+
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 10:22:07 UTC 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 11.0.21+9-post-Ubuntu-0ubuntu122.04
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>

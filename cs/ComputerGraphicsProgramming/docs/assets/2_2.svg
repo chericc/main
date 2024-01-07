@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="637px" preserveAspectRatio="none" style="width:190px;height:637px;" version="1.1" viewBox="0 0 190 637" width="190px" zoomAndPan="magnify"><defs><filter height="300%" id="f3qeb14182b1i" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><text fill="#000000" font-family="sans-serif" font-size="18" lengthAdjust="spacingAndGlyphs" textLength="160" x="18.5" y="16.708">图2.2 OpenGL管线概览</text><ellipse cx="92.5" cy="38.9531" fill="#000000" filter="url(#f3qeb14182b1i)" rx="10" ry="10" style="stroke: none; stroke-width: 1.0;"/><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="173" x="6" y="88.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="153" x="16" y="110.0918">C++/OpenGL Application</text><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="55" x="65" y="162.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="35" x="75" y="184.0918">顶点着色器</text><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="69" x="58" y="236.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="49" x="68" y="258.0918">曲面细分着色器</text><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="55" x="65" y="310.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="35" x="75" y="332.0918">几何着色器</text><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="41" x="72" y="384.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="21" x="82" y="406.0918">光栅化</text><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="55" x="65" y="458.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="35" x="75" y="480.0918">片段着色器</text><rect fill="#FEFECE" filter="url(#f3qeb14182b1i)" height="33.9688" rx="12.5" ry="12.5" style="stroke: #A80036; stroke-width: 1.5;" width="48" x="68.5" y="532.9531"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="28" x="78.5" y="554.0918">像素操作</text><ellipse cx="92.5" cy="616.9531" fill="none" filter="url(#f3qeb14182b1i)" rx="10" ry="10" style="stroke: #000000; stroke-width: 1.0;"/><ellipse cx="93" cy="617.4531" fill="#000000" rx="6" ry="6" style="stroke: none; stroke-width: 1.0;"/><!--MD5=[066c350ae720be41a88ae5e9004de9a4]
+link start to C++/OpenGL Application--><path d="M92.5,48.9931 C92.5,57.8831 92.5,71.7931 92.5,83.5231 " fill="none" id="start-&gt;C++/OpenGL Application" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,88.7331,96.5,79.7331,92.5,83.7331,88.5,79.7331,92.5,88.7331" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[8ccc126a901ed01de3c4108c3055fa5b]
+link C++/OpenGL Application to 顶点着色器--><path d="M92.5,123.2931 C92.5,133.4131 92.5,146.5331 92.5,157.4931 " fill="none" id="C++/OpenGL Application-&gt;顶点着色器" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,162.6831,96.5,153.6831,92.5,157.6831,88.5,153.6831,92.5,162.6831" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[913d947ffe034c667efb8d36186ccd1d]
+link 顶点着色器 to 曲面细分着色器--><path d="M92.5,197.2931 C92.5,207.4131 92.5,220.5331 92.5,231.4931 " fill="none" id="顶点着色器-&gt;曲面细分着色器" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,236.6831,96.5,227.6831,92.5,231.6831,88.5,227.6831,92.5,236.6831" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[27c530ea4ace5e4942760223f37b6733]
+link 曲面细分着色器 to 几何着色器--><path d="M92.5,271.2931 C92.5,281.4131 92.5,294.5331 92.5,305.4931 " fill="none" id="曲面细分着色器-&gt;几何着色器" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,310.6831,96.5,301.6831,92.5,305.6831,88.5,301.6831,92.5,310.6831" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[ba812dacc89265d29090314bd5090791]
+link 几何着色器 to 光栅化--><path d="M92.5,345.2931 C92.5,355.4131 92.5,368.5331 92.5,379.4931 " fill="none" id="几何着色器-&gt;光栅化" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,384.6831,96.5,375.6831,92.5,379.6831,88.5,375.6831,92.5,384.6831" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[a0eb04951737ae30dd308984d3593e59]
+link 光栅化 to 片段着色器--><path d="M92.5,419.2931 C92.5,429.4131 92.5,442.5331 92.5,453.4931 " fill="none" id="光栅化-&gt;片段着色器" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,458.6831,96.5,449.6831,92.5,453.6831,88.5,449.6831,92.5,458.6831" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[b063ffb8b7edca405afcc32e8c1f99c8]
+link 片段着色器 to 像素操作--><path d="M92.5,493.2931 C92.5,503.4131 92.5,516.5331 92.5,527.4931 " fill="none" id="片段着色器-&gt;像素操作" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,532.6831,96.5,523.6831,92.5,527.6831,88.5,523.6831,92.5,532.6831" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[4b6ba9482d0e3060551906bfda72412a]
+link 像素操作 to end--><path d="M92.5,567.0231 C92.5,577.5531 92.5,591.2031 92.5,601.4131 " fill="none" id="像素操作-&gt;end" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="92.5,606.6931,96.5,597.6931,92.5,601.6931,88.5,597.6931,92.5,606.6931" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[5380d03bb62a11e3be7384c6a8ada00c]
+@startuml
+
+title 图2.2 OpenGL管线概览
+
+(*) - -> "C++/OpenGL Application"
+- -> 顶点着色器
+- -> 曲面细分着色器
+- -> 几何着色器
+- -> 光栅化
+- -> 片段着色器
+- -> 像素操作
+- -> (*)
+
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 10:22:07 UTC 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 11.0.21+9-post-Ubuntu-0ubuntu122.04
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
