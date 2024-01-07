@@ -28,11 +28,13 @@ add_library(${G_IMAGE}
     SHARED 
     ${src_bmp}
     ${src_imageview}
-    ${src_freetypewrapper})
+)
 target_link_libraries(${G_IMAGE}
     ${G_XTOOLS}
-    freetype
     ${G_TEXTENC})
+
+if (HAS_FREETYPE)
+endif()
 
 if(${gnu})
 set(COMMON_LIB gtest ${G_TEST_COMM} ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC} pthread)
@@ -63,8 +65,16 @@ target_link_libraries(${L_IMAGE_IMAGEVIEW_TEST}
 add_test(NAME ${L_IMAGE_IMAGEVIEW_TEST}
         COMMAND ${L_IMAGE_IMAGEVIEW_TEST})
 
+if (HAS_FREETYPE)
+target_link_libraries(${G_IMAGE}
+    freetype)
+
+target_sources(${G_IMAGE} 
+    PRIVATE ${src_freetypewrapper})
+
 add_executable(${L_IMAGE_FREETYPEWRAPPER_DEMO}
     ${src_freetypewrapper_demo})
 target_link_libraries(${L_IMAGE_FREETYPEWRAPPER_DEMO}
     ${COMMON_LIB}
     )
+endif()

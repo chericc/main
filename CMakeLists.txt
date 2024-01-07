@@ -83,6 +83,17 @@ endif()
 set(G_FREETYPE_LIB_PATH ${G_FREETYPE_PATH}/lib)
 set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include/freetype2)
 
+# opengl depends
+## glfw
+if(${msvc})
+set(G_GLFW_PATH D:/opensrc/glfw/glfw-3.3.9/out/install/x64-Debug)
+set(G_GLFW_LIB_PATH ${G_GLFW_PATH}/lib)
+set(G_GLFW_INC_PATH ${G_GLFW_PATH}/include)
+endif()
+
+if(${msvc})
+
+endif()
 
 # test_comm just for test use
 set(G_TEST_COMM test_comm)
@@ -144,6 +155,9 @@ include(CTest)
 # SET(CMAKE_BUILD_TYPE "Release")
 
 option(USE_ASAN "use ASAN" OFF)
+option(HAS_FREETYPE "has freetype" OFF)
+option(HAS_FFMPEG  "has ffmpeg" OFF)
+
 if (USE_ASAN)
   set(
     CMAKE_C_FLAGS
