@@ -111,6 +111,22 @@ ffmpeg -i Food_audiosrc.mkv -i Food_MPEG4.mkv -codec copy -y Food_MPEG4_.mkv
 ffmpeg -i Food.mkv -vn -c:a copy Food_audiosrc.mkv
 ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 2M -y Food_videosrc.mkv
 
+ffmpeg -i Food.mkv -vn -acodec pcm_s16le Food_PCM_S16LE.wav
+fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -o Food_AAC_LC.m4a
+fdkaac -p 5 -b 128 Food_PCM_S16LE.wav -o Food_AAC_HE_AAC.m4a
+fdkaac -p 29 -b 128 Food_PCM_S16LE.wav -o Food_AAC_HE_AAC_V2.m4a
+fdkaac -p 23 -b 128 Food_PCM_S16LE.wav -o Food_AAC_LD.m4a
+fdkaac -p 39 -b 128 Food_PCM_S16LE.wav -o Food_AAC_ELD.m4a
+fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -f 1 -o - > Food_AAC_LC.adif
+fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -f 2 -o - > Food_AAC_LC.adts
+fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -f 2 -C -o - > Food_AAC_LC_CRCHEADER.adts
+ffmpeg -i Food_AAC_LC.adts -i Food_videosrc.mkv -codec copy Food_AAC_LC_ADTS.ts
+ffmpeg -i Food_AAC_LC_CRCHEADER.adts -i Food_videosrc.mkv -codec copy Food_AAC_LC_ADTS_CRCHEADER.ts
+ffmpeg -i Food_AAC_HE_AAC.m4a -i Food_videosrc.mkv -codec copy Food_AAC_HE_AAC.mp4
+ffmpeg -i Food_AAC_HE_AAC_V2.m4a -i Food_videosrc.mkv -codec copy Food_AAC_HE_AAC_V2.mp4
+ffmpeg -i Food_AAC_LD.m4a -i Food_videosrc.mkv -codec copy Food_AAC_LD.mp4
+ffmpeg -i Food_AAC_ELD.m4a -i Food_videosrc.mkv -codec copy Food_AAC_ELD.mp4
+
 ffmpeg -i Food_audiosrc.mkv -c:a libmp3lame -y Food_MP3.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_s16le -y Food_PCMS16LE.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a aac -y Food_AAC.mkv
@@ -155,5 +171,32 @@ ffmpeg -i Food_videosrc.mkv -i Food_TRUEHD.mkv -codec copy -y Food_TRUEHD_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_MP2.mkv -codec copy -y Food_MP2_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_PCMS24LE.mkv -codec copy -y Food_PCMS24LE_.mkv
 
+
+
+```
+
+## mul channal
+
+```bash
+
+# https://trac.ffmpeg.org/wiki/AudioChannelManipulation
+# ffmpeg -layouts
+
+front center, front left, front right, low frequency, back center, side left, side right, 
+front_center, front_left, front_right, low_frequency, back_center, side_left, side_right, 
+
+ffmpeg -i front_center.wav -filter_complex "[0:a]join=inputs=1:channel_layout=mono:map=0.0-FC[a]" -map "[a]" audio_mono.wav
+ffmpeg -i front_left.wav -i front_right.wav -filter_complex "[0:a][1:a]join=inputs=2:channel_layout=stereo:map=0.0-FL|1.0-FR[a]" -map "[a]" audio_stereo.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -filter_complex "[0:a][1:a][2:a]join=inputs=3:channel_layout=3.0:map=0.0-FL|1.0-FR|2.0-FC[a]" -map "[a]" audio_3_0.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i back_center.wav -filter_complex "[0:a][1:a][2:a][3:a]join=inputs=4:channel_layout=4.0:map=0.0-FL|1.0-FR|2.0-FC|3.0-BC[a]" -map "[a]" audio_4_0.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a]join=inputs=5:channel_layout=5.0(side):map=0.0-FL|1.0-FR|2.0-FC|3.0-SL|4.0-SR[a]" -map "[a]" audio_5_0_side.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i low_frequency.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a][5:a]join=inputs=6:channel_layout=5.1(side):map=0.0-FL|1.0-FR|2.0-FC|3.0-LFE|4.0-SL|5.0-SR[a]" -map "[a]" audio_5_1_side.wav
+
+fdkaac -m5 audio_mono.wav -o audio_mono.m4a
+fdkaac -m5 audio_stereo.wav -o audio_stereo.m4a
+fdkaac -m5 audio_3_0.wav -o audio_3_0.m4a
+fdkaac -m5 audio_4_0.wav -o audio_4_0.m4a
+fdkaac -m5 audio_5_0_side.wav -o audio_5_0_side.m4a
+fdkaac -m5 audio_5_1_side.wav -o audio_5_1_side.m4a
 
 ```
