@@ -182,6 +182,24 @@ ffmpeg -i Food_videosrc.mkv -i Food_PCMS24LE.mkv -codec copy -y Food_PCMS24LE_.m
 # https://trac.ffmpeg.org/wiki/AudioChannelManipulation
 # ffmpeg -layouts
 
+       1ch    C
+
+       2ch    L R
+
+       3ch    C L R
+
+       4ch    C L R Cs
+
+       5ch    C L R Ls Rs
+
+       5.1ch  C L R Ls Rs LFE
+
+       7.1ch (front)
+              C Lc Rc L R Ls Rs LFE
+
+       7.1ch (rear)
+              C L R Ls Rs Rls Rrs LFE
+
 front center, front left, front right, low frequency, back center, side left, side right, 
 front_center, front_left, front_right, low_frequency, back_center, side_left, side_right, 
 
@@ -189,14 +207,37 @@ ffmpeg -i front_center.wav -filter_complex "[0:a]join=inputs=1:channel_layout=mo
 ffmpeg -i front_left.wav -i front_right.wav -filter_complex "[0:a][1:a]join=inputs=2:channel_layout=stereo:map=0.0-FL|1.0-FR[a]" -map "[a]" audio_stereo.wav
 ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -filter_complex "[0:a][1:a][2:a]join=inputs=3:channel_layout=3.0:map=0.0-FL|1.0-FR|2.0-FC[a]" -map "[a]" audio_3_0.wav
 ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i back_center.wav -filter_complex "[0:a][1:a][2:a][3:a]join=inputs=4:channel_layout=4.0:map=0.0-FL|1.0-FR|2.0-FC|3.0-BC[a]" -map "[a]" audio_4_0.wav
-ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a]join=inputs=5:channel_layout=5.0(side):map=0.0-FL|1.0-FR|2.0-FC|3.0-SL|4.0-SR[a]" -map "[a]" audio_5_0_side.wav
-ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i low_frequency.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a][5:a]join=inputs=6:channel_layout=5.1(side):map=0.0-FL|1.0-FR|2.0-FC|3.0-LFE|4.0-SL|5.0-SR[a]" -map "[a]" audio_5_1_side.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a]join=inputs=5:channel_layout=5.0:map=0.0-FL|1.0-FR|2.0-FC|3.0-BL|4.0-BR[a]" -map "[a]" audio_5_0.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i low_frequency.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a][5:a]join=inputs=6:channel_layout=5.1:map=0.0-FL|1.0-FR|2.0-FC|3.0-LFE|4.0-BL|5.0-BR[a]" -map "[a]" audio_5_1.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i low_frequency.wav -i side_left.wav -i side_right.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a][5:a]join=inputs=8:channel_layout=7.1:map=0.0-FL|1.0-FR|2.0-FC|3.0-LFE|4.0-SL|5.0-SR|6.0-BL|7.0-BR[a]" -map "[a]" audio_7_1.wav
+ffmpeg -i front_left.wav -i front_right.wav -i front_center.wav -i low_frequency.wav -i side_left.wav -i side_right.wav -i side_left.wav -i side_right.wav -filter_complex "[0:a][1:a][2:a][3:a][4:a][5:a]join=inputs=8:channel_layout=7.1(wide):map=0.0-FL|1.0-FR|2.0-FC|3.0-LFE|4.0-BL|5.0-BR|6.0-FLC|7.0-FRC[a]" -map "[a]" audio_7_1_wide.wav
 
+# 也可以直接用ffmpeg转，但是不如fdkaac选项多
 fdkaac -m5 audio_mono.wav -o audio_mono.m4a
 fdkaac -m5 audio_stereo.wav -o audio_stereo.m4a
 fdkaac -m5 audio_3_0.wav -o audio_3_0.m4a
 fdkaac -m5 audio_4_0.wav -o audio_4_0.m4a
-fdkaac -m5 audio_5_0_side.wav -o audio_5_0_side.m4a
-fdkaac -m5 audio_5_1_side.wav -o audio_5_1_side.m4a
+fdkaac -m5 audio_5_0.wav -o audio_5_0.m4a
+fdkaac -m5 audio_5_1.wav -o audio_5_1.m4a
+fdkaac -m5 audio_7_1.wav -o audio_7_1.m4a
+fdkaac -m5 audio_7_1_wide.wav -o audio_7_1_wide.m4a
+
+ffmpeg -i audio_mono.m4a audio_mono.aac
+ffmpeg -i audio_stereo.m4a audio_stereo.aac
+ffmpeg -i audio_3_0.m4a audio_3_0.aac
+ffmpeg -i audio_4_0.m4a audio_4_0.aac
+ffmpeg -i audio_5_0.m4a audio_5_0.aac
+ffmpeg -i audio_5_1.m4a audio_5_1.aac
+ffmpeg -i audio_7_1.m4a audio_7_1.aac
+ffmpeg -i audio_7_1_wide.m4a audio_7_1_wide.aac
+
+ffmpeg -i audio_mono.m4a audio_mono.wav
+ffmpeg -i audio_stereo.m4a audio_stereo.wav
+ffmpeg -i audio_3_0.m4a audio_3_0.wav
+ffmpeg -i audio_4_0.m4a audio_4_0.wav
+ffmpeg -i audio_5_0.m4a audio_5_0.wav
+ffmpeg -i audio_5_1.m4a audio_5_1.wav
+ffmpeg -i audio_7_1.m4a audio_7_1.wav
+ffmpeg -i audio_7_1_wide.m4a audio_7_1_wide.wav
 
 ```
