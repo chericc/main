@@ -1,5 +1,15 @@
 # ffmpeg
 
+## common
+
+### 不打印配置信息
+
+```bash
+
+ffmpeg -loglevel quiet
+
+```
+
 ## ffprobe
 
 ### 获取流列表

@@ -1,5 +1,26 @@
 # 一些脚本命令
 
+## 分隔符调整
+
+```bash
+
+# 用ffprobe探测文件夹中的所有文件的信息
+
+OLDIFS="$IFS"
+IFS=$'\n'
+
+for file in `find . -type f`
+do 
+echo "$file"
+ffprobe "$file" -loglevel quiet -show_streams
+echo ""
+sleep 0.2
+done
+
+IFS="$OLDIFS"
+
+```
+
 ## 生成时间
 ```bash
 echo Pack time: $(date +"%Y-%m-%d %T") > version.txt
