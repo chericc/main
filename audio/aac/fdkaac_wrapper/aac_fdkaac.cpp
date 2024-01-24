@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "aacenc_lib.h"
+#include <fdk-aac/aacenc_lib.h>
 
 #ifdef AAC_USE_ASSERT
 #define ASSERT(expr) assert(expr)

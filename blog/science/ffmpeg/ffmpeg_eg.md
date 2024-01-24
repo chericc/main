@@ -60,9 +60,11 @@ done
 
 sudo apt-get install yasm libfdk-aac-dev libmp3lame-dev libopus-dev libsvtav1enc-dev libvorbis-dev libx264-dev libx265-dev libxavs2-dev -y 
 
+# keep version with ubuntu's source.
+../ffmpeg-4.4.4/configure --prefix=$(pwd)/output --disable-shared --enable-static --enable-gpl --enable-version3 --enable-nonfree --enable-libfdk-aac --disable-doc
+
 ## av1 vp9 uses HandBrake
 ../ffmpeg-6.1/configure --prefix=$(pwd)/output --disable-shared --enable-static --enable-gpl --enable-version3 --enable-nonfree --enable-libx264 --enable-libx265 --enable-libxavs2  --enable-libfdk-aac --enable-libopus --enable-libvorbis --enable-libmp3lame --disable-doc
-
 
 ## special encodes
 
@@ -111,17 +113,24 @@ ffmpeg -i Food_audiosrc.mkv -i Food_MPEG4.mkv -codec copy -y Food_MPEG4_.mkv
 ffmpeg -i Food.mkv -vn -c:a copy Food_audiosrc.mkv
 ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 2M -y Food_videosrc.mkv
 
+## -->  difference between MP2-AAC and MP4-AAC: adts format. in adts.header.
+
 ffmpeg -i Food.mkv -vn -acodec pcm_s16le Food_PCM_S16LE.wav
 fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -o Food_AAC_LC.m4a
 fdkaac -p 5 -b 128 Food_PCM_S16LE.wav -o Food_AAC_HE_AAC.m4a
 fdkaac -p 29 -b 128 Food_PCM_S16LE.wav -o Food_AAC_HE_AAC_V2.m4a
 fdkaac -p 23 -b 128 Food_PCM_S16LE.wav -o Food_AAC_LD.m4a
 fdkaac -p 39 -b 128 Food_PCM_S16LE.wav -o Food_AAC_ELD.m4a
+fdkaac -p 129 -b 128 Food_PCM_S16LE.wav -f 2 -o - > Food_AAC_MP2_LC.adts
+fdkaac -p 132 -b 128 Food_PCM_S16LE.wav -f 2 -o - > Food_AAC_MP2_HE_AAC.adts
 fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -f 1 -o - > Food_AAC_LC.adif
 fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -f 2 -o - > Food_AAC_LC.adts
 fdkaac -p 2 -b 128 Food_PCM_S16LE.wav -f 2 -C -o - > Food_AAC_LC_CRCHEADER.adts
 ffmpeg -i Food_AAC_LC.adts -i Food_videosrc.mkv -codec copy Food_AAC_LC_ADTS.ts
 ffmpeg -i Food_AAC_LC_CRCHEADER.adts -i Food_videosrc.mkv -codec copy Food_AAC_LC_ADTS_CRCHEADER.ts
+ffmpeg -i Food_AAC_MP2_LC.adts -i Food_videosrc.mkv -codec copy Food_AAC_MP2_LC.ts
+ffmpeg -i Food_AAC_MP2_HE_AAC.adts -i Food_videosrc.mkv -codec copy Food_AAC_MP2_HE_AAC.ts
+ffmpeg -i Food_AAC_xHE.m4a -i Food_videosrc.mkv -codec copy Food_AAC_xHE.mkv
 ffmpeg -i Food_AAC_HE_AAC.m4a -i Food_videosrc.mkv -codec copy Food_AAC_HE_AAC.mp4
 ffmpeg -i Food_AAC_HE_AAC_V2.m4a -i Food_videosrc.mkv -codec copy Food_AAC_HE_AAC_V2.mp4
 ffmpeg -i Food_AAC_LD.m4a -i Food_videosrc.mkv -codec copy Food_AAC_LD.mp4
