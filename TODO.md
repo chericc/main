@@ -67,3 +67,4 @@
 - system() 函数的风险完善 fork 和 vfork 的区别  是否有占用内存的风险  什么时候（内核版本）有风险？（占用2倍的内存）
 - rsync用法（场景：一个服务器上编辑代码，另一个服务器上编译。需要关注增量传输，文件更新时间）
 - docker用法
+- android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md

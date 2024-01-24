@@ -148,6 +148,7 @@ ffmpeg -i Food_audiosrc.mkv -c:a eac3 -y Food_EAC3.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a truehd -strict -2 -y Food_TRUEHD.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a mp2 -y Food_MP2.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_s24le -y Food_PCMS24LE.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a libopus -y Food_OPUS.mkv
 
 ffmpeg -i Food_videosrc.mkv -i Food_MP3.mkv -codec copy -y Food_MP3_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_PCMS16LE.mkv -codec copy -y Food_PCMS16LE_.mkv
@@ -170,6 +171,7 @@ ffmpeg -i Food_videosrc.mkv -i Food_EAC3.mkv -codec copy -y Food_EAC3_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_TRUEHD.mkv -codec copy -y Food_TRUEHD_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_MP2.mkv -codec copy -y Food_MP2_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_PCMS24LE.mkv -codec copy -y Food_PCMS24LE_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_OPUS.mkv -codec copy -y Food_OPUS_.mkv
 
 
 
