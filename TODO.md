@@ -1,6 +1,5 @@
 # TODO
 
-- blog/science/cs/计算机操作系统-进程同步.md
 - blog/science/linux/锁的实现.md
 - blog/science/linux/系统调用.md
 - blog/science/linux/终端开发环境.md
@@ -58,13 +57,8 @@
 - 组播；组播的转发特征；ffmpeg与组播流；RTSP与组播流在UDP协议上的区别；
 - C++正则匹配是栈上展开
 - https://github.com/gteall/pcap-parser
-- rtp推流服务器（可以参考ffmpeg）
 - cma内存与linux页迁移：
   为什么scudo分配器，在分配小内存时，无法使用剩余很多的cma内存，而分配大内存时，可以使用剩余的cma内存？
   页迁移：https://blog.csdn.net/21cnbao/article/details/108067917
-
-- 写一个git补丁合并工具，支持宽松的合并策略（默认的合并方式大多数情况下都会失败），比如，不考虑行数，只考虑上下文；
-- system() 函数的风险完善 fork 和 vfork 的区别  是否有占用内存的风险  什么时候（内核版本）有风险？（占用2倍的内存）
-- rsync用法（场景：一个服务器上编辑代码，另一个服务器上编译。需要关注增量传输，文件更新时间）
 - docker用法
 - android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md
