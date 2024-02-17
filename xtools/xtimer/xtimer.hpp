@@ -5,7 +5,7 @@
 #include <functional>
 #include <mutex>
 
-#include "xutility.hpp"
+#include "xclass.hpp"
 
 using XTimerID = void*;
 #define XTIMER_ID_INVALID nullptr

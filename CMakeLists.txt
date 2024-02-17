@@ -157,6 +157,7 @@ include(CTest)
 option(USE_ASAN "use ASAN" OFF)
 option(HAS_FREETYPE "has freetype" OFF)
 option(HAS_FFMPEG  "has ffmpeg" OFF)
+option(BIG_ENDIAN "big endian" OFF)
 
 if (USE_ASAN)
   set(
@@ -170,20 +171,15 @@ if (USE_ASAN)
   add_link_options(-fsanitize=address -fno-omit-frame-pointer)
 endif()
 
-# coverage 
-# add_compile_options(--coverage)
-# add_link_options(--coverage)
+# endian
+if(BIG_ENDIAN)
+add_definitions(-DX_BIGENDIAN)
+endif()
 
-# performance analysis
-# add_compile_options(-pg)
-# add_link_options(-pg)
-
-# 
-
+# platform
 set(G_PLATFORM_MSVC "X_PLATFORM_MSVC")
 set(G_PLATFORM_GNU "X_PLATFORM_GNU")
 set(G_PLATFORM_CLANG "X_PLATFORM_CLANG")
-# platform
 if(${msvc})
 add_definitions(-D${G_PLATFORM_MSVC})
 elseif(${gnu})

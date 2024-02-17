@@ -4,6 +4,8 @@
  * copy from ffmpeg/crc
 */
 
+#pragma once
+
 #include <cstddef>
 #include <cstdint>
 

@@ -2,7 +2,7 @@
 #include <limits>
 
 #include "xio.hpp"
-#include "xutility.hpp"
+#include "xbswap.hpp"
 #include "test_comm.hpp"
 
 static std::vector<uint8_t> generateData()
@@ -87,7 +87,7 @@ TEST_F(BaseFileIOTest, read_ele)
         iofile.seek(offset, SEEK_SET);
         uint16_t rb16 = iofile.rb16();
         EXPECT_EQ(rl16, *(uint16_t*)&data[offset]);
-        EXPECT_EQ(rb16, xswap(rl16));
+        EXPECT_EQ(rb16, xbswap(rl16));
         offset += 2;
         ASSERT_EQ((int64_t)offset, iofile.tell());
 
@@ -96,7 +96,7 @@ TEST_F(BaseFileIOTest, read_ele)
         iofile.seek(offset, SEEK_SET);
         uint32_t rb32 = iofile.rb24();
         EXPECT_EQ(rl32, (*(uint32_t*)&data[offset]) & 0x00ffffff);
-        EXPECT_EQ(rb32, xswap(rl32) >> 8);
+        EXPECT_EQ(rb32, xbswap(rl32) >> 8);
         offset += 3;
         ASSERT_EQ((int64_t)offset, iofile.tell());
 
@@ -105,7 +105,7 @@ TEST_F(BaseFileIOTest, read_ele)
         iofile.seek(offset, SEEK_SET);
         rb32 = iofile.rb32();
         EXPECT_EQ(rl32, (*(uint32_t*)&data[offset]));
-        EXPECT_EQ(rb32, xswap(rl32));
+        EXPECT_EQ(rb32, xbswap(rl32));
         offset += 4;
         ASSERT_EQ((int64_t)offset, iofile.tell());
 
@@ -114,7 +114,7 @@ TEST_F(BaseFileIOTest, read_ele)
         iofile.seek(offset, SEEK_SET);
         uint64_t rb64 = iofile.rb64();
         EXPECT_EQ(rl64, (*(uint64_t*)&data[offset]));
-        EXPECT_EQ(rb64, xswap(rl64));
+        EXPECT_EQ(rb64, xbswap(rl64));
         offset += 8;
         ASSERT_EQ((int64_t)offset, iofile.tell());
     }

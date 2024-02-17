@@ -9,7 +9,7 @@
 #include <string>
 #include <functional>
 
-#include "xutility.hpp"
+#include "xclass.hpp"
 
 enum class PcapngContentType
 {

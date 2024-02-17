@@ -5,7 +5,8 @@
 
 #include "fileio.hpp"
 #include "xlog.hpp"
-
+#include "xbswap.hpp"
+#include "xutility.hpp"
 
 #define BYTE_ORDER_MAGIC    0x1A2B3C4D
 
@@ -688,7 +689,7 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(std::
         shb->byte_order_magic = info->fio->r32();
         if (BYTE_ORDER_MAGIC != shb->byte_order_magic)
         {
-            if (BYTE_ORDER_MAGIC != xswap(shb->byte_order_magic))
+            if (BYTE_ORDER_MAGIC != xbswap(shb->byte_order_magic))
             {
                 xlog_err("Magic check failed");
                 error = true;
@@ -698,8 +699,8 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(std::
             {
                 info->littleEndian = false;
                 info->fio->setLittleEndian(false);
-                shb->block_length = xswap(shb->block_length);
-                shb->byte_order_magic = xswap(shb->byte_order_magic);
+                shb->block_length = xbswap(shb->block_length);
+                shb->byte_order_magic = xbswap(shb->byte_order_magic);
             }
         }
         else 

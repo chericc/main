@@ -13,7 +13,7 @@
 #include <functional>
 #include <thread>
 
-#include "xutility.hpp"
+#include "xclass.hpp"
 
 class XThread : public XNonCopyableObject
 {

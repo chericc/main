@@ -1,6 +1,7 @@
 #include "xcrc.hpp"
 
-#if 0
+#include "xbswap.hpp"
+
 static const uint32_t s_crc_table[(int)XCRCID::CRC_MAX][257] = {
     [(int)XCRCID::CRC_8_ATM] = {
         0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31,
@@ -296,18 +297,6 @@ XCrc::XCrc(XCRCID crc_id)
 
 uint32_t XCrc::crc(uint32_t last_crc, const uint8_t *buffer, size_t length)
 {
-    if (!_table)
-    {
-        return 0;
-    }
-
-    const uint8_t *end = buffer + length;
-    
-}
-
-
-uint32_t XCrc::crc(uint32_t last_crc, const uint8_t *buffer, size_t length)
-{
     const uint8_t *end = buffer + length;
     uint32_t crc = last_crc;
 
@@ -316,17 +305,16 @@ uint32_t XCrc::crc(uint32_t last_crc, const uint8_t *buffer, size_t length)
             crc = _table[((uint8_t) crc) ^ *buffer++] ^ (crc >> 8);
 
         while (buffer < end - 3) {
-            crc ^= av_le2ne32(*(const uint32_t *) buffer); buffer += 4;
-            crc = ctx[3 * 256 + ( crc        & 0xFF)] ^
-                  ctx[2 * 256 + ((crc >> 8 ) & 0xFF)] ^
-                  ctx[1 * 256 + ((crc >> 16) & 0xFF)] ^
-                  ctx[0 * 256 + ((crc >> 24)       )];
+            crc ^= x_le2ne32(*(const uint32_t *) buffer); buffer += 4;
+            crc = _table[3 * 256 + ( crc        & 0xFF)] ^
+                  _table[2 * 256 + ((crc >> 8 ) & 0xFF)] ^
+                  _table[1 * 256 + ((crc >> 16) & 0xFF)] ^
+                  _table[0 * 256 + ((crc >> 24)       )];
         }
     }
     
     while (buffer < end)
-        crc = ctx[((uint8_t) crc) ^ *buffer++] ^ (crc >> 8);
+        crc = _table[((uint8_t) crc) ^ *buffer++] ^ (crc >> 8);
 
     return crc;
 }
-#endif 
