@@ -6,6 +6,9 @@
 
 #define xbswapc(bits,x) xbswap##bits##c(x)
 
+// be2ne: big endian to native endian
+// le2ne: little endian to native endian
+
 #ifdef X_BIGENDIAN
 #define x_be2ne16(x) (x)
 #define x_be2ne32(x) (x)
