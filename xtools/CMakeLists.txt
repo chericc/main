@@ -9,6 +9,7 @@ set(XTOOL_DEMO_XTIMER demo_xtools_xtimer)
 set(XTOOL_DEMO_XTEST_CLOCK demo_xtools_xtest_clock)
 set(XTOOL_TEST_XTEST_CLOCK test_xtools_xtest_clock)
 set(XTOOL_TEST_XUTILITY test_xtools_xutility)
+set(XTOOL_DEMO_XUTILITY_CRC demo_xtools_xutility_crc)
 
 aux_source_directory(xconfig src_xconfig)
 aux_source_directory(xcrossplatform src_xcrossplatform)
@@ -30,6 +31,7 @@ aux_source_directory(xtimer/demo src_xtimer_demo)
 aux_source_directory(xtest/demo_xtest_clock src_xtest_clock_demo)
 aux_source_directory(xtest/test_xtest_clock src_xtest_clock_test)
 aux_source_directory(xutility/test src_xutility_test)
+aux_source_directory(xutility/demo_crc src_xutility_demo_crc)
 
 include_directories(
         xconfig
@@ -133,8 +135,13 @@ add_test(NAME ${XTOOL_TEST_XTEST_CLOCK}
 
 # test_xutility
 add_executable(${XTOOL_TEST_XUTILITY} 
-${src_xutility_test}
-${G_GOOGLETEST_MAIN_SRCFILE})
+        ${src_xutility_test}
+        ${G_GOOGLETEST_MAIN_SRCFILE})
 target_link_libraries(${XTOOL_TEST_XUTILITY} ${COMMON_LIB})
 add_test(NAME ${XTOOL_TEST_XUTILITY}
-COMMAND ${XTOOL_TEST_XUTILITY})
+        COMMAND ${XTOOL_TEST_XUTILITY})
+
+# demo_xutility_crc
+add_executable(${XTOOL_DEMO_XUTILITY_CRC}
+        ${src_xutility_demo_crc})
+target_link_libraries(${XTOOL_DEMO_XUTILITY_CRC} ${COMMON_LIB})
