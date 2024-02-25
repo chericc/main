@@ -45,9 +45,6 @@ void TEST::test_string_basic()
 		string s7(s6.cbegin(), s6.cend());
 		cout << "s7:" << s7 << endl << endl;
 
-		cout << "string s8({\"This is amazing!\"})" << endl;
-		string s8({ "This is amazing!" });
-		cout << "s8:" << s8 << endl << endl;
 		cout << endl;
 	}
 	/* size and capacity */

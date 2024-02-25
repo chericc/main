@@ -35,6 +35,7 @@ public:
     SharedData(std::shared_ptr<std::vector<uint8_t>> adata, std::size_t aoffset, std::size_t asize)
         : data(adata), offset(aoffset), size(asize) {}
     SharedData(SharedData const&) = default;
+    SharedData& operator=(SharedData const&) = default;
 
     std::shared_ptr<std::vector<uint8_t>> data;
     std::size_t offset{0};

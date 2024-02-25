@@ -7,6 +7,8 @@
 using std::cout;
 using std::endl;
 
+#define UNUSED(x) do{(void)x;}while(0)
+
 template <intmax_t N, intmax_t D = 1>
 std::ostream &operator<<(std::ostream &os, const std::ratio<N, D> &rratio)
 {
@@ -30,6 +32,16 @@ void TEST::test_chrono_duration()
 		std::chrono::seconds durASecond(1);
 		std::chrono::minutes durAMinute(1);
 		std::chrono::hours durAHour(1);
+
+		UNUSED(durTwentySecs);
+		UNUSED(durHalfAMinute);
+		UNUSED(durOneMillisecond);
+		UNUSED(durANanoSecond);
+		UNUSED(durAMicroSecond);
+		UNUSED(durAMillisecond);
+		UNUSED(durASecond);
+		UNUSED(durAMinute);
+		UNUSED(durAHour);
 	}
 	// conversion
 	{

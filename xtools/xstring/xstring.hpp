@@ -32,8 +32,7 @@ public:
     
     template <typename Char, if_compatible_char<Char> = true>
     XStringView(const Char *str, size_type len)
-        : m_size(len),
-          m_data(str) {}
+        : m_data(str), m_size(len) {}
 
     const storage_type *m_data{nullptr};
     size_type m_size{0};

@@ -81,7 +81,7 @@ struct opt_info
 int parse_args(int argc, char *argv[], opt_info &option)
 {
     int opt = 0;
-    while ((opt == getopt(argc, argv, "i:c:")) != -1)
+    while ((opt = getopt(argc, argv, "i:c:")) != -1)
     {
         switch (opt)
         {
@@ -108,9 +108,7 @@ int parse_args(int argc, char *argv[], opt_info &option)
 
 int main(int argc, char *argv[])
 {
-
-    xlog_dbg("hello world");
-
+    std::string crc_str;
     do
     {
         std::vector<FILE*> output{stdout};
@@ -124,10 +122,12 @@ int main(int argc, char *argv[])
             xlog_err("No input file");
             break;
         }
+
+        crc_str = crc_file(option.input_filename, option.id);
+
+        fprintf(stdout, "crc: %s\n", crc_str.c_str());
     }
     while (0);
-
-
 
     return 0;
 }

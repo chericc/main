@@ -10,6 +10,8 @@
 
 #include "utility.h"
 
+#define UNUSED(x) do{(void)x;}while(0)
+
 void TEST::test_algorithm_nonmodifying()
 {
 	/* for_each */
@@ -495,13 +497,15 @@ void TEST::test_algorithm_removing()
 		std::vector<int> v{ 1,2,3,4,5 };
 		PRINT_ELEMENTES(v, "v:");
 		std::cout << "remove(v.begin(), v.end(), 3)" << std::endl;
-		std::remove(v.begin(), v.end(), 3);
+		auto ret_remove = std::remove(v.begin(), v.end(), 3);
+		UNUSED(ret_remove);
 		PRINT_ELEMENTES(v, "v:");
 		std::vector<int> v2{ 1,2,3,4,5 };
 		PRINT_ELEMENTES(v2, "v2:");
 		std::cout << "remove_if(v.begin(), v.end(), op(a>2))" << std::endl;
-		std::remove_if(v.begin(), v.end(),
+		auto ret_remove_if = std::remove_if(v.begin(), v.end(),
 			[](const int &ref)->bool {return ref > 2; });
+		UNUSED(ret_remove_if);
 		PRINT_ELEMENTES(v2, "v2:");
 		std::cout << std::endl;
 	}
@@ -527,12 +531,14 @@ void TEST::test_algorithm_removing()
 		std::vector<int> v{ 1,2,2,3,3,3,4,4,4,4,5,5 };
 		PRINT_ELEMENTES(v, "v:");
 		std::cout << "unique(v.begin(), v.end())" << std::endl;
-		std::unique(v.begin(), v.end());
+		auto ret_unique1 = std::unique(v.begin(), v.end());
+		UNUSED(ret_unique1);
 		PRINT_ELEMENTES(v, "v:");
 		std::cout << "unique(v.begin(), v.end(), op(a==b))" << std::endl;
 		std::vector<int> v2{ 1,2,2,3,3,3,4,4,4,4,5,5 };
-		std::unique(v2.begin(), v2.end(),
+		auto ret_unique2 = std::unique(v2.begin(), v2.end(),
 			[](const int &ref_a, const int &ref_b)->bool {return ref_a == ref_b; });
+		UNUSED(ret_unique2);
 		PRINT_ELEMENTES(v2, "v2:");
 		std::cout << std::endl;
 	}
@@ -630,9 +636,6 @@ void TEST::test_algorithm_mutating()
 		std::shuffle(v.begin(), v.end(), std::default_random_engine());
 		PRINT_ELEMENTES(v, "v:");
 		std::vector<int> v2{ 1,2,3,4,5,6,7,8,9 };
-		PRINT_ELEMENTES(v2, "v2:");
-		std::cout << "shuffle_random(v.begin(), v.end())" << std::endl;
-		std::random_shuffle(v2.begin(), v2.end());
 		PRINT_ELEMENTES(v2, "v2:");
 		std::cout << std::endl;
 	}
