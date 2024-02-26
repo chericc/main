@@ -147,6 +147,7 @@ ffmpeg -i Food_audiosrc.mkv -c:a dca -strict -2 -y Food_DTS.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_s16be -y Food_PCMS16BE.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a flac -y Food_FLAC.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_u8 -y Food_PCM_U8.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a adpcm_ima_wav -y Food_ADPCM_IMA_WAV.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a adpcm_ms -y Food_ADPCM_MS.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a libopencore_amrnb -ar 8k -b:a 12.2k -ac 1 -y Food_AMR_NB.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a libvo_amrwbenc -ar 16k -b:a 23.85k -ac 1 -y Food_AMR_WB.mkv
@@ -158,6 +159,7 @@ ffmpeg -i Food_audiosrc.mkv -c:a eac3 -y Food_EAC3.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a truehd -strict -2 -y Food_TRUEHD.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a mp2 -y Food_MP2.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a pcm_s24le -y Food_PCMS24LE.mkv
+ffmpeg -i Food_audiosrc.mkv -c:a pcm_s24be -y Food_PCMS24BE.mkv
 ffmpeg -i Food_audiosrc.mkv -c:a libopus -y Food_OPUS.mkv
 
 ffmpeg -i Food_videosrc.mkv -i Food_MP3.mkv -codec copy -y Food_MP3_.mkv
@@ -170,6 +172,7 @@ ffmpeg -i Food_videosrc.mkv -i Food_DTS.mkv -codec copy -y Food_DTS_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_PCMS16BE.mkv -codec copy -y Food_PCMS16BE_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_FLAC.mkv -codec copy -y Food_FLAC_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_PCM_U8.mkv -codec copy -y Food_PCM_U8_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_ADPCM_IMA_WAV.mkv -codec copy -y Food_ADPCM_IMA_WAV_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_ADPCM_MS.mkv -codec copy -y Food_ADPCM_MS_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_AMR_NB.mkv -codec copy -y Food_AMR_NB_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_AMR_WB.mkv -codec copy -y Food_AMR_WB_.mkv
@@ -181,9 +184,8 @@ ffmpeg -i Food_videosrc.mkv -i Food_EAC3.mkv -codec copy -y Food_EAC3_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_TRUEHD.mkv -codec copy -y Food_TRUEHD_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_MP2.mkv -codec copy -y Food_MP2_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_PCMS24LE.mkv -codec copy -y Food_PCMS24LE_.mkv
+ffmpeg -i Food_videosrc.mkv -i Food_PCMS24BE.mkv -codec copy -y Food_PCMS24BE_.mkv
 ffmpeg -i Food_videosrc.mkv -i Food_OPUS.mkv -codec copy -y Food_OPUS_.mkv
-
-
 
 ```
 
