@@ -4,21 +4,22 @@
 
 ```bash
 
-./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i 8K-HEVC125M.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140
-
-
-# loop
-{
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_igmp_ch25.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_igmp_ch26.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.4:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_sanbeiji_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.5:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_yangjiang_5_fenzhong_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.6:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_4k_16m_60fps_3min_logo4.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.7:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_samsung_4k_20m_cbr_60fps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.8:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i /opt/fonsview/data/media/movie/4K/HD.Club-4K-Chimei-inn-60mbps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.9:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/problem/afamda_4K.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.10:5140&
-  ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i demo2K.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.11:5140&
-}
+# start media server
+# root only
+killall -9 ffmpeg
+killall -9 live555MediaServer
+route add -net 239.239.0.0 netmask 255.255.0.0 dev eno1
+cd /home/fonsview/
+./live555MediaServer&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_igmp_ch25.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_igmp_ch26.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.4:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_sanbeiji_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.5:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_4k_yangjiang_5_fenzhong_50m50p8bit.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.6:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_4k_16m_60fps_3min_logo4.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.7:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/dump_20231030/8K/multicast/dump_h265_samsung_4k_20m_cbr_60fps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.8:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i /opt/fonsview/data/media/movie/4K/HD.Club-4K-Chimei-inn-60mbps.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.9:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i jlxiao/problem/afamda_4K.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.10:5140&
+./ffmpeg -loglevel quiet -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i demo2K.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.11:5140&
 
 ```
 
