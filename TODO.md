@@ -61,5 +61,7 @@
   页迁移：https://blog.csdn.net/21cnbao/article/details/108067917
 - docker用法
 - android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md
+  及其对linux平台开发调试的启发
+  android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
 - printf() 变参的原理 printf("%d", char) 的效果
 - select及其替代品的原理
