@@ -83,6 +83,7 @@ ffmpeg -help encoder=libx264
 ## 
 
 ffmpeg -i 4K_food.ts -codec copy -t 30 Food.mkv
+ffmpeg -i 4K_food.ts -acodec mp2 -vcodec hevc -vf scale=640:360 -r 60 -b:v 4M -y Food_full.mkv
 
 ## video
 ffmpeg -i Food.mkv -an -vcodec libx264 -vf scale=640:360 -r 60 -b:v 50M -y Food_videosrc.mkv
