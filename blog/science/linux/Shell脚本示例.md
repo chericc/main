@@ -70,6 +70,9 @@ if [ -f "$TESTFILE" ]; then echo "exist"; fi
 # 文件夹
 if [ -d "$TESTFILE" ]; then echo "exist"; fi
 
+# 大小比较
+if [ $log_size -gt 0 ]; then echo "bigger"; fi
+
 ```
 
 ## 流程控制
@@ -239,13 +242,6 @@ echo "74407221ab35e399e5cfb8312b3f67f4  /home/test/code//Smart-D2S-24A-P_RV1109/
 bear make 
 ```
 
-## 传参问题
-
-关于函数传参时参数是否可能被转换的问题（double --> int）
-
-拷贝形式的参数传参，没有问题；
-指针形式的参数传参，注意这里存在默认的指针类型转换（编译器可能只是警告），存在问题。
-
 ## 截取文件中的指定行
 
 首先找出关键字所在的行
@@ -316,11 +312,11 @@ PASS=`cat ~/pass.txt`
 OUTPUT=secret-backup.tgz
 SRC=secret-backup.md
 
-
+# encrypt
 tar --atime-preserve -zcf - $SRC | openssl des3 -k $PASS -pbkdf2 -nosalt -out $OUTPUT
 md5sum $OUTPUT
 
-
+# decrypt
 cp -f $SRC $SRC.bak
 openssl des3 -in $OUTPUT -d -k $PASS -pbkdf2 -nosalt | tar zxf -
 ```
@@ -336,21 +332,22 @@ tail -f -s 1 [file]
 ```bash
 mount tmpfs ./tmpfs -t tmpfs -o size=1G
 ```
-## date
+
+## 当前时间
 
 ```bash
 # 2023-09-26 08:58:35
 date +"%F %T"
 ```
 
-## script
+## 记录会话内容
 
 ```bash
 # script会记录会话的内容
 script
 ```
 
-## 遍历文件 
+## 遍历文件夹中的文件
 
 ```bash
 
@@ -384,12 +381,49 @@ tmux at -t session_name
 
 ```
 
-## 匹配单词
+## 匹配单词（识别单词边界）
 
 ```bash
 
 \b 表示单词边界
 
 echo "abc abcd" | grep -E "\babc\b"
+
+```
+
+## 进程相关
+
+```bash
+
+# 判断某个进程是否存在
+
+pidname=adbd
+if [ -n $(pidof $pidname) ]
+then 
+    echo "$pidname exist"
+fi
+
+# 当前进程ID
+echo $$
+
+# 上一个运行的进程ID
+echo $!
+
+
+# 进程控制
+
+# 脚本中创建的子脚本进程会因为父进程被杀而被接管，不容易查找；
+# 可以通过创建标志文件控制这些进程
+
+```
+
+## 数字计算
+
+```bash
+
+# 计算
+param_1=6
+param_2=3
+result=$(($param_1/$param_2))
 
 ```
