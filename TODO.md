@@ -16,10 +16,6 @@
 - 条件变量加锁的问题
 - linux/udev
 - xtools/xstring/xstringview + .arg(val) + .split(spliter) + ...
-- linux/net
-  网络数据包在两个进程之间的流动路径；UDP方式发送数据包时，哪些位置可能出现丢包；出现丢包时，如何确认丢包的原因；
-  CPU中断在丢包中扮演的角色
-- CPU中断与网络负载，CPU中断的分配，CPU中断的分析
 - 组播；组播的转发特征；ffmpeg与组播流；RTSP与组播流在UDP协议上的区别；
 - cma内存与linux页迁移：
   为什么scudo分配器，在分配小内存时，无法使用剩余很多的cma内存，而分配大内存时，可以使用剩余的cma内存？

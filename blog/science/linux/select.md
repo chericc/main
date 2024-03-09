@@ -56,3 +56,4 @@ Epoll seperate fd-set operation and wait operation, as fd-set does not often cha
 
 Epoll also introduced ready-list into kernel. One process is waken up, it just need to get the ready-list to know all fds that have data. This avoids going through.
 
+The ready-list's data structure is r-b-tree.
