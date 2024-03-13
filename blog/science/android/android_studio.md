@@ -25,7 +25,7 @@ Registry:
 - Download gradle-8.2-all.zip from https://mirrors.cloud.tencent.com/gradle/.
 - CD into C:\Users\user-name\.gradle\wrapper\dists\gradle-8.2-all\6mxqtxovn2faat1idb7p6lxsa. Clean this directory. Copy gradle-8.2-all.zip into this directory. Restart download process.
 
-### settings.gradle
+### settings.gradle.kts
 
 - Open *project-dir/settings.gradle[.kts]*
 - Change its content like followings:

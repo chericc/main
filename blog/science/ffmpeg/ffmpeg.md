@@ -160,13 +160,6 @@ ffmpeg -i 1.mkv -i 2.mkv -map 0:0 -map 1:1 output.mkv
 -b:v 256k
 ```
 
-#### 缩放
-
-```bash
--vf scale=640:-1
--filter:v scale=640:-1
-```
-
 ### 音频编码
 
 #### 音频通道数
@@ -263,5 +256,24 @@ ffmpeg -i ..\Left_Right_MIX.mp4 -c copy -f hls 111.m3u8
 ./ffmpeg -probesize 50M -analyzeduration 100M -re -stream_loop -1 -i 8K-HEVC41M.ts -c:a copy -c:v copy -f rtp_mpegts rtp://239.239.3.3:5140
 ```
 
+### 滤镜
 
+
+
+#### 缩放
+
+```bash
+-vf scale=640:-1
+-filter:v scale=640:-1
+```
+
+#### 制作黑边
+
+```bash
+
+-vf pad=1920:1080:0:100:blue
+
+其中0，100指视频放置的位置，1920，1080指最终视频大小
+
+```
 
