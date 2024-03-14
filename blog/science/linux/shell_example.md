@@ -360,6 +360,19 @@ ffmpeg -i $file -codec copy $new_name
 done
 ```
 
+```bash
+# 遍历所有文件，获取编码
+IFS=$'\n'
+outputfile=codec.txt
+truncate -s 0 $outputfile
+for file in `find . -type f | grep -E "\.mkv$|\.mp4$|\.ts"`
+do
+echo $file >> $outputfile
+ffprobe -loglevel quiet -show_streams "$file" | grep codec_name >> $outputfile
+done
+
+```
+
 ## 7z
 
 ```bash

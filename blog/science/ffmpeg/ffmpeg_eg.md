@@ -256,3 +256,14 @@ ffmpeg -i audio_7_1.m4a audio_7_1.wav
 ffmpeg -i audio_7_1_wide.m4a audio_7_1_wide.wav
 
 ```
+
+```bash
+# split channels
+
+ffmpeg -i 4K_food.ts -vn -c:a copy -map_channel 0.1.0 4K_food_left.wav -map_channel 0.1.1 4K_food_right.wav
+
+```
+
+## m3u8
+
+ffmpeg -i main.m3u8 
