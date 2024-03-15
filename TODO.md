@@ -16,11 +16,10 @@
 - 条件变量加锁的问题
 - linux/udev
 - xtools/xstring/xstringview + .arg(val) + .split(spliter) + ...
-- 组播；组播的转发特征；ffmpeg与组播流；RTSP与组播流在UDP协议上的区别；
+- Linux/组播转发与普通UDP包转发的区别
 - cma内存与linux页迁移：
   为什么scudo分配器，在分配小内存时，无法使用剩余很多的cma内存，而分配大内存时，可以使用剩余的cma内存？
   页迁移：https://blog.csdn.net/21cnbao/article/details/108067917
-- docker用法
 - android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md
   及其对linux平台开发调试的启发
   android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
