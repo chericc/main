@@ -430,3 +430,22 @@ fexecve();
 ```
 
 对这种文件的识别通常是由内核作为exec系统调用处理的一部分来完成的。
+
+### 8.13 函数`system`
+
+`system`函数原型如下：
+
+```c
+#include <stdlib.h>
+int system(const char *cmdstring);
+```
+
+因为`system`其实现中调用了`fork`、`exec`和`waitpid`，因此有3种返回值：
+
+（1）`fork`失败或者`waitpid`返回除`EINTR`之外的出错，则`system`返回-1，并且设置`errno`以指示错误类型。
+
+（2）如果`exec`失败，则其返回值如同shell执行了`exit(127)`一样。
+
+（3）否则，如果三个函数都成功，那么`system`的返回值是shell的终止状态。
+
+`system`的一个安全风险是，调用者的权限在被调用的子程序中被保存了下来。设想调用者具有root权限，则子程序将会获得这个权限，从而产生了权限泄漏。注：这里权限继承表现在有效用户ID的继承。
