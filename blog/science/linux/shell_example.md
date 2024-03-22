@@ -440,3 +440,12 @@ param_2=3
 result=$(($param_1/$param_2))
 
 ```
+
+## grep
+
+```bash
+
+grep abc . -rnsHa
+
+```
+

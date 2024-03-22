@@ -267,3 +267,15 @@ ffmpeg -i 4K_food.ts -vn -c:a copy -map_channel 0.1.0 4K_food_left.wav -map_chan
 ## m3u8
 
 ffmpeg -i main.m3u8 
+
+## 4k
+
+```bash
+ffmpeg -i Food.mkv -an -vcodec mpeg2video -b:v 15M -y Food_MPEG2_4k.mkv
+ffmpeg -i Food.mkv -an -vcodec mpeg1video -b:v 15M -y Food_MPEG1_4k.mkv
+ffmpeg -i Food.mkv -an -vcodec mpeg4 -b:v 15M -y Food_MPEG4_4k.mkv
+ffmpeg -i Food.mkv -an -vcodec libx264 -profile:v high -level 5.1 -b:v 15M -y Food_H264_HIGH_51_4k.mkv
+ffmpeg -i Food.mkv -an -vcodec libx265 -profile:v main -x265-params level-idc=50 -b:v 15M -y Food_HEVC_MAIN_5_4k.mkv
+ffmpeg -i Food.mkv -an -vcodec libx265 -profile:v main10 -x265-params level-idc=50 -r 30 -b:v 15M -y Food_HEVC_MAIN10_50_4k.mkv
+ffmpeg -i Food.mkv -an -vcodec libx265 -profile:v main10 -x265-params level-idc=61 -b:v 2M -y Food_HEVC_MAIN10_61.mkv
+```
