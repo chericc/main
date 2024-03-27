@@ -157,6 +157,7 @@ include(CTest)
 option(USE_ASAN "use ASAN" OFF)
 option(HAS_FREETYPE "has freetype" OFF)
 option(HAS_FFMPEG  "has ffmpeg" OFF)
+option(HAS_OPENGL_ENV "has OpenGL environment" ON)
 option(BIG_ENDIAN "big endian" OFF)
 
 if (USE_ASAN)

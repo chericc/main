@@ -1,4 +1,5 @@
 #include "xos_independent.hpp"
+#include <cstring>
 
 int x_fseek64(FILE *stream, int64_t offset, int whence)
 {
@@ -29,5 +30,16 @@ int64_t x_ftell64(FILE *stream)
     ret = ftello64(stream);
 #endif 
 
+    return ret;
+}
+
+int x_strerror(int errnum, char* buf, size_t buflen)
+{
+    int ret = 0;
+#if defined(X_PLATFORM_MSVC)
+    ret = strerror_s(buf, buflen, errnum);
+#else 
+    ret = strerror_r(errnum, buf, buflen);
+#endif
     return ret;
 }

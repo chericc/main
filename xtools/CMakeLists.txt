@@ -140,8 +140,3 @@ add_executable(${XTOOL_TEST_XUTILITY}
 target_link_libraries(${XTOOL_TEST_XUTILITY} ${COMMON_LIB})
 add_test(NAME ${XTOOL_TEST_XUTILITY}
         COMMAND ${XTOOL_TEST_XUTILITY})
-
-# demo_xutility_crc
-add_executable(${XTOOL_DEMO_XUTILITY_CRC}
-        ${src_xutility_demo_crc})
-target_link_libraries(${XTOOL_DEMO_XUTILITY_CRC} ${COMMON_LIB})
