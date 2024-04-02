@@ -449,3 +449,11 @@ grep abc . -rnsHa
 
 ```
 
+## 迁移用户目录
+
+```bash
+
+pkill -u username
+usermod -d dst_dir -m username
+
+```
