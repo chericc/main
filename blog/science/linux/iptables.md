@@ -29,9 +29,12 @@ iptables -t filter -D INPUT 3
 ```bash
 iptables -t filter -A INPUT -p tcp -d 192.168.1.15 -m limit --limit 40/sec --limit-burst=20 -j ACCEPT
 iptables -t filter -A INPUT -p tcp -d 192.168.1.15 -j DROP
-iptables -t filter -D INPUT 2
+iptables -t filter -D INPUT 4
 iptables -t filter -D INPUT 3
 iptables -t filter -R INPUT 2 -p tcp -d 192.168.1.15 -m limit --limit 40/sec --limit-burst=20 -j ACCEPT
+
+iptables -t filter -A INPUT -p tcp -d 192.168.1.10 -m limit --limit 40/sec --limit-burst=20 -j ACCEPT
+iptables -t filter -A INPUT -p tcp -d 192.168.1.10 -j DROP
 ```
 
 ## 
