@@ -39,7 +39,7 @@ int x_strerror(int errnum, char* buf, size_t buflen)
 #if defined(X_PLATFORM_MSVC)
     ret = strerror_s(buf, buflen, errnum);
 #else 
-    ret = strerror_r(errnum, buf, buflen);
+    strerror_r(errnum, buf, buflen);
 #endif
     return ret;
 }
