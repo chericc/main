@@ -80,3 +80,15 @@ git diff <commit-id> <commit-id>^
 git diff <commit-id> <commit-id>~2
 
 ```
+
+## 生成patch
+
+```bash
+
+# will generate patch from HEAD-1 to HEAD
+git format-patch HEAD -1
+
+# 
+git apply <patch-file>
+
+```
