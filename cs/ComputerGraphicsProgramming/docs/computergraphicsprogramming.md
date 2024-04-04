@@ -89,3 +89,161 @@ C++/OpenGL应用程序发送图形数据到顶点着色器，随着管线处理�
 
 #### 2.1.1 C++/OpenGL应用程序
 
+见代码。
+
+```c++
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+void init(GLFWwindow *window) {}
+
+void display(GLFWwindow *window, double currentTime) {
+    glClearColor(1.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+int main() {
+    if (!glfwInit()) {
+        exit(EXIT_FAILURE);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    GLFWwindow *window = glfwCreateWindow(600, 400, "c2-p1", nullptr, nullptr);
+    glfwMakeContextCurrent(window);
+
+    if (glewInit() != GLEW_OK) {
+        exit(EXIT_FAILURE);
+    }
+    glfwSwapInterval(1);
+
+    init(window);
+
+    while (!glfwWindowShouldClose(window)) {
+        display(window, glfwGetTime());
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+}
+```
+
+#### 2.1.2 顶点着色器和片段着色器
+
+见代码。
+
+```c++
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+#define numVAOs 1
+
+GLuint renderingProgram;
+GLuint vao[numVAOs];
+
+GLuint createShaderProgram() {
+    const char *vshaderSource = 
+        "#version 430 \n"
+        "void main(void) \n"
+        "{ gl_Position = vec4(0.0, 0.0, 0.0, 1.0); }";
+    const char *fshaderSource = 
+        "#version 430 \n"
+        "out vec4 color; \n"
+        "void main(void) \n"
+        "{ color = vec4(1.0, 0.0, 0.0, 1.0); }";
+    
+    GLuint vShader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    glShaderSource(vShader, 1, &vshaderSource, nullptr);
+    glShaderSource(fShader, 1, &fshaderSource, nullptr);
+    glCompileShader(vShader);
+    glCompileShader(fShader);
+
+    GLuint vfProgram = glCreateProgram();
+    glAttachShader(vfProgram, vShader);
+    glAttachShader(vfProgram, fShader);
+    glLinkProgram(vfProgram);
+
+    return vfProgram;
+}
+
+void init(GLFWwindow *window) {
+    renderingProgram = createShaderProgram();
+    glGenVertexArrays(numVAOs, vao);
+    glBindVertexArray(vao[0]);
+}
+
+void display(GLFWwindow *window, double currentTime) {
+    glUseProgram(renderingProgram);
+    glPointSize(5.0f);
+    glDrawArrays(GL_POINTS, 0, 1);
+}
+
+int main() {
+    if (!glfwInit()) {
+        exit(EXIT_FAILURE);
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    GLFWwindow *window = glfwCreateWindow(600, 400, "c2-p1", nullptr, nullptr);
+    glfwMakeContextCurrent(window);
+
+    if (glewInit() != GLEW_OK) {
+        exit(EXIT_FAILURE);
+    }
+    glfwSwapInterval(1);
+
+    init(window);
+
+    while (!glfwWindowShouldClose(window)) {
+        display(window, glfwGetTime());
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    exit(EXIT_FAILURE);
+}
+```
+
+#### 2.1.3 曲面细分着色器
+
+可编程曲面细分阶段是最近加入OpenGL（4.0版本）的功能。它提供了一个曲面细分着色器以生成大量三角形，通常以网格形式排列。同时也提供了一些可以以各种方式操作这些三角形的工具。
+
+#### 2.1.4 几何着色器
+
+顶点着色器可赋予程序员一次操作一个顶点的能力，片段着色器可赋予程序员一次操作一个像素的能力，几何着色器可赋予程序员一次操作一个图元的能力。
+
+按图元处理有很多用途，可以让图元变形，还可以删除一些图元从而在渲染的物体上产生洞——这是一种将简单模型转化为复杂模型的方法。
+
+几何着色器也提供了生成额外图元的方法，这些方法也打开了通过转换简单模型得到复杂模型的大门。几何着色器有一种有趣的用法，就是在物体上增加表面纹理，如凸起、麟、毛发。
+
+#### 2.1.5 栅格化
+
+3D世界中的点、三角形、颜色等全部都需要展现在一个2D显示器上。这个2D屏幕由栅格组成。
+
+当3D物体栅格化后，OpenGL会将物体中的图元转化为片段。片段拥有关于像素的信息。栅格化过程确定了为了显示由3个顶点确定的三角形需要绘制的所有像素的位置。
+
+栅格化开始时，先对三角形的每对顶点进行插值。插值过程可以通过选项调节，就目前而言，使用简单的线性插值就够了。
+
+如果栅格化过程到此为止，那么呈现出的图像将会是线框模型。呈现现况模型也是OpenGL中的一个选项，设置方法是在`display()`函数中`glDrawArrays()`的调用之前添加如下代码：
+
+```c
+glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+```
+
+如果不加入这一行代码，插值过程将会继续沿着栅格线填充三角形的内部。将其应用于环面时，会产生一个完全栅格化的实心环面。
+
+#### 2.1.6 片段着色器
+
+片段着色器用于为栅格化的像素指定颜色。在程序2.1.2中，
