@@ -1,5 +1,4 @@
 import logging
-
 import pygame
 import math
 import time
@@ -15,6 +14,9 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+
+
 
 
 def gen_heart_points(width, height, big):
@@ -42,13 +44,24 @@ def calc_big():
     time_now = time.time()
     time_now_sec = math.floor(time_now)
     time_milli_sec = time_now - time_now_sec
-    logging.debug("ms={0}".format(time_milli_sec))
-    return 7 + 3 * time_milli_sec
+    #          -
+    #      -     -
+    #   -          -
+    # -----
+    # (1, 0.51) (0.7, 1)
+    # y = 1 - (x-0.7)^2
+    # y = 0.49 / 0.3 * (x - 0.7) + 1
+    x = time_milli_sec 
+    y = 0.0
+    if x <= 0.7:
+        y = 1 - math.pow(x - 0.7, 2)
+    else:
+        y = 1 - (0.49 / 0.3) * (x - 0.7)
+    logging.debug("x={0},y={1}".format(x,y))
+    return y * 3 + 2
 
 
 def run(surface, clock):
-    logging.debug("draw")
-    logging.debug("cur_time={0}".format(time.time()))
 
     size = surface.get_size()
 
@@ -59,7 +72,7 @@ def run(surface, clock):
         for point in points:
             if point != last_point:
                 pygame.draw.line(surface=surface, color=RED, start_pos=(last_point.x, last_point.y),
-                                 end_pos=(point.x, point.y), width=1)
+                                 end_pos=(point.x, point.y), width=4)
                 last_point = point
 
 
@@ -73,7 +86,7 @@ def game(surface):
         surface.fill(BLACK)
         run(surface, clock)
         pygame.display.flip()
-        clock.tick(100)
+        clock.tick(60)
 
 
 def main():
