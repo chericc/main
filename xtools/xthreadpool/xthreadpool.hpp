@@ -36,12 +36,14 @@ private:
     {
     public:
         using Notify = std::function<void(const NotifyInfo &)>;
+
         explicit ThreadContainer(Notify notify);
+
         void setTask(const Task &task);
         std::thread::id id();
-        bool idle();
         bool joinable();
         void join();
+        
     private:
         void run();
 
@@ -50,6 +52,7 @@ private:
         bool idle_flag_;
         Notify notify_;
 
+        std::mutex mutex_call_;
         std::mutex mutex_task_;
         std::condition_variable cond_have_task_;
     };

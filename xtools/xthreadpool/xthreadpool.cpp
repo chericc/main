@@ -9,6 +9,7 @@ XThreadPool::ThreadContainer::ThreadContainer(Notify notify)
 
 void XThreadPool::ThreadContainer::setTask(const Task &task)
 {
+    std::unique_lock call_lock(mutex_call_);
     std::unique_lock task_lock(mutex_task_);
 
     task_ = std::make_shared<Task>(task);
@@ -23,11 +24,35 @@ void XThreadPool::ThreadContainer::setTask(const Task &task)
 
 std::thread::id XThreadPool::ThreadContainer::id()
 {
+    std::unique_lock call_lock(mutex_call_);
+
     if (trd_ptr_)
     {
         return trd_ptr_->get_id();
     }
     return std::thread::id();
+}
+
+bool XThreadPool::ThreadContainer::joinable()
+{
+    std::unique_lock call_lock(mutex_call_);
+
+    if (trd_ptr_)
+    {
+        return true;
+    }
+    return false;
+}
+
+void XThreadPool::ThreadContainer::join()
+{
+    std::unique_lock call_lock(mutex_call_);
+
+    if (trd_ptr_)
+    {
+        return trd_ptr_->join();
+    }
+    return ;
 }
 
 void XThreadPool::ThreadContainer::run()
