@@ -5,6 +5,7 @@ set(XTOOL_TEST_XCONFIG test_xtools_xconfig)
 set(XTOOL_TEST_XSTRING test_xtools_xstring)
 set(XTOOL_TEST_XIO test_xtools_xio)
 set(XTOOL_TEST_XTHREAD test_xtools_xthread)
+set(XTOOL_TEST_XTHREADPOOL test_xtools_xthreadpool)
 set(XTOOL_DEMO_XTIMER demo_xtools_xtimer)
 set(XTOOL_DEMO_XTEST_CLOCK demo_xtools_xtest_clock)
 set(XTOOL_TEST_XTEST_CLOCK test_xtools_xtest_clock)
@@ -17,6 +18,7 @@ aux_source_directory(xlog src_xlog)
 aux_source_directory(xstring src_xstring)
 aux_source_directory(xio src_xio)
 aux_source_directory(xthread src_xthread)
+aux_source_directory(xthreadpool src_xthreadpool)
 aux_source_directory(xtimer src_xtimer)
 aux_source_directory(xtest src_xtest)
 aux_source_directory(xutility src_xutility)
@@ -27,6 +29,7 @@ aux_source_directory(xlog/test_gtest src_xlog_test)
 aux_source_directory(xstring/test src_xstring_test)
 aux_source_directory(xio/test src_xio_test)
 aux_source_directory(xthread/test src_xthread_test)
+aux_source_directory(xthreadpool/test src_xthreadpool_test)
 aux_source_directory(xtimer/demo src_xtimer_demo)
 aux_source_directory(xtest/demo_xtest_clock src_xtest_clock_demo)
 aux_source_directory(xtest/test_xtest_clock src_xtest_clock_test)
@@ -40,6 +43,7 @@ include_directories(
         xstring
         xio
         xthread
+        xthreadpool
         xutility
         xtimer
         xtest
@@ -53,6 +57,7 @@ add_library(${G_XTOOLS} SHARED
         ${src_xstring} 
         ${src_xio} 
         ${src_xthread} 
+        ${src_xthreadpool}
         ${src_xtimer}
         ${src_xtest}
         ${src_xutility})
@@ -80,6 +85,15 @@ add_executable(${XTOOL_TEST_XTHREAD}
 target_link_libraries(${XTOOL_TEST_XTHREAD} ${COMMON_LIB})
 add_test(NAME ${XTOOL_TEST_XTHREAD}
         COMMAND ${XTOOL_TEST_XTHREAD})
+
+# test_xthreadpool
+add_executable(${XTOOL_TEST_XTHREADPOOL} 
+        ${src_xthreadpool_test}
+        ${G_GOOGLETEST_MAIN_SRCFILE}
+)
+target_link_libraries(${XTOOL_TEST_XTHREADPOOL} ${COMMON_LIB})
+add_test(NAME ${XTOOL_TEST_XTHREADPOOL}
+        COMMAND ${XTOOL_TEST_XTHREADPOOL})
 
 # test_xlog
 add_executable(${XTOOL_TEST_XLOG_TEST} 

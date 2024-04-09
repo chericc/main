@@ -44,3 +44,17 @@ Install jre on ubuntu.
 - Step 0x4
 
 Enjoy it.
+
+## includepath
+
+```json
+
+{
+    "C_Cpp.default.includePath": [
+        "${default}",
+        "${workspaceFolder}/**",
+        "/home/test/opensrc/googletest/build/output/include"
+    ],
+}
+
+```

@@ -25,6 +25,7 @@ public:
     ~XThreadPool();
 
     void addTask(const Task &task);
+    void waitTasks();
 private:
 
     struct NotifyInfo
@@ -42,6 +43,7 @@ private:
         void setTask(const Task &task);
         std::thread::id id();
         bool joinable();
+        void exit();
         void join();
         
     private:
@@ -49,7 +51,8 @@ private:
 
         std::shared_ptr<Task> task_;
         std::shared_ptr<std::thread> trd_ptr_;
-        bool idle_flag_;
+        bool idle_flag_ = false;
+        bool exit_flag_ = false;
         Notify notify_;
 
         std::mutex mutex_call_;
@@ -71,7 +74,8 @@ private:
     std::mutex mutex_pool_;
 
     // conds
-    std::condition_variable cond_pool_not_full_;
+    std::condition_variable cond_pool_not_all_busy_;
+    std::condition_variable cond_pool_all_idle_;
     
     // local storage
     XThreadPoolConfig config_;
