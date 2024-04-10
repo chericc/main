@@ -58,6 +58,7 @@ private:
     LogMessage(const LogMessage&);
 };
 
+// xlog_inf("This is amazing");
 #define xlog_trc(...) xlog_ex(XLOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define xlog_dbg(...) xlog_ex(XLOG_LEVEL_DEBUG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define xlog_log(...) xlog_ex(XLOG_LEVEL_LOG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
@@ -66,6 +67,7 @@ private:
 #define xlog_cri(...) xlog_ex(XLOG_LEVEL_CRITICAL, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 // XLOG(INFO) --> XLOGINFO
+// XLOG(INFO) << "This is amazing"
 #define XLOG(level) XLOG##level.stream()
 
 #define XLOGTRC \
