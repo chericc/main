@@ -166,6 +166,9 @@ class LogStreamBuf : public std::streambuf
 public:
     
     // REQUIREMENTS: "len" must be >= 2 to account for the '\n' and '\0'.
+    // LogStreamBuf(char* buf, int len) { setp(buf, buf + len - 2); }
+    
+    // REQUIREMENTS: "len" must be >= 2 to account for the '\0'.
     LogStreamBuf(char* buf, int len) { setp(buf, buf + len - 2); }
 
     // This effectively ignores overflow.
@@ -234,7 +237,7 @@ LogMessage::LogMessage(const char* file, int line, const char *function, XLOG_LE
 LogMessage::~LogMessage()
 {
     data_->num_chars_to_log_ = data_->stream_.pcount();
-    data_->message_text_[data_->num_chars_to_log_+1] = '\0';
+    data_->message_text_[data_->num_chars_to_log_] = '\0';
     // std::cout << "hahaha>>" << data_->basename_ << ":" << data_->line_ << " " << data_->message_text_ << "\r\n";
     xlog_ex(data_->severity_, data_->basename_, data_->line_, data_->function_, "%s", data_->message_text_);
     delete data_;
