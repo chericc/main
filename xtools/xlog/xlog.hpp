@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include <ostream>
 
 typedef enum XLOG_LEVEL
 {
@@ -44,7 +45,18 @@ void xlog(XLOG_LEVEL level, const char *format, ...) XLOG_VAR_CHECK;
 void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...) XLOG_VAR_CHECK_EX;
 void xlog_setmask(unsigned int mask);
 void xlog_setoutput(const std::vector<FILE*> &fps);
-std::string xlog_shortfilepath(const std::string &path);
+
+struct LogMessageData;
+
+class LogMessage {
+public:
+    LogMessage(const char* file, int line, const char *function, XLOG_LEVEL severity);
+    ~LogMessage();
+    std::ostream& stream();
+    LogMessageData* data_;
+private:
+    LogMessage(const LogMessage&);
+};
 
 #define xlog_trc(...) xlog_ex(XLOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define xlog_dbg(...) xlog_ex(XLOG_LEVEL_DEBUG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
@@ -52,3 +64,19 @@ std::string xlog_shortfilepath(const std::string &path);
 #define xlog_inf(...) xlog_ex(XLOG_LEVEL_INFORMATION, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define xlog_err(...) xlog_ex(XLOG_LEVEL_ERROR, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define xlog_cri(...) xlog_ex(XLOG_LEVEL_CRITICAL, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+
+// XLOG(INFO) --> XLOGINFO
+#define XLOG(level) XLOG##level.stream()
+
+#define XLOGTRC \
+    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_TRACE)
+#define XLOGDBG \
+    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_DEBUG)
+#define XLOGLOG \
+    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_LOG)
+#define XLOGINF \
+    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_INFORMATION)
+#define XLOGERR \
+    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_ERROR)
+#define XLOGCRI \
+    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_CRITICAL)
