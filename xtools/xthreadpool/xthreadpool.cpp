@@ -1,6 +1,6 @@
 #include "xthreadpool.hpp"
 
-#include <sstream>
+#include <iomanip>
 
 #include "xlog.hpp"
 
@@ -69,6 +69,9 @@ void XThreadPool::ThreadContainer::join()
 void XThreadPool::ThreadContainer::run()
 {
     NotifyInfo info;
+    auto this_id = std::this_thread::get_id();
+
+    XLOG(DBG) << "thread " << this_id << " begin";
 
     while (true)
     {
@@ -89,11 +92,13 @@ void XThreadPool::ThreadContainer::run()
 
         idle_flag_ = true;
 
-        info.job_finished_thread_id = std::this_thread::get_id();
+        info.job_finished_thread_id = this_id;
         notify_(info);
 
         cond_have_task_.wait(task_lock);
     }
+
+    XLOG(DBG) << "thread " << this_id << " end";
 }
 
 XThreadPool::XThreadPool(const XThreadPoolConfig &config)
@@ -149,26 +154,22 @@ void XThreadPool::addTask(const Task &task)
     {
         // pool_idle is empty here
 
-        // case 2
-        if (pool_working_.size() <= config_.maximum_pool_size)
-        {
-            xlog_dbg("create worker to working pool");
-
-            auto new_trd_item = std::make_pair(TRD_ID(), TRD_Ptr());
-            new_trd_item.second = std::make_shared<ThreadContainer>(
-                [this](const NotifyInfo &info){ this->onNotify(info); });
-            new_trd_item.second->setTask(task);
-            new_trd_item.first = new_trd_item.second->id();
-            pool_working_.insert(new_trd_item);
-
-            // xlog_dbg_o << "new worker: " << new_trd_item.second->id();
-        }
-        else 
+        while (pool_working_.size() >= config_.maximum_pool_size)
         {
             xlog_dbg("pool full, need wait");
-
             cond_pool_not_all_busy_.wait(lock_pool);
         }
+        
+        xlog_dbg("create worker to working pool");
+
+        auto new_trd_item = std::make_pair(TRD_ID(), TRD_Ptr());
+        new_trd_item.second = std::make_shared<ThreadContainer>(
+            [this](const NotifyInfo &info){ this->onNotify(info); });
+        new_trd_item.second->setTask(task);
+        new_trd_item.first = new_trd_item.second->id();
+        pool_working_.insert(new_trd_item);
+
+        XLOG(DBG) << "new worker: " << new_trd_item.second->id();
     }
 
     return ;
@@ -191,7 +192,7 @@ void XThreadPool::onNotify(const NotifyInfo &info)
 
     do 
     {
-        // xlog_dbg("notify: ")
+        XLOG(DBG) << "notify: " << info.job_finished_thread_id;
 
         auto finished_iterator = pool_working_.find(info.job_finished_thread_id);
         if (finished_iterator != pool_working_.end())

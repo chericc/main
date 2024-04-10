@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <vector>
+#include <algorithm>
 
 #include "xthreadpool.hpp"
 #include "xlog.hpp"
@@ -29,13 +30,15 @@ TEST(xthreadpool, multitask)
 {
     XThreadPoolConfig config;
     std::vector<std::size_t> result;
-    constexpr std::size_t size = 1000;
+    constexpr std::size_t size = 10000;
+    std::mutex mutex_pushback;
 
     {
         XThreadPool pool(config);
         for (std::size_t i = 0; i < size; ++i)
         {
-            pool.addTask([&](){
+            pool.addTask([i, &mutex_pushback, &result](){
+                std::lock_guard<std::mutex> lock(mutex_pushback);
                 result.push_back(i);
             });
         }
@@ -45,6 +48,8 @@ TEST(xthreadpool, multitask)
     EXPECT_EQ(result.size(), size);
     if (result.size() >= size)
     {
+        std::sort(result.begin(), result.end(), std::less<std::size_t>());
+
         for (std::size_t i = 0; i < size; ++i)
         {
             EXPECT_EQ(result[i], i);
