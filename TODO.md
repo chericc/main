@@ -9,9 +9,6 @@
 - demos/linux/pipe
 - demos/ffmpeg
 - net/tcp/tcpsocket
-- xtimer
-  定时器（可以理解为一个闹钟）。
-  搜索定时器原理，并实现一个简单的定时器；
 - 条件变量加锁的问题
 - linux/udev
 - xtools/xstring/xstringview + .arg(val) + .split(spliter) + ...
