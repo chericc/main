@@ -40,8 +40,7 @@ typedef enum XLOG_LEVEL
 #define XLOG_VAR_CHECK_EX
 #endif
 
-void xlog(XLOG_LEVEL level, const char *format, ...) XLOG_VAR_CHECK;
-void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...) XLOG_VAR_CHECK_EX;
+void xlog(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...) XLOG_VAR_CHECK_EX;
 void xlog_setmask(unsigned int mask);
 void xlog_setoutput(const std::vector<FILE*> &fps);
 
@@ -58,12 +57,12 @@ private:
 };
 
 // xlog_inf("This is amazing");
-#define xlog_trc(...) xlog_ex(XLOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define xlog_dbg(...) xlog_ex(XLOG_LEVEL_DEBUG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define xlog_log(...) xlog_ex(XLOG_LEVEL_LOG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define xlog_inf(...) xlog_ex(XLOG_LEVEL_INFORMATION, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define xlog_err(...) xlog_ex(XLOG_LEVEL_ERROR, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
-#define xlog_cri(...) xlog_ex(XLOG_LEVEL_CRITICAL, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define xlog_trc(...) xlog(XLOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define xlog_dbg(...) xlog(XLOG_LEVEL_DEBUG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define xlog_log(...) xlog(XLOG_LEVEL_LOG, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define xlog_inf(...) xlog(XLOG_LEVEL_INFORMATION, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define xlog_err(...) xlog(XLOG_LEVEL_ERROR, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
+#define xlog_cri(...) xlog(XLOG_LEVEL_CRITICAL, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
 // XLOG(INFO) --> XLOGINFO
 // XLOG(INFO) << "This is amazing"

@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <cstring>
 #include <streambuf>
+#include <thread>
 
 static const std::size_t kMaxLogMessageLen = 30000;
 static int s_log_mask = 0xffffffff;
@@ -71,6 +72,14 @@ static std::string now_str()
     return ss.str();
 }
 
+static std::string trd_str()
+{
+    std::stringstream ss;
+    std::thread::id tid = std::this_thread::get_id();
+    ss << tid;
+    return ss.str();
+}
+
 void xlog_setmask(unsigned int mask)
 {
     std::unique_lock<std::mutex> lock(s_call_mutex);
@@ -107,32 +116,7 @@ void xlog_setoutput(const std::vector<FILE*> &fps)
     return ;
 }
 
-void xlog(XLOG_LEVEL level, const char *format, ...)
-{
-    va_list ap;
-    
-    if (! (level & s_log_mask))
-    {
-        return ;
-    }
-
-    std::unique_lock<std::mutex> lock(s_call_mutex);
-
-    for (auto &it : s_fps)
-    {
-        fprintf(it, "[%s]", now_str().c_str());
-        fprintf(it, "[%s]", xlog_getlevel(level));
-        va_start (ap, format);
-        vfprintf(it, format, ap);
-        va_end (ap);
-        fprintf(it, "\n");
-        fflush(it);
-    }
-
-    return ;
-}
-
-void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...)
+void xlog(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...)
 {
     va_list ap;
 
@@ -146,6 +130,7 @@ void xlog_ex(XLOG_LEVEL level, const char *file, int line, const char *func, con
     for (auto &it : s_fps)
     {
         fprintf(it, "[%s]", now_str().c_str());
+        fprintf(it, "[%s]", trd_str().c_str());
         fprintf(it, "[%s]", xlog_getlevel(level));
         fprintf(it, "[%s %d %s] ", const_basename(file), line, func);
         va_start (ap, format);
@@ -239,7 +224,7 @@ LogMessage::~LogMessage()
     data_->num_chars_to_log_ = data_->stream_.pcount();
     data_->message_text_[data_->num_chars_to_log_] = '\0';
     // std::cout << "hahaha>>" << data_->basename_ << ":" << data_->line_ << " " << data_->message_text_ << "\r\n";
-    xlog_ex(data_->severity_, data_->basename_, data_->line_, data_->function_, "%s", data_->message_text_);
+    xlog(data_->severity_, data_->basename_, data_->line_, data_->function_, "%s", data_->message_text_);
     delete data_;
 }
 

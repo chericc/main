@@ -71,7 +71,7 @@ void XThreadPool::ThreadContainer::run()
     NotifyInfo info;
     auto this_id = std::this_thread::get_id();
 
-    XLOG(DBG) << "thread " << this_id << " begin";
+    xlog_dbg("thread begin");
 
     while (true)
     {
@@ -86,8 +86,10 @@ void XThreadPool::ThreadContainer::run()
 
         if (task_)
         {
+            xlog_dbg("work begin");
             (*task_)();
             task_ = nullptr;
+            xlog_dbg("work end");
         }
 
         idle_flag_ = true;
@@ -98,7 +100,7 @@ void XThreadPool::ThreadContainer::run()
         cond_have_task_.wait(task_lock);
     }
 
-    XLOG(DBG) << "thread " << this_id << " end";
+    xlog_dbg("thread end");
 }
 
 XThreadPool::XThreadPool(const XThreadPoolConfig &config)
@@ -135,41 +137,49 @@ void XThreadPool::addTask(const Task &task)
     std::lock_guard<std::mutex> lock_call(mutex_call_);
     std::unique_lock<std::mutex> lock_pool(mutex_pool_);
 
-    // case 1: have idle threads
-    // case 2: total threads number < max
+    // case 1: have idle threads, use idle threads
+    // case 2: total threads number < max, create new thread
+    // case 3: wait for idle threads
 
-    // case 1
-    if (!pool_idle_.empty())
+    while (true)
     {
-        xlog_dbg("use idle pool");
-
-        auto begin = pool_idle_.begin();
-        auto item_trd = *begin;
-        pool_idle_.erase(begin);
-
-        item_trd.second->setTask(task);
-        pool_working_.insert(item_trd);
-    }
-    else 
-    {
-        // pool_idle is empty here
-
-        while (pool_working_.size() >= config_.maximum_pool_size)
+        // case 1
+        if (!pool_idle_.empty())
         {
-            xlog_dbg("pool full, need wait");
-            cond_pool_not_all_busy_.wait(lock_pool);
+            xlog_dbg("use idle pool");
+
+            auto begin = pool_idle_.begin();
+            auto item_trd = *begin;
+            pool_idle_.erase(begin);
+
+            item_trd.second->setTask(task);
+            pool_working_.insert(item_trd);
+            break;
+        }
+
+        // case 2
+        if (pool_working_.size() + pool_idle_.size() < config_.maximum_pool_size)
+        {
+            xlog_dbg("create worker to working pool");
+
+            auto new_trd_item = std::make_pair(TRD_ID(), TRD_Ptr());
+            new_trd_item.second = std::make_shared<ThreadContainer>(
+                [this](const NotifyInfo &info){ this->onNotify(info); });
+            new_trd_item.second->setTask(task);
+            new_trd_item.first = new_trd_item.second->id();
+            pool_working_.insert(new_trd_item);
+            break;
         }
         
-        xlog_dbg("create worker to working pool");
+        // pool_idle is empty here
 
-        auto new_trd_item = std::make_pair(TRD_ID(), TRD_Ptr());
-        new_trd_item.second = std::make_shared<ThreadContainer>(
-            [this](const NotifyInfo &info){ this->onNotify(info); });
-        new_trd_item.second->setTask(task);
-        new_trd_item.first = new_trd_item.second->id();
-        pool_working_.insert(new_trd_item);
+        while (pool_idle_.empty())
+        {
+            xlog_dbg("idle empty, wait");
+            cond_pool_not_all_busy_.wait(lock_pool);
+        }
 
-        XLOG(DBG) << "new worker: " << new_trd_item.second->id();
+        xlog_dbg("idle not empty, wait end");
     }
 
     return ;
