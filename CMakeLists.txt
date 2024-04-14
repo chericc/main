@@ -159,6 +159,7 @@ option(HAS_FREETYPE "has freetype" OFF)
 option(HAS_FFMPEG  "has ffmpeg" OFF)
 option(HAS_OPENGL_ENV "has OpenGL environment" ON)
 option(BIG_ENDIAN "big endian" OFF)
+option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
 if (USE_ASAN)
   set(
@@ -170,6 +171,10 @@ if (USE_ASAN)
     "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer"
   )
   add_link_options(-fsanitize=address -fno-omit-frame-pointer)
+endif()
+
+if (EXPORT_COMPILE_OPTION)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
 # endian

@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     X_UNUSED_PARAMETER(argc);
     X_UNUSED_PARAMETER(argv);
 
-    xlog_setmask(XLOG_MASK_LOG);
+    xlog_setmask(XLOG_ALLOW_LOG);
 
     const std::string path = "/home/test/tmp/dump.pcap";
 

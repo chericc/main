@@ -12,11 +12,11 @@
 
 #pragma once
 
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <ostream>
 
-typedef enum XLOG_LEVEL
+using XLOG_LEVEL = enum XLOG_LEVEL
 {
     XLOG_LEVEL_TRACE        = 1 << 0,
     XLOG_LEVEL_DEBUG        = 1 << 1,
@@ -25,11 +25,15 @@ typedef enum XLOG_LEVEL
     XLOG_LEVEL_ERROR        = 1 << 4,
     XLOG_LEVEL_CRITICAL     = 1 << 5,
     XLOG_LEVEL_BUTT         = 1 << 6,
-} XLOG_LEVEL;
+};
 
-#define XLOG_MASK_LOG (~((unsigned int)XLOG_LEVEL_DEBUG | XLOG_LEVEL_TRACE))
-#define XLOG_MASK_ERR (~((unsigned int)XLOG_LEVEL_INFORMATION | XLOG_LEVEL_LOG \
-                        | XLOG_LEVEL_DEBUG | XLOG_LEVEL_TRACE))
+#define XLOG_ALLOW_ALL (~0U)
+#define XLOG_ALLOW_DBG (~((unsigned int)XLOG_LEVEL_TRACE))
+#define XLOG_ALLOW_LOG (~((unsigned int)XLOG_LEVEL_TRACE | XLOG_LEVEL_DEBUG))
+#define XLOG_ALLOW_INF (~((unsigned int)XLOG_LEVEL_TRACE | XLOG_LEVEL_DEBUG \
+                        | XLOG_LEVEL_LOG))
+#define XLOG_ALLOW_ERR (~((unsigned int)XLOG_LEVEL_TRACE | XLOG_LEVEL_DEBUG \
+                        | XLOG_LEVEL_LOG | XLOG_LEVEL_INFORMATION))
 
 
 #if defined(X_PLATFORM_GNU)
@@ -41,19 +45,22 @@ typedef enum XLOG_LEVEL
 #endif
 
 void xlog(XLOG_LEVEL level, const char *file, int line, const char *func, const char *format, ...) XLOG_VAR_CHECK_EX;
+
 void xlog_setmask(unsigned int mask);
+unsigned int xlog_getmask();
+
 void xlog_setoutput(const std::vector<FILE*> &fps);
 
-struct LogMessageData;
+struct XLogMessageData;
 
-class LogMessage {
+class XLogMessage {
 public:
-    LogMessage(const char* file, int line, const char *function, XLOG_LEVEL severity);
-    ~LogMessage();
+    XLogMessage(const char* file, int line, const char *function, XLOG_LEVEL severity);
+    ~XLogMessage();
     std::ostream& stream();
-    LogMessageData* data_;
+    XLogMessageData* data_;
 private:
-    LogMessage(const LogMessage&);
+    XLogMessage(const XLogMessage&);
 };
 
 // xlog_inf("This is amazing");
@@ -69,14 +76,14 @@ private:
 #define XLOG(level) XLOG##level.stream()
 
 #define XLOGTRC \
-    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_TRACE)
+    XLogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_TRACE)
 #define XLOGDBG \
-    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_DEBUG)
+    XLogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_DEBUG)
 #define XLOGLOG \
-    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_LOG)
+    XLogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_LOG)
 #define XLOGINF \
-    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_INFORMATION)
+    XLogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_INFORMATION)
 #define XLOGERR \
-    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_ERROR)
+    XLogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_ERROR)
 #define XLOGCRI \
-    LogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_CRITICAL)
+    XLogMessage(__FILE__,__LINE__,__FUNCTION__,XLOG_LEVEL_CRITICAL)

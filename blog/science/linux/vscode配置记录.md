@@ -58,3 +58,42 @@ Enjoy it.
 }
 
 ```
+
+## clangd
+
+```json
+{
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=build",
+        "--clang-tidy",
+        "--completion-style=detailed",
+        "--ranking-model=decision_forest",
+        "-j=1",
+        "--background-index", 
+    ],
+    "clangd.path": "/home/test/opensrc/clangd/clangd_17.0.3/bin/clangd"
+}
+```
+
+```yaml
+# ~/.config/clangd/config.yaml
+Diagnostics:
+  ClangTidy:
+    Add:
+      [
+        performance-*,
+        bugprone-*,
+        portability-*,
+        modernize-*,
+      ]
+    Remove: modernize-use-trailing-return-type
+    CheckOptions:
+      WarnOnFloatingPointNarrowingConversion: false
+```
+
+## width 
+
+```json
+    "editor.rulers": [96]
+```

@@ -1,13 +1,12 @@
 #include "xlog.hpp"
 
-#define __STDC_WANT_LIB_EXT2__ 1
+// #define __STDC_WANT_LIB_EXT2__ 1
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <mutex>
 #include <vector>
-#include <algorithm>
 #include <chrono>
 #include <sstream>
 #include <iomanip>
@@ -16,7 +15,7 @@
 #include <thread>
 
 static const std::size_t kMaxLogMessageLen = 30000;
-static int s_log_mask = 0xffffffff;
+static unsigned int s_log_mask = 0xffffffff;
 static std::vector<FILE *> s_fps = {stdout};
 static std::mutex s_call_mutex;
 
@@ -85,6 +84,12 @@ void xlog_setmask(unsigned int mask)
     std::unique_lock<std::mutex> lock(s_call_mutex);
     s_log_mask = mask;
     return ;
+}
+
+unsigned int xlog_getmask()
+{
+    std::unique_lock<std::mutex> lock(s_call_mutex);
+    return s_log_mask;
 }
 
 void xlog_setoutput(const std::vector<FILE*> &fps)
@@ -186,14 +191,14 @@ private:
     LogStream* self_;  // Consistency check hack
 };
 
-struct LogMessageData
+struct XLogMessageData
 {
-    LogMessageData()
+    XLogMessageData()
         : stream_(message_text_, kMaxLogMessageLen, 0) {}
     // Buffer space; contains complete message text.
     char message_text_[kMaxLogMessageLen + 1];
     LogStream stream_;
-    XLOG_LEVEL severity_;  // What level is this LogMessage logged at?
+    XLOG_LEVEL severity_;  // What level is this XLogMessage logged at?
     int line_;              // line number where logging call is.
 
     size_t num_prefix_chars_;     // # of chars of prefix in this message
@@ -203,14 +208,14 @@ struct LogMessageData
     const char* fullname_;        // fullname of file that called LOG
     const char* function_;
 
-    LogMessageData(const LogMessageData&) = delete;
-    LogMessageData& operator=(const LogMessageData&) = delete;
+    XLogMessageData(const XLogMessageData&) = delete;
+    XLogMessageData& operator=(const XLogMessageData&) = delete;
 };
 
-LogMessage::LogMessage(const char* file, int line, const char *function, XLOG_LEVEL severity)
+XLogMessage::XLogMessage(const char* file, int line, const char *function, XLOG_LEVEL severity)
 {
-    //Init(file, line, severity, &LogMessage::SendToLog);
-    data_ = new LogMessageData;
+    //Init(file, line, severity, &XLogMessage::SendToLog);
+    data_ = new XLogMessageData;
 
     data_->basename_ = const_basename(file);
     data_->fullname_ = file;
@@ -219,7 +224,7 @@ LogMessage::LogMessage(const char* file, int line, const char *function, XLOG_LE
     data_->function_ = function;
 }
 
-LogMessage::~LogMessage()
+XLogMessage::~XLogMessage()
 {
     data_->num_chars_to_log_ = data_->stream_.pcount();
     data_->message_text_[data_->num_chars_to_log_] = '\0';
@@ -228,7 +233,7 @@ LogMessage::~LogMessage()
     delete data_;
 }
 
-std::ostream& LogMessage::stream()
+std::ostream& XLogMessage::stream()
 {
     return data_->stream_;
 }
