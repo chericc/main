@@ -91,9 +91,14 @@ set(G_GLFW_LIB_PATH ${G_GLFW_PATH}/lib)
 set(G_GLFW_INC_PATH ${G_GLFW_PATH}/include)
 endif()
 
+# libevent
 if(${msvc})
-
+elseif(${gnu})
+set(G_LIBEVENT_PATH ~/opensrc/libevent/build/output)
+elseif(${clang})
 endif()
+set(G_LIBEVENT_LIB_PATH ${G_LIBEVENT_PATH}/lib)
+set(G_LIBEVENT_INC_PATH ${G_LIBEVENT_PATH}/include)
 
 # test_comm just for test use
 set(G_TEST_COMM test_comm)
@@ -158,6 +163,7 @@ option(USE_ASAN "use ASAN" OFF)
 option(HAS_FREETYPE "has freetype" OFF)
 option(HAS_FFMPEG  "has ffmpeg" OFF)
 option(HAS_OPENGL_ENV "has OpenGL environment" ON)
+option(HAS_LIB_EVENT "has libevent" OFF)
 option(BIG_ENDIAN "big endian" OFF)
 option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
@@ -212,3 +218,4 @@ endif()
 
 add_subdirectory(stl)
 add_subdirectory(demos/ffmpeg)
+add_subdirectory(demos/network)

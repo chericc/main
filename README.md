@@ -79,4 +79,8 @@ sudo chmod 775 /usr/bin/plantuml
 ./autogen.sh
 # build > 
 ../irqbalance-1.9.2/configure --prefix=$(pwd)/output --without-irqbalance-ui
+
+# libevent
+../libevent-2.1.12-stable/configure --disable-static --enable-shared --prefix=$(pwd)/output
+
 ```
