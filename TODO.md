@@ -6,7 +6,6 @@
 - demos/memorypool
 - demos/kernelprograming
 - demos/networkprograming
-- demos/linux/pipe
 - demos/ffmpeg
 - net/tcp/tcpsocket
 - 条件变量加锁的问题
