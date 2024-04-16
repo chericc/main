@@ -1,6 +1,7 @@
 #include "xperftest.hpp"
 
 #include <iomanip>
+#include <sstream>
 
 #include "xlog.hpp"
 
