@@ -81,14 +81,35 @@ git diff <commit-id> <commit-id>~2
 
 ```
 
-## 生成patch
+## patch
 
 ```bash
 
 # will generate patch from HEAD-1 to HEAD
 git format-patch HEAD -1
 
-# 
+# apply patch
 git apply <patch-file>
+
+# adjust apply path 
+
+## remove <n> leading components seperated by slashes('/')
+## -p2
+## makes
+## a/dir/file 
+## --> 
+## file
+## default is -p1
+-p<n>
+
+## prepending <root> to all filenames(-p<n> works first)
+## --directory=modules/git-gui -p1
+## makes
+## a/git-gui.sh
+## -->
+## git-gui.sh
+## --> 
+## modules/git-gui/git-gui.sh
+--directory=<root>
 
 ```
