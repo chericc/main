@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #define xbswap16c(x) ((((x) << 8) & 0xff00) | (((x) >> 8) & 0x00ff))
 #define xbswap32c(x) (xbswap16c(x) << 16 | xbswap16c(x >> 16))
 #define xbswap64c(x) (xbswap32c(x) << 32 | xbswap32c(x >> 32))
