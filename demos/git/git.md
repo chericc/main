@@ -87,6 +87,8 @@ git diff <commit-id> <commit-id>~2
 
 # will generate patch from HEAD-1 to HEAD
 git format-patch HEAD -1
+# or
+git diff ver1 ver2
 
 # apply patch
 git apply <patch-file>
@@ -111,5 +113,14 @@ git apply <patch-file>
 ## --> 
 ## modules/git-gui/git-gui.sh
 --directory=<root>
+
+```
+
+## old & new
+
+```bash
+
+echo 
+git archive -o 
 
 ```
