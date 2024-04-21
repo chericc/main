@@ -34,9 +34,9 @@ public:
 
 /**************** factory ****************/
 
-typedef std::shared_ptr<ColoringInterface> ColoringPtr;
-typedef std::shared_ptr<FurnitureInterface> FurniturePtr;
-typedef std::shared_ptr<FloorInterface> FloorPtr;
+using ColoringPtr = std::shared_ptr<ColoringInterface>;
+using FurniturePtr = std::shared_ptr<FurnitureInterface>;
+using FloorPtr = std::shared_ptr<FloorInterface>;
 
 class ToolsFactoryInterface
 {

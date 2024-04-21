@@ -1,6 +1,6 @@
 #include "house_builder.hpp"
 
-#include <stdio.h>
+#include "xlog.hpp"
 
 void House::setFoundation(const std::string &s)
 {
@@ -29,7 +29,7 @@ void House::setPainted(bool b)
 
 void House::print()
 {
-    printf ("House:\n"
+    xlog_dbg("House:\n"
         "Foundation:%s\n"
         "Structure:%s\n"
         "Roof:%s\n"

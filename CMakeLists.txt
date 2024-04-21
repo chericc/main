@@ -201,15 +201,15 @@ add_definitions(-D${G_PLATFORM_CLANG})
 endif()
 
 # targets
-add_subdirectory(test_comm)
-add_subdirectory(xtools)
-add_subdirectory(image)
 add_subdirectory(audio/wav/demuxer)
 # add_subdirectory(audio/aac/fdkaac_wrapper)
-# add_subdirectory(xmedia/xplay)
-# add_subdirectory(xmedia/xdisplay)
-add_subdirectory(xmedia/pcap2ts)
-add_subdirectory(textenc)
+
+add_subdirectory(cs/DesignPatterns)
+
+add_subdirectory(demos/ffmpeg)
+add_subdirectory(demos/network)
+
+add_subdirectory(image)
 
 if(${gnu})
 add_subdirectory(md5dir)
@@ -217,5 +217,11 @@ add_subdirectory(md5dir)
 endif()
 
 add_subdirectory(stl)
-add_subdirectory(demos/ffmpeg)
-add_subdirectory(demos/network)
+add_subdirectory(test_comm)
+add_subdirectory(textenc)
+# add_subdirectory(xmedia/xplay)
+# add_subdirectory(xmedia/xdisplay)
+add_subdirectory(xmedia/pcap2ts)
+add_subdirectory(xtools)
+
+

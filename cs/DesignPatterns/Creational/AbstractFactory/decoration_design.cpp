@@ -1,9 +1,6 @@
 #include "decoration_design.hpp"
 
-#include <stdio.h>
-
-#define xdebug(x...) do {printf("[debug][%s %d %s]", \
-	__FILE__,__LINE__,__FUNCTION__);printf(x);} while (0)
+#include "xlog.hpp"
 
 /**************** main ****************/
 
@@ -27,7 +24,7 @@ void DecorationDesign::Decorate(Style style)
         }
         default:
         {
-            xdebug ("Not support\n");
+            xlog_dbg("Not support");
         }
     }
 
@@ -74,34 +71,34 @@ FloorPtr ToolsFactoryClassical::CreateFloor()
 
 void ColoringClassical::Color()
 {
-    xdebug ("Colored with classical style\n");
+    xlog_dbg("Colored with classical style");
 }
 
 void ColoringModern::Color()
 {
-    xdebug ("Colored with modern style\n");
+    xlog_dbg("Colored with modern style");
 }
 
 /**************** furniture ****************/
 
 void FurnitureClassical::GenerateFurniture()
 {
-    xdebug ("Classical furniture is generated\n");
+    xlog_dbg("Classical furniture is generated");
 }
 
 void FurnitureModern::GenerateFurniture()
 {
-    xdebug ("Modern furniture is generated\n");
+    xlog_dbg("Modern furniture is generated");
 }
 
 /**************** floor ****************/
 
 void FloorClassical::GenerateFloor()
 {
-    xdebug ("Classical floor is generated\n");
+    xlog_dbg("Classical floor is generated");
 }
 
 void FloorModern::GenerateFloor()
 {
-    xdebug ("Modern floor is generated\n");
+    xlog_dbg("Modern floor is generated");
 }
