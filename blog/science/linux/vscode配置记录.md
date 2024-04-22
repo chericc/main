@@ -90,6 +90,13 @@ Diagnostics:
     Remove: modernize-use-trailing-return-type
     CheckOptions:
       WarnOnFloatingPointNarrowingConversion: false
+InlayHints:
+  BlockEnd: Yes
+  Designators: Yes
+  Enabled: Yes
+  ParameterNames: No
+  DeducedTypes: Yes
+  TypeNameLimit: 24
 ```
 
 ## width 
