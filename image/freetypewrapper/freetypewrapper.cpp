@@ -52,11 +52,11 @@ union Pixel32
 
     struct
     {
-#ifdef BIG_ENDIAN
+#ifdef USE_BIG_ENDIAN
         uint8 a, r, g, b;
-#else  // BIG_ENDIAN
+#else  // USE_BIG_ENDIAN
         uint8 b, g, r, a;
-#endif // BIG_ENDIAN
+#endif // USE_BIG_ENDIAN
     };
 };
 #endif 

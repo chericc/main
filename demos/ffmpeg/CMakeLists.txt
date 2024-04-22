@@ -4,7 +4,7 @@ set(FFMPEG_MUXER_DEMO demo_ffmpeg_muxer)
 aux_source_directory(format src_format)
 aux_source_directory(muxer src_muxer)
 
-if (HAS_FFMPEG)
+if (WITH_FFMPEG)
 add_executable(${FFMPEG_FORMAT_DEMO}
     ${src_format})
 

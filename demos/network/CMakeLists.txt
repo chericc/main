@@ -2,7 +2,7 @@ set(NETWORK_LIBEVENT_DEMO demo_network_libevent)
 
 aux_source_directory(libevent src_demo_libevent)
 
-if (HAS_LIB_EVENT)
+if (WITH_LIBEVENT)
 
 add_executable(${NETWORK_LIBEVENT_DEMO}
     ${src_demo_libevent})

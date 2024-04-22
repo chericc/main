@@ -159,12 +159,12 @@ include(CTest)
 # SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_BUILD_TYPE "Release")
 
-option(USE_ASAN "use ASAN" OFF)
-option(HAS_FREETYPE "has freetype" OFF)
-option(HAS_FFMPEG  "has ffmpeg" OFF)
-option(HAS_OPENGL_ENV "has OpenGL environment" OFF)
-option(HAS_LIB_EVENT "has libevent" OFF)
-option(BIG_ENDIAN "big endian" OFF)
+option(USE_ASAN "use asan(ASAN)" OFF)
+option(USE_BIG_ENDIAN "big endian" OFF)
+option(WITH_FREETYPE "has freetype(library)" OFF)
+option(WITH_FFMPEG  "has ffmpeg(library)" OFF)
+option(WITH_OPENGL "has OpenGL environment" OFF)
+option(WITH_LIBEVENT "has libevent" OFF)
 option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
 if (USE_ASAN)
@@ -184,7 +184,7 @@ if (EXPORT_COMPILE_OPTION)
 endif()
 
 # endian
-if(BIG_ENDIAN)
+if(USE_BIG_ENDIAN)
 add_definitions(-DX_BIGENDIAN)
 endif()
 

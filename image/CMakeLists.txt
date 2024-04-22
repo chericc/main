@@ -33,7 +33,7 @@ target_link_libraries(${G_IMAGE}
     ${G_XTOOLS}
     ${G_TEXTENC})
 
-if (HAS_FREETYPE)
+if (WITH_FREETYPE)
 endif()
 
 if(${gnu})
@@ -65,7 +65,7 @@ target_link_libraries(${L_IMAGE_IMAGEVIEW_TEST}
 add_test(NAME ${L_IMAGE_IMAGEVIEW_TEST}
         COMMAND ${L_IMAGE_IMAGEVIEW_TEST})
 
-if (HAS_FREETYPE)
+if (WITH_FREETYPE)
 target_link_libraries(${G_IMAGE}
     freetype)
 
