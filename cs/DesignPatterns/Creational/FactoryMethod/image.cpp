@@ -1,9 +1,6 @@
 #include "image.hpp"
 
-#include <stdio.h>
-
-#define xdebug(x...) do {printf("[debug][%s %d %s]", \
-	__FILE__,__LINE__,__FUNCTION__);printf(x);} while (0)
+#include "xlog.hpp"
 
 void Image::openImageFile(const std::string &filename)
 {
@@ -22,7 +19,7 @@ void Image::openImageFile(const std::string &filename)
     }
     else 
     {
-        xdebug ("Image format not support\n");
+        xlog_dbg("Image format not support");
     }
 
     if (decoder)
@@ -36,25 +33,25 @@ void Image::openImageFile(const std::string &filename)
 
 void Image::drawLine()
 {
-    xdebug ("Drawing line on image\n");
+    xlog_dbg("Drawing line on image");
 }
 
 void Image::brushRect()
 {
-    xdebug ("Brush rect on image\n");
+    xlog_dbg("Brush rect on image");
 }
 
 void ImageDecoderJpeg::decodeImage(const std::string &filename)
 {
-    xdebug ("Decoding file <%s> with jpeg lib\n", filename.c_str());
+    xlog_dbg("Decoding file <%s> with jpeg lib", filename.c_str());
 }
 
 void ImageDecoderBMP::decodeImage(const std::string &filename)
 {
-    xdebug ("Decoding file <%s> with bmp lib\n", filename.c_str());
+    xlog_dbg("Decoding file <%s> with bmp lib", filename.c_str());
 }
 
 void ImageDecoderPNG::decodeImage(const std::string &filename)
 {
-    xdebug ("Decoding file <%s> with png lib\n", filename.c_str());
+    xlog_dbg("Decoding file <%s> with png lib", filename.c_str());
 }

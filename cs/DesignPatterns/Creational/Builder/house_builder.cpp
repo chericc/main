@@ -29,17 +29,12 @@ void House::setPainted(bool b)
 
 void House::print()
 {
-    xlog_dbg("House:\n"
-        "Foundation:%s\n"
-        "Structure:%s\n"
-        "Roof:%s\n"
-        "Furnished:%s"
-        "Painted:%s\n\n",
-        foundation.c_str(),
-        structure.c_str(),
-        roof.c_str(),
-        furnished?"true":"false",
-        painted?"true":"false");
+    xlog_dbg("House:");
+    xlog_dbg("Foundation: %s", foundation.c_str());
+    xlog_dbg("Structure: %s", structure.c_str());
+    xlog_dbg("Roof: %s", roof.c_str());
+    xlog_dbg("Furnished: %s", furnished ? "true" : "false");
+    xlog_dbg("Painted: %s", painted ? "true" : "false");
 }
 
 HouseBuilder::HouseBuilder()
