@@ -1,14 +1,11 @@
-#include "image.hpp"
+#include "pizza.hpp"
 
 int main()
 {
-    Image img;
+    auto pizzaFactory = std::make_shared<PizzaFactory>();
 
-    std::string filename = "test.jpeg";
-
-    img.openImageFile(filename);
-    img.drawLine();
-    img.brushRect();
+    auto cheesePizza = pizzaFactory->createPizza("cheese");
+    auto veggiePizza = pizzaFactory->createPizza("veggie");
 
     return 0;
 }
