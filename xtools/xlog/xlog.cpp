@@ -32,22 +32,27 @@ static const char *xlog_getlevel (XLOG_LEVEL level)
 
     /* Make sure this two arrays has the same number of items. */
 
-    const char *array_name[XLOG_LEVEL_BUTT] = {
+    const char *array_name[] = {
         "trc",
         "dbg",
         "log",
         "inf",
+        "war",
         "err",
-        "cri",
+        "cri"
     };
-    const XLOG_LEVEL array_level[XLOG_LEVEL_BUTT] = {
+    const XLOG_LEVEL array_level[] = {
         XLOG_LEVEL_TRACE,
         XLOG_LEVEL_DEBUG,
         XLOG_LEVEL_LOG,
         XLOG_LEVEL_INFORMATION,
+        XLOG_LEVEL_WARNING,
         XLOG_LEVEL_ERROR,
         XLOG_LEVEL_CRITICAL,
     };
+
+    static_assert(sizeof(array_name)/sizeof(array_name[0]) 
+            == sizeof(array_level)/sizeof(array_level[0]), "size error");
 
     for (i = 0; i < XLOG_LEVEL_BUTT; ++i)
     {
