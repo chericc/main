@@ -39,7 +39,17 @@ int x_strerror(int errnum, char* buf, size_t buflen)
 #if defined(X_PLATFORM_MSVC)
     ret = strerror_s(buf, buflen, errnum);
 #else 
-    strerror_r(errnum, buf, buflen);
+
+#if (_POSIX_C_SOURCE >= 200112L) && !  _GNU_SOURCE
+    ret = strerror_r(errnum, buf, buflen);
+#else 
+    char *res = strerror_r(errnum, buf, buflen);
+    if (nullptr == res)
+    {
+        ret = -1;
+    }
+#endif 
+
 #endif
     return ret;
 }

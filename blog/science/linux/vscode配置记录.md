@@ -55,7 +55,11 @@ Enjoy it.
         "${workspaceFolder}/**",
         "/home/test/opensrc/googletest/build/output/include"
     ],
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
 }
+
+
+  
 
 ```
 
@@ -66,8 +70,9 @@ Enjoy it.
     "clangd.arguments": [
         "--header-insertion=never",
         "--compile-commands-dir=build",
+        "--function-arg-placeholders=0",
         "--clang-tidy",
-        "--completion-style=detailed",
+        "--completion-style=bundled",
         "--ranking-model=decision_forest",
         "-j=1",
         "--background-index", 
