@@ -120,11 +120,11 @@ void read_cb(struct bufferevent *bev, void *)
     while (bytes_read_total < length)
     {
         std::array<char, 128> buf;
-        size_t bytes_read = bufferevent_read(bev, buf.data(), buf.size());
+        size_t bytes_read = bufferevent_read(bev, buf.data(), buf.size() - 1);
         xlog_dbg("read: %zu", bytes_read);
         if (bytes_read > 0)
         {
-            buf[bytes_read - 1] = 0;
+            buf[bytes_read] = 0;
             xlog_dbg("msg: %s", buf.data());
 
             s_inputs.push_back(std::string(buf.data()));
@@ -140,6 +140,8 @@ void read_cb(struct bufferevent *bev, void *)
 
     if (!s_inputs.empty())
     {
+        // enable write events
+        bufferevent_enable(bev, bufferevent_get_enabled(bev) | EV_WRITE);
         bufferevent_trigger(bev, EV_WRITE, BEV_OPT_DEFER_CALLBACKS);
     }
 
@@ -151,30 +153,28 @@ void write_cb(struct bufferevent *bev, void *)
     xlog_dbg("write cb in");
 
     std::lock_guard<std::mutex> lock(s_mutex);
-    size_t max_to_write = bufferevent_get_max_to_write(bev);
-    size_t bytes_written = 0;
-    while (!s_inputs.empty() && bytes_written < max_to_write)
+    
+    while (!s_inputs.empty())
     {
         auto &front = s_inputs.front();
-        size_t bytes_left = max_to_write - bytes_written;
-        if (front.size() <= bytes_left)
+        int ret = bufferevent_write(bev, front.data(), front.size());
+        if (ret < 0)
         {
-            bufferevent_write(bev, front.data(), front.size());
-            bytes_written += front.size();
-            s_inputs.pop_front();
-        }
-        else 
-        {
-            bufferevent_write(bev, front.data(), bytes_left);
-            front = front.substr(bytes_left, front.size() - bytes_left);
-            bytes_written += bytes_left;
+            xlog_err("write failed");
             break;
         }
 
-        if (s_inputs.empty())
-        {
-            bufferevent_write(bev, "\n", 1);
-        }
+        xlog_dbg("write: %zu", front.size());
+        s_inputs.pop_front();
+    }
+
+    if (s_inputs.empty())
+    {
+        // no need to have write events trigger later
+        // if no inputs provided
+        bufferevent_disable(bev, EV_WRITE);
+        // bufferevent_flush(bev, EV_WRITE, BEV_FLUSH);
+        bufferevent_write(bev, "\n", 1);
     }
 
     xlog_dbg("write cb out");
@@ -221,6 +221,10 @@ void listener_cb(struct evconnlistener *, evutil_socket_t fd, struct sockaddr *a
             xlog_err("bufferevent_socket_new failed");
             break;
         }
+
+        // debug use
+        // bufferevent_set_max_single_read(bev, 5);
+        // bufferevent_set_max_single_write(bev, 5);
 
         bufferevent_setcb(bev, read_cb, write_cb, event_cb, nullptr);
         bufferevent_enable(bev, EV_READ | EV_WRITE);
