@@ -65,11 +65,11 @@ add_library(${G_XTOOLS} SHARED
 # tests
 
 if(${gnu})
-set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XTOOLS} pthread)
+set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XTOOLS} pthread)
 elseif(${msvc})
-set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XTOOLS})
+set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XTOOLS})
 elseif(${clang})
-set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XTOOLS})
+set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XTOOLS})
 endif()
 
 # demo_xlog

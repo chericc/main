@@ -29,18 +29,18 @@ if(${gnu})
 set(COMMON_LIB 
     ${G_XTOOLS}
     avformat swscale avformat avcodec avutil swresample 
-    gtest
+    ${G_GOOGLETEST}
     pthread)
 elseif(${msvc})
 set(COMMON_LIB 
     ${G_XTOOLS}
     avformat swscale avformat avcodec avutil swresample
-    gtest)
+    ${G_GOOGLETEST})
 elseif(${clang})
 set(COMMON_LIB 
     ${G_XTOOLS}
     avformat swscale avformat avcodec avutil swresample
-    gtest)
+    ${G_GOOGLETEST})
 endif()
 
 add_definitions(-DRES_VIDEO_PATH="${G_RESOURCE_PATH}/video")

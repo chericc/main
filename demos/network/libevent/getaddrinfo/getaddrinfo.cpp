@@ -1,9 +1,11 @@
 #include <event2/event.h>
 #include <event2/dns.h>
 
-#include <netinet/in.h>
 #include <string>
 #include <cstdint>
+#include <array>
+
+#include <netinet/in.h>
 #include <sys/socket.h>
 
 #include "event2/util.h"
@@ -27,25 +29,38 @@ void getaddrinfo_cb(int result, struct evutil_addrinfo *res, void *arg)
 	int i;
 	struct evutil_addrinfo *first_ai = res;
 
-	if (result) {
+	if (result) 
+	{
 		xlog_dbg("%s: %s", name, evutil_gai_strerror(result));
 	}
+
 	if (res && res->ai_canonname)
+	{
 		xlog_dbg("    %s ==> %s", name, res->ai_canonname);
-	for (i=0; res; res = res->ai_next, ++i) {
-		char buf[128];
-		if (res->ai_family == PF_INET) {
+	}
+		
+	for (i=0; res; res = res->ai_next, ++i) 
+	{
+		std::array<char, 128> buf;
+		if (res->ai_family == PF_INET) 
+		{
 			auto *sin =
 			    (struct sockaddr_in*)res->ai_addr;
-			evutil_inet_ntop(AF_INET, &sin->sin_addr, buf,
-			    sizeof(buf));
-			xlog_dbg("[%d] %s: %s",i,name,buf);
-		} else {
+			evutil_inet_ntop(AF_INET, &sin->sin_addr, buf.data(),
+			    buf.size());
+			xlog_dbg("IPv4 [%d] %s: %s", i, name, buf.data());
+		} 
+		else if (res->ai_family == PF_INET6 )
+		{
 			auto *sin6 =
 			    (struct sockaddr_in6*)res->ai_addr;
-			evutil_inet_ntop(AF_INET6, &sin6->sin6_addr, buf,
-			    sizeof(buf));
-			xlog_dbg("[%d] %s: %s",i,name,buf);
+			evutil_inet_ntop(AF_INET6, &sin6->sin6_addr, buf.data(),
+			    buf.size());
+			xlog_dbg("IPv6 [%d] %s: %s", i, name, buf.data());
+		}
+		else 
+		{
+			xlog_dbg("family not support");
 		}
 	}
 
@@ -58,8 +73,6 @@ int main()
 	xlog_setoutput({stdout});
 	xlog_setmask(XLOG_ALLOW_ALL);
 
-	xlog_dbg("in");
-
 	struct event_base *event_base = nullptr;
 	struct evdns_base *evdns_base = nullptr;
 
@@ -71,7 +84,7 @@ int main()
 	// 
 	std::string url = "baidu.com";
 	{
-		struct evutil_addrinfo hints = {0};
+		struct evutil_addrinfo hints = {};
 		hints.ai_family = PF_UNSPEC;
 		hints.ai_protocol = IPPROTO_TCP;
 		hints.ai_flags = EVUTIL_AI_CANONNAME;

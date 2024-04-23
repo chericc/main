@@ -22,7 +22,7 @@ aux_source_directory(${SRC_DIR_T2} SRC_T2)
 aux_source_directory(${SRC_DIR_T3} SRC_T3)
 aux_source_directory(${SRC_DIR_T11} SRC_T11)
 
-link_libraries(gtest)
+link_libraries(${G_GOOGLETEST})
 link_libraries(gmock)
 link_libraries(pthread)
 

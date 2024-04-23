@@ -16,7 +16,7 @@ include_directories(.)
 aux_source_directory(. SRC)
 aux_source_directory(test SRC_TEST)
 
-link_libraries(gtest)
+link_libraries(${G_GOOGLETEST})
 link_libraries(pthread)
 
 SET(CMAKE_BUILD_TYPE "Debug")

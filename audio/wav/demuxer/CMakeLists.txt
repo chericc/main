@@ -22,11 +22,11 @@ target_link_libraries(${G_XWAV_DEMUXER}
 # tests
 
 if(${gnu})
-set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS} pthread)
+set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS} pthread)
 elseif(${msvc})
-set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS})
+set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS})
 elseif(${clang})
-set(COMMON_LIB gtest ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS})
+set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS})
 endif()
 
 add_definitions(-DRES_AUDIO_PATH="${G_RESOURCE_PATH}/audio")

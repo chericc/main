@@ -35,6 +35,7 @@ set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
 set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 
 # googletest
+set(G_GOOGLETEST gtest)
 if(${msvc})
 set(G_GOOGLETEST_PATH D:/opensrc/googletest/install)
 elseif(${gnu})
@@ -92,6 +93,7 @@ set(G_GLFW_INC_PATH ${G_GLFW_PATH}/include)
 endif()
 
 # libevent
+set(G_LIBEVENT event)
 if(${msvc})
 elseif(${gnu})
 set(G_LIBEVENT_PATH ~/opensrc/libevent/build/output)

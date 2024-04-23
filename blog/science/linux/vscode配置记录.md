@@ -95,7 +95,7 @@ InlayHints:
   Designators: Yes
   Enabled: Yes
   ParameterNames: No
-  DeducedTypes: Yes
+  DeducedTypes: No
   TypeNameLimit: 24
 ```
 
