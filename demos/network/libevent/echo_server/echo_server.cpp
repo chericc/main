@@ -1,6 +1,8 @@
 #include <cstdio>
 #include <list>
 #include <array>
+#include <mutex>
+#include <string>
 
 #include <netdb.h>
 #include <netinet/in.h>
@@ -14,6 +16,9 @@
 
 #include "xlog.hpp"
 #include "xos_independent.hpp"
+
+std::mutex s_mutex;
+std::list<std::string> s_inputs;
 
 std::string sockaddr_str(struct sockaddr *paddr, int socklen)
 {
@@ -101,20 +106,81 @@ std::string addrinfo_str(const addrinfo *paddr)
     return str;
 }
 
-void read_cb(struct bufferevent *bev, void *ctx)
+void read_cb(struct bufferevent *bev, void *)
 {
-    xlog_dbg("read cb");
-    struct evbuffer *output = bufferevent_get_output(bev);
+    xlog_dbg("read cb in");
 
+    std::lock_guard<std::mutex> lock(s_mutex);
+    auto input = bufferevent_get_input(bev);
+    size_t length = evbuffer_get_length(input);
+
+    xlog_dbg("length=%zu", length);
+
+    size_t bytes_read_total = 0;
+    while (bytes_read_total < length)
+    {
+        std::array<char, 128> buf;
+        size_t bytes_read = bufferevent_read(bev, buf.data(), buf.size());
+        xlog_dbg("read: %zu", bytes_read);
+        if (bytes_read > 0)
+        {
+            buf[bytes_read - 1] = 0;
+            xlog_dbg("msg: %s", buf.data());
+
+            s_inputs.push_back(std::string(buf.data()));
+
+            bytes_read_total += bytes_read;
+        }
+
+        if (bytes_read < buf.size())
+        {
+            break;
+        }
+    }
+
+    if (!s_inputs.empty())
+    {
+        bufferevent_trigger(bev, EV_WRITE, BEV_OPT_DEFER_CALLBACKS);
+    }
+
+    xlog_dbg("read cb out");
 }
 
-void write_cb(struct bufferevent *bev, void *ctx)
+void write_cb(struct bufferevent *bev, void *)
 {
-    xlog_dbg("write cb");
+    xlog_dbg("write cb in");
 
+    std::lock_guard<std::mutex> lock(s_mutex);
+    size_t max_to_write = bufferevent_get_max_to_write(bev);
+    size_t bytes_written = 0;
+    while (!s_inputs.empty() && bytes_written < max_to_write)
+    {
+        auto &front = s_inputs.front();
+        size_t bytes_left = max_to_write - bytes_written;
+        if (front.size() <= bytes_left)
+        {
+            bufferevent_write(bev, front.data(), front.size());
+            bytes_written += front.size();
+            s_inputs.pop_front();
+        }
+        else 
+        {
+            bufferevent_write(bev, front.data(), bytes_left);
+            front = front.substr(bytes_left, front.size() - bytes_left);
+            bytes_written += bytes_left;
+            break;
+        }
+
+        if (s_inputs.empty())
+        {
+            bufferevent_write(bev, "\n", 1);
+        }
+    }
+
+    xlog_dbg("write cb out");
 }
 
-void event_cb(struct bufferevent *bev, short event, void *ctx)
+void event_cb(struct bufferevent *bev, short event, void *)
 {
     xlog_dbg("event cb(%#hx)", event);
     if (event & BEV_EVENT_CONNECTED) 
@@ -138,7 +204,8 @@ void event_cb(struct bufferevent *bev, short event, void *ctx)
     bufferevent_free(bev);
 }
 
-void listener_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *addr, int socklen, void *user)
+void listener_cb(struct evconnlistener *, evutil_socket_t fd, struct sockaddr *addr, 
+                    int socklen, void *user)
 {
     auto base = reinterpret_cast<struct event_base *>(user);
     struct bufferevent *bev = nullptr;
@@ -156,11 +223,7 @@ void listener_cb(struct evconnlistener *listener, evutil_socket_t fd, struct soc
         }
 
         bufferevent_setcb(bev, read_cb, write_cb, event_cb, nullptr);
-        bufferevent_enable(bev, EV_WRITE);
-        bufferevent_enable(bev, EV_READ);
-
-        std::string msg = "Welcome!\n";
-        bufferevent_write(bev, msg.data(), msg.size());
+        bufferevent_enable(bev, EV_READ | EV_WRITE);
     }
     while (false);
 }

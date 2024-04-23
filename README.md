@@ -81,6 +81,7 @@ sudo chmod 775 /usr/bin/plantuml
 ../irqbalance-1.9.2/configure --prefix=$(pwd)/output --without-irqbalance-ui
 
 # libevent
+sudo apt-get install libssl-dev doxygen
 cmake ../libevent-2.1.12-stable -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DEVENT__LIBRARY_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DEVENT__DOXYGEN=ON
 
 ```

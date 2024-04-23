@@ -50,16 +50,8 @@ Enjoy it.
 ```json
 
 {
-    "C_Cpp.default.includePath": [
-        "${default}",
-        "${workspaceFolder}/**",
-        "/home/test/opensrc/googletest/build/output/include"
-    ],
     "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
 }
-
-
-  
 
 ```
 
