@@ -35,13 +35,13 @@ void getaddrinfo_cb(int result, struct evutil_addrinfo *res, void *arg)
 	for (i=0; res; res = res->ai_next, ++i) {
 		char buf[128];
 		if (res->ai_family == PF_INET) {
-			struct sockaddr_in *sin =
+			auto *sin =
 			    (struct sockaddr_in*)res->ai_addr;
 			evutil_inet_ntop(AF_INET, &sin->sin_addr, buf,
 			    sizeof(buf));
 			xlog_dbg("[%d] %s: %s",i,name,buf);
 		} else {
-			struct sockaddr_in6 *sin6 =
+			auto *sin6 =
 			    (struct sockaddr_in6*)res->ai_addr;
 			evutil_inet_ntop(AF_INET6, &sin6->sin6_addr, buf,
 			    sizeof(buf));
