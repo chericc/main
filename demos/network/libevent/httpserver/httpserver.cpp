@@ -1,9 +1,12 @@
+#include <array>
 
 #include <stdarg.h>
 #include <signal.h>
 
 #include <event2/event.h>
 #include <event2/http.h>
+#include <event2/keyvalq_struct.h>
+#include <event2/buffer.h>
 
 #include "xlog.hpp"
 
@@ -58,18 +61,109 @@ static bool signal_ignore()
 
 static void on_term(int sig, short events, void *arg)
 {
+    xlog_dbg("interrupted, terminating");
     auto base = reinterpret_cast<event_base*>(arg);
     event_base_loopbreak(base);
-    xlog_dbg("Interrupted, Terminating");
     return ;
+}
+
+static const char *http_req_type_str(enum evhttp_cmd_type type)
+{
+    const char *typestr = "";
+    switch (type)
+    {
+        case EVHTTP_REQ_GET: typestr = "GET"; break;
+        case EVHTTP_REQ_POST: typestr = "POST"; break;
+        case EVHTTP_REQ_HEAD: typestr = "HEAD"; break;
+        case EVHTTP_REQ_PUT: typestr = "PUT"; break;
+        case EVHTTP_REQ_DELETE: typestr = "DELETE"; break;
+        case EVHTTP_REQ_OPTIONS: typestr = "OPTIONS"; break;
+        case EVHTTP_REQ_TRACE: typestr = "TRACE"; break;
+        case EVHTTP_REQ_CONNECT: typestr = "CONNECT"; break;
+        case EVHTTP_REQ_PATCH: typestr = "PATCH"; break;
+        default: typestr = "unknown"; break;
+    }
+    return typestr;
+}
+
+static std::string dump_req_content(struct evhttp_request *req)
+{
+    FILE *fp = nullptr;
+    char *streambuf = nullptr;
+    size_t streambufsize = 0;
+    std::string str;
+
+    do 
+    {
+        if (!req)
+        {
+            xlog_err("req is null");
+            break;
+        }
+
+        fp = open_memstream(&streambuf, &streambufsize);
+        if (!fp)
+        {
+            xlog_err("open_memstream failed");
+            break;
+        }
+
+        fprintf(fp, "Header: \n");
+        auto *header_s = evhttp_request_get_input_headers(req);
+        if (header_s)
+        {
+            for (struct evkeyval *header = header_s->tqh_first; 
+                    header; header = header->next.tqe_next)
+            {
+                fprintf(fp, " %s: %s\n", header->key, header->value);
+            }
+        }
+
+        fprintf(fp, "Data: \n");
+        auto input = evhttp_request_get_input_buffer(req);
+        while (input && evbuffer_get_length(input))
+        {
+            std::array<uint8_t, 64> buf;
+            int n = evbuffer_remove(input, buf.data(), buf.size());
+            if (n > 0)
+            {
+                fwrite(buf.data(), 1, n, fp);
+            }
+        }
+    }
+    while (0);
+
+    if (fp)
+    {
+        fclose(fp);
+        fp = nullptr;
+    }
+
+    if (streambuf)
+    {
+        if (streambufsize > 0)
+        {
+            str.assign(streambuf);
+        }
+        
+        free(streambuf);
+        streambuf = nullptr;
+    }
+
+    return str;
 }
 
 static void dump_request_cb(struct evhttp_request *req, void *arg)
 {
-    switch (evhttp_request_get_command(req))
-    {
-        
-    }
+    auto req_type = evhttp_request_get_command(req);
+    const char *req_type_str = http_req_type_str(req_type);
+
+    auto content = dump_req_content(req);
+
+    xlog_dbg("received a %s request for %s\n%s", 
+        req_type_str, evhttp_request_get_uri(req), content.c_str());
+    
+    evhttp_send_reply(req, 200, "OK", nullptr);
 }
 
 static void send_document_cb(struct evhttp_request *req, void *arg)
@@ -111,7 +205,7 @@ int main(int argc, char **argv)
             break;
         }
 
-        evhttp_set_gencb(http, send_document_cb, &sopt);
+        evhttp_set_gencb(http, dump_request_cb, &sopt);
 
         handle_v4 = evhttp_bind_socket_with_handle(http, "0.0.0.0", sopt.port);
         handle_v6 = evhttp_bind_socket_with_handle(http, "::/0", sopt.port);
