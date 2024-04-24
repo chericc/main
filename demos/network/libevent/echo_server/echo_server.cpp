@@ -185,11 +185,11 @@ void read_cb(struct bufferevent *bev, void *)
     xlog_dbg("read cb in");
 
     size_t bytes_read = 0;
-    std::array<uint8_t, 128> buf;
+    std::array<uint8_t, 64> buf;
 
     do 
     {
-        size_t bytes_read = bufferevent_read(bev, buf.data(), buf.size());
+        bytes_read = bufferevent_read(bev, buf.data(), buf.size());
 
         xlog_dbg("read: %zu/%zu bytes", bytes_read, buf.size());
 
