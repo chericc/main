@@ -1,8 +1,10 @@
 set(NETWORK_LIBEVENT_DEMO_GETADDRINFO demo_network_libevent_getaddrinfo)
 set(NETWORK_LIBEVENT_DEMO_ECHOSERVER demo_network_libevent_echoserver)
+set(NETWORK_LIBEVENT_DEMO_HTTPSERVER demo_network_libevent_httpserver)
 
 aux_source_directory(libevent/getaddrinfo src_demo_libevent_getaddrinfo)
 aux_source_directory(libevent/echo_server src_demo_libevent_echoserver)
+aux_source_directory(libevent/httpserver src_demo_libevent_httpserver)
 
 if (WITH_LIBEVENT)
 
@@ -17,5 +19,8 @@ add_executable(${NETWORK_LIBEVENT_DEMO_GETADDRINFO}
 
 add_executable(${NETWORK_LIBEVENT_DEMO_ECHOSERVER}
     ${src_demo_libevent_echoserver})
+    
+add_executable(${NETWORK_LIBEVENT_DEMO_HTTPSERVER}
+    ${src_demo_libevent_httpserver})
 
 endif()
