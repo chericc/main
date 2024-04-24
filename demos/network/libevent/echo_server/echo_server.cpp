@@ -17,20 +17,29 @@
 #include "xlog.hpp"
 #include "xos_independent.hpp"
 
-std::mutex s_mutex;
-std::list<std::string> s_inputs;
-
-std::string sockaddr_str(struct sockaddr *paddr, int socklen)
+static std::string sockaddr_str(struct sockaddr *paddr, int socklen)
 {
+    std::string str;
     FILE *fp = nullptr;
     char *streambuf = nullptr;
     size_t size = 0;
-    std::string str;
 
-    if (paddr)
+    do 
     {
+        if (!paddr)
+        {
+            xlog_err("null paddr");
+            break;
+        }
+
         std::array<char, 128> buf;
         fp = open_memstream(&streambuf, &size);
+
+        if (!fp)
+        {
+            xlog_err("open_memstream failed");
+            break;
+        }
 
         if (socklen == sizeof(sockaddr_in))
         {
@@ -46,7 +55,12 @@ std::string sockaddr_str(struct sockaddr *paddr, int socklen)
                 buf.size());
             fprintf(fp, "<IPv6: %s:%hu>", buf.data(), ntohs(sin6->sin6_port));
         }
+        else 
+        {
+            xlog_err("sockaddr type not support");
+        }
     }
+    while (0);
 
     if (fp)
     {
@@ -68,17 +82,28 @@ std::string sockaddr_str(struct sockaddr *paddr, int socklen)
     return str;
 }
 
-std::string addrinfo_str(const addrinfo *paddr)
+static std::string addrinfo_str(const addrinfo *paddr)
 {
     FILE *fp = nullptr;
     char *streambuf = nullptr;
     size_t size = 0;
     std::string str;
 
-    fp = open_memstream(&streambuf, &size);
-
-    if (paddr)
+    do 
     {
+        if (!paddr)
+        {
+            xlog_err("null paddr");
+            break;
+        }
+
+        fp = open_memstream(&streambuf, &size);
+        if (!fp)
+        {
+            xlog_err("open_memstream failed");
+            break;
+        }
+
         std::array<char, 128> buf;
         buf[0] = 0;
 
@@ -89,6 +114,7 @@ std::string addrinfo_str(const addrinfo *paddr)
 
         fprintf(fp, "%s", sockaddr_str(paddr->ai_addr, paddr->ai_addrlen).c_str());
     }
+    while (0);
 
     if (fp)
     {
@@ -106,78 +132,78 @@ std::string addrinfo_str(const addrinfo *paddr)
     return str;
 }
 
+static std::string hexstr(const uint8_t *data, size_t size)
+{
+    FILE *fp = nullptr;
+    char *streambuf = nullptr;
+    size_t streambufsize = 0;
+    std::string str;
+
+    do 
+    {
+        fp = open_memstream(&streambuf, &streambufsize);
+        if (!fp)
+        {
+            xlog_err("open_memstream failed");
+            break;
+        }
+
+        for(size_t i = 0; i < size; ++i)
+        {
+            auto ref = data[i];
+            if (!isprint(ref))
+            {
+                ref = '*';
+            }
+            fprintf(fp, "%c", ref);
+        }
+    }
+    while (0);
+
+    if (fp)
+    {
+        fclose(fp);
+        fp = nullptr;
+    }
+
+    if (streambuf)
+    {
+        if (size > 0)
+        {
+            str.assign(streambuf);
+        }
+        
+        free(streambuf);
+        streambuf = nullptr;
+    }
+
+    return str;
+}
+
 void read_cb(struct bufferevent *bev, void *)
 {
     xlog_dbg("read cb in");
 
-    std::lock_guard<std::mutex> lock(s_mutex);
-    auto input = bufferevent_get_input(bev);
-    size_t length = evbuffer_get_length(input);
+    size_t bytes_read = 0;
+    std::array<uint8_t, 128> buf;
 
-    xlog_dbg("length=%zu", length);
-
-    size_t bytes_read_total = 0;
-    while (bytes_read_total < length)
+    do 
     {
-        std::array<char, 128> buf;
-        size_t bytes_read = bufferevent_read(bev, buf.data(), buf.size() - 1);
-        xlog_dbg("read: %zu", bytes_read);
+        size_t bytes_read = bufferevent_read(bev, buf.data(), buf.size());
+
+        xlog_dbg("read: %zu/%zu bytes", bytes_read, buf.size());
+
         if (bytes_read > 0)
         {
-            buf[bytes_read] = 0;
-            xlog_dbg("msg: %s", buf.data());
+            xlog_dbg("msg: <%s>", hexstr(buf.data(), bytes_read).c_str());
 
-            s_inputs.push_back(std::string(buf.data()));
-
-            bytes_read_total += bytes_read;
-        }
-
-        if (bytes_read < buf.size())
-        {
-            break;
+            xlog_dbg("write %zu bytes", bytes_read);
+            bufferevent_write(bev, buf.data(), bytes_read);
         }
     }
-
-    if (!s_inputs.empty())
-    {
-        // enable write events
-        bufferevent_enable(bev, bufferevent_get_enabled(bev) | EV_WRITE);
-        bufferevent_trigger(bev, EV_WRITE, BEV_OPT_DEFER_CALLBACKS);
-    }
+    while (bytes_read == buf.size());
 
     xlog_dbg("read cb out");
-}
-
-void write_cb(struct bufferevent *bev, void *)
-{
-    xlog_dbg("write cb in");
-
-    std::lock_guard<std::mutex> lock(s_mutex);
-    
-    while (!s_inputs.empty())
-    {
-        auto &front = s_inputs.front();
-        int ret = bufferevent_write(bev, front.data(), front.size());
-        if (ret < 0)
-        {
-            xlog_err("write failed");
-            break;
-        }
-
-        xlog_dbg("write: %zu", front.size());
-        s_inputs.pop_front();
-    }
-
-    if (s_inputs.empty())
-    {
-        // no need to have write events trigger later
-        // if no inputs provided
-        bufferevent_disable(bev, EV_WRITE);
-        // bufferevent_flush(bev, EV_WRITE, BEV_FLUSH);
-        bufferevent_write(bev, "\n", 1);
-    }
-
-    xlog_dbg("write cb out");
 }
 
 void event_cb(struct bufferevent *bev, short event, void *)
@@ -222,12 +248,11 @@ void listener_cb(struct evconnlistener *, evutil_socket_t fd, struct sockaddr *a
             break;
         }
 
-        // debug use
-        // bufferevent_set_max_single_read(bev, 5);
-        // bufferevent_set_max_single_write(bev, 5);
+        bufferevent_setcb(bev, read_cb, nullptr, event_cb, nullptr);
+        bufferevent_enable(bev, EV_READ);
 
-        bufferevent_setcb(bev, read_cb, write_cb, event_cb, nullptr);
-        bufferevent_enable(bev, EV_READ | EV_WRITE);
+        std::string welcome_str = "Welcome!\n";
+        bufferevent_write(bev, welcome_str.data(), welcome_str.size());
     }
     while (false);
 }
