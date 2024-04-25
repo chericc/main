@@ -19,7 +19,7 @@ static void event_log(int is_warning, const char *msg)
 	}
 	else 
 	{
-		xlog_dbg("libevent: %s", msg);
+		// xlog_dbg("libevent: %s", msg);
 	}
 }
 
@@ -77,7 +77,7 @@ int main()
 	struct evdns_base *evdns_base = nullptr;
 
 	event_base = event_base_new();
-	evdns_base = evdns_base_new(event_base, EVDNS_BASE_INITIALIZE_NAMESERVERS);
+	evdns_base = evdns_base_new(event_base, EVDNS_BASE_INITIALIZE_NAMESERVERS | EVDNS_BASE_DISABLE_WHEN_INACTIVE);
 
 	evdns_set_log_fn(event_log);
 
