@@ -48,6 +48,11 @@ int x_strerror(int errnum, char* buf, size_t buflen)
     {
         ret = -1;
     }
+    else 
+    {
+        strncpy(buf, res, buflen);
+        buf[buflen - 1] = 0;
+    }
 #endif 
 
 #endif
