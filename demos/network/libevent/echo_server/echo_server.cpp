@@ -308,23 +308,23 @@ int main()
             break;
         }
 
-        for (; result != nullptr; result = result->ai_next)
+        for (auto rp = result; rp != nullptr; rp = rp->ai_next)
         {
-            if (result->ai_family == PF_INET
-                || result->ai_family == PF_INET6)
+            if (rp->ai_family == PF_INET
+                || rp->ai_family == PF_INET6)
             {
-                xlog_dbg("bind: %s", addrinfo_str(result).c_str());
+                xlog_dbg("bind: %s", addrinfo_str(rp).c_str());
 
                 unsigned int flags = LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE;
 
                 /* not using ipv4 mapped ipv6 address feature for compatibility. */
-                if (result->ai_family == PF_INET6)
+                if (rp->ai_family == PF_INET6)
                 {
                     flags |= LEV_OPT_BIND_IPV6ONLY;
                 }
 
                 auto listener = evconnlistener_new_bind(base, listener_cb, base, flags,
-                    -1, result->ai_addr, static_cast<int>(result->ai_addrlen));
+                    -1, rp->ai_addr, static_cast<int>(rp->ai_addrlen));
 
                 if (!listener)
                 {
@@ -335,8 +335,11 @@ int main()
             }
         }
 
-        freeaddrinfo(result);
-        result = nullptr;
+        if (result)
+        {
+            freeaddrinfo(result);
+            result = nullptr;
+        }
 
         event_base_dispatch(base);
 
