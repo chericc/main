@@ -377,16 +377,7 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
         }
         xlog_dbg("uri: %s", uri);
 
-        decoded_uri_path = evhttp_uridecode(uri, 0, nullptr);
-        if (!decoded_uri_path)
-        {
-            http_error_code = HTTP_NOTFOUND;
-            xlog_err("evhttp_uridecode failed");
-            break;
-        }
-        xlog_dbg("decoded_uri_path: %s", decoded_uri_path);
-
-        parsesd_uri = evhttp_uri_parse(decoded_uri_path);
+        parsesd_uri = evhttp_uri_parse(uri);
         if (!parsesd_uri)
         {
             xlog_err("evhttp_uri_parse failed");
@@ -401,7 +392,16 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
         }
         xlog_dbg("uri_path: %s", uri_path);
 
-        if (strstr(uri_path, ".."))
+        decoded_uri_path = evhttp_uridecode(uri_path, 0, nullptr);
+        if (!decoded_uri_path)
+        {
+            http_error_code = HTTP_NOTFOUND;
+            xlog_err("evhttp_uridecode failed");
+            break;
+        }
+        xlog_dbg("decoded_uri_path: %s", decoded_uri_path);
+
+        if (strstr(decoded_uri_path, ".."))
         {
             xlog_dbg("path contains \"..\", ignored");
             http_error_code = HTTP_NOTFOUND;
@@ -422,14 +422,14 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
             break;
         }
 
-        if (generate_html_of_path(evbuf, sopt->docroot, uri_path, &http_error_code) < 0)
+        if (generate_html_of_path(evbuf, sopt->docroot, decoded_uri_path, &http_error_code) < 0)
         {
             xlog_err("generate html failed");
             http_error_code = HTTP_NOTFOUND;
             break;
         }
 
-        std::string whole_path = std::string() + sopt->docroot + "/" + uri_path;
+        std::string whole_path = std::string() + sopt->docroot + "/" + decoded_uri_path;
         struct stat st = {};
         if (stat(whole_path.c_str(), &st) < 0)
         {
@@ -488,6 +488,20 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
     return ;
 }
 
+static void my_event_log(int severity, const char *msg)
+{
+    const char *format = "event: %s";
+    switch (severity)
+    {
+        case EVENT_LOG_DEBUG: xlog_dbg(format, msg); break;
+        case EVENT_LOG_MSG: xlog_inf(format, msg); break;
+        case EVENT_LOG_WARN: xlog_war(format, msg); break;
+        case EVENT_LOG_ERR: xlog_err(format, msg); break;
+        default: xlog_err(format, msg); break;
+    }
+    return ;
+}
+
 int main(int argc, char **argv)
 {
     xlog_dbg("in");
@@ -505,6 +519,9 @@ int main(int argc, char **argv)
         {
             break;
         }
+
+        event_set_log_callback(my_event_log);
+        event_enable_debug_logging(EVENT_DBG_NONE);
 
         base = event_base_new();
         if (!base) 
