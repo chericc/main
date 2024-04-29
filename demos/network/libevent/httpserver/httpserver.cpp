@@ -227,7 +227,7 @@ static void dump_request_cb(struct evhttp_request *req, void *)
     evhttp_send_reply(req, 200, "OK", nullptr);
 }
 
-static int generate_html_of_path(evbuffer *evbuf, const char *path_short, const char *path_real, int *error_code)
+static int generate_html_of_path(evbuffer *evbuf, const char *root_path, const char *relative_path, int *error_code)
 {
     bool error = true;
     DIR *dir = nullptr;
@@ -235,51 +235,65 @@ static int generate_html_of_path(evbuffer *evbuf, const char *path_short, const 
 
     do
     {
-        if (!evbuf || !path_short || !path_real || !error_code)
+        if (!evbuf || !root_path || !relative_path || !error_code)
         {
             xlog_err("null");
             break;
         }
 
-        xlog_dbg("path:<%s, %s>", path_short, path_real);
+        xlog_dbg("path:<%s, %s>", root_path, relative_path);
+
+        std::string path_real = std::string() + root_path + "/" + relative_path;
 
         struct stat st = {};
-        if (stat(path_real, &st) < 0)
+        if (stat(path_real.c_str(), &st) < 0)
         {
             int errno_local = errno;
             std::array<char, 64> buf_str = {};
             x_strerror(errno_local, buf_str.data(), buf_str.size());
-            xlog_err("stat failed, path(%s): %s", path_real, buf_str.data());
+            xlog_err("stat failed, path(%s): %s", path_real.c_str(), buf_str.data());
             *error_code = HTTP_NOTFOUND;
             break;
         }
 
         if (S_ISDIR(st.st_mode))
         {
-            dir = opendir(path_real);
+            dir = opendir(path_real.c_str());
             if (!dir)
             {
                 xlog_err("opendir failed");
                 *error_code = HTTP_NOTFOUND;
                 break;
             }
+
+            // std::string relative_path_with_trailing_slash = std::string() + relative_path + "/";
+            const char *relative_path_with_trailing_slash = "";
+            if (!strlen(relative_path) || relative_path[strlen(relative_path) - 1] != '/')
+            {
+                relative_path_with_trailing_slash = "/";
+            }
+
             evbuffer_add_printf(evbuf,
 R"(
 <html>
  <head>
+   <meta charset="UTF-8">
    <title>Index of %s</title>
-   <base href='%s%s'>
+   <base href="%s%s">
  </head>
  <body>
   <h1>Index of %s</h1>
   <ul>)"
-            , path_short, path_real, "/", path_short);
+            ,
+            relative_path, 
+            relative_path,
+            relative_path_with_trailing_slash,
+            relative_path);
 
             struct dirent *ent = nullptr;
             while ((ent = readdir(dir)))
             {
                 const char *name = ent->d_name;
-                // std::string item_path = std::string() + path + "/" + name;
                 std::string item_path = std::string() + name;
                 evbuffer_add_printf(evbuf,
 R"(
@@ -291,7 +305,7 @@ R"(
         }
         else 
         {
-            if ((fd = open(path_real, O_RDONLY)) < 0)
+            if ((fd = open(path_real.c_str(), O_RDONLY)) < 0)
             {
                 xlog_err("open file failed");
                 break;
@@ -330,7 +344,7 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
 {
     xlog_dbg("in");
 
-    struct evhttp_uri *decoded_uri = nullptr;
+    struct evhttp_uri *parsesd_uri = nullptr;
     struct evbuffer *evbuf = nullptr;
     char *decoded_uri_path = nullptr;
 
@@ -361,25 +375,9 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
             http_error_code = HTTP_NOTFOUND;
             break;
         }
-
         xlog_dbg("uri: %s", uri);
 
-        decoded_uri = evhttp_uri_parse(uri);
-        if (!decoded_uri)
-        {
-            xlog_err("evhttp_uri_parse failed");
-            http_error_code = HTTP_BADREQUEST;
-            break;
-        }
-
-        const char *uri_path = evhttp_uri_get_path(decoded_uri);
-        if (!uri_path)
-        {
-            uri_path = "/";
-        }
-        xlog_dbg("uri_path: %s", uri_path);
-
-        decoded_uri_path = evhttp_uridecode(uri_path, 0, nullptr);
+        decoded_uri_path = evhttp_uridecode(uri, 0, nullptr);
         if (!decoded_uri_path)
         {
             http_error_code = HTTP_NOTFOUND;
@@ -388,7 +386,22 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
         }
         xlog_dbg("decoded_uri_path: %s", decoded_uri_path);
 
-        if (strstr(decoded_uri_path, ".."))
+        parsesd_uri = evhttp_uri_parse(decoded_uri_path);
+        if (!parsesd_uri)
+        {
+            xlog_err("evhttp_uri_parse failed");
+            http_error_code = HTTP_BADREQUEST;
+            break;
+        }
+
+        const char *uri_path = evhttp_uri_get_path(parsesd_uri);
+        if (!uri_path)
+        {
+            uri_path = "/";
+        }
+        xlog_dbg("uri_path: %s", uri_path);
+
+        if (strstr(uri_path, ".."))
         {
             xlog_dbg("path contains \"..\", ignored");
             http_error_code = HTTP_NOTFOUND;
@@ -402,8 +415,6 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
             break;
         }
 
-        std::string whole_path = std::string() + sopt->docroot + "/" + decoded_uri_path;
-
         evbuf = evbuffer_new();
         if (!evbuf)
         {
@@ -411,14 +422,14 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
             break;
         }
 
-        // if (generate_html_of_path(evbuf, whole_path.c_str(), &http_error_code) < 0)
-        if (generate_html_of_path(evbuf, decoded_uri_path, whole_path.c_str(), &http_error_code) < 0)
+        if (generate_html_of_path(evbuf, sopt->docroot, uri_path, &http_error_code) < 0)
         {
             xlog_err("generate html failed");
             http_error_code = HTTP_NOTFOUND;
             break;
         }
 
+        std::string whole_path = std::string() + sopt->docroot + "/" + uri_path;
         struct stat st = {};
         if (stat(whole_path.c_str(), &st) < 0)
         {
@@ -461,10 +472,10 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
         decoded_uri_path = nullptr;
     }
 
-    if (decoded_uri)
+    if (parsesd_uri)
     {
-        evhttp_uri_free(decoded_uri);
-        decoded_uri = nullptr;
+        evhttp_uri_free(parsesd_uri);
+        parsesd_uri = nullptr;
     }
 
     if (evbuf)
@@ -513,7 +524,7 @@ int main(int argc, char **argv)
         evhttp_set_gencb(http, send_document_cb, &sopt);
 
         handle_v4 = evhttp_bind_socket_with_handle(http, "0.0.0.0", sopt.port);
-        handle_v6 = evhttp_bind_socket_with_handle(http, "::/0", sopt.port);
+        handle_v6 = evhttp_bind_socket_with_handle(http, "::", sopt.port);
 
         if (!handle_v4 && !handle_v6)
         {
