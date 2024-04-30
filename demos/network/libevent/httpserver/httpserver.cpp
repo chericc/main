@@ -266,12 +266,13 @@ static int generate_html_of_path(evbuffer *evbuf, const char *root_path, const c
                 break;
             }
 
-            // std::string relative_path_with_trailing_slash = std::string() + relative_path + "/";
-            const char *relative_path_with_trailing_slash = "";
+            std::string relative_path_with_trailing_slash = relative_path;
             if (!strlen(relative_path) || relative_path[strlen(relative_path) - 1] != '/')
             {
-                relative_path_with_trailing_slash = "/";
+                relative_path_with_trailing_slash += "/";
             }
+            
+            // relative_path_with_trailing_slash = encode_url(relative_path_with_trailing_slash);
 
             evbuffer_add_printf(evbuf,
 R"(
@@ -279,26 +280,23 @@ R"(
  <head>
    <meta charset="UTF-8">
    <title>Index of %s</title>
-   <base href="%s%s">
  </head>
  <body>
   <h1>Index of %s</h1>
   <ul>)"
             ,
             relative_path, 
-            relative_path,
-            relative_path_with_trailing_slash,
             relative_path);
 
             struct dirent *ent = nullptr;
             while ((ent = readdir(dir)))
             {
                 const char *name = ent->d_name;
-                std::string item_path = std::string() + name;
-                evbuffer_add_printf(evbuf,
-R"(
-   <li><a href="%s">%s</a>
-)"              , item_path.c_str(), name);
+                std::string item_path = relative_path_with_trailing_slash + name;
+                evbuffer_add_printf(evbuf, 
+R"(   <li><a href="%s">%s</a>
+)"
+                , item_path.c_str(), name);
             }
 
             evbuffer_add_printf(evbuf, "</ul></body></html>\n");
@@ -377,7 +375,7 @@ static void send_document_cb(struct evhttp_request *req, void *arg)
         }
         xlog_dbg("uri: %s", uri);
 
-        parsesd_uri = evhttp_uri_parse(uri);
+        parsesd_uri = evhttp_uri_parse_with_flags(uri, EVHTTP_URI_NONCONFORMANT);
         if (!parsesd_uri)
         {
             xlog_err("evhttp_uri_parse failed");
