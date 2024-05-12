@@ -234,6 +234,47 @@ LVM only
 
 ```
 
+## python配置
+
+### install & update
+
+```bash
+python3 -m pip install module
+python3 -m pip install --upgrade pip
+```
+
+```bash
+
+# help
+conda config --help
+
+# source
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+
+# config
+conda config --set show_channel_urls true
+conda config --set auto_activate_base true
+
+# show all configs
+conda config --show
+
+# update 
+conda update --update-all
+
+# windows/powershell
+get-executionpolicy
+set-executionpolicy remotesigned
+set-executionpolicy restricted
+
+```
+
+### 配置源
+
+```bash
+python3 -m pip config set global.index-url https://pypi.mirrors.ustc.edu.cn/simple
+```
+
+
 ## 代理
 
 ```bash
