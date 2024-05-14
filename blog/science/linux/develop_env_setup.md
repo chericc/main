@@ -391,30 +391,42 @@ sudo vim /etc/tomcat9/web.xml
  <servlet>
 ```
 
-## python
-
-### miniconda
-
-用miniconda配置
-
-```bash
-conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
-conda config --set show_channel_urls yes
-
-conda create -n python_3.6 python=3.6
-conda activate python_3.6
-conda deactivate
-conda activate base
-
-conda create -n python_2.7 python=2.7
-conda activate python_2.7
-
-conda install pandas
-```
-
 ### proxy
 
 ```bash
 export http_proxy="http://10.0.0.2:7897"
 export https_proxy="http://10.0.0.2:7897"
+```
+
+## tmux
+
+```bash
+# ~/.tmux.conf
+
+# 右下角类似效果：21:58:48 12-12
+set -g status-right "%H:%M:%S %d-%b"
+
+# 设置整个状态栏背景颜色 bg(背景色) fg(前景色)
+set -g status-style "bg=#882244"
+
+set -g base-index 1
+set -g pane-base-index 1
+
+
+set -g status-interval 1    # 状态栏刷新时间(右下角秒针会跳动)
+set -g status-justify left  # 状态栏窗口列表(window list)左对齐
+
+set -g visual-activity on # 启用活动警告
+set -wg monitor-activity on # 非当前窗口有内容更新时在状态栏通知
+set -g message-style "bg=#202529, fg=#91A8BA" # 指定消息通知的前景、后景色
+
+set -wg window-status-current-format " #I:#W#F " # 状态栏当前窗口名称格式(#I：序号，#w：窗口名 称，#F：间隔符)
+set -wg window-status-current-style "fg=#d7fcaf,bg=#60875f" # 状态栏当前窗口名称的样式
+set -wg window-status-separator "" # 状态栏窗口名称之间的间隔
+
+# 命令回滚/历史数量限制
+set -g history-limit 20480
+set -sg escape-time 0
+set -g display-time 1500
+set -g remain-on-exit off
 ```
