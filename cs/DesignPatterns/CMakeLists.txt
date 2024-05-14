@@ -36,5 +36,5 @@ add_executable(${PROTOTYPE}
                 ${PROTOTYPE_SRC})
 
 # creational/singleton
-# add_executable(${SINGLETON}
-                # ${SINGLETON_SRC})
+add_executable(${SINGLETON}
+                ${SINGLETON_SRC})
