@@ -2,7 +2,7 @@
 
 @ref 
 
-<https://springframework.guru/gang-of-four-design-patterns/abstract-factory-design-pattern/>
+https://springframework.guru/gang-of-four-design-patterns/abstract-factory-design-pattern/
 
 ## special
 

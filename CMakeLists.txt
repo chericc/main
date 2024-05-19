@@ -208,6 +208,7 @@ add_subdirectory(audio/wav/demuxer)
 # add_subdirectory(audio/aac/fdkaac_wrapper)
 
 add_subdirectory(cs/DesignPatterns)
+add_subdirectory(cs/Algorithm)
 
 add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/network)
@@ -226,5 +227,3 @@ add_subdirectory(textenc)
 # add_subdirectory(xmedia/xdisplay)
 add_subdirectory(xmedia/pcap2ts)
 add_subdirectory(xtools)
-
-
