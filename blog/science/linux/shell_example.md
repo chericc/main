@@ -457,3 +457,9 @@ pkill -u username
 usermod -d dst_dir -m username
 
 ```
+
+## 找到目录或端口的使用人
+
+```bash
+fuser -k /mnt/card
+```
