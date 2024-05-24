@@ -24,3 +24,7 @@ cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/output
 ```bash
 cmake -LH .
 ```
+
+## cross compile
+
+cmake -DCMAKE_TOOLCHAIN_FILE=cmake/<crossfile>
