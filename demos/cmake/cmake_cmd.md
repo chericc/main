@@ -27,4 +27,4 @@ cmake -LH .
 
 ## cross compile
 
-cmake -DCMAKE_TOOLCHAIN_FILE=cmake/<crossfile>
+cmake -DCMAKE_TOOLCHAIN_FILE=<crossfile>

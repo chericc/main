@@ -12,6 +12,15 @@ sudo apt-get install pkg-config  -y
 
 ```
 
+## cross build for configure
+
+```bash
+
+CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++"
+CFLAGS="-mcpu=cortex-a7 -mfpu=neon-vfpv4" ../dir/configuire --prefix=$(pwd)/output
+
+```
+
 ## Some 3rd libraries
 
 ```bash
@@ -43,18 +52,35 @@ sudo apt-get install graphviz
 `sudo apt-get install plantuml`
 
 # valgrind
-../valgrind-3.20.0/configure --prefix=$(pwd)/output
+../valgrind-3.23.0/configure --prefix=$(pwd)/output
+export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
+export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
+../valgrind-3.23.0/configure --prefix=$(pwd)/output --enable-only32bit --host=arm-linux-gnueabihf
+../valgrind-3.23.0/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf
 
 # libunwind
 ## http://download.savannah.gnu.org/releases/libunwind/
 ../libunwind-1.6.2/configure --prefix=$(pwd)/output
+## cross build
+export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
+export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
+../libunwind-1.8.1/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --disable-tests --enable-shared=no
 
 # gperf-tools
 ## without libunwind
 cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=OFF
 ## with libunwind
 ## note: libunwind version is restricted
-CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON
+CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON
+## cross
+CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
+## cross2
+export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
+export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
+../gperftools-gperftools-2.15/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-shared=no
 ## run uni-test
 make test
 ## note: uni-test failed, not knowing why.
