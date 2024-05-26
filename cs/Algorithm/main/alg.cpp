@@ -1,4 +1,4 @@
-#include "alg_manager.hpp"
+#include "alg.hpp"
 
 #include "xlog.hpp"
 
@@ -36,7 +36,7 @@ void MainAlgManager::listDemos()
     }
 }
 
-void MainAlgManager::runDemo()
+void MainAlgManager::runAllDemo()
 {
     int module_index = 0;
     int func_index = 0;

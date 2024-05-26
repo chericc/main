@@ -4,6 +4,7 @@
 #include <map>
 #include <functional>
 #include <memory>
+#include <sstream>
 
 class MainAlgManager
 {
@@ -15,7 +16,7 @@ public:
     void add(std::string const& module, Funcs funcs);
 
     void listDemos();
-    void runDemo();
+    void runAllDemo();
 protected:
     static std::shared_ptr<MainAlgManager> instance_;
 private:
@@ -23,3 +24,13 @@ private:
     AlgDemos alg_demos_;
 };
 
+template <typename T_>
+std::string output_elements(T_ const& c)
+{
+    std::stringstream ss;
+    for (auto const& ref : c) 
+    {
+        ss << ref << " ";
+    }
+    return ss.str();
+}
