@@ -65,8 +65,9 @@ export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4"
 ## cross build
 export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
 export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
-export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
-../libunwind-1.8.1/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --disable-tests --enable-shared=no
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
+export LIBS="-pthread"
+../libunwind-1.8.1/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --disable-tests --enable-shared=no --enable-cxx-exceptions
 
 # gperf-tools
 ## without libunwind
@@ -80,7 +81,10 @@ CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_P
 export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
 export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
 export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
-../gperftools-gperftools-2.15/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-shared=no
+export CPPFLAGS="-I/home/test/opensrc/libunwind/libunwind-1.8.1/output/include"
+export LDFLAGS="-L/home/test/opensrc/libunwind/libunwind-1.8.1/output/lib"
+export LIBS="-lunwind -pthread"  ## -pthread not working properly
+../gperftools-gperftools-2.15/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-libunwind --enable-static=no
 ## run uni-test
 make test
 ## note: uni-test failed, not knowing why.
