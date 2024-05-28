@@ -7,7 +7,7 @@ int main()
 {
     xlog_dbg("main start");
 
-    MaxHeap::register_test();
+    MaxHeap::registerTest();
 
     MainAlgManager::getInstance().listDemos();
 

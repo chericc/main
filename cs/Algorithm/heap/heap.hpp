@@ -9,14 +9,15 @@ public:
 
     MaxHeap(int *data, index size);
 
-    void MaxHeapify(index index_root);
-    void BuildMaxHeap();
+    void MaxHeapify(index index_root, index index_last);
+    void BuildMaxHeap(index index_last);
+    void Sort();
 
     static index leftIndex(index index);
     static index rightIndex(index index);
     static index parentIndex(index index);
 
-    static void register_test();
+    static void registerTest();
 private:
     int *data_ = nullptr;
     index size_ = 0;

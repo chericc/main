@@ -7,7 +7,7 @@
 #include "xlog.hpp"
 #include "alg.hpp"
 
-void MaxHeap::register_test()
+void MaxHeap::registerTest()
 {
     auto test = []()-> void
     {
@@ -20,7 +20,7 @@ void MaxHeap::register_test()
         std::shuffle(v.begin(), v.end(), std::default_random_engine());
         std::string str_a = output_elements(v);
         MaxHeap maxheap(v.data(), v.size());
-        maxheap.BuildMaxHeap();
+        maxheap.Sort();
         std::string str_b = output_elements(v);
 
         xlog_dbg("maxheap sort");
@@ -34,9 +34,8 @@ void MaxHeap::register_test()
 }
 
 MaxHeap::MaxHeap(int *data, index size)
+    : data_(data), size_(size)
 {
-    data_ = data;
-    size_ = size;
 }
 
 /**
@@ -44,7 +43,7 @@ MaxHeap::MaxHeap(int *data, index size)
  * changed.
  * @param index_root The index of the root element of heap.
  */
-void MaxHeap::MaxHeapify(index index_root)
+void MaxHeap::MaxHeapify(index index_root, index index_last)
 {
     if (index_root >= size_) 
     {
@@ -55,14 +54,14 @@ void MaxHeap::MaxHeapify(index index_root)
     index left_idx = leftIndex(index_root);
     index right_idx = rightIndex(index_root);
     index max_idx = index_root;
-    if (left_idx < size_) 
+    if (left_idx <= index_last) 
     {
         if (data_[left_idx] > data_[max_idx]) 
         {
             max_idx = left_idx;
         }
 
-        if (right_idx < size_)
+        if (right_idx <= index_last)
         {
             if (data_[right_idx] > data_[max_idx]) 
             {
@@ -73,31 +72,54 @@ void MaxHeap::MaxHeapify(index index_root)
     if (max_idx != index_root) 
     {
         std::swap(data_[max_idx], data_[index_root]);
-        MaxHeapify(max_idx);
+        MaxHeapify(max_idx, index_last);
     }
 }   
 
-void MaxHeap::BuildMaxHeap()
+void MaxHeap::BuildMaxHeap(index index_last)
 {
-    index max_sub_tree_index = parentIndex(size_);
-    for (index idx = max_sub_tree_index; idx > 0; --idx) 
+    if (size_ > 0) 
     {
-        MaxHeapify(idx);
+        index max_sub_tree_index = parentIndex(index_last);
+        for (index idx = max_sub_tree_index; idx > 0; --idx) 
+        {
+            MaxHeapify(idx, index_last);
+        }
+        MaxHeapify(0, index_last);
     }
-    MaxHeapify(0);
 }
+
+void MaxHeap::Sort()
+{
+    if (size_ > 1) 
+    {
+        BuildMaxHeap(size_ - 1);
+        for (index i = size_ - 1; i >= 1; --i)
+        {
+            MaxHeapify(0, i);
+            std::swap(data_[0], data_[i]);
+        }
+    }
+}
+
+/**
+        0
+      1      2
+    3   4  5   6 
+
+*/
 
 MaxHeap::index MaxHeap::leftIndex(index idx)
-{
-    return 2 * idx;
-}
-
-MaxHeap::index MaxHeap::rightIndex(index idx)
 {
     return 2 * idx + 1;
 }
 
+MaxHeap::index MaxHeap::rightIndex(index idx)
+{
+    return 2 * idx + 2;
+}
+
 MaxHeap::index MaxHeap::parentIndex(index idx)
 {
-    return idx / 2;
+    return (idx - 1) / 2;
 }
