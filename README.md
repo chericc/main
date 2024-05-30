@@ -76,15 +76,19 @@ cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD
 ## note: libunwind version is restricted
 CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON
 ## cross
-CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
+CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
 ## cross2
+#### 这种方法在Ubuntu18.04版本上存在问题（autogen.sh涉及的工具链太旧了）
+./autogen.sh
 export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
 export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
 export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
-export CPPFLAGS="-I/home/test/opensrc/libunwind/libunwind-1.8.1/output/include"
-export LDFLAGS="-L/home/test/opensrc/libunwind/libunwind-1.8.1/output/lib"
-export LIBS="-lunwind -pthread"  ## -pthread not working properly
-../gperftools-gperftools-2.15/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-libunwind --enable-static=no
+export CXXFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4" 
+export CPPFLAGS="-I/home/test/opensrc/libunwind/build/output/include -DTCMALLOC_NO_ATFORK" 
+export LDFLAGS="-L/home/test/opensrc/libunwind/build/output/lib/"
+export LIBS="-lunwind"  
+./configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-libunwind 
+
 ## run uni-test
 make test
 ## note: uni-test failed, not knowing why.
