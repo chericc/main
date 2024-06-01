@@ -40,7 +40,7 @@ int x_strerror(int errnum, char* buf, size_t buflen)
     ret = strerror_s(buf, buflen, errnum);
 #else 
 
-#if (_POSIX_C_SOURCE >= 200112L) && !  _GNU_SOURCE
+#if ((_POSIX_C_SOURCE >= 200112L) && !  _GNU_SOURCE) || defined (X_PLATFORM_CLANG)
     ret = strerror_r(errnum, buf, buflen);
 #else 
     char *res = strerror_r(errnum, buf, buflen);
