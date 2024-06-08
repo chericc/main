@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 
 	do
 	{
-		int flags = SDL_INIT_EVERYTHING;
+		int flags = SDL_INIT_VIDEO;
 
 		if (SDL_Init(flags)) {
 			xlog_err("SDL_Init failed");
@@ -28,10 +28,9 @@ int main(int argc, char *argv[])
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
 		while (true) {
-			SDL_PumpEvents();
-
 			SDL_Event event;
 			while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+				xlog_dbg("pump events");
 				SDL_PumpEvents();
 			}
 
