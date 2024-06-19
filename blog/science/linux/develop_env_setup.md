@@ -267,6 +267,9 @@ set-executionpolicy remotesigned
 set-executionpolicy restricted
 
 # 
+conda info --envs
+
+# 
 conda create -n python_2_7 python=2.7
 conda remove -n python_2_7 --all
 
