@@ -6,7 +6,7 @@ class MaxHeap {
    public:
     using index = std::size_t;
 
-    MaxHeap(int* data, index size);
+    MaxHeap(int* data, index num);
 
     void MaxHeapify(index index_root, index index_last);
     void BuildMaxHeap(index index_last);
