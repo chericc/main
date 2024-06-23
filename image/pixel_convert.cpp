@@ -1,7 +1,6 @@
 #include <cstdio>
 
-void rgba2argb(FILE *fp_in, FILE *fp_out)
-{
+void rgba2argb(FILE* fp_in, FILE* fp_out) {
     char pixel[4];
 
     while (1) {
@@ -20,32 +19,28 @@ void rgba2argb(FILE *fp_in, FILE *fp_out)
             pixel_a[2] = pixel[0];
             pixel_a[3] = pixel[3];
             fwrite(pixel_a, 1, sizeof(pixel_a), fp_out);
-        }
-        else if (ret == 0) {
+        } else if (ret == 0) {
             break;
-        }
-        else {
+        } else {
             printf("error, ret=%d\n", ret);
             break;
         }
     }
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
     if (argc < 3) {
         return -1;
     }
 
-    const char *file_in = argv[1];
-    const char *file_out = argv[2];
+    const char* file_in = argv[1];
+    const char* file_out = argv[2];
     printf("%s --> %s\n", file_in, file_out);
 
     FILE* fp_in = nullptr;
     FILE* fp_out = nullptr;
 
-    do 
-    {
+    do {
         fp_in = fopen(file_in, "r");
         fp_out = fopen(file_out, "w");
 
@@ -55,8 +50,7 @@ int main(int argc, char *argv[])
         }
 
         rgba2argb(fp_in, fp_out);
-    }
-    while (0);
+    } while (0);
 
     if (fp_in) {
         fclose(fp_in);

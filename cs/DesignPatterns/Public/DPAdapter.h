@@ -3,11 +3,9 @@
 
 DP_BEGIN
 
-class DPAdapter :
-	public DesignPattern
-{
-public:
-	void Play() override;
+class DPAdapter : public DesignPattern {
+   public:
+    void Play() override;
 };
 
 DP_END

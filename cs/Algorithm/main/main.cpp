@@ -1,10 +1,8 @@
-#include "xlog.hpp"
-
 #include "alg.hpp"
 #include "heap.hpp"
+#include "xlog.hpp"
 
-int main()
-{
+int main() {
     xlog_dbg("main start");
 
     MaxHeap::registerTest();

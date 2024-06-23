@@ -4,38 +4,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <thread>
 #include <list>
 #include <mutex>
+#include <thread>
 
 std::mutex g_mutex;
-std::list<unsigned char *> g_plist;
+std::list<unsigned char*> g_plist;
 int g_touch_interval_sec = 1;
 
 int mem_num = 0;
 int mem_size = 0;
 int touch_interval = 0;
 
-void print_usage(int, const char *argv[])
-{
+void print_usage(int, const char* argv[]) {
     printf("%s mem_num mem_size touch_interval\n", argv[0]);
-    return ;
+    return;
 }
 
-void trd_worker()
-{
-    while (true)
-    {
+void trd_worker() {
+    while (true) {
         {
             std::lock_guard<std::mutex> lock(g_mutex);
 
-            if (!g_plist.empty())
-            {
+            if (!g_plist.empty()) {
                 printf("Touching...\n");
-                for (auto ref : g_plist)
-                {
-                    for (int k = 0; k < mem_size; k += 4 * 1024)
-                    {
+                for (auto ref : g_plist) {
+                    for (int k = 0; k < mem_size; k += 4 * 1024) {
                         ref[k] = k;
                     }
                 }
@@ -46,12 +40,10 @@ void trd_worker()
     }
 }
 
-int main(int argc, const char *argv[])
-{
+int main(int argc, const char* argv[]) {
     fflush(stdin);
 
-    if (argc != 4)
-    {
+    if (argc != 4) {
         print_usage(argc, argv);
         return -1;
     }
@@ -60,25 +52,24 @@ int main(int argc, const char *argv[])
     mem_size = atoi(argv[2]);
     touch_interval = atoi(argv[3]);
 
-    if (mem_num <= 0 || mem_size <= 0 || touch_interval <= 0)
-    {
+    if (mem_num <= 0 || mem_size <= 0 || touch_interval <= 0) {
         printf("Parameter error\n");
         return -1;
     }
 
-    printf("Allocating %d * %d Byte, Total: %d Byte\n", mem_num, mem_size, mem_num * mem_size);
+    printf("Allocating %d * %d Byte, Total: %d Byte\n", mem_num, mem_size,
+           mem_num * mem_size);
 
-    for (int i = 0; i < mem_num; ++i)
-    {
-        unsigned char *pmem = (unsigned char *)malloc(mem_size);
-        if (pmem)
-        {
+    for (int i = 0; i < mem_num; ++i) {
+        unsigned char* pmem = (unsigned char*)malloc(mem_size);
+        if (pmem) {
             g_plist.push_back(pmem);
             pmem = nullptr;
         }
     }
 
-    printf("Allocation finished, touching with interval: %d seconds\n", touch_interval);
+    printf("Allocation finished, touching with interval: %d seconds\n",
+           touch_interval);
 
     std::thread trd(trd_worker);
 
@@ -88,8 +79,7 @@ int main(int argc, const char *argv[])
     {
         printf("Freeing all...\n");
         std::lock_guard<std::mutex> lock(g_mutex);
-        for (auto ref : g_plist)
-        {
+        for (auto ref : g_plist) {
             free(ref);
         }
         g_plist.clear();
@@ -98,8 +88,7 @@ int main(int argc, const char *argv[])
 
     printf("Ctrl-C for exit...\n");
 
-    while (true)
-    {
+    while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 

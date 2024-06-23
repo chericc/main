@@ -1,7 +1,6 @@
 #include "messager.hpp"
 
-int main()
-{
+int main() {
     auto text_msger = std::make_shared<TextMessageSender>();
     auto text_msg = std::make_shared<TextMessage>(text_msger);
 

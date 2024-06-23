@@ -1,46 +1,37 @@
 #include "rbtree.hpp"
 
 #include <assert.h>
+
 #include <functional>
 
 #include "log.hpp"
 
 RBNode::RBNode(RBNodePtr nil, RBColor color_)
-    :left(nil),right(nil),parent(nil),color(color_)
-{
-}
+    : left(nil), right(nil), parent(nil), color(color_) {}
 
-RBTree::RBTree()
-    : nil_(std::make_shared<RBNode>(nullptr))
-{
-    root_ = nil_;
-}
+RBTree::RBTree() : nil_(std::make_shared<RBNode>(nullptr)) { root_ = nil_; }
 
-RBTree::RBTree(const RBTree &tree)
-    : nil_(std::make_shared<RBNode>(nullptr))
-{
+RBTree::RBTree(const RBTree& tree) : nil_(std::make_shared<RBNode>(nullptr)) {
     *this = tree;
 }
 
-RBTree::~RBTree()
-{
+RBTree::~RBTree() {
     // nothing
 }
 
-void RBTree::Insert(const KeyType &key, const ValueType &value)
-{
-/*
+void RBTree::Insert(const KeyType& key, const ValueType& value) {
+    /*
 
-     y(R)
-     x(B)
--->
-     y(R)
-     z(R)
-     x(B)
-     
+         y(R)
+         x(B)
+    -->
+         y(R)
+         z(R)
+         x(B)
 
 
-*/
+
+    */
 
     RBNodePtr y;
     RBNodePtr x;
@@ -52,28 +43,21 @@ void RBTree::Insert(const KeyType &key, const ValueType &value)
     LocateInsertPosition(key, x, y);
 
     z->parent = y;
-    if (nil_ == y)
-    {
+    if (nil_ == y) {
         root_ = z;
-    }
-    else if (z->key < y->key)
-    {
+    } else if (z->key < y->key) {
         y->left = z;
-    }
-    else 
-    {
+    } else {
         y->right = z;
     }
 
     InsertFixup(z);
 }
 
-void RBTree::Erase(const KeyType &key)
-{
+void RBTree::Erase(const KeyType& key) {
     RBNodePtr node = LocateNode(key);
-    if (node == nil_)
-    {
-        return ;
+    if (node == nil_) {
+        return;
     }
 
     RBNodePtr x;
@@ -81,8 +65,7 @@ void RBTree::Erase(const KeyType &key)
     RBNodePtr z = node;
     RBColor y_original_color = y->color;
 
-    if (z->left == nil_)
-    {
+    if (z->left == nil_) {
         /**
          *          z
          *    nil         x
@@ -93,9 +76,7 @@ void RBTree::Erase(const KeyType &key)
          */
         x = z->right;
         Transplant(z, z->right);
-    }
-    else if (z->right == nil_)
-    {
+    } else if (z->right == nil_) {
         /**
          *       z
          *   x     nil
@@ -106,9 +87,7 @@ void RBTree::Erase(const KeyType &key)
          */
         x = z->left;
         Transplant(z, z->left);
-    }
-    else
-    {
+    } else {
         /**
          *        z
          *              ...
@@ -118,17 +97,14 @@ void RBTree::Erase(const KeyType &key)
         y = Min(z->right);
         y_original_color = y->color;
         x = y->right;
-        if (y->parent.lock() == z)
-        {
+        if (y->parent.lock() == z) {
             /**
              *     z
              *        y
              *          x
              */
-            x->parent = y;   // TODO: redundant operation
-        }
-        else
-        {
+            x->parent = y;  // TODO: redundant operation
+        } else {
             /**
              *        z
              *   -            -
@@ -149,26 +125,20 @@ void RBTree::Erase(const KeyType &key)
         y->color = z->color;
     }
 
-    if (y_original_color == RBColor::Black)
-    {
+    if (y_original_color == RBColor::Black) {
         EraseFixup(x);
     }
 
-    return ;
+    return;
 }
 
-void RBTree::Clear()
-{
-    root_ = nil_;
-}
+void RBTree::Clear() { root_ = nil_; }
 
-RBTree &RBTree::operator=(const RBTree &tree)
-{
-    std::function<RBNodePtr(const RBNodePtr src, RBNodePtr parent)> func_make_copy;
-    func_make_copy = [&](const RBNodePtr src, RBNodePtr parent)->RBNodePtr
-    {
-        if (src == tree.nil_)
-        {
+RBTree& RBTree::operator=(const RBTree& tree) {
+    std::function<RBNodePtr(const RBNodePtr src, RBNodePtr parent)>
+        func_make_copy;
+    func_make_copy = [&](const RBNodePtr src, RBNodePtr parent) -> RBNodePtr {
+        if (src == tree.nil_) {
             return nil_;
         }
 
@@ -177,20 +147,14 @@ RBTree &RBTree::operator=(const RBTree &tree)
         node->key = src->key;
         node->parent = parent;
         node->value = src->value;
-        if (src->left != tree.nil_)
-        {
+        if (src->left != tree.nil_) {
             node->left = func_make_copy(src->left, node);
-        }
-        else
-        {
+        } else {
             node->left = nil_;
         }
-        if (src->right != tree.nil_)
-        {
+        if (src->right != tree.nil_) {
             node->right = func_make_copy(src->right, node);
-        }
-        else
-        {
+        } else {
             node->right = nil_;
         }
         return node;
@@ -201,8 +165,7 @@ RBTree &RBTree::operator=(const RBTree &tree)
     return *this;
 }
 
-void RBTree::LeftRotate(RBNodePtr node)
-{
+void RBTree::LeftRotate(RBNodePtr node) {
     /**
 
             p
@@ -228,16 +191,11 @@ void RBTree::LeftRotate(RBNodePtr node)
     RBNodePtr b = y->left;
     RBNodePtr c = y->right;
 
-    if (p == nil_)
-    {
+    if (p == nil_) {
         root_ = y;
-    }
-    else if (p->left == x)
-    {
+    } else if (p->left == x) {
         p->left = y;
-    }
-    else
-    {
+    } else {
         p->right = y;
     }
 
@@ -247,14 +205,12 @@ void RBTree::LeftRotate(RBNodePtr node)
     y->parent = p;
     y->left = x;
 
-    if (b != nil_)
-    {
+    if (b != nil_) {
         b->parent = x;
     }
 }
 
-void RBTree::RightRotate(RBNodePtr node)
-{
+void RBTree::RightRotate(RBNodePtr node) {
     /**
 
             p
@@ -280,16 +236,11 @@ void RBTree::RightRotate(RBNodePtr node)
     RBNodePtr b = x->right;
     RBNodePtr c = y->right;
 
-    if (p == nil_)
-    {
+    if (p == nil_) {
         root_ = x;
-    }
-    else if (p->left == y)
-    {
+    } else if (p->left == y) {
         p->left = x;
-    }
-    else 
-    {
+    } else {
         p->right = x;
     }
 
@@ -299,44 +250,35 @@ void RBTree::RightRotate(RBNodePtr node)
     x->parent = p;
     x->right = y;
 
-    if (b != nil_)
-    {
+    if (b != nil_) {
         b->parent = y;
     }
 }
 
-void RBTree::LocateInsertPosition(const KeyType &key, RBNodePtr &it, RBNodePtr &parent) const
-{
+void RBTree::LocateInsertPosition(const KeyType& key, RBNodePtr& it,
+                                  RBNodePtr& parent) const {
     RBNodePtr y = nil_;
     RBNodePtr x = root_;
 
-    while (x != nil_)
-    {
+    while (x != nil_) {
         y = x;
-        if (key < x->key)
-        {
+        if (key < x->key) {
             x = x->left;
-        }
-        else
-        {
+        } else {
             x = x->right;
         }
     }
     it = x;
     parent = y;
 
-    return ;
+    return;
 }
 
-void RBTree::InsertFixup(RBNodePtr z)
-{
-    while (RBColor::Red == z->parent.lock()->color)
-    {
-        if (z->parent.lock() == z->parent.lock()->parent.lock()->left)
-        {
+void RBTree::InsertFixup(RBNodePtr z) {
+    while (RBColor::Red == z->parent.lock()->color) {
+        if (z->parent.lock() == z->parent.lock()->parent.lock()->left) {
             RBNodePtr y = z->parent.lock()->parent.lock()->right;
-            if (y->color == RBColor::Red)
-            {
+            if (y->color == RBColor::Red) {
                 /**
                  * condition 1-1
                  *         B
@@ -355,11 +297,8 @@ void RBTree::InsertFixup(RBNodePtr z)
                 z->parent.lock()->parent.lock()->color = RBColor::Red;
                 y->color = RBColor::Black;
                 z = z->parent.lock()->parent.lock();
-            }
-            else 
-            {
-                if (z == z->parent.lock()->right)
-                {
+            } else {
+                if (z == z->parent.lock()->right) {
                     /**
                      * condition 1-2
                      *           B
@@ -376,9 +315,7 @@ void RBTree::InsertFixup(RBNodePtr z)
                      */
                     z = z->parent.lock();
                     LeftRotate(z);
-                }
-                else
-                {
+                } else {
                     /**
                      * condition 1-3
                      *           B
@@ -398,12 +335,9 @@ void RBTree::InsertFixup(RBNodePtr z)
                     RightRotate(z->parent.lock()->parent.lock());
                 }
             }
-        }
-        else
-        {
+        } else {
             RBNodePtr y = z->parent.lock()->parent.lock()->left;
-            if (y->color == RBColor::Red)
-            {
+            if (y->color == RBColor::Red) {
                 /**
                  * condition 2-1
                  *              B
@@ -422,11 +356,8 @@ void RBTree::InsertFixup(RBNodePtr z)
                 z->parent.lock()->parent.lock()->color = RBColor::Red;
                 y->color = RBColor::Black;
                 z = z->parent.lock()->parent.lock();
-            }
-            else
-            {
-                if (z == z->parent.lock()->left)
-                {
+            } else {
+                if (z == z->parent.lock()->left) {
                     /**
                      * condition 2-2
                      *              B
@@ -443,9 +374,7 @@ void RBTree::InsertFixup(RBNodePtr z)
                      */
                     z = z->parent.lock();
                     RightRotate(z);
-                }
-                else
-                {
+                } else {
                     /**
                      * condition 2-3
                      *              B
@@ -458,7 +387,7 @@ void RBTree::InsertFixup(RBNodePtr z)
                      * ---------------------------->
                      *              B
                      *         R         R(z)
-                     *     B(y)             
+                     *     B(y)
                      */
                     z->parent.lock()->color = RBColor::Black;
                     z->parent.lock()->parent.lock()->color = RBColor::Red;
@@ -470,50 +399,39 @@ void RBTree::InsertFixup(RBNodePtr z)
     root_->color = RBColor::Black;
 }
 
-RBNodePtr RBTree::LocateNode(const KeyType &key) const
-{
+RBNodePtr RBTree::LocateNode(const KeyType& key) const {
     RBNodePtr node = root_;
-    while (node != nil_)
-    {
-        if (key == node->key)
-        {
+    while (node != nil_) {
+        if (key == node->key) {
             break;
-        }
-        else if (key < node->key)
-        {
+        } else if (key < node->key) {
             node = node->left;
-        }
-        else 
-        {
+        } else {
             node = node->right;
         }
     }
     return node;
 }
 
-std::ostream &operator<<(std::ostream &os, const RBTree &tree)
-{
+std::ostream& operator<<(std::ostream& os, const RBTree& tree) {
     std::list<KeyType> preorder, midorder, suborder;
 
     tree.GetOrders(preorder, midorder, suborder);
 
     os << "pre order:" << std::endl;
-    for (auto &it : preorder)
-    {
+    for (auto& it : preorder) {
         os << it << " ";
     }
     os << std::endl;
-    
+
     os << "mid order:" << std::endl;
-    for (auto &it : midorder)
-    {
+    for (auto& it : midorder) {
         os << it << " ";
     }
     os << std::endl;
 
     os << "sub order:" << std::endl;
-    for (auto &it : suborder)
-    {
+    for (auto& it : suborder) {
         os << it << " ";
     }
     os << std::endl;
@@ -521,51 +439,40 @@ std::ostream &operator<<(std::ostream &os, const RBTree &tree)
     return os;
 }
 
-void RBTree::GetOrders(std::list<KeyType> &preorder, std::list<KeyType> &midorder, std::list<KeyType> &suborder) const
-{
-    std::function<void(RBNodePtr,RBNodePtr)> func_pre_order_print;
-    std::function<void(RBNodePtr,RBNodePtr)> func_mid_order_print;
-    std::function<void(RBNodePtr,RBNodePtr)> func_sub_order_print;
-    func_pre_order_print = [&](RBNodePtr node, RBNodePtr nil)
-    {
-        if (node != nil)
-        {
+void RBTree::GetOrders(std::list<KeyType>& preorder,
+                       std::list<KeyType>& midorder,
+                       std::list<KeyType>& suborder) const {
+    std::function<void(RBNodePtr, RBNodePtr)> func_pre_order_print;
+    std::function<void(RBNodePtr, RBNodePtr)> func_mid_order_print;
+    std::function<void(RBNodePtr, RBNodePtr)> func_sub_order_print;
+    func_pre_order_print = [&](RBNodePtr node, RBNodePtr nil) {
+        if (node != nil) {
             preorder.push_back(node->key);
-            if (node->left != nil)
-            {
+            if (node->left != nil) {
                 func_pre_order_print(node->left, nil);
             }
-            if (node->right != nil)
-            {
+            if (node->right != nil) {
                 func_pre_order_print(node->right, nil);
             }
         }
     };
-    func_mid_order_print = [&](RBNodePtr node, RBNodePtr nil)
-    {
-        if (node != nil)
-        {
-            if (node->left != nil)
-            {
+    func_mid_order_print = [&](RBNodePtr node, RBNodePtr nil) {
+        if (node != nil) {
+            if (node->left != nil) {
                 func_mid_order_print(node->left, nil);
             }
             midorder.push_back(node->key);
-            if (node->right != nil)
-            {
+            if (node->right != nil) {
                 func_mid_order_print(node->right, nil);
             }
         }
     };
-    func_sub_order_print = [&](RBNodePtr node, RBNodePtr nil)
-    {
-        if (node != nil)
-        {
-            if (node->left != nil)
-            {
+    func_sub_order_print = [&](RBNodePtr node, RBNodePtr nil) {
+        if (node != nil) {
+            if (node->left != nil) {
                 func_sub_order_print(node->left, nil);
             }
-            if (node->right != nil)
-            {
+            if (node->right != nil) {
                 func_sub_order_print(node->right, nil);
             }
             suborder.push_back(node->key);
@@ -579,38 +486,29 @@ void RBTree::GetOrders(std::list<KeyType> &preorder, std::list<KeyType> &midorde
     func_mid_order_print(root_, nil_);
     func_sub_order_print(root_, nil_);
 
-    return ;
+    return;
 }
 
 /**
  * 将 old_node 节点用 new_node 表示的子树替换。
-*/
-void RBTree::Transplant(RBNodePtr old_node, RBNodePtr new_node)
-{
-    if (old_node->parent.lock() == nil_)
-    {
+ */
+void RBTree::Transplant(RBNodePtr old_node, RBNodePtr new_node) {
+    if (old_node->parent.lock() == nil_) {
         root_ = new_node;
-    }
-    else if (old_node == old_node->parent.lock()->left)
-    {
+    } else if (old_node == old_node->parent.lock()->left) {
         old_node->parent.lock()->left = new_node;
-    }
-    else
-    {
+    } else {
         old_node->parent.lock()->right = new_node;
     }
     new_node->parent = old_node->parent.lock();
 
-    return ;
+    return;
 }
 
-RBNodePtr RBTree::Min(RBNodePtr node)
-{
+RBNodePtr RBTree::Min(RBNodePtr node) {
     RBNodePtr z = node;
-    while (z != nil_)
-    {
-        if (z->left != nil_)
-        {
+    while (z != nil_) {
+        if (z->left != nil_) {
             z = z->left;
         }
         break;
@@ -618,17 +516,13 @@ RBNodePtr RBTree::Min(RBNodePtr node)
     return z;
 }
 
-void RBTree::EraseFixup(RBNodePtr node)
-{
+void RBTree::EraseFixup(RBNodePtr node) {
     RBNodePtr x = node;
 
-    while (x != root_ && x->color == RBColor::Black)
-    {
-        if (x == x->parent.lock()->left)
-        {
+    while (x != root_ && x->color == RBColor::Black) {
+        if (x == x->parent.lock()->left) {
             RBNodePtr w = x->parent.lock()->right;
-            if (w->color == RBColor::Red)
-            {
+            if (w->color == RBColor::Red) {
                 /**
                  * case erasefixup::1-1
                  *              B
@@ -651,9 +545,8 @@ void RBTree::EraseFixup(RBNodePtr node)
                 x->parent.lock()->color = RBColor::Red;
                 LeftRotate(x->parent.lock());
                 w = x->parent.lock()->right;
-            }
-            else if (w->left->color == RBColor::Black && w->right->color == RBColor::Black)
-            {
+            } else if (w->left->color == RBColor::Black &&
+                       w->right->color == RBColor::Black) {
                 /**
                  * case erasefixup::1-2
                  *               *
@@ -666,9 +559,7 @@ void RBTree::EraseFixup(RBNodePtr node)
                  */
                 w->color = RBColor::Red;
                 x = x->parent.lock();
-            }
-            else if (w->right->color == RBColor::Black)
-            {
+            } else if (w->right->color == RBColor::Black) {
                 /**
                  * case erasefixup::1-3
                  *                *
@@ -685,12 +576,10 @@ void RBTree::EraseFixup(RBNodePtr node)
                  *                                B
                  */
                 w->left->color = RBColor::Black;
-                w->color= RBColor::Red;
+                w->color = RBColor::Red;
                 RightRotate(w);
                 w = x->parent.lock()->right;
-            }
-            else
-            {
+            } else {
                 /**
                  * case erasefixup::1-4
                  *               a*
@@ -708,7 +597,7 @@ void RBTree::EraseFixup(RBNodePtr node)
                  *               a*(w)
                  *      B                     B
                  *  B     b*
-                 *          
+                 *
                  */
                 w->color = x->parent.lock()->color;
                 x->parent.lock()->color = RBColor::Black;
@@ -716,12 +605,9 @@ void RBTree::EraseFixup(RBNodePtr node)
                 LeftRotate(x->parent.lock());
                 x = root_;
             }
-        }
-        else 
-        {
+        } else {
             RBNodePtr w = x->parent.lock()->left;
-            if (w->color == RBColor::Red)
-            {
+            if (w->color == RBColor::Red) {
                 /**
                  * case erasefixup::2-1
                  *               B
@@ -744,9 +630,8 @@ void RBTree::EraseFixup(RBNodePtr node)
                 x->parent.lock()->color = RBColor::Red;
                 RightRotate(x->parent.lock());
                 w = x->parent.lock()->left;
-            }
-            else if (w->left->color == RBColor::Black && w->right->color == RBColor::Black)
-            {
+            } else if (w->left->color == RBColor::Black &&
+                       w->right->color == RBColor::Black) {
                 /**
                  * case erasefixup::2-2
                  *             *
@@ -759,9 +644,7 @@ void RBTree::EraseFixup(RBNodePtr node)
                  */
                 w->color = RBColor::Red;
                 x = x->parent.lock();
-            }
-            else if (w->left->color == RBColor::Black)
-            {
+            } else if (w->left->color == RBColor::Black) {
                 /**
                  * case eerasefixup::2-3
                  *                 *
@@ -781,9 +664,7 @@ void RBTree::EraseFixup(RBNodePtr node)
                 w->color = RBColor::Red;
                 LeftRotate(w);
                 w = x->parent.lock()->left;
-            }
-            else
-            {
+            } else {
                 /**
                  * case eerasefixup::2-4
                  *                a*

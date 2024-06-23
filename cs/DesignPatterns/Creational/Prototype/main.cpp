@@ -1,7 +1,6 @@
 #include "xlog.hpp"
 
-int main()
-{
+int main() {
     xlog_dbg("Just clone it");
     return 0;
 }

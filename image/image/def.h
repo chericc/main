@@ -6,8 +6,7 @@
 
 #pragma once
 
-typedef struct Pixel
-{
+typedef struct Pixel {
     unsigned char R;
     unsigned char G;
     unsigned char B;

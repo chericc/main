@@ -1,7 +1,7 @@
 #include "tree.h"
 
-#include <stack>
 #include <iostream>
+#include <stack>
 
 Node::Node() {
     data = ELETYPE();
@@ -12,7 +12,7 @@ Node::Node() {
     w = 1;
 }
 
-Node::Node(const ELETYPE &e, int iw) {
+Node::Node(const ELETYPE& e, int iw) {
     data = e;
     l = nullptr;
     r = nullptr;
@@ -39,34 +39,22 @@ void Node::destroy() {
     delete this;
 }
 
-void Node::replace(Node *ori, Node *rep) {
+void Node::replace(Node* ori, Node* rep) {
     if (l == ori) {
         l = rep;
-    }
-    else if (r == ori) {
+    } else if (r == ori) {
         r = rep;
-    }
-    else {
+    } else {
         throw std::logic_error("");
     }
 }
 
-void Node::leftjoin(Node *node) {
-    l = node;
-}
+void Node::leftjoin(Node* node) { l = node; }
 
-void Node::rightjoin(Node *node) {
-    r = node;
-}
+void Node::rightjoin(Node* node) { r = node; }
 
-Node *Node::left() const {
-    return l;
-}
+Node* Node::left() const { return l; }
 
-Node *Node::right() const {
-    return r;
-}
+Node* Node::right() const { return r; }
 
-int Node::weight() const {
-    return w;
-}
+int Node::weight() const { return w; }

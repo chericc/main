@@ -3,8 +3,7 @@
 
 #include <assert.h>
 
-std::unordered_map<std::string, ExprItem> 
-    ExprItem::smap;
+std::unordered_map<std::string, ExprItem> ExprItem::smap;
 
 void ExprItem::initsmap() {
     ExprItem plus;
@@ -44,104 +43,103 @@ ExprItem::ExprItem() {
     data.num = 0.0;
 }
 
-ExprItem::ExprItem(const std::string &strItem) {
+ExprItem::ExprItem(const std::string& strItem) {
     if (smap.empty()) {
         initsmap();
     }
 
     if (smap.find(strItem) != smap.end()) {
-        *this = smap.at(strItem); // default operator =
-    }
-    else {
+        *this = smap.at(strItem);  // default operator =
+    } else {
         double dnum = std::stod(strItem);
         eType = ItemType::NU;
         data.num = dnum;
     }
 }
 
-std::ostream &operator<<(std::ostream &os, const ExprItem &item) {
+std::ostream& operator<<(std::ostream& os, const ExprItem& item) {
     os << "[";
     switch (item.eType) {
-    case ExprItem::ItemType::BR: {
-        switch (item.data.eBrType) {
-        case ExprItem::BrType::LeftBr: {
-            os << "(";
+        case ExprItem::ItemType::BR: {
+            switch (item.data.eBrType) {
+                case ExprItem::BrType::LeftBr: {
+                    os << "(";
+                    break;
+                }
+                case ExprItem::BrType::RightBr: {
+                    os << ")";
+                    break;
+                }
+            }
             break;
         }
-        case ExprItem::BrType::RightBr: {
-            os << ")";
+        case ExprItem::ItemType::OP: {
+            switch (item.data.eOpType) {
+                case ExprItem::OpType::PLUS: {
+                    os << "+";
+                    break;
+                }
+                case ExprItem::OpType::MINUS: {
+                    os << "-";
+                    break;
+                }
+                case ExprItem::OpType::TIMES: {
+                    os << "*";
+                    break;
+                }
+                case ExprItem::OpType::DIV: {
+                    os << "/";
+                    break;
+                }
+            }
             break;
         }
-        }
-        break;
-    }
-    case ExprItem::ItemType::OP: {
-        switch (item.data.eOpType) {
-        case ExprItem::OpType::PLUS: {
-            os << "+";
+        case ExprItem::ItemType::NU: {
+            os << item.data.num;
             break;
         }
-        case ExprItem::OpType::MINUS: {
-            os << "-";
-            break;
-        }
-        case ExprItem::OpType::TIMES: {
-            os << "*";
-            break;
-        }
-        case ExprItem::OpType::DIV: {
-            os << "/";
-            break;
-        }
-        }
-        break;
-    }
-    case ExprItem::ItemType::NU: {
-        os << item.data.num;
-        break;
-    }
     }
     os << "]";
     return os;
 }
 
-ExprItem operator+(const ExprItem &arg1, const ExprItem &arg2) {
-    assert (arg1.eType == ExprItem::ItemType::NU);
-    assert (arg2.eType == ExprItem::ItemType::NU);
+ExprItem operator+(const ExprItem& arg1, const ExprItem& arg2) {
+    assert(arg1.eType == ExprItem::ItemType::NU);
+    assert(arg2.eType == ExprItem::ItemType::NU);
     ExprItem item;
     item.eType = ExprItem::ItemType::NU;
     item.data.num = arg1.data.num + arg2.data.num;
     return item;
 }
 
-ExprItem operator-(const ExprItem &arg1, const ExprItem &arg2) {
-    assert (arg1.eType == ExprItem::ItemType::NU);
-    assert (arg2.eType == ExprItem::ItemType::NU);
+ExprItem operator-(const ExprItem& arg1, const ExprItem& arg2) {
+    assert(arg1.eType == ExprItem::ItemType::NU);
+    assert(arg2.eType == ExprItem::ItemType::NU);
     ExprItem item;
     item.eType = ExprItem::ItemType::NU;
     item.data.num = arg1.data.num - arg2.data.num;
     return item;
 }
 
-ExprItem operator*(const ExprItem &arg1, const ExprItem &arg2) {
-    assert (arg1.eType == ExprItem::ItemType::NU);
-    assert (arg2.eType == ExprItem::ItemType::NU);
+ExprItem operator*(const ExprItem& arg1, const ExprItem& arg2) {
+    assert(arg1.eType == ExprItem::ItemType::NU);
+    assert(arg2.eType == ExprItem::ItemType::NU);
     ExprItem item;
     item.eType = ExprItem::ItemType::NU;
     item.data.num = arg1.data.num * arg2.data.num;
     return item;
 }
 
-ExprItem operator/(const ExprItem &arg1, const ExprItem &arg2) {
-    assert (arg1.eType == ExprItem::ItemType::NU);
-    assert (arg2.eType == ExprItem::ItemType::NU);
+ExprItem operator/(const ExprItem& arg1, const ExprItem& arg2) {
+    assert(arg1.eType == ExprItem::ItemType::NU);
+    assert(arg2.eType == ExprItem::ItemType::NU);
     ExprItem item;
     item.eType = ExprItem::ItemType::NU;
     item.data.num = arg1.data.num / arg2.data.num;
     return item;
 }
 
-std::list<ExprItem> ExprItem::parse(const std::string &expr) {
+std::list<ExprItem> ExprItem::parse(const std::string& expr) {
     std::list<ExprItem> explist;
 
     auto itSeeker = expr.cbegin();
@@ -150,8 +148,7 @@ std::list<ExprItem> ExprItem::parse(const std::string &expr) {
     while (itPos != expr.cend()) {
         if (std::isdigit(*itPos)) {
             itSeeker = itPos;
-            while (itSeeker != expr.cend() &&
-                    std::isdigit(*itSeeker)) {
+            while (itSeeker != expr.cend() && std::isdigit(*itSeeker)) {
                 ++itSeeker;
             }
 
@@ -160,8 +157,7 @@ std::list<ExprItem> ExprItem::parse(const std::string &expr) {
             explist.push_back(item);
 
             itPos = itSeeker;
-        }
-        else {
+        } else {
             std::string str(itPos, itPos + 1);
             ExprItem item(str);
             explist.push_back(item);

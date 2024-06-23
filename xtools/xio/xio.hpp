@@ -8,14 +8,14 @@ ref: ffmpeg/libavformat/avio
 
 #pragma once
 
-#include <string>
 #include <stdint.h>
+
+#include <string>
 #include <vector>
 
-class XIO
-{
-public:
-    XIO(const std::string &url, const std::string &mode);
+class XIO {
+   public:
+    XIO(const std::string& url, const std::string& mode);
     virtual ~XIO() = 0;
 
     virtual int eof() = 0;
@@ -52,14 +52,13 @@ public:
     void wb24(uint32_t value);
     void wb32(uint32_t value);
     void wb64(uint64_t value);
-    virtual void write(const std::vector<uint8_t> &buffer) = 0;
+    virtual void write(const std::vector<uint8_t>& buffer) = 0;
 
-protected:
+   protected:
     XIO(XIO&) = delete;
     XIO& operator=(XIO&) = delete;
-    class IOContext
-    {
-    public:
+    class IOContext {
+       public:
         std::string url;
         std::string mode;
     };
@@ -67,10 +66,9 @@ protected:
     IOContext ioctx_;
 };
 
-class XIOFile : public XIO
-{
-public:
-    XIOFile(const std::string &url, const std::string &mode);
+class XIOFile : public XIO {
+   public:
+    XIOFile(const std::string& url, const std::string& mode);
     ~XIOFile() override;
 
     int eof() override;
@@ -86,14 +84,13 @@ public:
     std::vector<uint8_t> read(std::size_t size) override;
 
     void w8(uint8_t b) override;
-    void write(const std::vector<uint8_t> &buffer) override;
-private:
+    void write(const std::vector<uint8_t>& buffer) override;
 
-    class IOFileContenxt
-    {
-    public:
+   private:
+    class IOFileContenxt {
+       public:
         ~IOFileContenxt();
-        FILE *fp{nullptr};
+        FILE* fp{nullptr};
     };
     IOFileContenxt iofctx_;
 };

@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
 #include <stdint.h>
 
+#include <string>
+#include <vector>
 
 extern std::string g_utf8_20_words;
 

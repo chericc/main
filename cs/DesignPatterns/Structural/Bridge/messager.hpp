@@ -4,43 +4,38 @@
 
 class MessageSender;
 
-class Message
-{
-public:
+class Message {
+   public:
     Message(std::shared_ptr<MessageSender> msg_snder);
     virtual void send() = 0;
-protected:
+
+   protected:
     std::shared_ptr<MessageSender> msg_snder_;
 };
 
-class TextMessage : public Message
-{
-public:
+class TextMessage : public Message {
+   public:
     TextMessage(std::shared_ptr<MessageSender> msg_snder);
     void send() override;
 };
 
-class EmailMessage : public Message
-{
-public:
+class EmailMessage : public Message {
+   public:
     EmailMessage(std::shared_ptr<MessageSender> msg_snder);
     void send() override;
 };
 
-class MessageSender
-{
-public:
+class MessageSender {
+   public:
     virtual void sendMessage() = 0;
 };
 
-class TextMessageSender : public MessageSender
-{
-public:
+class TextMessageSender : public MessageSender {
+   public:
     void sendMessage() override;
 };
 
-class EmailMessageSender : public MessageSender
-{
-public:
+class EmailMessageSender : public MessageSender {
+   public:
     void sendMessage() override;
 };

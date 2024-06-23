@@ -3,11 +3,9 @@
 
 DP_BEGIN
 
-class DPPrototype :
-	public DesignPattern
-{
-public:
-	void Play() override;
+class DPPrototype : public DesignPattern {
+   public:
+    void Play() override;
 };
 
 DP_END

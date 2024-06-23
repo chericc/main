@@ -7,7 +7,8 @@
 // 其私有的构造函数
 // 解决办法
 // 1. 直接调用new对shared_ptr进行构造
-// 2. 构造一个struct子类，将构造函数转换为公共的（利用了子类可以访问protected的特性）
+// 2.
+// 构造一个struct子类，将构造函数转换为公共的（利用了子类可以访问protected的特性）
 // 这里我们使用第二种方法
 
 std::shared_ptr<GlobalConfig> GlobalConfig::config_;
@@ -15,34 +16,25 @@ std::shared_ptr<GlobalConfig> GlobalConfig::config_;
 std::mutex GlobalConfig::mutex_config_;
 
 namespace {
-    struct EnableShared : public GlobalConfig {};
-}
+struct EnableShared : public GlobalConfig {};
+}  // namespace
 
-GlobalConfig& GlobalConfig::getInstance()
-{
-    if (!config_) 
-    {
+GlobalConfig& GlobalConfig::getInstance() {
+    if (!config_) {
         std::lock_guard<std::mutex> lock(mutex_config_);
-        if (!config_) 
-        {
+        if (!config_) {
             config_ = std::make_shared<EnableShared>();
         }
     }
     return *config_;
 }
 
-std::string GlobalConfig::valueOf(std::string const& name)
-{
-    if (name == "name")
-    {
+std::string GlobalConfig::valueOf(std::string const& name) {
+    if (name == "name") {
         return "John";
-    }
-    else if (name == "sex")
-    {
+    } else if (name == "sex") {
         return "Man";
-    }
-    else 
-    {
+    } else {
         return "";
     }
 

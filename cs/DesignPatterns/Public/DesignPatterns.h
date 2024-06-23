@@ -11,10 +11,9 @@
 
 DP_BEGIN
 
-class DesignPattern
-{
-public:
-	virtual void Play() = 0;
+class DesignPattern {
+   public:
+    virtual void Play() = 0;
 };
 
 DP_END

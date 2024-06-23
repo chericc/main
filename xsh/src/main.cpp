@@ -1,37 +1,33 @@
-#include <termios.h>
-#include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/select.h>
+#include <termios.h>
+#include <unistd.h>
 
 #include <vector>
 
-#include <sys/select.h>
-
 #include "defs.hpp"
 
-static void config_termios()
-{
+static void config_termios() {
     int ret = 0;
     int fd = STDIN_FILENO;
-    struct termios stermios{};
+    struct termios stermios {};
 
     ret = tcgetattr(fd, &stermios);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         printf("tcgetattr failed\n");
-        return ;
+        return;
     }
 
     stermios.c_lflag &= ~(ICANON | ECHO | ECHONL | ICRNL);
 
     ret = tcsetattr(fd, TCSANOW, &stermios);
-    if (ret < 0)
-    {
+    if (ret < 0) {
         printf("tcsetattr failed\n");
-        return ;
+        return;
     }
 
-    return ;
+    return;
 }
 
 /**
@@ -41,45 +37,30 @@ static void config_termios()
  *    - 支持的，按控制行为输出
  *    - 不支持的，输出转义字符
  */
-static int putchar_escape(int c)
-{
+static int putchar_escape(int c) {
     int ret = 0;
     uchar c_copy = (c % 256);
 
-    if ((uchar)ASCII::LF == c_copy
-        || (uchar)ASCII::BS == c_copy)
-    {
+    if ((uchar)ASCII::LF == c_copy || (uchar)ASCII::BS == c_copy) {
         putchar(c_copy);
-    }
-    else if ((uchar)ASCII::DEL == c_copy)
-    {
+    } else if ((uchar)ASCII::DEL == c_copy) {
         putchar((uchar)ASCII::BS);
         putchar((uchar)ASCII::SPACE);
         putchar((uchar)ASCII::BS);
-    }
-    else if (c_copy < (uchar)ASCII::C_START
-        || c_copy > (uchar)ASCII::C_END)
-    {
-        ret = printf("\\%hho",c_copy);
-    }
-    else
-    {
+    } else if (c_copy < (uchar)ASCII::C_START || c_copy > (uchar)ASCII::C_END) {
+        ret = printf("\\%hho", c_copy);
+    } else {
         ret = putchar(c_copy);
     }
     return ret;
 }
 
-static void deal_special_input(const input_buffer_type &input)
-{
+static void deal_special_input(const input_buffer_type& input) {}
 
-}
-
-static void run(int argc, char *argv[])
-{
-    while (true)
-    {
+static void run(int argc, char* argv[]) {
+    while (true) {
         fd_set rfds{};
-        struct timeval tv{};
+        struct timeval tv {};
         int retval = 0;
 
         /* Watch stdin (fd 0) to see when it has input. */
@@ -95,29 +76,21 @@ static void run(int argc, char *argv[])
         retval = select(1, &rfds, NULL, NULL, &tv);
         /* Don't rely on the value of tv now! */
 
-        if (retval == -1)
-        {
+        if (retval == -1) {
             printf("select error");
             break;
-        }
-        else if (retval)
-        {
+        } else if (retval) {
             printf("Data is available now.\n");
             /* FD_ISSET(0, &rfds) will be true. */
 
-
-        }
-        else
-        {
+        } else {
             printf("No data within five seconds.\n");
             continue;
         }
     }
 }
 
-int main(int argc, char *argv[])
-{
-
+int main(int argc, char* argv[]) {
     config_termios();
 
 #if 0
@@ -157,7 +130,7 @@ int main(int argc, char *argv[])
 
         putchar_escape(c_input);
     }
-#endif 
+#endif
 
     run(argc, argv);
 

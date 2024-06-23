@@ -4,9 +4,8 @@
 
 IMAGE_NAME_START
 
-class ImageBMP : public ImageInterface
-{
-protected:
+class ImageBMP : public ImageInterface {
+   protected:
     bool LoadFile_override() override;
 };
 

@@ -1,38 +1,34 @@
 #pragma once
 
-#include <string>
-#include <stdio.h>
 #include <stdint.h>
-#include <vector>
+#include <stdio.h>
+
 #include <memory>
+#include <string>
+#include <vector>
+
 #include "xio.hpp"
 
 /* Ref: wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
-enum class RiffFmt
-{
+enum class RiffFmt {
     PCM = 0x1,
     PCM_ALAW = 0x6,
     PCM_MULAW = 0x7,
 };
 
-class WavDemuxer
-{
-private:
-
-    struct WAV_TAG
-    {
+class WavDemuxer {
+   private:
+    struct WAV_TAG {
         uint32_t chunkid;
         uint32_t chunksize;
     };
 
-    struct WAV_RIFF
-    {
+    struct WAV_RIFF {
         WAV_TAG tag;
         uint32_t format;
     };
 
-    struct WAV_SubChunkFmt
-    {
+    struct WAV_SubChunkFmt {
         WAV_TAG tag;
         uint16_t audio_format;
         uint16_t num_channels;
@@ -42,34 +38,34 @@ private:
         uint16_t bits_per_sample;
     };
 
-    struct WAV_SubChunkData
-    {
+    struct WAV_SubChunkData {
         WAV_TAG tag;
     };
 
-    class LoadInfo
-    {
-    public:
-        WAV_RIFF        riff{};
+    class LoadInfo {
+       public:
+        WAV_RIFF riff{};
         WAV_SubChunkFmt fmt{};
 
         // FILE *fp{nullptr};
         std::shared_ptr<XIO> xio;
 
-        size_t data_offset{};   // start of audio data
-        size_t data_size{};     // size of audio data
+        size_t data_offset{};  // start of audio data
+        size_t data_size{};    // size of audio data
     };
-public:
-    WavDemuxer(const std::string &filename);
+
+   public:
+    WavDemuxer(const std::string& filename);
     ~WavDemuxer();
     bool loadSuccessful();
-    int format(); // RiffFmt
+    int format();  // RiffFmt
     int numChannels();
     int sampleRate();
     int sampleBits();
     int numSamples();
     std::vector<uint8_t> getSamples(int ch, int pos, int count);
-private:
+
+   private:
     int doLoadFile();
     int doCloseFile();
 

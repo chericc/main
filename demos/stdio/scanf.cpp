@@ -1,7 +1,6 @@
 #include <stdio.h>
 
-int main()
-{
+int main() {
     char str[] = "he1llo_az123_357.aac";
 
     int len = -1;

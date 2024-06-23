@@ -1,6 +1,5 @@
 #pragma once
 
-namespace TEST
-{
-	void test_string_basic();
+namespace TEST {
+void test_string_basic();
 }

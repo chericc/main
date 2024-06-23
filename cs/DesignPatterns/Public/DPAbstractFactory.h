@@ -3,11 +3,9 @@
 
 DP_BEGIN
 
-class DPAbstractFactory :
-	public DesignPattern
-{
-public:
-	void Play() override;
+class DPAbstractFactory : public DesignPattern {
+   public:
+    void Play() override;
 };
 
 DP_END

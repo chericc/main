@@ -2,12 +2,11 @@
 
 #include <cstddef>
 
-class MaxHeap
-{
-public:
+class MaxHeap {
+   public:
     using index = std::size_t;
 
-    MaxHeap(int *data, index size);
+    MaxHeap(int* data, index size);
 
     void MaxHeapify(index index_root, index index_last);
     void BuildMaxHeap(index index_last);
@@ -18,7 +17,8 @@ public:
     static index parentIndex(index index);
 
     static void registerTest();
-private:
-    int *data_ = nullptr;
+
+   private:
+    int* data_ = nullptr;
     index size_ = 0;
 };

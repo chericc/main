@@ -1,6 +1,5 @@
 #pragma once
 
-namespace TEST
-{
-	void test_numeric_limit();
+namespace TEST {
+void test_numeric_limit();
 }

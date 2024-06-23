@@ -1,7 +1,6 @@
 #include "house_builder.hpp"
 
-int main()
-{
+int main() {
     std::shared_ptr<House> house;
     auto type = ConstructionEngineer::Prefabricated;
 

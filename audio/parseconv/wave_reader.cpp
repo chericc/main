@@ -3,13 +3,15 @@
  * https://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  * http://en.wikipedia.org/wiki/WAV
  */
+#include "wave_reader.h"
+
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
-#include "wave_reader.h"
 
-#define FOUR_CC(a,b,c,d) (((a)<<24) | ((b)<<16) | ((c)<<8) | ((d)<<0))
+#define FOUR_CC(a, b, c, d) \
+    (((a) << 24) | ((b) << 16) | ((c) << 8) | ((d) << 0))
 
 struct wave_reader {
     int format;
@@ -17,123 +19,113 @@ struct wave_reader {
     int sample_rate;
     int sample_bits;
     int num_samples;
-    FILE *fp;
+    FILE* fp;
 };
 
-static int
-read_byte(FILE *fp, unsigned char *out)
-{
+static int read_byte(FILE* fp, unsigned char* out) {
     if (1 > fread(out, 1, 1, fp)) {
         return feof(fp) ? 0 : -1;
     }
     return 1;
 }
 
-static int
-read_int32_b(FILE *fp, int *out)
-{
+static int read_int32_b(FILE* fp, int* out) {
     int result;
     unsigned char a, b, c, d;
 
-    if ((result=read_byte(fp, &a)) != 1) return result;
-    if ((result=read_byte(fp, &b)) != 1) return result;
-    if ((result=read_byte(fp, &c)) != 1) return result;
-    if ((result=read_byte(fp, &d)) != 1) return result;
+    if ((result = read_byte(fp, &a)) != 1) return result;
+    if ((result = read_byte(fp, &b)) != 1) return result;
+    if ((result = read_byte(fp, &c)) != 1) return result;
+    if ((result = read_byte(fp, &d)) != 1) return result;
 
-    *out = (a<<24) | (b<<16) | (c<<8) | (d<<0);
+    *out = (a << 24) | (b << 16) | (c << 8) | (d << 0);
     return 1;
 }
 
-static int
-read_int32_l(FILE *fp, int *out)
-{
+static int read_int32_l(FILE* fp, int* out) {
     int result;
     unsigned char a, b, c, d;
 
-    if ((result=read_byte(fp, &a)) != 1) return result;
-    if ((result=read_byte(fp, &b)) != 1) return result;
-    if ((result=read_byte(fp, &c)) != 1) return result;
-    if ((result=read_byte(fp, &d)) != 1) return result;
+    if ((result = read_byte(fp, &a)) != 1) return result;
+    if ((result = read_byte(fp, &b)) != 1) return result;
+    if ((result = read_byte(fp, &c)) != 1) return result;
+    if ((result = read_byte(fp, &d)) != 1) return result;
 
-    *out = (d<<24) | (c<<16) | (b<<8) | (a<<0);
+    *out = (d << 24) | (c << 16) | (b << 8) | (a << 0);
     return 1;
 }
 
-static int
-read_int16_l(FILE *fp, int *out)
-{
+static int read_int16_l(FILE* fp, int* out) {
     int result;
     unsigned char a, b;
 
-    if ((result=read_byte(fp, &a)) != 1) return result;
-    if ((result=read_byte(fp, &b)) != 1) return result;
+    if ((result = read_byte(fp, &a)) != 1) return result;
+    if ((result = read_byte(fp, &b)) != 1) return result;
 
-    *out = (b<<8) | (a<<0);
+    *out = (b << 8) | (a << 0);
     return 1;
 }
 
-static int
-read_wave_chunk(struct wave_reader *wr, wave_reader_error *error)
-{
+static int read_wave_chunk(struct wave_reader* wr, wave_reader_error* error) {
     int result;
     int sub1_id, sub1_len, sub2_id, sub2_len, byte_rate, block_align;
 
-    if ((result=read_int32_b(wr->fp, &sub1_id)) != 1) {
+    if ((result = read_int32_b(wr->fp, &sub1_id)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if (sub1_id != FOUR_CC('f','m','t',' ')) {
+    if (sub1_id != FOUR_CC('f', 'm', 't', ' ')) {
         *error = WR_BAD_CONTENT;
         return 0;
     }
 
-    if ((result=read_int32_l(wr->fp, &sub1_len)) != 1) {
+    if ((result = read_int32_l(wr->fp, &sub1_len)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int16_l(wr->fp, &wr->format)) != 1) {
+    if ((result = read_int16_l(wr->fp, &wr->format)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int16_l(wr->fp, &wr->num_channels)) != 1) {
+    if ((result = read_int16_l(wr->fp, &wr->num_channels)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int32_l(wr->fp, &wr->sample_rate)) != 1) {
+    if ((result = read_int32_l(wr->fp, &wr->sample_rate)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int32_l(wr->fp, &byte_rate)) != 1) {
+    if ((result = read_int32_l(wr->fp, &byte_rate)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int16_l(wr->fp, &block_align)) != 1) {
+    if ((result = read_int16_l(wr->fp, &block_align)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int16_l(wr->fp, &wr->sample_bits)) != 1) {
+    if ((result = read_int16_l(wr->fp, &wr->sample_bits)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if ((result=read_int32_b(wr->fp, &sub2_id)) != 1) {
+    if ((result = read_int32_b(wr->fp, &sub2_id)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
 
-    if (sub2_id != FOUR_CC('d','a','t','a')) {
+    if (sub2_id != FOUR_CC('d', 'a', 't', 'a')) {
         *error = WR_BAD_CONTENT;
         return 0;
     }
 
-    if ((result=read_int32_l(wr->fp, &sub2_len)) != 1) {
+    if ((result = read_int32_l(wr->fp, &sub2_len)) != 1) {
         *error = result == 0 ? WR_BAD_CONTENT : WR_IO_ERROR;
         return 0;
     }
@@ -143,9 +135,7 @@ read_wave_chunk(struct wave_reader *wr, wave_reader_error *error)
     return 1;
 }
 
-static int
-skip(struct wave_reader *wr, wave_reader_error *error)
-{
+static int skip(struct wave_reader* wr, wave_reader_error* error) {
     int len;
 
     if (!read_int32_l(wr->fp, &len)) {
@@ -161,17 +151,16 @@ skip(struct wave_reader *wr, wave_reader_error *error)
     return 1;
 }
 
-struct wave_reader *
-wave_reader_open(const char *filename, wave_reader_error *error)
-{
+struct wave_reader* wave_reader_open(const char* filename,
+                                     wave_reader_error* error) {
     int root_id, root_len, format_id;
     int continue_reading = 1;
-    struct wave_reader *wr = NULL;
+    struct wave_reader* wr = NULL;
 
     assert(filename != NULL);
     assert(error != NULL);
 
-    wr = (struct wave_reader *)calloc(1, sizeof(struct wave_reader));
+    wr = (struct wave_reader*)calloc(1, sizeof(struct wave_reader));
     if (!wr) {
         *error = WR_ALLOC_ERROR;
         goto alloc_error;
@@ -188,7 +177,7 @@ wave_reader_open(const char *filename, wave_reader_error *error)
         goto reading_error;
     }
 
-    if (root_id != FOUR_CC('R','I','F','F')) {
+    if (root_id != FOUR_CC('R', 'I', 'F', 'F')) {
         *error = WR_BAD_CONTENT;
         goto reading_error;
     }
@@ -205,16 +194,16 @@ wave_reader_open(const char *filename, wave_reader_error *error)
         }
 
         switch (format_id) {
-        case FOUR_CC('W','A','V','E'):
-            if (!read_wave_chunk(wr, error)) {
-                goto reading_error;
-            }
-            continue_reading = 0;
-            break;
-        default:
-            if (!skip(wr, error)) {
-                goto reading_error;
-            }
+            case FOUR_CC('W', 'A', 'V', 'E'):
+                if (!read_wave_chunk(wr, error)) {
+                    goto reading_error;
+                }
+                continue_reading = 0;
+                break;
+            default:
+                if (!skip(wr, error)) {
+                    goto reading_error;
+                }
         }
     }
 
@@ -229,58 +218,44 @@ alloc_error:
     return NULL;
 }
 
-void
-wave_reader_close(struct wave_reader *wr)
-{
+void wave_reader_close(struct wave_reader* wr) {
     if (wr) {
         fclose(wr->fp);
         free(wr);
     }
 }
 
-int
-wave_reader_get_format(struct wave_reader *wr)
-{
+int wave_reader_get_format(struct wave_reader* wr) {
     assert(wr != NULL);
 
     return wr->format;
 }
 
-int
-wave_reader_get_num_channels(struct wave_reader *wr)
-{
+int wave_reader_get_num_channels(struct wave_reader* wr) {
     assert(wr != NULL);
 
     return wr->num_channels;
 }
 
-int
-wave_reader_get_sample_rate(struct wave_reader *wr)
-{
+int wave_reader_get_sample_rate(struct wave_reader* wr) {
     assert(wr != NULL);
 
     return wr->sample_rate;
 }
 
-int
-wave_reader_get_sample_bits(struct wave_reader *wr)
-{
+int wave_reader_get_sample_bits(struct wave_reader* wr) {
     assert(wr != NULL);
 
     return wr->sample_bits;
 }
 
-int
-wave_reader_get_num_samples(struct wave_reader *wr)
-{
+int wave_reader_get_num_samples(struct wave_reader* wr) {
     assert(wr != NULL);
 
     return wr->num_samples;
 }
 
-int
-wave_reader_get_samples(struct wave_reader *wr, int n, void *buf)
-{
+int wave_reader_get_samples(struct wave_reader* wr, int n, void* buf) {
     int ret;
 
     assert(wr != NULL);
@@ -293,4 +268,3 @@ wave_reader_get_samples(struct wave_reader *wr, int n, void *buf)
 
     return ret;
 }
-

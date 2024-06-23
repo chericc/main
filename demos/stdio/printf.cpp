@@ -2,14 +2,13 @@
 // that is independent from the environment.
 // For example, when we are writing
 
-#include <stdio.h>
-#include <stdint.h>
-
 #include <inttypes.h>
+#include <stdint.h>
+#include <stdio.h>
+
 #include <limits>
 
-int main()
-{
+int main() {
     // size_t ssize_t
     {
         size_t size = -1;

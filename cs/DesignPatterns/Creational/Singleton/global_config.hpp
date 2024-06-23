@@ -1,16 +1,16 @@
 #pragma once
 
-#include <string>
 #include <memory>
 #include <mutex>
+#include <string>
 
-class GlobalConfig
-{
-public:
-    static GlobalConfig &getInstance();
+class GlobalConfig {
+   public:
+    static GlobalConfig& getInstance();
 
     std::string valueOf(std::string const& name);
-protected:
+
+   protected:
     GlobalConfig() = default;
 
     static std::shared_ptr<GlobalConfig> config_;

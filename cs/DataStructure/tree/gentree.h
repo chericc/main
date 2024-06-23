@@ -5,6 +5,6 @@
 
 #include "tree.h"
 
-Node *gentree();
+Node* gentree();
 
-Node *gentree_random (const std::vector<int> &refValues);
+Node* gentree_random(const std::vector<int>& refValues);

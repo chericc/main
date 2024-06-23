@@ -1,6 +1,5 @@
 #pragma once
 
-namespace TEST
-{
-	void test_ratio();
+namespace TEST {
+void test_ratio();
 }

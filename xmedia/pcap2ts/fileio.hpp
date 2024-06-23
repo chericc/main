@@ -3,10 +3,9 @@
 #include "xio.hpp"
 
 /* An xio wrapper with endian state. */
-class FileIO
-{
-public:
-    FileIO(const std::string &url, const std::string &mode);
+class FileIO {
+   public:
+    FileIO(const std::string& url, const std::string& mode);
     ~FileIO();
 
     bool ok();
@@ -22,7 +21,8 @@ public:
     int64_t tell();
     int seek(int64_t offset, int whence);
     int eof();
-private:
+
+   private:
     bool _lendian = true;
     std::shared_ptr<XIO> _xio;
 };

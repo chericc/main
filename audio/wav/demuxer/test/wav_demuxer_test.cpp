@@ -1,13 +1,13 @@
+#include "wav_demuxer.hpp"
+
 #include <gtest/gtest.h>
 
 #include <list>
 
-#include "xlog.hpp"
-#include "wav_demuxer.hpp"
 #include "test_comm.hpp"
+#include "xlog.hpp"
 
-struct TestDemux
-{
+struct TestDemux {
     std::string file;
     std::string file_raw;
 
@@ -18,23 +18,22 @@ struct TestDemux
     int samples;
 };
 
-static void testExtractRaw(const std::string &wavFile, const std::string &rawFile,
-    int format, int channels, int samplerate, int samplebits, int samples)
-{
+static void testExtractRaw(const std::string& wavFile,
+                           const std::string& rawFile, int format, int channels,
+                           int samplerate, int samplebits, int samples) {
     WavDemuxer wavd(wavFile);
 
     xlog_dbg("testExtractRaw: file:%s", wavFile.c_str());
 
     EXPECT_TRUE(wavd.loadSuccessful());
 
-    if (wavd.loadSuccessful())
-    {
+    if (wavd.loadSuccessful()) {
         EXPECT_EQ(wavd.format(), format);
         EXPECT_EQ(wavd.numChannels(), channels);
         EXPECT_EQ(wavd.sampleRate(), samplerate);
         EXPECT_EQ(wavd.sampleBits(), samplebits);
         EXPECT_EQ(wavd.numSamples(), samples);
-        
+
         int nb_samples = wavd.numSamples();
         auto get_buffer = wavd.getSamples(0, 0, nb_samples);
         auto file_buffer = readFile(rawFile);
@@ -49,8 +48,7 @@ static void testExtractRaw(const std::string &wavFile, const std::string &rawFil
     xlog_dbg("testExtractRaw fin");
 }
 
-TEST(wav_demuxer, demux)
-{
+TEST(wav_demuxer, demux) {
     std::string path = std::string(RES_AUDIO_PATH) + "/";
 
     std::list<TestDemux> demux;
@@ -122,10 +120,8 @@ TEST(wav_demuxer, demux)
         demux.push_back(item);
     }
 
-    for (auto const & ref : demux)
-    {
-        testExtractRaw(ref.file, ref.file_raw, 
-            ref.format, ref.channel, ref.samplerate, 
-            ref.samplebits, ref.samples);
+    for (auto const& ref : demux) {
+        testExtractRaw(ref.file, ref.file_raw, ref.format, ref.channel,
+                       ref.samplerate, ref.samplebits, ref.samples);
     }
 }

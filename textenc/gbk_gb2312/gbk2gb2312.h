@@ -2,14 +2,17 @@
 #define GBK2GB2312_H__
 
 /**
- * @brief ±àÂë×ª»»£º
- * ½« GBK ×ª»»Îª GB2312 £¬¶ÔÓÚÎÞ·¨×ª»»µÄ×Ö·û£¬ÔòÓÃ @cReplaceToken Ìæ»»
- * @param pSrc GBK ±àÂë×Ö´®
- * @param nSrcSize Ô´×Ö´®µÄ´óÐ¡(byte)
- * @param pDst Ô¤ÏÈ·ÖÅäµÄÄÚ´æ
+ * @brief ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½
+ * ï¿½ï¿½ GBK ×ªï¿½ï¿½Îª GB2312
+ * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ * @cReplaceToken ï¿½æ»»
+ * @param pSrc GBK ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½
+ * @param nSrcSize Ô´ï¿½Ö´ï¿½ï¿½Ä´ï¿½Ð¡(byte)
+ * @param pDst Ô¤ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½
  * @param nDstSize (byte)
- * @return ·µ»Ø0
+ * @return ï¿½ï¿½ï¿½ï¿½0
  */
-int enc_conv_gbk2gb2312 (void *pSrc, int nSrcSize, void *pDst, int nDstSize, char cReplaceToken);
+int enc_conv_gbk2gb2312(void* pSrc, int nSrcSize, void* pDst, int nDstSize,
+                        char cReplaceToken);
 
-#endif // GBK2GB2312_H__
+#endif  // GBK2GB2312_H__

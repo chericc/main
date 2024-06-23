@@ -1,10 +1,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
 
-void init(GLFWwindow *window) {}
+void init(GLFWwindow* window) {}
 
-void display(GLFWwindow *window, double currentTime) {
+void display(GLFWwindow* window, double currentTime) {
     glClearColor(1.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 }
@@ -17,7 +18,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    GLFWwindow *window = glfwCreateWindow(600, 400, "c2-p1", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(600, 400, "c2-p1", nullptr, nullptr);
     glfwMakeContextCurrent(window);
 
     if (glewInit() != GLEW_OK) {

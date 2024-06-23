@@ -15,8 +15,8 @@
 
 */
 
-#include <memory>
 #include <list>
+#include <memory>
 #include <ostream>
 
 typedef int KeyType;
@@ -27,15 +27,10 @@ class RBNode;
 typedef std::shared_ptr<RBNode> RBNodePtr;
 typedef std::weak_ptr<RBNode> RBNodeWeakPtr;
 
-enum class RBColor
-{
-    Red,
-    Black
-};
+enum class RBColor { Red, Black };
 
-class RBNode
-{
-public:
+class RBNode {
+   public:
     RBNode(RBNodePtr nil, RBColor color = RBColor::Black);
 
     RBNodePtr left{};
@@ -48,33 +43,36 @@ public:
     ValueType value{};
 };
 
-class RBTree
-{
-public:
+class RBTree {
+   public:
     RBTree();
-    RBTree(const RBTree &tree);
+    RBTree(const RBTree& tree);
     ~RBTree();
 
-    void Insert(const KeyType &key, const ValueType &value = ValueType{});
-    void Erase(const KeyType &key);
+    void Insert(const KeyType& key, const ValueType& value = ValueType{});
+    void Erase(const KeyType& key);
     void Clear();
 
-    RBTree &operator=(const RBTree &tree);
+    RBTree& operator=(const RBTree& tree);
 
-    void GetOrders(std::list<KeyType> &preorder, std::list<KeyType> &midorder, std::list<KeyType> &suborder) const;
-private:
+    void GetOrders(std::list<KeyType>& preorder, std::list<KeyType>& midorder,
+                   std::list<KeyType>& suborder) const;
+
+   private:
     void LeftRotate(RBNodePtr node);
     void RightRotate(RBNodePtr node);
-    void LocateInsertPosition(const KeyType &key, RBNodePtr &it, RBNodePtr &parent) const;
+    void LocateInsertPosition(const KeyType& key, RBNodePtr& it,
+                              RBNodePtr& parent) const;
     void InsertFixup(RBNodePtr node);
-    RBNodePtr LocateNode(const KeyType &key) const;
+    RBNodePtr LocateNode(const KeyType& key) const;
     void Transplant(RBNodePtr old_node, RBNodePtr new_node);
     RBNodePtr Min(RBNodePtr node);
     void EraseFixup(RBNodePtr node);
-private:
+
+   private:
     RBNodePtr root_;
     RBNodePtr const nil_;
 
-// friend
-    friend std::ostream &operator<<(std::ostream & os, const RBTree &tree);
+    // friend
+    friend std::ostream& operator<<(std::ostream& os, const RBTree& tree);
 };

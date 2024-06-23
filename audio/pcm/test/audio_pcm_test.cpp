@@ -2,8 +2,7 @@
 
 #include "pcm.hpp"
 
-TEST(pcm, convert)
-{
+TEST(pcm, convert) {
     std::string path = "/home/test/code/log/audio/sources/wav";
 
     std::string alaw = path + "demo_8000hz_1ch_alaw.raw";
@@ -25,13 +24,11 @@ TEST(pcm, convert)
 
         EXPECT_EQ(buf_file_ulaw, buf_convert);
     }
-    
 }
 
-int main(int argc, char** argv)
-{
-	printf("Running main() from %s\n", __FILE__);
+int main(int argc, char** argv) {
+    printf("Running main() from %s\n", __FILE__);
 
-	testing::InitGoogleTest(&argc, argv);
-	return RUN_ALL_TESTS();
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

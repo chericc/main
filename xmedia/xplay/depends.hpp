@@ -1,19 +1,17 @@
 
 #pragma once
 
-#include <string>
-#include <thread>
+#include <condition_variable>
+#include <functional>
 #include <memory>
 #include <mutex>
-#include <functional>
-#include <condition_variable>
+#include <string>
+#include <thread>
 #include <vector>
 
-extern "C"
-{
-#include <libavformat/avformat.h>
+extern "C" {
 #include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
 #include <libavutil/fifo.h>
 #include <libavutil/time.h>
 }
-

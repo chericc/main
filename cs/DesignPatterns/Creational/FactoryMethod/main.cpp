@@ -1,7 +1,6 @@
 #include "pizza.hpp"
 
-int main()
-{
+int main() {
     auto pizzaFactory = std::make_shared<PizzaFactory>();
 
     auto cheesePizza = pizzaFactory->createPizza("cheese");

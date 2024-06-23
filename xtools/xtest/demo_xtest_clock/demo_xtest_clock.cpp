@@ -1,18 +1,16 @@
 #include <thread>
-#include "xtest_clock.hpp"
-#include "xlog.hpp"
-#include "xthread.hpp"
 
 #include "inttypes.h"
+#include "xlog.hpp"
+#include "xtest_clock.hpp"
+#include "xthread.hpp"
 
 XTestClock s_clock;
 
-void funA()
-{
+void funA() {
     xlog_dbg("in");
 
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
         int seconds = 1;
         xlog_dbg("wait for begin: (%d seconds)", seconds);
         s_clock.waitFor(std::chrono::seconds(seconds));
@@ -22,15 +20,16 @@ void funA()
     xlog_dbg("out");
 }
 
-void funB()
-{
+void funB() {
     xlog_dbg("in");
 
     auto now = XTestClock::Clock::now();
-    for (int i = 0; i < 3; ++i)
-    {
+    for (int i = 0; i < 3; ++i) {
         XTestClock::Timepoint tp = now + std::chrono::seconds(i + 1);
-        xlog_dbg("wait until begin: (%" PRId64 ")", (int64_t)std::chrono::time_point_cast<std::chrono::seconds>(tp).time_since_epoch().count());
+        xlog_dbg("wait until begin: (%" PRId64 ")",
+                 (int64_t)std::chrono::time_point_cast<std::chrono::seconds>(tp)
+                     .time_since_epoch()
+                     .count());
         s_clock.waitUntil(std::move(tp));
         xlog_dbg("wait end");
     }
@@ -38,8 +37,7 @@ void funB()
     xlog_dbg("out");
 }
 
-int main()
-{
+int main() {
     XThread trd1(funA);
     XThread trd2(funB);
 

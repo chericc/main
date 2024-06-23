@@ -1,18 +1,15 @@
 #include <gtest/gtest.h>
 
-#include "xperftest.hpp"
-#include "xlog.hpp"
-
 #include <thread>
 
-TEST(xperftest, base)
-{
+#include "xlog.hpp"
+#include "xperftest.hpp"
+
+TEST(xperftest, base) {
     auto mask = xlog_getmask();
     xlog_setmask(XLOG_ALLOW_INF);
 
-    {
-        X_PERIOD_PRINT(INF, "No sleep", tmp);
-    }
+    { X_PERIOD_PRINT(INF, "No sleep", tmp); }
 
     {
         X_PERIOD_PRINT(INF, "Sleep 1ms", tmp);

@@ -1,15 +1,15 @@
 #pragma once
 
-class Calculator
-{
-public:
+class Calculator {
+   public:
     int setValue(int a, int b);
 
     int add();
     int minus();
     int multiply();
     int divide();
-private:
+
+   private:
     int value_a{0};
     int value_b{0};
 };

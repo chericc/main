@@ -2,17 +2,15 @@
 #include "traversetree.h"
 
 #include <iostream>
-#include <stack>
 #include <queue>
+#include <stack>
 
-void visit(const Node *node) {
-    std::cout << node->data << " ";
-}
+void visit(const Node* node) { std::cout << node->data << " "; }
 
 /* 递归先序遍历 */
-void recursive_traverse_preorder(Node *tree) {
+void recursive_traverse_preorder(Node* tree) {
     if (tree == nullptr) {
-        return ;
+        return;
     }
 
     visit(tree);
@@ -21,9 +19,9 @@ void recursive_traverse_preorder(Node *tree) {
 }
 
 /* 递归中序遍历 */
-void recursive_traverse_inorder(Node *tree) {
+void recursive_traverse_inorder(Node* tree) {
     if (tree == nullptr) {
-        return ;
+        return;
     }
 
     recursive_traverse_inorder(tree->left());
@@ -31,11 +29,10 @@ void recursive_traverse_inorder(Node *tree) {
     recursive_traverse_inorder(tree->right());
 }
 
-
 /* 递归后序遍历 */
-void recursive_traverse_postorder(Node *tree) {
+void recursive_traverse_postorder(Node* tree) {
     if (tree == nullptr) {
-        return ;
+        return;
     }
 
     recursive_traverse_postorder(tree->left());
@@ -43,35 +40,33 @@ void recursive_traverse_postorder(Node *tree) {
     visit(tree);
 }
 
-/** 
- * 非递归先序遍历 
+/**
+ * 非递归先序遍历
  * 使用栈对树进行非递归遍历。
  * 先序遍历的顺序和非递归遍历访问元素的顺序相同。
- * 
+ *
  * 指针移动逻辑：
  * 使用一个遍历指针，指向根节点
  * 当指针非空时，向左子树移动。
  * 当指针为空时，
  *   有上一层路径，则退回到上一层路径并向右移动，抹去上一层路径。
  *   没有上一层路径，则停止。
- * 
+ *
  * 访问逻辑：
  * 第一次移动到一个节点时，即访问。
  */
-void nonrecur_traverse_preorder(Node *tree) {
+void nonrecur_traverse_preorder(Node* tree) {
     std::stack<Node*> st;
-    Node *it = tree;
+    Node* it = tree;
     while (true) {
         if (it != nullptr) {
             visit(it);
             st.push(it);
             it = it->left();
-        }
-        else {
+        } else {
             if (st.empty()) {
                 break;
-            }
-            else {
+            } else {
                 it = st.top();
                 st.pop();
                 it = it->right();
@@ -82,26 +77,24 @@ void nonrecur_traverse_preorder(Node *tree) {
 
 /**
  * 非递归中序遍历
- * 
+ *
  * 指针移动逻辑：
  * 和非递归前序遍历指针移动逻辑一致。
- * 
+ *
  * 访问逻辑：
  * 当左子树遍历完成，即将遍历右子树时，访问节点。
  */
-void nonrecur_traverse_inorder(Node *tree) {
+void nonrecur_traverse_inorder(Node* tree) {
     std::stack<Node*> st;
-    Node *it = tree;
+    Node* it = tree;
     while (true) {
         if (it != nullptr) {
             st.push(it);
             it = it->left();
-        }
-        else {
+        } else {
             if (st.empty()) {
                 break;
-            }
-            else {
+            } else {
                 it = st.top();
                 st.pop();
                 visit(it);
@@ -111,44 +104,39 @@ void nonrecur_traverse_inorder(Node *tree) {
     }
 }
 
-
 /**
  * 非递归后序遍历
- * 
+ *
  * 指针移动逻辑：
  * 当指针非空时，移向左节点。
  * 当指针为空时，
  *   若有上一层路径，则退回到上一层路径并向右移动（不抹去上一层路径）
  *   若没有上一层路径，则停止。
- * 
+ *
  * 访问逻辑：
  * 当左子树遍历完成，且右子树遍历完成，即将进入
  * 上一层节点时，访问节点。
  */
-void nonrecur_traverse_postorder(Node *tree) {
+void nonrecur_traverse_postorder(Node* tree) {
     std::stack<Node*> st;
-    Node *it = tree;
-    Node *lastVisit = nullptr; /* 记录最后访问的节点 */
+    Node* it = tree;
+    Node* lastVisit = nullptr; /* 记录最后访问的节点 */
     while (true) {
         if (it != nullptr) {
             st.push(it);
             it = it->left();
-        }
-        else {
+        } else {
             if (st.empty()) {
                 break;
-            }
-            else {
+            } else {
                 it = st.top();
 
-                if (it->right() == nullptr || 
-                    it->right() == lastVisit) {
+                if (it->right() == nullptr || it->right() == lastVisit) {
                     visit(it);
                     lastVisit = it;
                     st.pop();
                     it = nullptr;
-                }
-                else {
+                } else {
                     it = it->right();
                     st.push(it);
                     it = it->left();
@@ -158,26 +146,26 @@ void nonrecur_traverse_postorder(Node *tree) {
     }
 }
 
-/** 
- * 层次遍历 
+/**
+ * 层次遍历
  * 按树的水平层次依次遍历。
- * 
+ *
  * 辅助数据结构：队列
- * 
+ *
  * 算法逻辑：
  * 将根节点入队。
  * 每次从队列取出一个节点，并将节点的左右子树入队。
  */
 
-void level_traverse(Node *tree) {
+void level_traverse(Node* tree) {
     std::queue<Node*> queue;
 
     if (tree != nullptr) {
         queue.push(tree);
     }
 
-    while (! queue.empty()) {
-        Node *p = queue.front();
+    while (!queue.empty()) {
+        Node* p = queue.front();
         queue.pop();
         visit(p);
         if (p->left()) {

@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
 /* https://github.com/tai2/wave_reader_and_writer.git */
 
@@ -17,17 +17,17 @@ typedef enum {
 
 typedef struct wave_reader wave_reader;
 
-wave_reader *wave_reader_open(const char *filename, wave_reader_error *error);
-void wave_reader_close(wave_reader *wr);
-int wave_reader_get_format(wave_reader *wr);
-int wave_reader_get_num_channels(wave_reader *wr);
-int wave_reader_get_sample_rate(wave_reader *wr);
-int wave_reader_get_sample_bits(wave_reader *wr);
-int wave_reader_get_num_samples(wave_reader *wr);
-int wave_reader_get_samples(wave_reader *wr, int n, void *buf);
+wave_reader* wave_reader_open(const char* filename, wave_reader_error* error);
+void wave_reader_close(wave_reader* wr);
+int wave_reader_get_format(wave_reader* wr);
+int wave_reader_get_num_channels(wave_reader* wr);
+int wave_reader_get_sample_rate(wave_reader* wr);
+int wave_reader_get_sample_bits(wave_reader* wr);
+int wave_reader_get_num_samples(wave_reader* wr);
+int wave_reader_get_samples(wave_reader* wr, int n, void* buf);
 
-#endif//WAVE_READER_H
+#endif  // WAVE_READER_H
 
 #ifdef __cplusplus
 }
-#endif 
+#endif

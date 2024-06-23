@@ -2,10 +2,8 @@
 
 #include "depends.hpp"
 
-
-class PacketQueue
-{
-public:
+class PacketQueue {
+   public:
     PacketQueue();
     ~PacketQueue() = default;
     bool ok();
@@ -23,16 +21,16 @@ public:
     int size();
     int64_t duration();
     bool abort_request();
-private:
-    class State
-    {
-    public:
-        AVFifo* pkt_list{ nullptr };
-        int nb_packets{ 0 };
-        int size{ 0 };
-        int64_t duration{ 0 };
-        int abort_request{ 0 };
-        int serial{ 0 };
+
+   private:
+    class State {
+       public:
+        AVFifo* pkt_list{nullptr};
+        int nb_packets{0};
+        int size{0};
+        int64_t duration{0};
+        int abort_request{0};
+        int serial{0};
 
         void flush();
         ~State();
@@ -42,7 +40,8 @@ private:
     std::shared_ptr<State> _st;
     std::mutex mutex;
     std::condition_variable cond;
-private:
+
+   private:
     std::shared_ptr<State> init();
     int do_put(AVPacket* pkt);
     int put_private(AVPacket* pkt);

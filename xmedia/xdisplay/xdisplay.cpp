@@ -2,88 +2,74 @@
 
 #include "xlog.hpp"
 
-#define ARRAY_ELEMS(array) (sizeof(array)/sizeof(array[0]))
+#define ARRAY_ELEMS(array) (sizeof(array) / sizeof(array[0]))
 
 static const struct TextureFormatEntry {
     enum AVPixelFormat format;
     int texture_fmt;
 } sdl_texture_format_map[] = {
-    { AV_PIX_FMT_RGB8,           SDL_PIXELFORMAT_RGB332 },
-    { AV_PIX_FMT_RGB444,         SDL_PIXELFORMAT_RGB444 },
-    { AV_PIX_FMT_RGB555,         SDL_PIXELFORMAT_RGB555 },
-    { AV_PIX_FMT_BGR555,         SDL_PIXELFORMAT_BGR555 },
-    { AV_PIX_FMT_RGB565,         SDL_PIXELFORMAT_RGB565 },
-    { AV_PIX_FMT_BGR565,         SDL_PIXELFORMAT_BGR565 },
-    { AV_PIX_FMT_RGB24,          SDL_PIXELFORMAT_RGB24 },
-    { AV_PIX_FMT_BGR24,          SDL_PIXELFORMAT_BGR24 },
-    { AV_PIX_FMT_0RGB32,         SDL_PIXELFORMAT_RGB888 },
-    { AV_PIX_FMT_0BGR32,         SDL_PIXELFORMAT_BGR888 },
-    { AV_PIX_FMT_NE(RGB0, 0BGR), SDL_PIXELFORMAT_RGBX8888 },
-    { AV_PIX_FMT_NE(BGR0, 0RGB), SDL_PIXELFORMAT_BGRX8888 },
-    { AV_PIX_FMT_RGB32,          SDL_PIXELFORMAT_ARGB8888 },
-    { AV_PIX_FMT_RGB32_1,        SDL_PIXELFORMAT_RGBA8888 },
-    { AV_PIX_FMT_BGR32,          SDL_PIXELFORMAT_ABGR8888 },
-    { AV_PIX_FMT_BGR32_1,        SDL_PIXELFORMAT_BGRA8888 },
-    { AV_PIX_FMT_YUV420P,        SDL_PIXELFORMAT_IYUV },
-    { AV_PIX_FMT_YUYV422,        SDL_PIXELFORMAT_YUY2 },
-    { AV_PIX_FMT_UYVY422,        SDL_PIXELFORMAT_UYVY },
-    { AV_PIX_FMT_NONE,           SDL_PIXELFORMAT_UNKNOWN },
+    {AV_PIX_FMT_RGB8, SDL_PIXELFORMAT_RGB332},
+    {AV_PIX_FMT_RGB444, SDL_PIXELFORMAT_RGB444},
+    {AV_PIX_FMT_RGB555, SDL_PIXELFORMAT_RGB555},
+    {AV_PIX_FMT_BGR555, SDL_PIXELFORMAT_BGR555},
+    {AV_PIX_FMT_RGB565, SDL_PIXELFORMAT_RGB565},
+    {AV_PIX_FMT_BGR565, SDL_PIXELFORMAT_BGR565},
+    {AV_PIX_FMT_RGB24, SDL_PIXELFORMAT_RGB24},
+    {AV_PIX_FMT_BGR24, SDL_PIXELFORMAT_BGR24},
+    {AV_PIX_FMT_0RGB32, SDL_PIXELFORMAT_RGB888},
+    {AV_PIX_FMT_0BGR32, SDL_PIXELFORMAT_BGR888},
+    {AV_PIX_FMT_NE(RGB0, 0BGR), SDL_PIXELFORMAT_RGBX8888},
+    {AV_PIX_FMT_NE(BGR0, 0RGB), SDL_PIXELFORMAT_BGRX8888},
+    {AV_PIX_FMT_RGB32, SDL_PIXELFORMAT_ARGB8888},
+    {AV_PIX_FMT_RGB32_1, SDL_PIXELFORMAT_RGBA8888},
+    {AV_PIX_FMT_BGR32, SDL_PIXELFORMAT_ABGR8888},
+    {AV_PIX_FMT_BGR32_1, SDL_PIXELFORMAT_BGRA8888},
+    {AV_PIX_FMT_YUV420P, SDL_PIXELFORMAT_IYUV},
+    {AV_PIX_FMT_YUYV422, SDL_PIXELFORMAT_YUY2},
+    {AV_PIX_FMT_UYVY422, SDL_PIXELFORMAT_UYVY},
+    {AV_PIX_FMT_NONE, SDL_PIXELFORMAT_UNKNOWN},
 };
 
-State::~State()
-{
-    if (renderer)
-    {
+State::~State() {
+    if (renderer) {
         xlog_trc("destroy renderer");
         SDL_DestroyRenderer(renderer);
         renderer = nullptr;
     }
 
-    if (window)
-    {
+    if (window) {
         xlog_trc("destroy window");
         SDL_DestroyWindow(window);
         window = nullptr;
     }
 }
 
-XDisplay::XDisplay()
-{
-    _st = init();
-}
+XDisplay::XDisplay() { _st = init(); }
 
-XDisplay::~XDisplay()
-{
+XDisplay::~XDisplay() {}
 
-}
-
-std::shared_ptr<State> XDisplay::init()
-{
+std::shared_ptr<State> XDisplay::init() {
     int berror = false;
     int flags = 0;
 
     std::shared_ptr<State> st;
 
-    do
-    {
+    do {
         flags = SDL_INIT_VIDEO | SDL_INIT_TIMER;
 
         st = std::make_shared<State>();
 
-        if (SDL_Init(flags))
-        {
+        if (SDL_Init(flags)) {
             xlog_err("SDL_Init failed");
             berror = true;
             break;
         }
 
         flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
-        st->window = SDL_CreateWindow("xdisplay", 
-            SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-            640, 360, flags);
+        st->window = SDL_CreateWindow("xdisplay", SDL_WINDOWPOS_UNDEFINED,
+                                      SDL_WINDOWPOS_UNDEFINED, 640, 360, flags);
 
-        if (!st->window)
-        {
+        if (!st->window) {
             xlog_err("SDL_CreateWindow failed");
             berror = true;
             break;
@@ -91,13 +77,13 @@ std::shared_ptr<State> XDisplay::init()
 
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
-        st->renderer = SDL_CreateRenderer(st->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        if (!st->renderer)
-        {
+        st->renderer = SDL_CreateRenderer(
+            st->window, -1,
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        if (!st->renderer) {
             st->renderer = SDL_CreateRenderer(st->window, -1, 0);
         }
-        if (!st->renderer)
-        {
+        if (!st->renderer) {
             xlog_err("SDL_CreateRenderer failed");
             berror = true;
             break;
@@ -106,20 +92,16 @@ std::shared_ptr<State> XDisplay::init()
         st->xplay = std::make_shared<XPlay>();
 
         SDL_PumpEvents();
-    }
-    while (0);
+    } while (0);
 
     return (berror ? nullptr : st);
 }
 
-int XDisplay::open(const std::string& url)
-{
+int XDisplay::open(const std::string& url) {
     int berror = false;
 
-    do
-    {
-        if (!_st)
-        {
+    do {
+        if (!_st) {
             xlog_err("null");
             berror = true;
             break;
@@ -128,14 +110,12 @@ int XDisplay::open(const std::string& url)
         OptValues opt{};
         opt.filename = url;
         _st->xplay->open(opt);
-    } 
-    while (0);
+    } while (0);
 
     return (berror ? -1 : 0);
 }
 
-int XDisplay::close()
-{
+int XDisplay::close() {
     xlog_inf("close");
 
     xlog_setoutput(std::vector<FILE*>());
@@ -145,21 +125,18 @@ int XDisplay::close()
     return 0;
 }
 
-int XDisplay::exec()
-{
-    double remaininig_time = 0.0; // s
+int XDisplay::exec() {
+    double remaininig_time = 0.0;  // s
     SDL_Event event{};
 
-    for (;;)
-    {
+    for (;;) {
         SDL_PumpEvents();
-        while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
-        {
+        while (!SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT,
+                               SDL_LASTEVENT)) {
             xlog_trc("remaining time=%.2f", remaininig_time);
-            if (remaininig_time > 0.0)
-            {
-                std::this_thread::sleep_for(
-                    std::chrono::microseconds((uint64_t)(remaininig_time * 1000000.0)));
+            if (remaininig_time > 0.0) {
+                std::this_thread::sleep_for(std::chrono::microseconds(
+                    (uint64_t)(remaininig_time * 1000000.0)));
             }
             remaininig_time = 0.01;
 
@@ -168,31 +145,25 @@ int XDisplay::exec()
             SDL_PumpEvents();
         }
 
-        switch (event.type)
-        {
-        case SDL_QUIT:
-        {
-            close();
-            break;
-        }
-        default:
-        {
-            break;
-        }
+        switch (event.type) {
+            case SDL_QUIT: {
+                close();
+                break;
+            }
+            default: {
+                break;
+            }
         }
     }
 }
 
-void XDisplay::videoRefresh(double *remaining_time)
-{
+void XDisplay::videoRefresh(double* remaining_time) {
     _st->xplay->refresh(&_st->state);
     videoDisplay();
 }
 
-void XDisplay::videoDisplay()
-{
-    if (!_st->width)
-    {
+void XDisplay::videoDisplay() {
+    if (!_st->width) {
         videoOpen();
     }
 
@@ -202,8 +173,7 @@ void XDisplay::videoDisplay()
     SDL_RenderPresent(_st->renderer);
 }
 
-int XDisplay::videoOpen()
-{
+int XDisplay::videoOpen() {
     int w = 0;
     int h = 0;
 
@@ -226,8 +196,7 @@ int XDisplay::videoOpen()
     return 0;
 }
 
-void XDisplay::videoImageDisplay()
-{
+void XDisplay::videoImageDisplay() {
     xlog_trc("display");
 
     const Frame* vp = nullptr;
@@ -236,13 +205,12 @@ void XDisplay::videoImageDisplay()
 
     vp = _st->state.frame;
 
-    if (!vp)
-    {
-        return ;
+    if (!vp) {
+        return;
     }
 
     calDisplayRect(&rect, _st->xleft, _st->ytop, _st->width, _st->height,
-        vp->width, vp->height, vp->sar);
+                   vp->width, vp->height, vp->sar);
 
     /* xplay.last_frame */
     setSDLYUVConversionMode(vp->frame);
@@ -250,25 +218,23 @@ void XDisplay::videoImageDisplay()
     /* xplay.last_frame */
     // if (!vp->uploaded)
     // {
-        if (uploadTexture(&_st->video_texture, vp->frame) < 0)
-        {
-            setSDLYUVConversionMode(nullptr);
-            return;
-        }
-        // vp->uploaded = true;
-        // vp->flip_v = vp->frame->linesize[0] < 0;
+    if (uploadTexture(&_st->video_texture, vp->frame) < 0) {
+        setSDLYUVConversionMode(nullptr);
+        return;
+    }
+    // vp->uploaded = true;
+    // vp->flip_v = vp->frame->linesize[0] < 0;
     // }
 
-    SDL_RenderCopyEx(_st->renderer, _st->video_texture, nullptr, &rect,
-        0, nullptr, vp->flip_v ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
+    SDL_RenderCopyEx(_st->renderer, _st->video_texture, nullptr, &rect, 0,
+                     nullptr, vp->flip_v ? SDL_FLIP_VERTICAL : SDL_FLIP_NONE);
 
     setSDLYUVConversionMode(nullptr);
 }
 
-void XDisplay::calDisplayRect(SDL_Rect* rect,
-    int scr_xleft, int scr_ytop, int scr_width, int scr_height,
-    int pic_width, int pic_height, AVRational pic_sar)
-{
+void XDisplay::calDisplayRect(SDL_Rect* rect, int scr_xleft, int scr_ytop,
+                              int scr_width, int scr_height, int pic_width,
+                              int pic_height, AVRational pic_sar) {
     AVRational aspect_ratio = pic_sar;
     int64_t width, height, x, y;
 
@@ -292,69 +258,83 @@ void XDisplay::calDisplayRect(SDL_Rect* rect,
     rect->h = FFMAX((int)height, 1);
 }
 
-void XDisplay::setSDLYUVConversionMode(const AVFrame* frame)
-{
-#if SDL_VERSION_ATLEAST(2,0,8)
+void XDisplay::setSDLYUVConversionMode(const AVFrame* frame) {
+#if SDL_VERSION_ATLEAST(2, 0, 8)
     SDL_YUV_CONVERSION_MODE mode = SDL_YUV_CONVERSION_AUTOMATIC;
-    if (frame && (frame->format == AV_PIX_FMT_YUV420P || frame->format == AV_PIX_FMT_YUYV422 || frame->format == AV_PIX_FMT_UYVY422)) {
+    if (frame && (frame->format == AV_PIX_FMT_YUV420P ||
+                  frame->format == AV_PIX_FMT_YUYV422 ||
+                  frame->format == AV_PIX_FMT_UYVY422)) {
         if (frame->color_range == AVCOL_RANGE_JPEG)
             mode = SDL_YUV_CONVERSION_JPEG;
         else if (frame->colorspace == AVCOL_SPC_BT709)
             mode = SDL_YUV_CONVERSION_BT709;
-        else if (frame->colorspace == AVCOL_SPC_BT470BG || frame->colorspace == AVCOL_SPC_SMPTE170M)
+        else if (frame->colorspace == AVCOL_SPC_BT470BG ||
+                 frame->colorspace == AVCOL_SPC_SMPTE170M)
             mode = SDL_YUV_CONVERSION_BT601;
     }
     SDL_SetYUVConversionMode(mode); /* FIXME: no support for linear transfer */
 #endif
 }
 
-int XDisplay::uploadTexture(SDL_Texture** tex, AVFrame* frame)
-{
+int XDisplay::uploadTexture(SDL_Texture** tex, AVFrame* frame) {
     int ret = 0;
     Uint32 sdl_pix_fmt;
     SDL_BlendMode sdl_blendmode;
     getSDLPixFmtAndBlendMode(frame->format, &sdl_pix_fmt, &sdl_blendmode);
-    if (reallocTexture(tex, sdl_pix_fmt == SDL_PIXELFORMAT_UNKNOWN ? SDL_PIXELFORMAT_ARGB8888 : sdl_pix_fmt, frame->width, frame->height, sdl_blendmode, 0) < 0)
+    if (reallocTexture(tex,
+                       sdl_pix_fmt == SDL_PIXELFORMAT_UNKNOWN
+                           ? SDL_PIXELFORMAT_ARGB8888
+                           : sdl_pix_fmt,
+                       frame->width, frame->height, sdl_blendmode, 0) < 0)
         return -1;
     switch (sdl_pix_fmt) {
-    case SDL_PIXELFORMAT_IYUV:
-        if (frame->linesize[0] > 0 && frame->linesize[1] > 0 && frame->linesize[2] > 0) {
-            ret = SDL_UpdateYUVTexture(*tex, NULL, frame->data[0], frame->linesize[0],
-                frame->data[1], frame->linesize[1],
-                frame->data[2], frame->linesize[2]);
-        }
-        else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 && frame->linesize[2] < 0) {
-            ret = SDL_UpdateYUVTexture(*tex, NULL, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0],
-                frame->data[1] + frame->linesize[1] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[1],
-                frame->data[2] + frame->linesize[2] * (AV_CEIL_RSHIFT(frame->height, 1) - 1), -frame->linesize[2]);
-        }
-        else {
-            xlog_err("Mixed negative and positive linesizes are not supported.");
-            return -1;
-        }
-        break;
-    default:
-        if (frame->linesize[0] < 0) {
-            ret = SDL_UpdateTexture(*tex, NULL, frame->data[0] + frame->linesize[0] * (frame->height - 1), -frame->linesize[0]);
-        }
-        else {
-            ret = SDL_UpdateTexture(*tex, NULL, frame->data[0], frame->linesize[0]);
-        }
-        break;
+        case SDL_PIXELFORMAT_IYUV:
+            if (frame->linesize[0] > 0 && frame->linesize[1] > 0 &&
+                frame->linesize[2] > 0) {
+                ret = SDL_UpdateYUVTexture(*tex, NULL, frame->data[0],
+                                           frame->linesize[0], frame->data[1],
+                                           frame->linesize[1], frame->data[2],
+                                           frame->linesize[2]);
+            } else if (frame->linesize[0] < 0 && frame->linesize[1] < 0 &&
+                       frame->linesize[2] < 0) {
+                ret = SDL_UpdateYUVTexture(
+                    *tex, NULL,
+                    frame->data[0] + frame->linesize[0] * (frame->height - 1),
+                    -frame->linesize[0],
+                    frame->data[1] + frame->linesize[1] *
+                                         (AV_CEIL_RSHIFT(frame->height, 1) - 1),
+                    -frame->linesize[1],
+                    frame->data[2] + frame->linesize[2] *
+                                         (AV_CEIL_RSHIFT(frame->height, 1) - 1),
+                    -frame->linesize[2]);
+            } else {
+                xlog_err(
+                    "Mixed negative and positive linesizes are not supported.");
+                return -1;
+            }
+            break;
+        default:
+            if (frame->linesize[0] < 0) {
+                ret = SDL_UpdateTexture(
+                    *tex, NULL,
+                    frame->data[0] + frame->linesize[0] * (frame->height - 1),
+                    -frame->linesize[0]);
+            } else {
+                ret = SDL_UpdateTexture(*tex, NULL, frame->data[0],
+                                        frame->linesize[0]);
+            }
+            break;
     }
     return ret;
 }
 
 void XDisplay::getSDLPixFmtAndBlendMode(int format, uint32_t* sdl_pix_fmt,
-    SDL_BlendMode* sdl_blendmode)
-{
+                                        SDL_BlendMode* sdl_blendmode) {
     int i;
     *sdl_blendmode = SDL_BLENDMODE_NONE;
     *sdl_pix_fmt = SDL_PIXELFORMAT_UNKNOWN;
-    if (format == AV_PIX_FMT_RGB32 ||
-        format == AV_PIX_FMT_RGB32_1 ||
-        format == AV_PIX_FMT_BGR32 ||
-        format == AV_PIX_FMT_BGR32_1)
+    if (format == AV_PIX_FMT_RGB32 || format == AV_PIX_FMT_RGB32_1 ||
+        format == AV_PIX_FMT_BGR32 || format == AV_PIX_FMT_BGR32_1)
         *sdl_blendmode = SDL_BLENDMODE_BLEND;
     for (i = 0; i < ARRAY_ELEMS(sdl_texture_format_map) - 1; i++) {
         if (format == sdl_texture_format_map[i].format) {
@@ -365,27 +345,27 @@ void XDisplay::getSDLPixFmtAndBlendMode(int format, uint32_t* sdl_pix_fmt,
 }
 
 int XDisplay::reallocTexture(SDL_Texture** texture, uint32_t new_format,
-    int new_width, int new_height, SDL_BlendMode blendmode,
-    int init_texture)
-{
+                             int new_width, int new_height,
+                             SDL_BlendMode blendmode, int init_texture) {
     Uint32 format;
     int access, w, h;
-    if (!*texture || SDL_QueryTexture(*texture, &format, &access, &w, &h) < 0 || new_width != w || new_height != h || new_format != format) {
+    if (!*texture || SDL_QueryTexture(*texture, &format, &access, &w, &h) < 0 ||
+        new_width != w || new_height != h || new_format != format) {
         void* pixels;
         int pitch;
-        if (*texture)
-            SDL_DestroyTexture(*texture);
-        if (!(*texture = SDL_CreateTexture(_st->renderer, new_format, SDL_TEXTUREACCESS_STREAMING, new_width, new_height)))
+        if (*texture) SDL_DestroyTexture(*texture);
+        if (!(*texture = SDL_CreateTexture(_st->renderer, new_format,
+                                           SDL_TEXTUREACCESS_STREAMING,
+                                           new_width, new_height)))
             return -1;
-        if (SDL_SetTextureBlendMode(*texture, blendmode) < 0)
-            return -1;
+        if (SDL_SetTextureBlendMode(*texture, blendmode) < 0) return -1;
         if (init_texture) {
-            if (SDL_LockTexture(*texture, NULL, &pixels, &pitch) < 0)
-                return -1;
+            if (SDL_LockTexture(*texture, NULL, &pixels, &pitch) < 0) return -1;
             memset(pixels, 0, pitch * new_height);
             SDL_UnlockTexture(*texture);
         }
-        av_log(NULL, AV_LOG_VERBOSE, "Created %dx%d texture with %s.\n", new_width, new_height, SDL_GetPixelFormatName(new_format));
+        av_log(NULL, AV_LOG_VERBOSE, "Created %dx%d texture with %s.\n",
+               new_width, new_height, SDL_GetPixelFormatName(new_format));
     }
     return 0;
 }

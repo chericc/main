@@ -1,14 +1,13 @@
 #pragma once
 
-#include <string>
-#include <map>
 #include <functional>
+#include <map>
 #include <memory>
 #include <sstream>
+#include <string>
 
-class MainAlgManager
-{
-public:
+class MainAlgManager {
+   public:
     using FuncName = std::string;
     using Func = std::function<void()>;
     using Funcs = std::map<FuncName, Func>;
@@ -17,19 +16,19 @@ public:
 
     void listDemos();
     void runAllDemo();
-protected:
+
+   protected:
     static std::shared_ptr<MainAlgManager> instance_;
-private:
+
+   private:
     using AlgDemos = std::map<std::string, Funcs>;
     AlgDemos alg_demos_;
 };
 
 template <typename T_>
-std::string output_elements(T_ const& c)
-{
+std::string output_elements(T_ const& c) {
     std::stringstream ss;
-    for (auto const& ref : c) 
-    {
+    for (auto const& ref : c) {
         ss << ref << " ";
     }
     return ss.str();

@@ -4,4 +4,4 @@
 
 #ifdef LINUX__
 #define USE_LINUX_SYSCALLS__
-#endif 
+#endif

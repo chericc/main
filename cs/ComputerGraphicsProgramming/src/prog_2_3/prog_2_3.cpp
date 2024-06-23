@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
 
 #include "error_info.hpp"
@@ -10,7 +11,6 @@ GLuint renderingProgram;
 GLuint vao[numVAOs];
 
 GLuint createShaderProgram() {
-
     const char* vshaderSource =
         R"(
 #version 430

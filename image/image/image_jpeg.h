@@ -4,9 +4,8 @@
 
 IMAGE_NAME_START
 
-class ImageJpeg : public ImageInterface
-{
-protected:
+class ImageJpeg : public ImageInterface {
+   protected:
     bool LoadFile_override() override;
 };
 

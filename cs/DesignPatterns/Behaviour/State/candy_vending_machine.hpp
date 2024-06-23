@@ -10,70 +10,70 @@ class NoCoinState;
 class DispensedState;
 class NoCandyState;
 
-class CandyVendingMachineState
-{
-public:
+class CandyVendingMachineState {
+   public:
     virtual ~CandyVendingMachineState() = default;
     virtual void insertCoin() = 0;
     virtual void pressButton() = 0;
     virtual void dispense() = 0;
 };
 
-class ContainsCoinState : public CandyVendingMachineState
-{
-public:
-    ContainsCoinState (CandyVendingMachine *machine);
+class ContainsCoinState : public CandyVendingMachineState {
+   public:
+    ContainsCoinState(CandyVendingMachine* machine);
     virtual void insertCoin() override;
     virtual void pressButton() override;
     virtual void dispense() override;
-private:
-    CandyVendingMachine *p_machine__{nullptr};
+
+   private:
+    CandyVendingMachine* p_machine__{nullptr};
 };
 
-class NoCoinState : public CandyVendingMachineState
-{
-public:
-    NoCoinState(CandyVendingMachine *machine);
+class NoCoinState : public CandyVendingMachineState {
+   public:
+    NoCoinState(CandyVendingMachine* machine);
     virtual void insertCoin() override;
     virtual void pressButton() override;
     virtual void dispense() override;
-private:
-    CandyVendingMachine *p_machine__{nullptr};
+
+   private:
+    CandyVendingMachine* p_machine__{nullptr};
 };
 
-class DispensedState : public CandyVendingMachineState
-{
-public:
-    DispensedState (CandyVendingMachine *machine);
+class DispensedState : public CandyVendingMachineState {
+   public:
+    DispensedState(CandyVendingMachine* machine);
     virtual void insertCoin() override;
     virtual void pressButton() override;
     virtual void dispense() override;
-private:
-    CandyVendingMachine *p_machine__{nullptr};
+
+   private:
+    CandyVendingMachine* p_machine__{nullptr};
 };
 
-class NoCandyState : public CandyVendingMachineState
-{
-public:
-    NoCandyState (CandyVendingMachine *machine);
+class NoCandyState : public CandyVendingMachineState {
+   public:
+    NoCandyState(CandyVendingMachine* machine);
     virtual void insertCoin() override;
     virtual void pressButton() override;
     virtual void dispense() override;
-private:
-    CandyVendingMachine *p_machine__{nullptr};
+
+   private:
+    CandyVendingMachine* p_machine__{nullptr};
 };
 
-class CandyVendingMachine
-{
-public:
+class CandyVendingMachine {
+   public:
     CandyVendingMachine(int nNumberOfCandies);
     void refillCandy(int count);
     void ejectCandy();
     void insertCoin();
     void pressButton();
-private:
+
+   private:
     std::string toString();
-private:
+
+   private:
     std::shared_ptr<CandyVendingMachineState> no_coin_state__;
     std::shared_ptr<CandyVendingMachineState> no_candy_state__;
     std::shared_ptr<CandyVendingMachineState> dispensed_state__;

@@ -2,7 +2,4 @@
 
 #include "xplay.hpp"
 
-TEST(xplay, base)
-{
-
-}
+TEST(xplay, base) {}

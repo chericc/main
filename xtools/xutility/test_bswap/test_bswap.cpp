@@ -2,8 +2,7 @@
 
 #include "xbswap.hpp"
 
-TEST(xutility, xbswap_n)
-{
+TEST(xutility, xbswap_n) {
     uint16_t u16a = 0x1234;
     uint16_t u16b = 0x3412;
     EXPECT_EQ(xbswap(u16a), u16b);

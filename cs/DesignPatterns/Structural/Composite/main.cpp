@@ -1,7 +1,6 @@
 #include "product_catalog.h"
 
-int main()
-{
+int main() {
     auto p1 = std::make_shared<Product>("Apple", 5);
     auto p2 = std::make_shared<Product>("Orange", 4);
 

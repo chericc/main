@@ -2,82 +2,98 @@
  * Author: x
  * Date: 20210503
  * Description: rgba --> 1555,...
- * 
- * ×¢£º
- * ¶ÔÓÚ RGBA£¬ALPHA 0 ±íÊ¾²»Í¸Ã÷£¬255 ±íÊ¾È«Í¸Ã÷
- * 
+ *
+ * ×¢ï¿½ï¿½
+ * ï¿½ï¿½ï¿½ï¿½ RGBAï¿½ï¿½ALPHA 0 ï¿½ï¿½Ê¾ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ï¿½255
+ * ï¿½ï¿½Ê¾È«Í¸ï¿½ï¿½
+ *
  * RGBA
- * Í¸Ã÷ [x,x,x,255]
- * ºìÉ« [255,0,0,0]
- * ÂÌÉ« [0,255,0,0]
- * À¶É« [0,0,255,0]
- * °×É« [255,255,255,0]
- * ºÚÉ« [0,0,0,0]
- * 
- * 1555 ¸ñÊ½µÄ×Ö½ÚÅÅÁÐ°´ÕÕÊéÐ´µÄË³ÐòÅÅÁÐ£¬»òÕßËµÊÇ´ó¶Ë×Ö½ÚÐò£¨¼´µØÖ·´ÓµÍµ½¸ßÒÀ´ÎÊÇalpha,red,green,blue£©¡£
- * 0x0000 ±íÊ¾ºÚÉ«
- * 0x8C00 ±íÊ¾ºìÉ«
+ * Í¸ï¿½ï¿½ [x,x,x,255]
+ * ï¿½ï¿½É« [255,0,0,0]
+ * ï¿½ï¿½É« [0,255,0,0]
+ * ï¿½ï¿½É« [0,0,255,0]
+ * ï¿½ï¿½É« [255,255,255,0]
+ * ï¿½ï¿½É« [0,0,0,0]
+ *
+ * 1555
+ * ï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½ï¿½Ð°ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½Ç´ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ò£¨¼ï¿½ï¿½ï¿½Ö·ï¿½ÓµÍµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½alpha,red,green,blueï¿½ï¿½ï¿½ï¿½
+ * 0x0000 ï¿½ï¿½Ê¾ï¿½ï¿½É«
+ * 0x8C00 ï¿½ï¿½Ê¾ï¿½ï¿½É«
  */
 
 #pragma once
 
-typedef enum 
-{
+typedef enum {
     /* rgba --> 1555 */
-    IMAGE_RAW_RGBA_1555 = 0x1,  // 1555 ÖÐ 1 ±íÊ¾Í¸Ã÷
-    IMAGE_RAW_RGBA_1555_1ALPHA, // 1555 ÖÐ 1 ±íÊ¾Í¸Ã÷
-    IMAGE_RAW_RGBA_1555_0ALPHA, // 1555 ÖÐ 0 ±íÊ¾Í¸Ã÷
+    IMAGE_RAW_RGBA_1555 = 0x1,   // 1555 ï¿½ï¿½ 1 ï¿½ï¿½Ê¾Í¸ï¿½ï¿½
+    IMAGE_RAW_RGBA_1555_1ALPHA,  // 1555 ï¿½ï¿½ 1 ï¿½ï¿½Ê¾Í¸ï¿½ï¿½
+    IMAGE_RAW_RGBA_1555_0ALPHA,  // 1555 ï¿½ï¿½ 0 ï¿½ï¿½Ê¾Í¸ï¿½ï¿½
 
     /* Î»Í¼ --> 1555 */
-    IMAGE_RAW_HBIT_1555_1BLACK_1ALPHA = 0x10,        // HBIT: BYTE & 0x80 ±íÊ¾µÚÒ»¸öÏñËØ£¬1 ±íÊ¾ ºÚÉ«£¬alpha Îª 1
-    IMAGE_RAW_HBIT_1555_1BLACK_0ALPHA,        // HBIT: BYTE & 0x80 ±íÊ¾µÚÒ»¸öÏñËØ£¬1 ±íÊ¾ ºÚÉ«£¬alpha Îª 0
-    IMAGE_RAW_HBIT_1555_1WHITE_1ALPHA,        // HBIT: BYTE & 0x80 ±íÊ¾µÚÒ»¸öÏñËØ£¬1 ±íÊ¾ °×É«£¬alpha Îª 1
-    IMAGE_RAW_HBIT_1555_1WHITE_0ALPHA,        // HBIT: BYTE & 0x80 ±íÊ¾µÚÒ»¸öÏñËØ£¬1 ±íÊ¾ °×É«£¬alpha Îª 0
+    IMAGE_RAW_HBIT_1555_1BLACK_1ALPHA =
+        0x10,  // HBIT: BYTE & 0x80 ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½1 ï¿½ï¿½Ê¾ ï¿½ï¿½É«ï¿½ï¿½alpha Îª 1
+    IMAGE_RAW_HBIT_1555_1BLACK_0ALPHA,  // HBIT: BYTE & 0x80 ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½1 ï¿½ï¿½Ê¾
+                                        // ï¿½ï¿½É«ï¿½ï¿½alpha Îª 0
+    IMAGE_RAW_HBIT_1555_1WHITE_1ALPHA,  // HBIT: BYTE & 0x80 ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½1 ï¿½ï¿½Ê¾
+                                        // ï¿½ï¿½É«ï¿½ï¿½alpha Îª 1
+    IMAGE_RAW_HBIT_1555_1WHITE_0ALPHA,  // HBIT: BYTE & 0x80 ï¿½ï¿½Ê¾ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ø£ï¿½1 ï¿½ï¿½Ê¾
+                                        // ï¿½ï¿½É«ï¿½ï¿½alpha Îª 0
 } IMAGE_RAW_CONVERT_TYPE_E;
 
-typedef enum
-{
+typedef enum {
     IMAGE_RAW_RGBA = 0x1,
-    IMAGE_RAW_1555, // 1555 ÖÐ 1 ±íÊ¾Í¸Ã÷
-    IMAGE_RAW_1555_1ALPHA,  // 1555 ÖÐ 1 ±íÊ¾Í¸Ã÷
-    IMAGE_RAW_1555_0ALPHA,  // 1555 ÖÐ 0 ±íÊ¾Í¸Ã÷
+    IMAGE_RAW_1555,         // 1555 ï¿½ï¿½ 1 ï¿½ï¿½Ê¾Í¸ï¿½ï¿½
+    IMAGE_RAW_1555_1ALPHA,  // 1555 ï¿½ï¿½ 1 ï¿½ï¿½Ê¾Í¸ï¿½ï¿½
+    IMAGE_RAW_1555_0ALPHA,  // 1555 ï¿½ï¿½ 0 ï¿½ï¿½Ê¾Í¸ï¿½ï¿½
 } IMAGE_RAW_TYPE_E;
 
-typedef enum
-{
-    IMAGE_DRAW_COVER = 0, // ×ÜÊÇ¸²¸Çµôµ×É«
-    IMAGE_DRAW_MIX,     // Èç¹û»æÖÆµÄÑÕÉ«ÎªÍ¸Ã÷É«£¬Ôò²»¸²¸Çµ×É«
+typedef enum {
+    IMAGE_DRAW_COVER = 0,  // ï¿½ï¿½ï¿½Ç¸ï¿½ï¿½Çµï¿½ï¿½ï¿½É«
+    IMAGE_DRAW_MIX,  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½É«ÎªÍ¸ï¿½ï¿½É«ï¿½ï¿½ï¿½ò²»¸ï¿½ï¿½Çµï¿½É«
 } IMAGE_DRAW_MODE;
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
-int imagetools_rawconvert (const void *pSrc, unsigned int nSrcSize, 
-    void *pDst, unsigned int nDstSize, IMAGE_RAW_CONVERT_TYPE_E eConvType);
+int imagetools_rawconvert(const void* pSrc, unsigned int nSrcSize, void* pDst,
+                          unsigned int nDstSize,
+                          IMAGE_RAW_CONVERT_TYPE_E eConvType);
 
-int imagetools_rawconvert_HBIT_to_1555(const void *pSrc, unsigned int nSrcSize, 
-    void *pDst, unsigned int nDstSize, const void *pPixel1555_0, const void *pPixel1555_1);
+int imagetools_rawconvert_HBIT_to_1555(const void* pSrc, unsigned int nSrcSize,
+                                       void* pDst, unsigned int nDstSize,
+                                       const void* pPixel1555_0,
+                                       const void* pPixel1555_1);
 
-int imagetools_rawconvert_HBIT_to_RGBA(const void *pSrc, unsigned int nSrcSize, 
-    void *pDst, unsigned int nDstSize, const void *pPixelRGBA_0, const void *pPixelRGBA_1);
+int imagetools_rawconvert_HBIT_to_RGBA(const void* pSrc, unsigned int nSrcSize,
+                                       void* pDst, unsigned int nDstSize,
+                                       const void* pPixelRGBA_0,
+                                       const void* pPixelRGBA_1);
 
-int imagetools_scale(const void *pSrc, unsigned int nSrcW, unsigned int nSrcH, 
-    void *pDst, unsigned int nDstW, unsigned int nDstH, IMAGE_RAW_TYPE_E eImageRawType);
+int imagetools_scale(const void* pSrc, unsigned int nSrcW, unsigned int nSrcH,
+                     void* pDst, unsigned int nDstW, unsigned int nDstH,
+                     IMAGE_RAW_TYPE_E eImageRawType);
 
-int imagetools_replaceall (void *pPixels, unsigned int nPixelCount, 
-    const void *pOldPixel, const void *pNewPixel, IMAGE_RAW_TYPE_E eImageRawType);
+int imagetools_replaceall(void* pPixels, unsigned int nPixelCount,
+                          const void* pOldPixel, const void* pNewPixel,
+                          IMAGE_RAW_TYPE_E eImageRawType);
 
-int imagetools_settwocolor (void *pPixels, unsigned int nPixelCount, 
-    const void *pBackColor, const void *pBackToColor, const void* pFrontToColor, IMAGE_RAW_TYPE_E eImageRawType);
+int imagetools_settwocolor(void* pPixels, unsigned int nPixelCount,
+                           const void* pBackColor, const void* pBackToColor,
+                           const void* pFrontToColor,
+                           IMAGE_RAW_TYPE_E eImageRawType);
 
-int imagetools_drawimage (void *pDstPixels, unsigned int nDstWidth, unsigned int nDstHeight, 
-    const void *pSrcPixels, unsigned int nSrcWidth, unsigned int nSrcHeight, 
-    int nX, int nY, IMAGE_DRAW_MODE eDrawMode, IMAGE_RAW_TYPE_E eImageRawType);
+int imagetools_drawimage(void* pDstPixels, unsigned int nDstWidth,
+                         unsigned int nDstHeight, const void* pSrcPixels,
+                         unsigned int nSrcWidth, unsigned int nSrcHeight,
+                         int nX, int nY, IMAGE_DRAW_MODE eDrawMode,
+                         IMAGE_RAW_TYPE_E eImageRawType);
 
-int imagetools_brushrect (void *pDstPixels, unsigned int nDstWidth, unsigned int nDstHeight,
-    const void *pSrcPixels, unsigned int nSrcWidth, unsigned int nSrcHeight, 
-    int nX, int nY, IMAGE_DRAW_MODE eDrawMode, IMAGE_RAW_TYPE_E eImageRawType);
+int imagetools_brushrect(void* pDstPixels, unsigned int nDstWidth,
+                         unsigned int nDstHeight, const void* pSrcPixels,
+                         unsigned int nSrcWidth, unsigned int nSrcHeight,
+                         int nX, int nY, IMAGE_DRAW_MODE eDrawMode,
+                         IMAGE_RAW_TYPE_E eImageRawType);
 
 #ifdef __cplusplus
 }

@@ -2,20 +2,19 @@
 
 #include <vector>
 
-class Graph
-{
-public:
+class Graph {
+   public:
     Graph(int nMaxVertexNum);
     ~Graph();
 
     int AddVertex(int nID);
     int AddEdge(int nIDVertexFirst, int nIDVertexSecond, int nValue);
 
-private:
+   private:
     int Edge(int nIDFirst, int nIDSecond);
     int SetEdge(int nIDFirst, int nIDSecond, int nValue);
 
-private:
+   private:
     int m_nMaxVertexNum;
     int m_nVertexNum;
     int m_nEdgeNum;

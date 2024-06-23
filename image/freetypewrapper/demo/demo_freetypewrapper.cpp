@@ -1,13 +1,12 @@
 
+#include "bmp.hpp"
 #include "freetypewrapper.hpp"
 #include "imageview.hpp"
 #include "xlog.hpp"
-#include "bmp.hpp"
 
 static const int s_pixel_depth = 3;
 
-int main()
-{
+int main() {
     {
         std::vector<FILE*> fps = {stdout};
         xlog_setoutput(fps);
@@ -15,9 +14,10 @@ int main()
     }
 
     std::string font_path = std::string() + RES_FONT_PATH + "/song.subset.TTF";
-    // std::string font_path = std::string() + RES_FONT_PATH + "/fangzheng.subset.TTF";
-    // std::string font_path = std::string() + RES_FONT_PATH + "/simsun.ttc";
-    // std::string font_path = std::string() + RES_FONT_PATH + "/STHUPO.TTF";
+    // std::string font_path = std::string() + RES_FONT_PATH +
+    // "/fangzheng.subset.TTF"; std::string font_path = std::string() +
+    // RES_FONT_PATH + "/simsun.ttc"; std::string font_path = std::string() +
+    // RES_FONT_PATH + "/STHUPO.TTF";
 
     int width = 1440;
     int height = 360;
@@ -26,20 +26,21 @@ int main()
     std::shared_ptr<ImageView> iv;
 
     {
-        iv = std::make_shared<ImageView>(width, height, s_pixel_depth, pixel_init);
+        iv = std::make_shared<ImageView>(width, height, s_pixel_depth,
+                                         pixel_init);
     }
 
     {
         FreeTypeWrapper ft(font_path);
-        
+
         std::string utf8_str = u8"0123456789星期一123:-";
 
         // 72 * 360 / 1440 = 18
         // ft.drawString(utf8_str, 72 * 360 / 1440, 0, 0, iv);
         // ft.drawStringMonochrome(utf8_str, 72 * 360 / 1440, 0, 0, iv);
 
-        std::vector<uint8_t> pixel_white({0xff,0xff,0xff});
-        std::vector<uint8_t> pixel_black({0x0,0x0,0x0});
+        std::vector<uint8_t> pixel_white({0xff, 0xff, 0xff});
+        std::vector<uint8_t> pixel_black({0x0, 0x0, 0x0});
 
         FreeTypeWrapper::DrawInfo drawinfo{};
         drawinfo.utf8_str = std::make_shared<std::string>(utf8_str);
@@ -49,8 +50,10 @@ int main()
         // drawinfo.font_size = 72 * 360 / 1440;
         drawinfo.font_size = 72;
         drawinfo.outline_width = 1.0;
-        drawinfo.foreground = std::make_shared<std::vector<uint8_t>>(pixel_white);
-        drawinfo.background = std::make_shared<std::vector<uint8_t>>(pixel_white);
+        drawinfo.foreground =
+            std::make_shared<std::vector<uint8_t>>(pixel_white);
+        drawinfo.background =
+            std::make_shared<std::vector<uint8_t>>(pixel_white);
         drawinfo.outline = std::make_shared<std::vector<uint8_t>>(pixel_black);
         drawinfo.mode = FreeTypeWrapper::DrawMode::Outline;
 
@@ -58,15 +61,11 @@ int main()
     }
 
     // convert to 1555
-    if (true)
-    {
-        for (int y = 0; y < iv->height(); ++y)
-        {
-            for (int x = 0; x < iv->width(); ++x)
-            {
+    if (true) {
+        for (int y = 0; y < iv->height(); ++y) {
+            for (int x = 0; x < iv->width(); ++x) {
                 auto pixel = iv->pixels(x, y, 1);
-                for (auto &ref : pixel)
-                {
+                for (auto& ref : pixel) {
                     ref = (ref & 0xf8);
                 }
                 iv->drawPixels(x, y, pixel);

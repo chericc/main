@@ -17,11 +17,11 @@ int main() {
         }
         std::cout << std::endl;
 
-        double d = calc.calc (list);
+        double d = calc.calc(list);
         std::cout << "result=" << d << std::endl;
 
         std::cout << "finish" << std::endl;
     }
-    
+
     return 0;
 }

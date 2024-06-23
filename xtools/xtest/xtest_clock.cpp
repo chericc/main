@@ -1,14 +1,13 @@
 #include "xtest_clock.hpp"
 
-#include <condition_variable>
+#include <stdio.h>
 #include <time.h>
 
-#include <stdio.h>
+#include <condition_variable>
 
 #include "xlog.hpp"
 
-struct XTestClock::InnerData
-{
+struct XTestClock::InnerData {
     // dur_diff越大，则表示虚拟时间越快，或者说等待越提前返回；
     // XTestClock::now() = Clock::now() + dur_diff
     Duration dur_diff;
@@ -16,28 +15,23 @@ struct XTestClock::InnerData
     std::condition_variable cond;
 };
 
-XTestClock::XTestClock()
-{
+XTestClock::XTestClock() {
     _d = init();
-    if (!_d)
-    {
+    if (!_d) {
         xlog_err("init failed");
     }
 }
 
-bool XTestClock::ok()
-{
+bool XTestClock::ok() {
     std::lock_guard<std::mutex> lock_call(_mutex_call);
 
     return (_d ? true : false);
 }
 
-XTestClock::Timepoint XTestClock::now()
-{
+XTestClock::Timepoint XTestClock::now() {
     std::lock_guard<std::mutex> lock_call(_mutex_call);
 
-    if (!_d)
-    {
+    if (!_d) {
         xlog_err("null");
         return Timepoint{};
     }
@@ -45,14 +39,12 @@ XTestClock::Timepoint XTestClock::now()
     return Clock::now() + _d->dur_diff;
 }
 
-void XTestClock::move(Duration duration)
-{
+void XTestClock::move(Duration duration) {
     std::lock_guard<std::mutex> lock_call(_mutex_call);
 
-    if (!_d)
-    {
+    if (!_d) {
         xlog_err("null");
-        return ;
+        return;
     }
 
     _d->dur_diff += duration;
@@ -60,14 +52,12 @@ void XTestClock::move(Duration duration)
     _d->cond.notify_all();
 }
 
-void XTestClock::jump(Timepoint timepoint)
-{
+void XTestClock::jump(Timepoint timepoint) {
     std::lock_guard<std::mutex> lock_call(_mutex_call);
 
-    if (!_d)
-    {
+    if (!_d) {
         xlog_err("null");
-        return ;
+        return;
     }
 
     _d->dur_diff = timepoint - Clock::now();
@@ -75,73 +65,62 @@ void XTestClock::jump(Timepoint timepoint)
     _d->cond.notify_all();
 }
 
-void XTestClock::waitUntil(Timepoint timepoint)
-{
+void XTestClock::waitUntil(Timepoint timepoint) {
     std::unique_lock<std::mutex> lock_call(_mutex_call);
 
-    if (!_d)
-    {
+    if (!_d) {
         xlog_err("null");
-        return ;
+        return;
     }
 
-    while (true)
-    {
+    while (true) {
         auto real_timepoint = timepoint - _d->dur_diff;
         auto ret = _d->cond.wait_until(lock_call, real_timepoint);
-        if (std::cv_status::timeout == ret)
-        {
+        if (std::cv_status::timeout == ret) {
             break;
         }
     }
 }
 
-void XTestClock::waitFor(Duration duration)
-{
+void XTestClock::waitFor(Duration duration) {
     std::unique_lock<std::mutex> lock_call(_mutex_call);
 
-    if (!_d)
-    {
+    if (!_d) {
         xlog_err("null");
-        return ;
+        return;
     }
 
     Duration old_dur_diff = _d->dur_diff;
 
-    while (true)
-    {
+    while (true) {
         Duration new_dur_diff = _d->dur_diff;
         Duration diff = new_dur_diff - old_dur_diff;
 
         auto real_timepoint = Clock::now() + duration - diff;
         auto ret = _d->cond.wait_until(lock_call, real_timepoint);
-        if (std::cv_status::timeout == ret)
-        {
+        if (std::cv_status::timeout == ret) {
             break;
         }
     }
 }
 
-std::shared_ptr<XTestClock::InnerData> XTestClock::init()
-{
-    std::shared_ptr<XTestClock::InnerData> data = 
+std::shared_ptr<XTestClock::InnerData> XTestClock::init() {
+    std::shared_ptr<XTestClock::InnerData> data =
         std::make_shared<XTestClock::InnerData>();
-    
+
     return data;
 }
 
-XTestClock::Timepoint xtestclock_generate_timepoint(const std::string &str)
-{
-    struct tm stm{};
+XTestClock::Timepoint xtestclock_generate_timepoint(const std::string& str) {
+    struct tm stm {};
 
     /* str eg: "2010-01-01 15:30:55" */
 
     int year = 0, month = 0, day = 0;
     int hour = 0, minute = 0, second = 0;
-    int ret = sscanf(str.c_str(), "%d-%d-%d %d:%d:%d",
-        &year, &month, &day, &hour, &minute, &second);
-    if (ret != 6)
-    {
+    int ret = sscanf(str.c_str(), "%d-%d-%d %d:%d:%d", &year, &month, &day,
+                     &hour, &minute, &second);
+    if (ret != 6) {
         xlog_err("invalid input string");
         return XTestClock::Timepoint{};
     }
@@ -152,11 +131,10 @@ XTestClock::Timepoint xtestclock_generate_timepoint(const std::string &str)
     stm.tm_hour = hour;
     stm.tm_min = minute;
     stm.tm_sec = second;
-    
+
     time_t time_input = mktime(&stm);
 
-    if ((time_t)(-1) == time_input)
-    {
+    if ((time_t)(-1) == time_input) {
         xlog_err("invalid input string");
         return XTestClock::Timepoint{};
     }

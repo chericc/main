@@ -3,15 +3,13 @@
 
 #if defined(X_WINDOWS_PLATFORM)
 #pragma comment(linker, "/subsystem:console")
-#endif 
+#endif
 
-int main(int argc, char *argv[])
-{
-    std::vector<FILE*> fps = { stdout };
+int main(int argc, char* argv[]) {
+    std::vector<FILE*> fps = {stdout};
 
     FILE* fp = fopen("log.txt", "w");
-    if (fp)
-    {
+    if (fp) {
         fps.push_back(fp);
     }
 
@@ -21,11 +19,11 @@ int main(int argc, char *argv[])
 
     std::string path = std::string() + RES_VIDEO_PATH + "/demo.mp4";
 
-    if (dis.open(path) < 0)
-    {
+    if (dis.open(path) < 0) {
         xlog_err("open failed");
         return -1;
     }
 
-    return dis.exec();;
+    return dis.exec();
+    ;
 }
