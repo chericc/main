@@ -84,7 +84,11 @@ Diagnostics:
         portability-*,
         modernize-*,
       ]
-    Remove: modernize-use-trailing-return-type
+    Remove: 
+      [
+        modernize-use-trailing-return-type,
+        bugprone-easily-swappable-parameters,
+      ]
     CheckOptions:
       WarnOnFloatingPointNarrowingConversion: false
 InlayHints:
