@@ -1,4 +1,4 @@
-#include "nth_largest.hpp"
+#include "nth_minium.hpp"
 
 #include <algorithm>
 #include <random>
@@ -7,18 +7,18 @@
 #include "alg.hpp"
 #include "xlog.hpp"
 
-void NthLargest::register_test() {
+void NthMinium::register_test() {
     auto test = []() {
         std::vector<int> v;
         v.resize(10);
-        for (int i = 0; i < v.size(); ++i) {
-            v[i] = (std::size_t)i;
+        for (int i = 0; i < (int)v.size(); ++i) {
+            v[i] = i;
         }
         std::shuffle(v.begin(), v.end(), std::default_random_engine());
         std::string str_a = output_elements(v);
 
-        NthLargest::index nth_index = 5;
-        NthLargest nth(v.data(), v.size(), nth_index);
+        NthMinium::index nth_index = 4;
+        NthMinium nth(v.data(), v.size(), nth_index);
         int nth_val = nth.nth();
 
         xlog_dbg("array: %s", str_a.c_str());
@@ -30,10 +30,10 @@ void NthLargest::register_test() {
     MainAlgManager::getInstance().add("nth largest", funcs);
 }
 
-NthLargest::NthLargest(int *data, index num, index nth)
+NthMinium::NthMinium(int *data, index num, index nth)
     : data_(data), size_(num), nth_(nth) {}
 
-NthLargest::index NthLargest::group(index begin, index last, index sep) {
+NthMinium::index NthMinium::group(index begin, index last, index sep) {
     index i1 = begin;
     index i2 = begin;
 
@@ -51,24 +51,30 @@ NthLargest::index NthLargest::group(index begin, index last, index sep) {
     return i1;
 }
 
-int NthLargest::nth(index begin, index last, index n) {
+int NthMinium::nth(index begin, index last, index n) {
     if (begin == last) {
         return data_[begin];
     }
 
-    index mid = group(begin, last, 0);
-    index left_num = mid - begin + 1;
-    index right_num = last - mid + 1;
+    xlog_dbg("n: %lu", n);
+    xlog_dbg("1arr: %s", output_elements(data_, begin, last + 1).c_str());
+
+    index mid = group(begin, last, begin);
+    index left_num = mid - begin;
+
+    xlog_dbg("2arr: %s", output_elements(data_, begin, last + 1).c_str());
+    xlog_dbg("begin: %lu, last: %lu, mid: %lu", begin, last, mid);
+
     if (n == left_num) {
-        return data_[n];
+        return data_[mid];
     } else if (n < left_num) {
         return nth(begin, mid - 1, n);
     } else {
-        return nth(mid + 1, last, n - left_num);
+        return nth(mid + 1, last, n - left_num - 1);
     }
 }
 
-int NthLargest::nth() {
+int NthMinium::nth() {
     if (size_ > 0) {
         return nth(0, size_ - 1, nth_);
     }

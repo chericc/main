@@ -33,3 +33,12 @@ std::string output_elements(T_ const& c) {
     }
     return ss.str();
 }
+
+template <typename PtrType_, typename SizeType_>
+std::string output_elements(PtrType_ data, SizeType_ begin, SizeType_ end) {
+    std::stringstream ss;
+    for (SizeType_ i = begin; i < end; ++i) {
+        ss << data[i] << " ";
+    }
+    return ss.str();
+}

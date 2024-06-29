@@ -2,10 +2,10 @@
 
 #include <cstddef>
 
-class NthLargest {
+class NthMinium {
    public:
     using index = std::size_t;
-    NthLargest(int *data, index num, index nth);
+    NthMinium(int *data, index num, index nth);
     int nth();
     static void register_test();
 
