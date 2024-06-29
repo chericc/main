@@ -11,7 +11,7 @@ void NthLargest::register_test() {
     auto test = []() {
         std::vector<int> v;
         v.resize(10);
-        for (std::size_t i = 0; i < v.size(); ++i) {
+        for (int i = 0; i < v.size(); ++i) {
             v[i] = (std::size_t)i;
         }
         std::shuffle(v.begin(), v.end(), std::default_random_engine());
@@ -29,6 +29,9 @@ void NthLargest::register_test() {
     funcs["base"] = test;
     MainAlgManager::getInstance().add("nth largest", funcs);
 }
+
+NthLargest::NthLargest(int *data, index num, index nth)
+    : data_(data), size_(num), nth_(nth) {}
 
 NthLargest::index NthLargest::group(index begin, index last, index sep) {
     index i1 = begin;
@@ -48,4 +51,26 @@ NthLargest::index NthLargest::group(index begin, index last, index sep) {
     return i1;
 }
 
-int NthLargest::nth() {}
+int NthLargest::nth(index begin, index last, index n) {
+    if (begin == last) {
+        return data_[begin];
+    }
+
+    index mid = group(begin, last, 0);
+    index left_num = mid - begin + 1;
+    index right_num = last - mid + 1;
+    if (n == left_num) {
+        return data_[n];
+    } else if (n < left_num) {
+        return nth(begin, mid - 1, n);
+    } else {
+        return nth(mid + 1, last, n - left_num);
+    }
+}
+
+int NthLargest::nth() {
+    if (size_ > 0) {
+        return nth(0, size_ - 1, nth_);
+    }
+    return -1;
+}
