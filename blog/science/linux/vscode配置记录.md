@@ -67,9 +67,9 @@ Enjoy it.
         "--completion-style=bundled",
         "--ranking-model=decision_forest",
         "-j=1",
-        "--background-index", 
+        "--background-index",
     ],
-    "clangd.path": "/home/test/opensrc/clangd/clangd_17.0.3/bin/clangd"
+    "clangd.path": "/home/test/opensrc/clangd/clangd_18.1.3/bin/clangd",
 }
 ```
 
@@ -104,4 +104,25 @@ InlayHints:
 
 ```json
     "editor.rulers": [96]
+```
+
+## clang-format
+
+```json
+
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "xaver.clang-format",
+    "editor.formatOnType": true,
+    "editor.formatOnPaste": true,
+    "editor.detectIndentation": false
+
+```cfg
+
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+BasedOnStyle: Google
+IndentWidth: 4
+
+Language: Cpp
+# Force pointers to the type for C++.
+
 ```
