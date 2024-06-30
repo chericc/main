@@ -29,7 +29,7 @@ add_compile_options(-Wall -Wextra)
 endif()
 
 # main
-set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/main.cpp)
+set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/test.cpp)
 
 # resource
 set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
