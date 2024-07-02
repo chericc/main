@@ -180,6 +180,22 @@ do
 done
 ```
 
+## 函数
+
+```bash
+
+func_test()
+{
+    echo "func in"
+    echo "param number: $#"
+    echo "first param is $1"
+    echo "second param is $2"
+    echo "func out"
+}
+
+func_test "hello world" 123
+
+```
 
 ## 分隔符调整
 
