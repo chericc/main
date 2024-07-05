@@ -1,3 +1,4 @@
+#!/bin/bash
 targetfolder=~/diff
 
 echo "target folder is $targetfolder"
