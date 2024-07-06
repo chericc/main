@@ -6,6 +6,6 @@
 
 namespace Tree {
 
-std::string btree2dot(const BTreeNode *node);
+std::string print_tree(BTreeNode *root);
 
 }
