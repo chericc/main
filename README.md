@@ -118,4 +118,7 @@ sudo chmod 775 /usr/bin/plantuml
 sudo apt-get install libssl-dev doxygen
 cmake ../libevent-2.1.12-stable -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DEVENT__LIBRARY_TYPE=SHARED -DCMAKE_BUILD_TYPE=Release -DEVENT__DOXYGEN=ON
 
+# cjson
+cmake ../cJSON-1.7.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DENABLE_CJSON_UTILS=ON
+
 ```

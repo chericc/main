@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(main)
 
+message("compiler is " ${CMAKE_CXX_COMPILER_ID})
+
 # platform
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
@@ -103,6 +105,12 @@ endif()
 set(G_LIBEVENT_LIB_PATH ${G_LIBEVENT_PATH}/lib)
 set(G_LIBEVENT_INC_PATH ${G_LIBEVENT_PATH}/include)
 
+# cjson
+set(G_CJSON_LIBS cjson cjson_utils)
+set(G_CJSON_PATH ~/opensrc/cjson/build/output)
+set(G_CJSON_LIB_PATH ${G_CJSON_PATH}/lib)
+set(G_CJSON_INC_PATH ${G_CJSON_PATH}/include)
+
 # test_comm just for test use
 set(G_TEST_COMM test_comm)
 set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
@@ -155,6 +163,10 @@ set(G_PCAP2TS_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/pcap2ts)
 link_directories(${G_GOOGLETEST_LIB_PATH})
 include_directories(${G_GOOGLETEST_INC_PATH})
 
+if(${gnu})
+link_libraries(pthread)
+endif()
+
 # ctest
 
 include(CTest)
@@ -170,6 +182,7 @@ option(WITH_FFMPEG  "has ffmpeg(library)" OFF)
 option(WITH_OPENGL "has OpenGL environment" OFF)
 option(WITH_LIBEVENT "has libevent" OFF)
 option(WITH_SDL "has SDL" OFF)
+option(WITH_CJSON "has cJSON" OFF)
 option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
 if (USE_ASAN)
@@ -212,6 +225,7 @@ add_subdirectory(audio/wav/demuxer)
 add_subdirectory(cs/DesignPatterns)
 add_subdirectory(cs/Algorithm)
 
+add_subdirectory(demos/cjson)
 add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/network)
 
