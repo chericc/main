@@ -233,6 +233,8 @@ if(WITH_SDL)
 add_subdirectory(demos/sdl)
 endif()
 
+add_subdirectory(demos/tinyframe)
+
 add_subdirectory(image)
 
 if(${gnu})
