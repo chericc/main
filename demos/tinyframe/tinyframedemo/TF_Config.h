@@ -25,9 +25,9 @@
 // !!! BOTH PEERS MUST USE THE SAME SETTINGS !!!
 
 // Adjust sizes as desired (1,2,4)
-#define TF_ID_BYTES     4
-#define TF_LEN_BYTES    4
-#define TF_TYPE_BYTES   4
+#define TF_ID_BYTES     1
+#define TF_LEN_BYTES    1
+#define TF_TYPE_BYTES   1
 
 // Checksum type. Options:
 //   TF_CKSUM_NONE, TF_CKSUM_XOR, TF_CKSUM_CRC8, TF_CKSUM_CRC16, TF_CKSUM_CRC32

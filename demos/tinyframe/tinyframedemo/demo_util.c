@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-void hex_dump_a(uint8_t const*buf, int len, const char *func, int line)
+void hex_dump_a(const char *desc, uint8_t const*buf, int len, const char *func, int line)
 {
     char outputbuf[512];
     outputbuf[0] = 0;
@@ -22,7 +22,7 @@ void hex_dump_a(uint8_t const*buf, int len, const char *func, int line)
 
         fprintf(fp, "[%d]", len);
 
-        int dump_len = (len > 16 ? 16 : len);
+        int dump_len = (len > 32 ? 32 : len);
 
         int bytes_write = 0;
         for (int i = 0; i < dump_len; ++i) {
@@ -37,7 +37,7 @@ void hex_dump_a(uint8_t const*buf, int len, const char *func, int line)
         }
         fflush(fp);
 
-        APP_LOGE("%s(in: %s,%d)\n", outputbuf, func, line);
+        APP_LOGW("%s:%s(in: %s,%d)\n", desc, outputbuf, func, line);
     } while (0);
     
     if (fp) {
