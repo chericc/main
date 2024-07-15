@@ -126,3 +126,18 @@ Language: Cpp
 # Force pointers to the type for C++.
 
 ```
+
+## max_user_watches
+
+```bash
+cat /proc/sys/fs/inotify/max_user_watches
+# /etc/sysctl.conf
+fs.inotify.max_user_watches=524288
+# sudo sysctl -p
+
+"files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/*/**": true
+  }
+```
