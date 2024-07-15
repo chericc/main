@@ -38,7 +38,7 @@ void TF_ReleaseTx(TinyFrame *tf) {
     pthread_mutex_unlock(&s_mutex);
 }
 
-TF_Result generic_listener(TinyFrame *tf, TF_Msg *msg) {
+TF_Result demo1_generic_listener(TinyFrame *tf, TF_Msg *msg) {
     APP_LOGW(
         "msg: \n"
         "frame_id: %x\n"
@@ -55,7 +55,7 @@ void demo1() {
     // 初始化
     TinyFrame *tf = TF_Init(TF_MASTER);
 
-    TF_AddGenericListener(tf, generic_listener);
+    TF_AddGenericListener(tf, demo1_generic_listener);
 
     // 模拟给底板发消息
     char cmd[] = "cmd: move left";
@@ -77,7 +77,7 @@ void demo1() {
     return;
 }
 
-TF_Result id_listener(TinyFrame *tf, TF_Msg *msg) {
+TF_Result demo2_id_listener(TinyFrame *tf, TF_Msg *msg) {
     APP_LOGW("listen msg(id=%#x,type=%#x): %s\n", msg->frame_id, msg->type, msg->data);
     return TF_CLOSE;
 }
@@ -90,15 +90,31 @@ void demo2() {
     msg.data = data;
     msg.len = sizeof(data);
     msg.type = 0x56;
-    TF_Query(tf, &msg, id_listener, 5);
+    TF_Query(tf, &msg, demo2_id_listener, 5);
     APP_LOGW("sending msg id: %#x\n", msg.frame_id);
-    TF_Query(tf, &msg, id_listener, 5);
+    TF_Query(tf, &msg, demo2_id_listener, 5);
     APP_LOGW("sending msg id: %#x\n", msg.frame_id);
+    TF_DeInit(tf);
+}
+
+TF_Result generic_listener_demo3(TinyFrame *tf, TF_Msg *msg) {
+    APP_LOGW("listen msg(id=%#x,type=%#x): %s\n", msg->frame_id, msg->type, msg->data);
+    return TF_CLOSE;
+}
+
+void demo3() {
+    
+    uint8_t raw_msg[] = { 0x01, 0x80, 0x06, 0x56, 0x8a, 0x83, 0x71, 0x75, 0x65, 0x72, 0x79, 0x00, 0x6d, 0x1a, };
+
+    TinyFrame *tf = TF_Init(TF_MASTER);
+    TF_AddGenericListener(tf, generic_listener_demo3);
+    TF_Accept(tf, raw_msg, sizeof(raw_msg));
     TF_DeInit(tf);
 }
 
 int main() {
     // demo1();
-    demo2();
+    // demo2();
+    demo3();
     return 0;
 }
