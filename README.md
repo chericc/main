@@ -74,7 +74,7 @@ export LIBS="-pthread"
 cmake ../gperftools-2.10 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=OFF
 ## with libunwind
 ## note: libunwind version is restricted
-CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON
+CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
 ## cross
 CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
 ## cross2
@@ -120,5 +120,14 @@ cmake ../libevent-2.1.12-stable -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DEVENT__LI
 
 # cjson
 cmake ../cJSON-1.7.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DENABLE_CJSON_UTILS=ON
+
+# iperf
+## cross
+export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
+export LIBS="-pthread"
+../iperf-3.17.1/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-static-bin
+## x86
+../iperf-3.17.1/configure --prefix=$(pwd)/output --enable-static-bin
 
 ```
