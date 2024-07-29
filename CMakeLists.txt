@@ -111,6 +111,12 @@ set(G_CJSON_PATH ~/opensrc/cjson/build/output)
 set(G_CJSON_LIB_PATH ${G_CJSON_PATH}/lib)
 set(G_CJSON_INC_PATH ${G_CJSON_PATH}/include)
 
+# curl
+set(G_CURL_LIBNAME curl)
+set(G_CURL_PATH ~/opensrc/curl/build/output)
+set(G_CURL_LIB_PATH ${G_CURL_PATH}/lib)
+set(G_CURL_INC_PATH ${G_CURL_PATH}/include)
+
 # test_comm just for test use
 set(G_TEST_COMM test_comm)
 set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
@@ -183,6 +189,7 @@ option(WITH_OPENGL "has OpenGL environment" OFF)
 option(WITH_LIBEVENT "has libevent" OFF)
 option(WITH_SDL "has SDL" OFF)
 option(WITH_CJSON "has cJSON" OFF)
+option(WITH_CURL "has curl" OFF)
 option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
 if (USE_ASAN)
@@ -227,6 +234,7 @@ add_subdirectory(cs/Algorithm)
 
 add_subdirectory(demos/cjson)
 add_subdirectory(demos/ffmpeg)
+add_subdirectory(demos/curl)
 add_subdirectory(demos/network)
 
 if(WITH_SDL)

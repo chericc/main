@@ -130,4 +130,7 @@ export LIBS="-pthread"
 ## x86
 ../iperf-3.17.1/configure --prefix=$(pwd)/output --enable-static-bin
 
+# libcurl
+../curl-7.55.0/configure --prefix=$(pwd)/output 
+
 ```
