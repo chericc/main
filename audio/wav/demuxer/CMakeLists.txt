@@ -20,6 +20,7 @@ target_link_libraries(${G_XWAV_DEMUXER}
     ${G_XTOOLS})
 
 # tests
+if(WITH_GTEST)
 
 if(${gnu})
 set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS} pthread)
@@ -40,3 +41,5 @@ target_include_directories(${WAV_DEMUXER_TEST}
     PRIVATE ${G_TSET_COMM_HEADER_PATH})
 add_test(NAME ${WAV_DEMUXER_TEST}
     COMMAND ${WAV_DEMUXER_TEST})
+
+endif()

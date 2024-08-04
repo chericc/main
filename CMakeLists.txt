@@ -183,6 +183,7 @@ include(CTest)
 
 option(USE_ASAN "use asan(ASAN)" OFF)
 option(USE_BIG_ENDIAN "big endian" OFF)
+option(WITH_GTEST "has googletest" OFF)
 option(WITH_FREETYPE "has freetype(library)" OFF)
 option(WITH_FFMPEG  "has ffmpeg(library)" OFF)
 option(WITH_OPENGL "has OpenGL environment" OFF)
@@ -233,8 +234,9 @@ add_subdirectory(cs/DesignPatterns)
 add_subdirectory(cs/Algorithm)
 
 add_subdirectory(demos/cjson)
-add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/curl)
+add_subdirectory(demos/ffmpeg)
+add_subdirectory(demos/mjson)
 add_subdirectory(demos/network)
 
 if(WITH_SDL)

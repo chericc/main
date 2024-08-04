@@ -64,12 +64,16 @@ add_library(${G_XTOOLS} SHARED
 
 # tests
 
+if(WITH_GTEST)
+set(TEST_LIB ${G_GOOGLETEST} ${G_TEST_COMM})
+endif()
+
 if(${gnu})
-set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XTOOLS} pthread)
+set(COMMON_LIB ${TEST_LIB} ${G_XTOOLS} pthread)
 elseif(${msvc})
-set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XTOOLS})
+set(COMMON_LIB ${TEST_LIB} ${G_XTOOLS})
 elseif(${clang})
-set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XTOOLS})
+set(COMMON_LIB ${TEST_LIB} ${G_XTOOLS})
 endif()
 
 # demo_xlog
@@ -77,6 +81,7 @@ add_executable(${XTOOL_TEST_XLOG_DEMO}
         ${src_xlog_demo})
 target_link_libraries(${XTOOL_TEST_XLOG_DEMO} ${COMMON_LIB})
 
+if(WITH_GTEST)
 # test_xthread
 add_executable(${XTOOL_TEST_XTHREAD} 
         ${src_xthread_test}
@@ -130,16 +135,6 @@ target_include_directories(${XTOOL_TEST_XIO}
 add_test(NAME ${XTOOL_TEST_XIO}
         COMMAND ${XTOOL_TEST_XIO})
 
-# demo_xtimer
-add_executable(${XTOOL_DEMO_XTIMER} 
-        ${src_xtimer_demo})
-target_link_libraries(${XTOOL_DEMO_XTIMER} ${COMMON_LIB})
-
-# demo_xtest_clock
-add_executable(${XTOOL_DEMO_XTEST_CLOCK}
-        ${src_xtest_clock_demo})
-target_link_libraries(${XTOOL_DEMO_XTEST_CLOCK} ${COMMON_LIB})
-
 add_executable(${XTOOL_TEST_XTEST_CLOCK}
         ${src_xtest_clock_test}
         ${G_GOOGLETEST_MAIN_SRCFILE})
@@ -162,3 +157,14 @@ add_executable(${XTOOL_TEST_XUTILITY_XPERFTEST}
 target_link_libraries(${XTOOL_TEST_XUTILITY_XPERFTEST} ${COMMON_LIB})
 add_test(NAME ${XTOOL_TEST_XUTILITY_XPERFTEST}
         COMMAND ${XTOOL_TEST_XUTILITY_XPERFTEST})
+endif()
+
+# demo_xtimer
+add_executable(${XTOOL_DEMO_XTIMER} 
+        ${src_xtimer_demo})
+target_link_libraries(${XTOOL_DEMO_XTIMER} ${COMMON_LIB})
+
+# demo_xtest_clock
+add_executable(${XTOOL_DEMO_XTEST_CLOCK}
+        ${src_xtest_clock_demo})
+target_link_libraries(${XTOOL_DEMO_XTEST_CLOCK} ${COMMON_LIB})

@@ -22,6 +22,7 @@ elseif(${clang})
 set(COMMON_LIB ${G_GOOGLETEST} ${G_XTOOLS} ${G_TEXTENC} )
 endif()
 
+if(WITH_GTEST)
 add_executable(${L_TESTENC_UTF8_TEST}
     ${src_utf8_test}
     ${G_GOOGLETEST_MAIN_SRCFILE})
@@ -29,3 +30,4 @@ target_link_libraries(${L_TESTENC_UTF8_TEST}
     ${COMMON_LIB})
 add_test(NAME ${L_TESTENC_UTF8_TEST}
         COMMAND ${L_TESTENC_UTF8_TEST})
+endif()
