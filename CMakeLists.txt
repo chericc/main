@@ -237,6 +237,7 @@ add_subdirectory(demos/cjson)
 add_subdirectory(demos/curl)
 add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/mjson)
+add_subdirectory(demos/mkdir)
 add_subdirectory(demos/network)
 
 if(WITH_SDL)
