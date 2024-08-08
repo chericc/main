@@ -270,8 +270,8 @@ set-executionpolicy restricted
 conda info --envs
 
 # 
-conda create -n python_2_7 python=2.7
-conda remove -n python_2_7 --all
+conda create -n python27 python=2.7
+conda remove -n python27 --all
 
 ```
 

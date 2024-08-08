@@ -1,4 +1,10 @@
 #!/bin/bash
+
+# cd into sdk root dir
+# run cmd:
+# repo forall -c sh ~/git_gen_diff_dir_workspace.sh
+# cp files in ~/diff_worksapce/ into this project to log diff
+
 targetfolder=~/diff_workspace
 
 gitdirpath=`git rev-parse --show-toplevel`
