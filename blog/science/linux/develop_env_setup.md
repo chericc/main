@@ -248,6 +248,9 @@ python3 -m pip install --upgrade pip
 # help
 conda config --help
 
+conda config --set auto_activate_base false
+conda init --reverse $SHELL
+
 # source
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
