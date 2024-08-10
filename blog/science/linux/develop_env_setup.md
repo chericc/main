@@ -287,6 +287,8 @@ python3 -m pip config set global.index-url https://pypi.mirrors.ustc.edu.cn/simp
 
 ## 代理
 
+### tinyproxy
+
 ```bash
 
 # tiny proxy is a proxy server.
@@ -314,7 +316,15 @@ listen-address 0.0.0.0:55554
 
 ```
 
+### http proxy
+
 ```bash
+
+export http_proxy="http://10.0.0.2:7897"
+export https_proxy="http://10.0.0.2:7897"
+
+export http_proxy="http://192.168.1.235:7897"
+export https_proxy="http://192.168.1.235:7897"
 
 # proxy setting for git
 
@@ -401,12 +411,8 @@ sudo vim /etc/tomcat9/web.xml
  <servlet>
 ```
 
-### proxy
+## proxy
 
-```bash
-export http_proxy="http://10.0.0.2:7897"
-export https_proxy="http://10.0.0.2:7897"
-```
 
 ## tmux
 
