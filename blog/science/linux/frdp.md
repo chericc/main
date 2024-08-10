@@ -37,3 +37,30 @@ remotePort = 16000
 ssh -p 16000 -l test x.x.x.x
 
 ```
+
+
+## cfg-p2p
+
+```bash
+# frps.toml
+bindPort = 17000
+auth.additionalScopes = ["NewWorkConns"]
+auth.method = "token"
+auth.token = "123123abc"
+```
+
+```bash
+# frpc.toml
+serverAddr = "39.107.190.156"
+serverPort = 17000
+auth.additionalScopes = ["NewWorkConns"]
+auth.method = "token"
+auth.token = "123123abc"
+
+[[proxies]]
+name = "ssh"
+type = "tcp"
+localIP = "127.0.0.1"
+localPort = 22
+remotePort = 16000
+```
