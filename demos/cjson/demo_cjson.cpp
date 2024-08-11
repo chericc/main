@@ -24,8 +24,27 @@ void demo2()
     cJSON_free(json);
 }
 
+void demo3()
+{
+    cJSON *root = cJSON_CreateObject();
+    cJSON_AddNumberToObject(root, "total", 50);
+
+    cJSON *arr = cJSON_CreateArray();
+    for (int i = 0; i < 2; ++i) {
+        cJSON *sub = cJSON_CreateObject();
+        cJSON_AddNumberToObject(sub, "name", i);
+        cJSON_AddItemToArray(arr, sub);
+    }
+    cJSON_AddItemToObject(root, "names", arr);
+
+    char *json = cJSON_Print(root);
+    cJSON_Delete(root);
+    xlog_dbg("json: \n%s\n", json);
+    cJSON_free(json);
+}
+
 int main()
 {
-    demo1();
+    demo3();
     return 0;
 }
