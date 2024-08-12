@@ -20,7 +20,7 @@ bindPort = 17000
 # target host
 
 # frpc.toml
-serverAddr = "39.107.190.156"
+serverAddr = "x.x.x.x"
 serverPort = 17000
 
 [[proxies]]
@@ -51,7 +51,7 @@ auth.token = "123123abc"
 
 ```bash
 # frpc.toml
-serverAddr = "39.107.190.156"
+serverAddr = "x.x.x.x"
 serverPort = 17000
 auth.additionalScopes = ["NewWorkConns"]
 auth.method = "token"
