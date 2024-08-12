@@ -44,23 +44,47 @@ ssh -p 16000 -l test x.x.x.x
 ```bash
 # frps.toml
 bindPort = 17000
-auth.additionalScopes = ["NewWorkConns"]
 auth.method = "token"
-auth.token = "123123abc"
+auth.token="ccc"
 ```
 
 ```bash
 # frpc.toml
 serverAddr = "x.x.x.x"
 serverPort = 17000
-auth.additionalScopes = ["NewWorkConns"]
 auth.method = "token"
-auth.token = "123123abc"
+auth.token="ccc"
+# set up a new stun server if the default one is not available.
+# natHoleStunServer = "xxx"
 
 [[proxies]]
-name = "ssh"
-type = "tcp"
+name = "p2p_ssh"
+type = "xtcp"
+secretKey = "xxx"
 localIP = "127.0.0.1"
 localPort = 22
-remotePort = 16000
+```
+
+```bash
+# frpc.toml
+serverAddr = "x.x.x.x"
+serverPort = 17000
+auth.method = "token"
+auth.token="ccc"
+# set up a new stun server if the default one is not available.
+# natHoleStunServer = "xxx"
+
+[[visitors]]
+name = "p2p_ssh_visitor"
+type = "xtcp"
+serverName = "p2p_ssh"
+secretKey = "xxx"
+bindAddr = "127.0.0.1"
+bindPort = 16000
+# when automatic tunnel persistence is required, set it to true
+keepTunnelOpen = false
+```
+
+```bash
+ssh -p 16000 127.0.0.1
 ```
