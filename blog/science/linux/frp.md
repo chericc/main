@@ -1,4 +1,4 @@
-# frdp
+# frp
 
 ## site
 
@@ -73,6 +73,14 @@ auth.method = "token"
 auth.token="ccc"
 # set up a new stun server if the default one is not available.
 # natHoleStunServer = "xxx"
+
+webServer.addr = "127.0.0.1"
+webServer.port = 7400
+webServer.user = "admin"
+webServer.password = "admin"
+
+transport.useEncryption = true
+transport.useCompression = true
 
 [[visitors]]
 name = "p2p_ssh_visitor"
