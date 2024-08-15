@@ -87,4 +87,5 @@ keepTunnelOpen = false
 
 ```bash
 ssh -p 16000 127.0.0.1
+rsync -e "ssh -p 16000" dir 127.0.0.1://dir
 ```
