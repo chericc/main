@@ -86,7 +86,7 @@ void demo2() {
     TinyFrame *tf = TF_Init(TF_MASTER);
     TF_Msg msg = {0};
     TF_ClearMsg(&msg);
-    char data[] = "query";
+    uint8_t data[] = "query";
     msg.data = data;
     msg.len = sizeof(data);
     msg.type = 0x56;
