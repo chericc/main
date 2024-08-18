@@ -5,7 +5,7 @@
 namespace Tree {
 
 class RBTree {
-    enum {
+    enum Color{
         Black,
         Red,
     };
@@ -37,6 +37,12 @@ class RBTree {
     int insert(value_t const &value);
     int exist(value_t const &value);
     int remove(value_t const &value);
+
+private:
+
+    void left_rotate(BTreeNode *node);
+    void right_rotate(BTreeNode *node);
+
     BTreeNode *null_ = nullptr;
     BTreeNode *root_ = nullptr;
 };
