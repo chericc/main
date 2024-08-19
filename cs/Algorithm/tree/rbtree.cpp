@@ -107,4 +107,43 @@ void RBTree::right_rotate(BTreeNode *node_y)
     return ;
 }
 
+void RBTree::insert(BTreeNode *node)
+{
+    BTreeNode *it_p = null_;
+    BTreeNode *it = root_;
+
+    while (it != null_) {
+        it_p = it;
+        if (it->value() < node->value()) {
+            it = it->left();
+        } else {
+            it = it->right();
+        }
+    }
+
+    // parent
+    if (it_p == null_) { // no parent
+        root_ = node;
+    } else {
+        if (node->value() < it_p->value()) {
+            it_p->set_left(node);
+        } else {
+            it_p->set_right(node);
+        }
+    }
+
+    // node
+    node->set_parent(it_p);
+    node->set_left(null_);
+    node->set_right(null_);
+
+    insert_fix(node);
+    return ;
+}
+
+void RBTree::insert_fix(BTreeNode *node)
+{
+    
+}
+
 }

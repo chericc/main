@@ -43,6 +43,9 @@ private:
     void left_rotate(BTreeNode *node);
     void right_rotate(BTreeNode *node);
 
+    void insert(BTreeNode *node);
+    void insert_fix(BTreeNode *node);
+
     BTreeNode *null_ = nullptr;
     BTreeNode *root_ = nullptr;
 };
