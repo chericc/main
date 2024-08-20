@@ -2,6 +2,18 @@
 
 #include "treenode.hpp"
 
+/*
+
+rb-tree quality:
+
+1. node is black or red.
+2. root is black.
+3. leaf is black, leaf is null node.
+4. children node of red node is black.
+5. black height is all equal.
+
+*/
+
 namespace Tree {
 
 class RBTree {
@@ -21,10 +33,13 @@ class RBTree {
         void set_right(BTreeNode *node) override { right_ = node; }
         value_t const &value() override { return value_; }
         void set_value(value_t const &value) override { value_ = value; }
-        std::string to_text() override { return std::to_string(value_); };
+        std::string to_text() override { return std::to_string(value_); }
+        void set_color(Color color) { color_ = color; }
+        Color color() { return color_; }
 
        private:
         value_t value_ = -1;
+        Color color_ = Red;
         BTreeNode *left_ = nullptr;
         BTreeNode *right_ = nullptr;
         BTreeNode *parent_ = nullptr;

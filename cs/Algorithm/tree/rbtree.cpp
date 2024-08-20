@@ -136,6 +136,9 @@ void RBTree::insert(BTreeNode *node)
     node->set_parent(it_p);
     node->set_left(null_);
     node->set_right(null_);
+    
+    auto rbnode = static_cast<RBTreeNode*>(node);
+    rbnode->set_color(Red);
 
     insert_fix(node);
     return ;
@@ -143,7 +146,24 @@ void RBTree::insert(BTreeNode *node)
 
 void RBTree::insert_fix(BTreeNode *node)
 {
-    
+/*
+
+INIT CONDITION:
+
+- z is red node added.
+- if z.p is root, then z.p is black.
+- rb-tree quality 1(i.e. q1), q3, q5 is ok.
+
+if q2 is not ok, then new node is root.
+if q4 is not ok, then new node is child of red node.
+
+only one rule can be broke at init condition.
+
+TERMINATE CONDITION: 
+
+
+
+*/
 }
 
 }
