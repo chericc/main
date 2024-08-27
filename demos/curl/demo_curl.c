@@ -2,6 +2,31 @@
 #include <curl/curl.h>
 
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+struct CBC {
+    char *buf;
+    size_t pos;
+    size_t size;
+};
+
+size_t write_data(void *ptr, size_t size, size_t nmemb, void *ctx)
+{
+    struct CBC *cbc = ctx;
+
+    if (!cbc || !cbc->buf) {
+        return 0;
+    }
+
+    if (cbc->pos + size * nmemb > cbc->size) {
+        return 0; /* overflow */
+    }
+    memcpy(&cbc->buf[cbc->pos], ptr, size * nmemb);
+    cbc->pos += size * nmemb;
+
+    return size * nmemb;
+}
 
 // Custom debug callback function (optional)
 static int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
@@ -38,18 +63,14 @@ static int debug_callback(CURL *handle, curl_infotype type, char *data, size_t s
     return 0;
 }
 
-int main(void) {
+static int curl_demo_post()
+{
     CURL *curl;
     CURLcode res;
-    const char *url = "http://114.80.110.25:6001/api/device/binding";
-    const char *json_data = 
-        "{\n"
-        "    \"bindKey\":      \"283f15fae2934c8cadd61174fcf20606\",\n"
-        "    \"devId\":        \"791c3a200000a865\"\n"
-        "}\";";
+    const char *url = "http://hello.com";
+    const char *json_data = "{ \"hello\" = 1 }";
 
     // Initialize libcurl
-    curl_global_init(CURL_GLOBAL_ALL);
     curl = curl_easy_init();
 
     if(curl) {
@@ -91,5 +112,58 @@ int main(void) {
     }
 
     curl_global_cleanup();
+    return 0;
+
+}
+
+
+
+static int curl_demo_request()
+{
+    CURL *curl = NULL;
+
+    do {
+        curl = curl_easy_init();
+        if (!curl) {
+            printf("curl null\n");
+            break;
+        }
+
+        char response[64 * 1024];
+        struct CBC cbc = { 0 };
+        cbc.buf = response;
+        cbc.size = sizeof(response) - 1;
+        response[sizeof(response) - 1] = 0;
+
+        curl_easy_setopt(curl, CURLOPT_URL, "http://39.107.190.156:10086");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &cbc);
+        curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, debug_callback);
+
+        int ret = curl_easy_perform(curl);
+        if (ret != CURLE_OK) {
+            printf("perform fail\n");
+            break;
+        }
+
+        printf("response: %s\n", response);
+    } while (0);
+
+    if (curl) {
+        curl_easy_cleanup(curl);
+        curl = NULL;
+    }
+
+    return 0;
+}
+
+int main(void) 
+{
+    curl_global_init(CURL_GLOBAL_DEFAULT);
+
+    curl_demo_request();
+
+    curl_global_cleanup();
+
     return 0;
 }
