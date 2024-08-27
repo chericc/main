@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 
 void test1()
 {
@@ -19,8 +20,26 @@ void test2()
     printf("ret=%d, str1=%s, str2=%s\n", ret, str1, str2);
 }
 
+void test_utc()
+{
+    char str[] = "2024-08-27T10:12:29.791Z";
+
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+    sscanf(str, "%4d-%2d-%2dT%2d:%2d:%2d", 
+        &year, &month, &day, &hour, &minute, &second);
+    printf("scanf: %04d-%02d-%02d %02d:%02d:%02d\n", 
+        year, month, day, hour, minute, second);
+    
+    return ;
+}
+
 int main() 
 {
-    test2();
+    test_utc();
     return 0;
 }
