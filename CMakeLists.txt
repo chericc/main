@@ -168,6 +168,7 @@ set(G_PCAP2TS_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/pcap2ts)
 
 link_directories(${G_GOOGLETEST_LIB_PATH})
 include_directories(${G_GOOGLETEST_INC_PATH})
+include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
 
 if(${gnu})
 link_libraries(pthread)
@@ -239,6 +240,7 @@ add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/mjson)
 add_subdirectory(demos/mkdir)
 add_subdirectory(demos/network)
+add_subdirectory(demos/h264_sei)
 
 if(WITH_SDL)
 add_subdirectory(demos/sdl)
