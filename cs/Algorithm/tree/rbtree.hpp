@@ -33,7 +33,10 @@ class RBTree {
         void set_right(BTreeNode *node) override { right_ = node; }
         value_t const &value() override { return value_; }
         void set_value(value_t const &value) override { value_ = value; }
-        std::string to_text() override { return std::to_string(value_); }
+        std::string to_text() override { 
+            return std::to_string(value_) + "(" + (color_ == Red ? "r" : "b")
+                + ")"; 
+        }
         void set_color(Color color) { color_ = color; }
         Color color() { return color_; }
 

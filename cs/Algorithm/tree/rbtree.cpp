@@ -146,6 +146,7 @@ void RBTree::insert(BTreeNode *node)
 
 void RBTree::insert_fix(BTreeNode *node)
 {
+
 /*
 
 INIT CONDITION:
@@ -161,9 +162,26 @@ only one rule can be broke at init condition.
 
 TERMINATE CONDITION: 
 
+- if z.p is black, then terminate.
 
+KEEP:
+
+- cond1: uncle node is red.
+ - make z's parent and uncle black
+ - make z's grandparent red
+ - only z's grandparent broke q4 or q2;
+- cond2: uncle node is black and z is right child.
+ - make z to z's parent, left rotate z. into cond3.
+- cond3: uncle node is black and z is left child.
+ - right rotate z's grandparent.
+ - make z's parent black.
+ - make z's sibling red.
+ - z'parent is black. meet terminate condition.
 
 */
+
+    
+
 }
 
 }
