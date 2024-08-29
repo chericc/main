@@ -6,6 +6,6 @@
 
 namespace Tree {
 
-std::string print_tree(BTreeNode *root);
+std::string print_tree(BTreeNode *root, BTreeNode *null);
 
 }

@@ -1,8 +1,21 @@
 #include "rbtree.hpp"
 
+#include "printtree.hpp"
 #include "xlog.hpp"
 
 namespace Tree {
+
+RBTree::Color RBTree::color(BTreeNode *node)
+{
+    Color color = static_cast<RBTreeNode*>(node)->color();
+    return color;
+}
+
+void RBTree::set_color(BTreeNode *node, Color color)
+{
+    static_cast<RBTreeNode*>(node)->set_color(color);
+    return ;
+}
 
 RBTree::RBTree() {
     null_ = new RBTreeNode();
@@ -24,6 +37,18 @@ void RBTree::destroy(BTreeNode *node) {
     null_ = nullptr;
 }
 
+int RBTree::insert(value_t const& value)
+{
+    BTreeNode *node = new RBTreeNode;
+    node->set_left(null_);
+    node->set_right(null_);
+    node->set_parent(null_);
+    node->set_value(value);
+
+    insert(node);
+    return 0;
+}
+
 void RBTree::left_rotate(BTreeNode *node_x)
 {
 /*
@@ -42,13 +67,17 @@ void RBTree::left_rotate(BTreeNode *node_x)
         BTreeNode *node_b = node_y->left();
         
         // parent
-        if (parent->left() == node_x) {
-            parent->set_left(node_y);
-        } else if (parent->right() == node_x) {
-            parent->set_right(node_y);
+        if (parent != null_) {
+            if (parent->left() == node_x) {
+                parent->set_left(node_y);
+            } else if (parent->right() == node_x) {
+                parent->set_right(node_y);
+            } else {
+                xlog_err("inner error rotating");
+                break;
+            }
         } else {
-            xlog_err("inner error rotating\n");
-            break;
+            root_ = node_y;
         }
 
         // x
@@ -60,7 +89,10 @@ void RBTree::left_rotate(BTreeNode *node_x)
         node_y->set_left(node_x);
 
         // b
-        node_b->set_parent(node_x);
+        if (node_b != null_) {
+            node_b->set_parent(node_x);
+        }
+        
     } while (0);
 
     return ;
@@ -79,17 +111,21 @@ void RBTree::right_rotate(BTreeNode *node_y)
             break;
         }
 
-        BTreeNode *parent = node_x->parent();
+        BTreeNode *parent = node_y->parent();
         BTreeNode *node_b = node_x->right();
 
         // parent
-        if (parent->left() == node_y) {
-            parent->set_left(node_x);
-        } else if (parent->right() == node_y) {
-            parent->set_right(node_x);
+        if (parent != null_) {
+            if (parent->left() == node_y) {
+                parent->set_left(node_x);
+            } else if (parent->right() == node_y) {
+                parent->set_right(node_x);
+            } else {
+                xlog_err("inner error ratating");
+                break;
+            }
         } else {
-            xlog_err("inner error ratating\n");
-            break;
+            root_ = node_x;
         }
 
         // x
@@ -101,7 +137,10 @@ void RBTree::right_rotate(BTreeNode *node_y)
         node_y->set_left(node_b);
 
         // b
-        node_b->set_parent(node_y);
+        if (node_b != null_) {
+            node_b->set_parent(node_y);
+        }
+        
     } while (0);
 
     return ;
@@ -114,7 +153,7 @@ void RBTree::insert(BTreeNode *node)
 
     while (it != null_) {
         it_p = it;
-        if (it->value() < node->value()) {
+        if (node->value() < it->value()) {
             it = it->left();
         } else {
             it = it->right();
@@ -137,11 +176,17 @@ void RBTree::insert(BTreeNode *node)
     node->set_left(null_);
     node->set_right(null_);
     
-    auto rbnode = static_cast<RBTreeNode*>(node);
-    rbnode->set_color(Red);
+    set_color(node, Red);
 
+    xlog_dbg("insert tree: \n\n%s\n\n", dump().c_str());
     insert_fix(node);
+    xlog_dbg("fix tree: \n\n%s\n\n", dump().c_str());
     return ;
+}
+
+std::string RBTree::dump()
+{
+    return print_tree(root_, null_);
 }
 
 void RBTree::insert_fix(BTreeNode *node)
@@ -179,8 +224,46 @@ KEEP:
  - z'parent is black. meet terminate condition.
 
 */
-
-    
+    while (color(node->parent()) != Black) {
+        auto parent = node->parent();
+        auto gparent = node->parent()->parent();
+        if (parent == gparent->left()) {
+            auto uncle = gparent->right();
+            if (color(uncle) == Red) {
+                set_color(parent, Black);
+                set_color(gparent, Red);
+                set_color(uncle, Black);
+                node = gparent;
+            } else {
+                if (parent->right() == node) {
+                    left_rotate(parent);
+                    node = parent;
+                } else {
+                    set_color(parent, Black);
+                    set_color(gparent, Red);
+                    right_rotate(gparent);
+                }
+            }
+        } else {
+            auto uncle = gparent->left();
+            if (color(uncle) == Red) {
+                set_color(parent, Black);
+                set_color(gparent, Red);
+                set_color(uncle, Black);
+                node = gparent;
+            } else {
+                if (parent->left() == node) {
+                    right_rotate(parent);
+                    node = parent;
+                } else {
+                    set_color(parent, Black);
+                    set_color(gparent, Red);
+                    left_rotate(gparent);
+                }
+            }
+        }
+    }
+    set_color(root_, Black);
 
 }
 
