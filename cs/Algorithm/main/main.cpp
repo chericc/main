@@ -6,6 +6,7 @@
 #include "printtreedemo.hpp"
 #include "quicksort.hpp"
 #include "xlog.hpp"
+#include "rbtreedemo.hpp"
 
 int main() {
     xlog_dbg("main start");
@@ -14,6 +15,7 @@ int main() {
     QuickSort::register_test();
     NthMinium::register_test();
     Tree::printtreedemo_registertest();
+    Tree::rbtreedemo_registertest();
 
     MainAlgManager::getInstance().listDemos();
     MainAlgManager::getInstance().runAllDemo();

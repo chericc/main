@@ -55,6 +55,7 @@ class RBTree {
     int insert(value_t const &value);
     int exist(value_t const &value);
     int remove(value_t const &value);
+    std::string dump();
 
 private:
 
@@ -63,6 +64,9 @@ private:
 
     void insert(BTreeNode *node);
     void insert_fix(BTreeNode *node);
+
+    Color color(BTreeNode *node);
+    void set_color(BTreeNode *node, Color color);
 
     BTreeNode *null_ = nullptr;
     BTreeNode *root_ = nullptr;
