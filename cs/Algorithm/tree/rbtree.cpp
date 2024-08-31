@@ -25,16 +25,23 @@ RBTree::RBTree() {
     root_ = null_;
 }
 
-RBTree::~RBTree() { destroy(root_); }
+RBTree::~RBTree() 
+{
+    destroy(root_); 
+    delete null_;
+}
 
 void RBTree::destroy(BTreeNode *node) {
     if (node != null_) {
-        destroy(node->left());
-        destroy(node->right());
+        if (node->left() != null_) {
+            destroy(node->left());
+        }
+        if (node->right() != null_) {
+            destroy(node->right());
+        }
+        
         delete node;
     }
-    delete null_;
-    null_ = nullptr;
 }
 
 int RBTree::insert(value_t const& value)
@@ -178,9 +185,7 @@ void RBTree::insert(BTreeNode *node)
     
     set_color(node, Red);
 
-    xlog_dbg("insert tree: \n\n%s\n\n", dump().c_str());
     insert_fix(node);
-    xlog_dbg("fix tree: \n\n%s\n\n", dump().c_str());
     return ;
 }
 
