@@ -197,6 +197,15 @@ func_test "hello world" 123
 
 ```
 
+```bash 
+# echo contents
+func in
+param number: 2
+first param is hello world
+second param is 123
+func out
+```
+
 ## 分隔符调整
 
 ```bash

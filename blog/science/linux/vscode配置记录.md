@@ -84,10 +84,11 @@ Diagnostics:
         portability-*,
         modernize-*,
       ]
-    Remove: 
+    Remove:
       [
         modernize-use-trailing-return-type,
         bugprone-easily-swappable-parameters,
+        modernize-use-using,
       ]
     CheckOptions:
       WarnOnFloatingPointNarrowingConversion: false
