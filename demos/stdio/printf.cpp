@@ -1,61 +1,33 @@
-// This is an example of how to use stdint.h to write code
-// that is independent from the environment.
-// For example, when we are writing
-
-#include <inttypes.h>
-#include <stdint.h>
 #include <stdio.h>
+#include <time.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-#include <limits>
+static int gen_uuid(const char *token, char *output, int output_size)
+{
+    static unsigned int call_count = 0;
+    struct timespec ts_now = {};
+    clock_gettime(CLOCK_REALTIME, &ts_now);
 
-int main() {
-    // size_t ssize_t
-    {
-        size_t size = -1;
-        ssize_t ssize = -1;
-        printf("size=%zu, ssize=%zd\n", size, ssize);
-    }
+    char ms[16] = { 0 };
+    char timestamp[16] = { 0 };
+    char call_count_str[16] = { 0 };
 
-    // ptr intptr_t
-    {
-        int a = 0;
-        int b = 0;
-        uintptr_t ptr_a = (uintptr_t)&a;
-        uintptr_t ptr_b = (uintptr_t)&b;
-        intptr_t ptr_diff = (intptr_t)(&b - &a);
-        printf("&a = %#" PRIxPTR "\n", ptr_a);
-        printf("&b = %#" PRIxPTR "\n", ptr_b);
-        printf("&b - &a = %#" PRIxPTR "\n", ptr_diff);
-    }
+    snprintf(ms, sizeof(ms), "%03d", (int)ts_now.tv_nsec / 1000 / 1000);
+    snprintf(timestamp, sizeof(timestamp), "%012d", (int)ts_now.tv_sec);
+    snprintf(call_count_str, sizeof(call_count_str), "%03d", (int)call_count);
 
-    // int8_t uint8_t ...
-    {
-        int8_t int8 = -8;
-        uint8_t uint8 = 8;
-        int16_t int16 = -16;
-        uint16_t uint16 = 16;
-        int32_t int32 = -32;
-        uint32_t uint32 = 32;
-        int64_t int64 = -64;
-        uint64_t uint64 = 64;
+    snprintf(output, output_size, "%.3s-%.12s-%.3s-%.16s", ms, timestamp, call_count_str, token);
 
-        printf("int8=%" PRId8 "\n", int8);
-        printf("uint8=%" PRIu8 "\n", uint8);
-        printf("int16=%" PRId16 "\n", int16);
-        printf("uint16=%" PRIu16 "\n", uint16);
-        printf("int32=%" PRId32 "\n", int32);
-        printf("uint32=%" PRIu32 "\n", uint32);
-        printf("int64=%" PRId64 "\n", int64);
-        printf("uint64=%" PRIu64 "\n", uint64);
-    }
+    ++call_count;
+    call_count = call_count % 1000;
+    return 0;
+}
 
-    // intmax_t
-    {
-        intmax_t big_signed_number = std::numeric_limits<intmax_t>().max();
-        uintmax_t big_unsinged_number = std::numeric_limits<uintmax_t>().max();
-        printf("intmax=%" PRIdMAX "\n", big_signed_number);
-        printf("uintmax=%" PRIuMAX "\n", big_unsinged_number);
-    }
-
+int main()
+{
+    char buf[128];
+    gen_uuid("token", buf, sizeof(buf));
+    printf("uuid: <%s>\n", buf);
     return 0;
 }
