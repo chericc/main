@@ -279,3 +279,13 @@ ffmpeg -i Food.mkv -an -vcodec libx265 -profile:v main -x265-params level-idc=50
 ffmpeg -i Food.mkv -an -vcodec libx265 -profile:v main10 -x265-params level-idc=50 -r 30 -b:v 15M -y Food_HEVC_MAIN10_50_4k.mkv
 ffmpeg -i Food.mkv -an -vcodec libx265 -profile:v main10 -x265-params level-idc=61 -b:v 2M -y Food_HEVC_MAIN10_61.mkv
 ```
+
+## libaom-av1
+
+ffmpeg -i 1.mkv -map 0:0 -c:v libaom-av1 -an -b:v 36k -cpu-used 8 out.mp4 
+--> 93.5kbps
+
+ffmpeg -i 2.m2ts -map 0:0 -c:v libaom-av1 -an -b:v 256k -cpu-used 8 out_256.mp4 
+
+ffmpeg -i 2.m2ts -map 0:0 -c:v libaom-av1 -an -b:v 256k -cpu-used 8 -pass 1 -f mp4 -y /dev/null
+
