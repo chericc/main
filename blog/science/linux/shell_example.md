@@ -70,8 +70,6 @@ if [ -f "$TESTFILE" ]; then echo "exist"; fi
 # 文件夹
 if [ -d "$TESTFILE" ]; then echo "exist"; fi
 
-# 大小比较
-if [ $log_size -gt 0 ]; then echo "bigger"; fi
 
 ```
 
@@ -150,6 +148,29 @@ echo ${var_name}
 # 双引号格式会解析其中的变量
 var_name="path: $var_path"
 echo ${var_name}
+```
+
+## 比较
+
+```bash
+# 大小比较
+if [ $log_size -gt 0 ]; then echo "bigger"; fi
+
+# -gt -lt, greater than / less than
+# -ge -le, greater equal / less equal
+# -ne -eq, not equal / equal
+
+```
+
+## 运算
+
+```bash
+
+# 计算
+param_1=6
+param_2=3
+result=$(($param_1/$param_2))
+
 ```
 
 ## 数组
@@ -452,17 +473,6 @@ echo $!
 
 # 脚本中创建的子脚本进程会因为父进程被杀而被接管，不容易查找；
 # 可以通过创建标志文件控制这些进程
-
-```
-
-## 数字计算
-
-```bash
-
-# 计算
-param_1=6
-param_2=3
-result=$(($param_1/$param_2))
 
 ```
 
