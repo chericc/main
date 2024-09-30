@@ -19,3 +19,4 @@
 - lua and so
 - seperate debug info(objcopy) blog
 - png support (png --> rgba)
+- linux kernel's free, available, between kmalloc and malloc. can kmalloc failed when available. can malloc fail when available.
