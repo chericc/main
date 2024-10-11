@@ -94,6 +94,15 @@ make test
 ## note: uni-test failed, not knowing why.
 ## libunwind is recommended
 
+# dmalloc
+export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
+export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-g++" 
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
+export CXXFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC" 
+../dmalloc-5.6.5/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-shlib
+## static into shared
+/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc  -L. -Wl,--whole-archive -ldmallocthcxx -Wl,--no-whole-archive -fPIC -shared -o tmp/libdmallocthcxx.so
+
 # benchmark
 cmake ../benchmark-1.8.0/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGOOGLETEST_PATH=/home/test/opensrc/googletest/googletest-release-1.12.1
 
