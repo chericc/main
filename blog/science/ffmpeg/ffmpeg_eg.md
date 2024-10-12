@@ -289,3 +289,39 @@ ffmpeg -i 2.m2ts -map 0:0 -c:v libaom-av1 -an -b:v 256k -cpu-used 8 out_256.mp4
 
 ffmpeg -i 2.m2ts -map 0:0 -c:v libaom-av1 -an -b:v 256k -cpu-used 8 -pass 1 -f mp4 -y /dev/null
 
+## libsvtav1
+
+ffmpeg -i 2.m2ts -c:v libx265 -an -b:v 4096k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libx265 -an -b:v 4096k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_x265_4096.mp4
+
+ffmpeg -i 2.m2ts -c:v libx264 -an -b:v 4096k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libx264 -an -b:v 4096k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_x264_4096.mp4
+
+ffmpeg -i 2.m2ts -c:v libx265 -an -b:v 1024k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libx265 -an -b:v 1024k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_x265_1024.mp4
+
+ffmpeg -i 2.m2ts -c:v libx264 -an -b:v 1024k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libx264 -an -b:v 1024k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_x264_1024.mp4
+
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 4096k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 4096k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_av1_4096.mp4
+
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_av1_2048.mp4
+
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_av1_2048.mp4
+
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 1024k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 1024k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_av1_1024.mp4
+
+### full
+
+```bash
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 2 -f mp4 -t 120 -y panda_av1_2048.mp4
+
+# add preset options
+ffmpeg -i 2.m2ts -c:v libsvtav1 -preset -2 -svtav1-params tune=0 -an -b:v 2048k -pass 1 -f mp4 -t 120 -y NUL
+ffmpeg -i 2.m2ts -c:v libsvtav1 -preset -2 -svtav1-params tune=0 -an -b:v 2048k -pass 2 -f mp4 -t 120 -y panda_av1_2048.mp4
+```
