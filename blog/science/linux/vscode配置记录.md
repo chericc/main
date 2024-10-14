@@ -59,6 +59,7 @@ Enjoy it.
 
 ```json
 {
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
     "clangd.arguments": [
         "--header-insertion=never",
         "--compile-commands-dir=build",
@@ -66,10 +67,24 @@ Enjoy it.
         "--clang-tidy",
         "--completion-style=bundled",
         "--ranking-model=decision_forest",
-        "-j=1",
-        "--background-index",
+        "-j=4",
+        "--background-index", 
+        "--compile-commands-dir=${workspaceFolder}/build/release",
     ],
-    "clangd.path": "/home/test/opensrc/clangd/clangd_18.1.3/bin/clangd",
+    "clangd.path": "/home/test/opensrc/clangd/bin/clangd",
+    "files.exclude": {
+        "rootfs/var/lib/dhcp": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true,
+        "/tmp/**": true,
+        "/rootfs/var/**": true,
+    },
+    "git.repositoryScanMaxDepth": -1,
+    "git.repositoryScanIgnoredFolders": [
+        "node_modules",
+        "linux*,u-boot*"
+    ]
 }
 ```
 
