@@ -73,12 +73,13 @@ if [ -d "$TESTFILE" ]; then echo "exist"; fi
 
 ```
 
-## 流程控制
+## 逻辑
 
 ```bash
 #!/bin/sh
-
-TEST=$1
+if [ true ] || [ false ]; then
+echo "ok"
+fi
 
 ```
 
