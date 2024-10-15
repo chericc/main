@@ -23,7 +23,7 @@ new_files=`git ls-files --others --exclude-standard`
 
 echo "`pwd`"
 
-if [ -z "$changed_files" ] || [ -z "$new_files" ]
+if [ -z "$changed_files" ] && [ -z "$new_files" ]
 then
 echo "no changes or new"
 echo ""
