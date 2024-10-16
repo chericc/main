@@ -54,6 +54,7 @@ class RBTree {
     void destroy(BTreeNode *subtree);
     int insert(value_t const &value);
     int exist(value_t const &value);
+    void clear();
     int remove(value_t const &value);
     std::string dump();
 
@@ -65,8 +66,16 @@ private:
     void insert(BTreeNode *node);
     void insert_fix(BTreeNode *node);
 
+    int remove(BTreeNode *node);
+    void remove_fix(BTreeNode *node);
+
+    void transplant(BTreeNode *tb, BTreeNode *ta);
+    BTreeNode *minimum(BTreeNode *node);
+
     Color color(BTreeNode *node);
     void set_color(BTreeNode *node, Color color);
+    
+    BTreeNode *locate(value_t const& value);
 
     BTreeNode *null_ = nullptr;
     BTreeNode *root_ = nullptr;

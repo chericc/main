@@ -28,7 +28,9 @@ RBTree::RBTree() {
 RBTree::~RBTree() 
 {
     destroy(root_); 
+    root_ = nullptr;
     delete null_;
+    null_ = nullptr;
 }
 
 void RBTree::destroy(BTreeNode *node) {
@@ -54,6 +56,223 @@ int RBTree::insert(value_t const& value)
 
     insert(node);
     return 0;
+}
+
+int RBTree::exist(value_t const& value)
+{
+    bool found_flag = false;
+
+    do {
+        if (root_ == null_) {
+            break;
+        }
+
+        BTreeNode *node = root_;
+        while (node != null_) {
+            if (value < node->value()) {
+                node = node->left();
+            } else if (value > node->value()) {
+                node = node->right();
+            } else {
+                found_flag = true;
+                break;
+            }
+        }
+    } while (0);
+
+    return found_flag;     
+}
+
+void RBTree::clear()
+{
+    destroy(root_); 
+    root_ = null_;
+}
+
+int RBTree::remove(BTreeNode *node)
+{
+/*
+case 1: node has only one child.
+replace node with its child. 
+ynode points to node(to be removed). 
+xnode points to child node(the new node).
+
+if ynode is red, then ynode is not root. no rule will break.
+if ynode is black, rule could break. try fix xnode.
+
+case 2: node has two children.
+replace node with its successor.
+ynode points to its successor.
+successor can be node's right child or not.
+if successor is not node's right child, then replace successor 
+with its right child(successor is free now). xnode points to 
+successor's right child. then replace node with ynode. 
+if successor is node's right child, replace node with it's right
+child.
+
+make node's color same as ynode's color.
+
+node is replaced by the same color, so no rule could break.
+xnode is actually removed. so xnode need fix.
+
+if ynode is red, then xnode is not red. no rule will break.
+if ynode is black, rule could break. try fix xnode.
+*/
+
+    BTreeNode *ynode = node;
+    BTreeNode *xnode = ynode;
+
+    Color color_y = color(ynode);
+
+    if (node->left() == null_) {
+        xnode = node->right();
+        transplant(node, node->right());
+    } else if (node->right() == null_) {
+        xnode = node->left();
+        transplant(node, node->left());
+    } else {
+        ynode = minimum(node->right());
+        color_y = color(ynode);
+        xnode = ynode->right();
+        if (ynode->parent() != node) {
+            transplant(xnode, ynode);
+            ynode->set_right(node->right());
+            ynode->right()->set_parent(ynode);
+        }
+        transplant(node, ynode);
+        ynode->set_left(node->left());
+        ynode->left()->set_parent(node->parent());
+        set_color(ynode, color(node));
+    }
+
+    if (color_y == Black) {
+        remove_fix(xnode);
+    }
+    return 0;
+}
+
+void RBTree::remove_fix(BTreeNode *node)
+{
+/*
+
+in remove function, both cases have the following expectation:
+
+1. only one node is removed and it's replaced by its child.
+
+- in case 1, node is removed and it's replaced by its left or right child.
+- in case 2, node is removed and it's replaced by its successor. successor
+will have the same color as node, so no rule is broken. the successor is
+then removed and it only has one child. so it becomes case 1.
+
+2. xnode replaces the original black node and rule 5 is broke. we can
+paint an additional black to xnode to fix this problem(thus rule 5 fixed and 
+rule 1 broken).
+
+if xnode's color is red or xnode is root, just paint it to black and remove 
+its additional black. 
+
+if xnode has two black color, we need to fix it.
+
+-- how to fix rule 1(xnode now has two color)?
+
+case 1: xnode's brother w is red.
+w's children must be black node and xnode's parent node must be black.
+make parent red and w black. left | right turn parent. xnode now has 
+a black brother(w's children). then cases is case 2,3 or 4.
+
+case 2: xnode's brother w is black, and both w's children is black.
+remove black color from xnode and w, thus w's color is red. paint additional 
+black to xnode's parent. xnode's parent tobe the new xnode.
+
+case 3: like case 2, but w's x-side child is red.
+rotate w in the off-x direction. make w's x-side node replacing w.
+make w red and w's x-side node black. so it becomes case 4.
+
+case 4: xnode's brother w is black, and w's off-x-side node is red.
+turn xnode's parent and move xnode's additional black to its parent. 
+keep xnode's parent's and w's original pos's color unchanged. terminated.
+
+-- proof: root is black.
+
+in case 1, parent is black and it's not affected.
+in case 2, parent will be the new xnode.
+in case 3, parent not changed and becomes case 4.
+in case 4, parent is red so it's not root.
+
+all cases exit when xnode is root or is black. and we paint black to 
+xnode finally. so root is black.
+
+-- proof: red node's children is black.
+
+in case 1, new red node's children is black and xnode. (xnode still processing).
+in case 2, xnode's black and xnode's brother is black. color of brother's children
+is black. remove black from them, xnode still black. brother is red. the new xnode 
+is black(may be additional black). 
+in case 3, it's a rotation, and no rule broken.
+in case 4, it's a rotation and xnode removes additional black. xnode's parent is 
+black. xnode is black.
+
+*/
+
+    while (node != root_ && color(node) == Black) {
+        if (node == node->parent()->left()) {
+            BTreeNode *wnode = node->parent()->right();
+            if (color(wnode) == Red) {
+                set_color(wnode, Black);
+                set_color(node->parent(), Red);
+                left_rotate(node->parent());
+            } else {
+                if (color(wnode->left()) == Black && color(wnode->right()) == Black) {
+                    set_color(wnode, Red);
+                    node = node->parent();
+                } else if (color(wnode->right()) == Black) {
+                    set_color(wnode->left(), Black);
+                    set_color(wnode, Red);
+                    right_rotate(wnode);
+                } else {
+                    set_color(wnode, color(node->parent()));
+                    set_color(node->parent(), Black);
+                    set_color(wnode->right(), Black);
+                    left_rotate(node->parent());
+                    node = root_;
+                }
+            }
+        } else {
+            BTreeNode *wnode = node->parent()->left();
+            if (color(wnode) == Red) {
+                set_color(wnode, Black);
+                set_color(node->parent(), Black);
+                right_rotate(node->parent());
+            } else {
+                if (color(wnode->left()) == Black && color(wnode->right()) == Black) {
+                    set_color(wnode, Red);
+                    node = node->parent();
+                } else if (color(wnode->left()) == Black) {
+                    set_color(wnode->right(), Black);
+                    set_color(wnode, Red);
+                    left_rotate(wnode);
+                } else {
+                    set_color(wnode, color(node->parent()));
+                    set_color(node->parent(), Black);
+                    set_color(wnode->left(), Black);
+                    right_rotate(node->parent());
+                    node = root_;
+                }
+            }
+        }
+    }
+
+    set_color(node, Black);
+}
+
+int RBTree::remove(value_t const &value)
+{
+    BTreeNode *node = locate(value);
+    if (node == null_) {
+        return -1;
+    }
+    int ret = remove(node);
+    return ret;
 }
 
 void RBTree::left_rotate(BTreeNode *node_x)
@@ -270,6 +489,51 @@ KEEP:
     }
     set_color(root_, Black);
 
+}
+
+/* transplant tb to ta */
+void RBTree::transplant(BTreeNode *ta, BTreeNode *tb)
+{
+    BTreeNode *parent = ta->parent();
+    if (parent == null_) {
+        root_ = tb;
+    } else if (parent->left() == ta) {
+        parent->set_left(tb);
+    } else if (parent->right() == ta) {
+        parent->set_right(tb);
+    }
+    tb->set_parent(parent);
+    return ;
+}
+
+BTreeNode *RBTree::minimum(BTreeNode *node)
+{
+    BTreeNode *last = node;
+    while (node != null_) {
+        last = node;
+        if (node->left() != null_) {
+            node = node->left();
+        } else {
+            break;
+        }
+    }
+
+    return last;
+}
+
+BTreeNode *RBTree::locate(value_t const& value)
+{
+    BTreeNode *node = root_;
+    while (node != null_) {
+        if (value < node->value()) {
+            node = node->left();
+        } else if (value > node->value()) {
+            node = node->right();
+        } else {
+            break;
+        }
+    }
+    return node;
 }
 
 }

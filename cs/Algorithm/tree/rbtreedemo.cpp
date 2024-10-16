@@ -1,7 +1,6 @@
 #include "rbtreedemo.hpp"
 
 #include "alg.hpp"
-#include "printtree.hpp"
 #include "xlog.hpp"
 #include "rbtree.hpp"
 
@@ -14,12 +13,26 @@ void rbtreedemo_registertest()
         for (int i = 10; i > 0; --i) {
             tree.insert(i);
         }
-        auto dump = tree.dump();
-        xlog_dbg("dump: \n\n%s\n\n", dump.c_str());
+        xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+    };
+
+    auto test_remove = [](){
+        RBTree tree;
+        for (int i = 1; i < 6; ++i) {
+            tree.insert(i);
+        }
+        for (int i = 1; i < 6; ++i) {
+            xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+            xlog_dbg("remove value %d\n", i);
+            tree.remove(i);
+            xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+            // break;
+        }
     };
 
     MainAlgManager::Funcs funcs;
     funcs["insert"] = test_insert;
+    funcs["remove"] = test_remove;
     MainAlgManager::getInstance().add("rbtree", funcs);
 }
 
