@@ -279,7 +279,7 @@ const uint8_t* AMFReadString(const uint8_t* ptr, const uint8_t* end, int isLongS
 
 const uint8_t* AMFReadDate(const uint8_t* ptr, const uint8_t* end, double *milliseconds, int16_t *timezone)
 {
-    uint32_t v;
+    uint32_t v = 0;
     ptr = AMFReadDouble(ptr, end, milliseconds);
     if (ptr)
     {

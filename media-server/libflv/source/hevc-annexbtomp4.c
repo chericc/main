@@ -174,8 +174,9 @@ static uint8_t hevc_pps_id(const uint8_t* rbsp, size_t bytes, struct mpeg4_hevc_
 	size_t sodb;
 	size_t offset = 2 * 8;  // 2-nalu type
 	sodb = hevc_rbsp_decode(rbsp, bytes, ptr, len);
-	if (sodb < 3)
+	if (sodb < 3) {
 		return 0xFF; (void)hevc;
+	}
 	pps = mpeg4_h264_read_ue(ptr, sodb, &offset);
 	*sps = mpeg4_h264_read_ue(ptr, sodb, &offset);
 	return pps;
@@ -282,8 +283,8 @@ static int h265_sps_copy(struct mpeg4_hevc_t* hevc, const uint8_t* nalu, size_t 
 static int h265_pps_copy(struct mpeg4_hevc_t* hevc, const uint8_t* nalu, size_t bytes)
 {
 	int i;
-	uint8_t ppsid;
-	uint8_t spsid, spsid2;
+	uint8_t ppsid = 0;
+	uint8_t spsid = 0, spsid2 = 0;
 
 	if (bytes < 1 + 2)
 	{

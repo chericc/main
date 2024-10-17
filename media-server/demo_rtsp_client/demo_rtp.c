@@ -1,5 +1,6 @@
+#include "demo_rtp.h"
+
 #include <stdint.h>
-#include "sockutil.h"
 #include "sys/pollfd.h"
 #include "sys/thread.h"
 #include "rtp-demuxer.h"
@@ -184,7 +185,7 @@ static int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t tim
 	return 0;
 }
 
-static int STDCALL rtp_worker(void* param)
+static void* STDCALL rtp_worker(void* param)
 {
 	struct rtp_context_t* ctx;
 	ctx = (struct rtp_context_t*)param;

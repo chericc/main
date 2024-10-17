@@ -109,7 +109,7 @@ static int rtp_decode_vp9(void* p, const void* packet, int bytes)
 
 	if (inter_picture_predicted_layer_frame && flex_mode && ptr < pend)
 	{
-		//      +-+-+-+-+-+-+-+-+							-\
+		//      +-+-+-+-+-+-+-+-+							-
 		// P,F: |    P_DIFF   |N| (CONDITIONALLY REQUIRED)  - up to 3 times
 		//      +-+-+-+-+-+-+-+-+							-/
 

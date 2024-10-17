@@ -77,7 +77,7 @@ const uint8_t* AMF3ReadDouble(const uint8_t* ptr, const uint8_t* end, double* va
 
 const uint8_t* AMF3ReadString(const uint8_t* ptr, const uint8_t* end, char* string, uint32_t* length)
 {
-	uint32_t v;
+	uint32_t v = 0;
 	ptr = AMF3ReadInteger(ptr, end, (int32_t*)&v);
 
 	if (v & 0x01)

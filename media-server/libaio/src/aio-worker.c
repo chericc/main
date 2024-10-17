@@ -10,7 +10,7 @@
 static int s_running;
 static pthread_t s_thread[1000];
 
-static int STDCALL aio_worker(void* param)
+static THREAD_RET_TYPE STDCALL aio_worker(void* param)
 {
 	int i = 0, r = 0;
 	int idx = (int)(intptr_t)param;

@@ -73,6 +73,8 @@ int websocket_parser_input(struct websocket_parser_t* parser, uint8_t* data, siz
 			parser->state = WEBSOCKET_PARSER_HEADER_EXTENDED;
 			break;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 		case WEBSOCKET_PARSER_HEADER_EXTENDED:
 			assert(parser->len >= 2);
 			len = parser->h[1] & 0x7F;
@@ -105,6 +107,7 @@ int websocket_parser_input(struct websocket_parser_t* parser, uint8_t* data, siz
 			{
 				break;
 			}
+#pragma GCC diagnostic pop
 
 		case WEBSOCKET_PARSER_PAYLOAD:
 			// Buffer to FULL-Frame except: non-fragment(continuation) frame && FIN frame && payload length < max_capability

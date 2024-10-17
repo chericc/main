@@ -35,7 +35,7 @@ struct aio_poll_t
 	pthread_t thread;
 };
 
-static int STDCALL aio_poll_worker(void* param);
+static THREAD_RET_TYPE STDCALL aio_poll_worker(void* param);
 
 static void aio_poll_init_idles(struct aio_poll_t* poll)
 {
@@ -146,7 +146,7 @@ int aio_poll_poll(struct aio_poll_t* poll, socket_t socket, int flags, int timeo
 
 static void aio_poll_doerror(struct aio_poll_t* poll, struct aio_poll_socket_t* s[], int n);
 static int aio_poll_do(struct aio_poll_socket_t* s[], int n, int timeout);
-static int STDCALL aio_poll_worker(void* param)
+static THREAD_RET_TYPE STDCALL aio_poll_worker(void* param)
 {
 	int i, n, r;
 	uint32_t now;

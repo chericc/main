@@ -1,4 +1,4 @@
-#if defined(_DEBUG) || defined(DEBUG)
+#include "demo_rtsp.h"
 
 #include "sockutil.h"
 #include "rtsp-client.h"
@@ -10,11 +10,9 @@
 #include "cpm/unuse.h"
 #include "sdp.h"
 
-//#define UDP_MULTICAST_ADDR "239.0.0.2"
+#include "demo_rtp.h"
 
-void rtp_receiver_tcp_input(uint8_t channel, const void* data, uint16_t bytes);
-void rtp_receiver_test(socket_t rtp[2], const char* peer, int peerport[2], int payload, const char* encoding);
-void* rtp_receiver_tcp_test(uint8_t interleave1, uint8_t interleave2, int payload, const char* encoding);
+//#define UDP_MULTICAST_ADDR "239.0.0.2"
 
 int rtsp_addr_is_multicast(const char* ip);
 
@@ -180,14 +178,16 @@ void rtsp_client_test(const char* host, const char* file)
 	handler.onteardown = onteardown;
 	handler.onrtp = onrtp;
 
-	ctx.transport = RTSP_TRANSPORT_RTP_UDP; // RTSP_TRANSPORT_RTP_TCP
+	ctx.transport = RTSP_TRANSPORT_RTP_TCP; // RTSP_TRANSPORT_RTP_UDP
 	snprintf(packet, sizeof(packet), "rtsp://%s/%s", host, file); // url
+
+	printf("host:%s, packet:%s\n", host, packet);
 
 	socket_init();
 	ctx.socket = socket_connect_host(host, 554, 2000);
 	assert(socket_invalid != ctx.socket);
 	//ctx.rtsp = rtsp_client_create(NULL, NULL, &handler, &ctx);
-	ctx.rtsp = rtsp_client_create(packet, "username1", "password1", &handler, &ctx);
+	ctx.rtsp = rtsp_client_create(packet, "admin", "123456", &handler, &ctx);
 	assert(ctx.rtsp);
 	assert(0 == rtsp_client_describe(ctx.rtsp));
 
@@ -204,5 +204,3 @@ void rtsp_client_test(const char* host, const char* file)
 	socket_close(ctx.socket);
 	socket_cleanup();
 }
-
-#endif

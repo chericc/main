@@ -161,6 +161,13 @@ static int http_poll_transport_dorecv(struct http_poll_transport_t* tcp)
     return priv->poll(priv->param, tcp, tcp->socket, HTTP_TRANSPORT_POLL_READ, tcp->recv_timeout - (int)(now - tcp->recv.clock), http_poll_transport_onread);
 }
 
+static int http_poll_transport_onconnect(void* c, int event);
+
+static void http_poll_transport_onconnect_wrap(void* c, int event)
+{
+    http_poll_transport_onconnect(c, event);
+}
+
 static int http_poll_transport_onconnect(void* c, int event)
 {
     int r;
@@ -176,7 +183,7 @@ static int http_poll_transport_onconnect(void* c, int event)
         if (ETIMEDOUT == r && now - tcp->send.clock < tcp->conn_timeout)
         {
             priv = (struct http_poll_transport_priv_t*)tcp->transport->priv;
-            return priv->poll(priv->param, tcp, tcp->socket, HTTP_TRANSPORT_POLL_WRITE, tcp->conn_timeout - (int)(now - tcp->send.clock), http_poll_transport_onconnect);
+            return priv->poll(priv->param, tcp, tcp->socket, HTTP_TRANSPORT_POLL_WRITE, tcp->conn_timeout - (int)(now - tcp->send.clock), http_poll_transport_onconnect_wrap);
         }
         else if (0 != r)
         {
@@ -316,7 +323,7 @@ static int http_poll_transport_connect(struct http_poll_transport_t* tcp)
 #endif
             {
                 priv = (struct http_poll_transport_priv_t*)tcp->transport->priv;
-                return priv->poll(priv->param, tcp, tcp->socket, HTTP_TRANSPORT_POLL_WRITE, tcp->conn_timeout, http_poll_transport_onconnect);
+                return priv->poll(priv->param, tcp, tcp->socket, HTTP_TRANSPORT_POLL_WRITE, tcp->conn_timeout, http_poll_transport_onconnect_wrap);
             }
             else
             {

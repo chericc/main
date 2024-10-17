@@ -67,8 +67,9 @@ static void* http_aio_transport_create(struct http_transport_t* transport, const
 {
 	struct http_aio_transport_t* aio;
     aio = http_transport_pool_fetch(transport->priv, scheme, host, port);
-    if(aio)
+    if(aio) {
         return aio;
+    }
     
 	aio = calloc(1, sizeof(struct http_aio_transport_t) + transport->read_buffer_size);
 	if (aio)

@@ -90,7 +90,11 @@ int parse_file(const char *filename)
 			break;
 		}
 
-		fread(buffer, 1, len, fp);
+		size_t ret_read = fread(buffer, 1, len, fp);
+		if ((int)ret_read != len) {
+			xlog_err("read failed\n");
+			break;
+		}
 
 		fp_buf = fmemopen(buffer, len, "r");
 		if (!fp_buf) {

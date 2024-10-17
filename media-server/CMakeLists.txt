@@ -10,12 +10,29 @@ set(DEMO_RTSP_CLIENT demo_rtsp_client)
 
 add_definitions(-DOS_LINUX)
 
-string(COMPARE EQUAL ${CMAKE_BUILD_TYPE} "Debug" debug)
-if(${debug})
-add_definitions(-DDEBUG -D_DEBUG)
-else()
-# add_definitions(-DNDEBUG) # this is automatically added by cmake in release mode
+if(NOT CMAKE_BUILD_TYPE)
+    message(CRITICAL "CMAKE_BUILD_TYPE not set")
+    set(CMAKE_BUILD_TYPE "Debug")
 endif()
+
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    add_definitions(-DDEBUG -D_DEBUG)
+else()
+    # add_definitions(-DNDEBUG) # this is automatically added by cmake in release mode
+endif()
+
+add_compile_options(
+    -Wno-unused-variable 
+    -Wno-unused-const-variable
+    -Wno-pedantic
+    -Wno-sign-compare
+    -Wno-type-limits
+    -Wno-unused-function
+    -Wno-format-truncation
+    -Wno-unused-but-set-variable
+    -Wno-unused-value
+    -Wno-unused-result
+)
 
 # libbase
 aux_source_directory(libbase/source/digest src_base_digest)

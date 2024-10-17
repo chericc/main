@@ -4,6 +4,11 @@ project(main)
 
 message("compiler is " ${CMAKE_CXX_COMPILER_ID})
 
+if(NOT CMAKE_BUILD_TYPE)
+  message(WARNING "CMAKE_BUILD_TYPE not set, default to release")
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 # platform
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
 string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
@@ -252,7 +257,7 @@ add_subdirectory(image)
 
 if(${gnu})
 add_subdirectory(md5dir)
-# add_subdirectory(media-server)
+add_subdirectory(media-server)
 endif()
 
 add_subdirectory(stl)

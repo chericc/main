@@ -98,7 +98,13 @@ enum thread_priority
 // pthread_t thread_self(void);
 //-------------------------------------------------------------------------------------
 
-typedef int (STDCALL *thread_proc)(void* param);
+#if defined(OS_LINUX)
+#define THREAD_RET_TYPE void*
+#else 
+#define THREAD_RET_TYPE int
+#endif 
+
+typedef THREAD_RET_TYPE (STDCALL *thread_proc)(void* param);
 
 #if defined(OS_RTOS)
 typedef struct {

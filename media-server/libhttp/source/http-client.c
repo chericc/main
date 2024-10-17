@@ -351,8 +351,9 @@ static int http_client_request(struct http_client_t *http, int method, const cha
     if(http->connection)
         http->transport->close(http->connection);
     http->connection = http->transport->connect(http->transport, http->scheme, http->host, http->port);
-    if(!http->connection)
+    if(!http->connection) {
         return -1;
+    }
     
 	if(0 != http_make_request(http, method, uri, headers, n, bytes))
         return -1;
@@ -383,8 +384,9 @@ struct http_client_t* http_client_create(struct http_transport_t* transport, con
     http->port = port;
 	http->socket = socket_invalid;
     r = snprintf(http->host, sizeof(http->host), "%s", ip);
-    if(r > 0 && r < sizeof(http->host))
+    if(r > 0 && r < sizeof(http->host)) {
         r = snprintf(http->scheme, sizeof(http->scheme), "%s", scheme);
+    }
     
 	http->req = http_request_create(HTTP_1_1);
 	http->parser = http_parser_create(HTTP_PARSER_RESPONSE, http_client_onbody, http);

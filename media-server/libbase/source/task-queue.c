@@ -172,7 +172,7 @@ static void task_action(void* param)
 	task_queue_relase(taskQ);
 }
 
-static int STDCALL task_queue_scheduler(void* param)
+static THREAD_RET_TYPE STDCALL task_queue_scheduler(void* param)
 {
 	int r;
 	task_context_t *task;

@@ -98,8 +98,9 @@ static uint8_t vvc_pps_id(const uint8_t* rbsp, size_t bytes, struct mpeg4_vvc_t*
 	size_t sodb;
 	size_t n = 2 * 8;  // 2-nalu type
 	sodb = vvc_rbsp_decode(rbsp, bytes, ptr, len);
-	if (sodb < 12)
+	if (sodb < 12) {
 		return 0xFF; (void)vvc;
+	}
 	pps = (ptr[2] >> 2) & 0x3F;  // 2-nalu type
 	*sps = ((ptr[2] & 0x03) << 2) | ((ptr[3] >> 6) & 0x03);
 
@@ -212,8 +213,8 @@ static int h266_vps_copy(struct mpeg4_vvc_t* vvc, const uint8_t* nalu, size_t by
 static int h266_sps_copy(struct mpeg4_vvc_t* vvc, const uint8_t* nalu, size_t bytes)
 {
 	int i;
-	uint8_t spsid;
-	uint8_t vpsid, vpsid2;
+	uint8_t spsid = 0;
+	uint8_t vpsid = 0, vpsid2 = 0;
 
 	if (bytes < 13 + 2)
 	{
@@ -234,8 +235,8 @@ static int h266_sps_copy(struct mpeg4_vvc_t* vvc, const uint8_t* nalu, size_t by
 static int h266_pps_copy(struct mpeg4_vvc_t* vvc, const uint8_t* nalu, size_t bytes)
 {
 	int i;
-	uint8_t ppsid;
-	uint8_t spsid, spsid2;
+	uint8_t ppsid = 0;
+	uint8_t spsid = 0, spsid2 = 0;
 
 	if (bytes < 1 + 2)
 	{
