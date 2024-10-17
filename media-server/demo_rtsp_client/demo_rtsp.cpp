@@ -12,13 +12,14 @@
 
 #include "demo_rtp.h"
 
+#include "rtsp-multicast.h"
+
 //#define UDP_MULTICAST_ADDR "239.0.0.2"
 
-int rtsp_addr_is_multicast(const char* ip);
 
 struct rtsp_client_test_t
 {
-	void* rtsp;
+	struct rtsp_client_t* rtsp;
 	socket_t socket;
 
 	int transport;

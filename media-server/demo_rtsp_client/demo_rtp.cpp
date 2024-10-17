@@ -206,7 +206,7 @@ void rtp_receiver_test(socket_t rtp[2], const char* peer, int peerport[2], int p
 	struct rtp_context_t* ctx;
 	const struct rtp_profile_t* profile;
 
-	ctx = malloc(sizeof(*ctx));
+	ctx = (struct rtp_context_t*)malloc(sizeof(*ctx));
     if(!ctx) return;
 	snprintf(ctx->rtp_buffer, sizeof(ctx->rtp_buffer), "%s.%d.%d.%s", peer, peerport[0], payload, encoding);
 	snprintf(ctx->rtcp_buffer, sizeof(ctx->rtcp_buffer), "%s.%d.%d.%s.rtp", peer, peerport[0], payload, encoding);
@@ -240,7 +240,7 @@ void* rtp_receiver_tcp_test(uint8_t interleave1, uint8_t interleave2, int payloa
 	struct rtp_context_t* ctx;
 	const struct rtp_profile_t* profile;
 
-	ctx = malloc(sizeof(struct rtp_context_t));
+	ctx = (struct rtp_context_t*)malloc(sizeof(struct rtp_context_t));
     if(!ctx) return NULL;
 	snprintf(ctx->rtp_buffer, sizeof(ctx->rtp_buffer), "tcp.%d.%s", payload, encoding);
 	snprintf(ctx->rtcp_buffer, sizeof(ctx->rtcp_buffer), "tcp.%d.%s.rtp", payload, encoding);
