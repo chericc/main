@@ -131,4 +131,8 @@ export LIBS="-pthread"
 # libcurl
 ../curl-7.55.0/configure --prefix=$(pwd)/output 
 
+# media-server
+copy from https://github.com/ireader/media-server
+
+
 ```
