@@ -108,6 +108,7 @@ include_directories(libbase/include)
 include_directories(libhttp/include)
 include_directories(libflv/include)
 include_directories(libaio/include)
+include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
 
 add_executable(${DEMO_RTSP_CLIENT}
     ${src_demo_rtsp_client})
@@ -119,4 +120,5 @@ target_link_libraries(
     ${LIB_BASE_NAME} 
     ${LIB_FLV_NAME} 
     ${LIB_AIO_NAME}
+    ${G_XTOOLS}
 )

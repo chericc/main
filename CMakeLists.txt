@@ -183,10 +183,6 @@ endif()
 
 include(CTest)
 
-# debug
-# SET(CMAKE_BUILD_TYPE "Debug")
-# SET(CMAKE_BUILD_TYPE "Release")
-
 option(USE_ASAN "use asan(ASAN)" OFF)
 option(USE_BIG_ENDIAN "big endian" OFF)
 option(WITH_GTEST "has googletest" OFF)
