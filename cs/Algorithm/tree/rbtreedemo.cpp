@@ -18,11 +18,17 @@ void rbtreedemo_registertest()
 
     auto test_remove = [](){
         RBTree tree;
-        for (int i = 1; i < 6; ++i) {
+        for (int i = 1; i < 11; ++i) {
             tree.insert(i);
         }
-        for (int i = 1; i < 6; ++i) {
-            xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+        xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+        // for (int i = 1; i < 11; ++i) {
+        //     xlog_dbg("remove value %d\n", i);
+        //     tree.remove(i);
+        //     xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+        //     // break;
+        // }
+        for (int i = 10; i >= 1; --i) {
             xlog_dbg("remove value %d\n", i);
             tree.remove(i);
             xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
