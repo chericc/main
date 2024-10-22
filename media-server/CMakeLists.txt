@@ -7,6 +7,7 @@ set(LIB_RTSP_NAME rtsp)
 set(LIB_RTP_NAME rtp)
 
 set(DEMO_RTSP_CLIENT demo_rtsp_client)
+set(RTSP_CLIENT_NAME rtsp_client)
 
 add_definitions(-DOS_LINUX)
 
@@ -114,6 +115,30 @@ add_executable(${DEMO_RTSP_CLIENT}
     ${src_demo_rtsp_client})
 target_link_libraries(
     ${DEMO_RTSP_CLIENT}
+    ${LIB_RTSP_NAME} 
+    ${LIB_RTP_NAME} 
+    ${LIB_HTTP_NAME}
+    ${LIB_BASE_NAME} 
+    ${LIB_FLV_NAME} 
+    ${LIB_AIO_NAME}
+    ${G_XTOOLS}
+)
+
+# rtsp_client
+aux_source_directory(rtsp_client src_rtsp_client)
+
+include_directories(librtp/include)
+include_directories(librtsp/include)
+include_directories(libbase/include)
+include_directories(libhttp/include)
+include_directories(libflv/include)
+include_directories(libaio/include)
+include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
+
+add_executable(${RTSP_CLIENT_NAME}
+    ${src_rtsp_client})
+target_link_libraries(
+    ${RTSP_CLIENT_NAME}
     ${LIB_RTSP_NAME} 
     ${LIB_RTP_NAME} 
     ${LIB_HTTP_NAME}
