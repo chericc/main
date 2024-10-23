@@ -125,7 +125,11 @@ void xlog(XLOG_LEVEL level, const char* file, int line, const char* func,
         va_start(ap, format);
         vfprintf(it, format, ap);
         va_end(ap);
-        fprintf(it, "\n");
+        size_t format_len = strlen(format);
+        int has_new_line = !!(format_len && format[format_len - 1] == '\n');
+        if (!has_new_line) {
+            fprintf(it, "\n");
+        }
         fflush(it);
     }
 
