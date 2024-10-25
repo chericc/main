@@ -134,5 +134,7 @@ export LIBS="-pthread"
 # media-server
 copy from https://github.com/ireader/media-server
 
+# libwebsocket
+cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF
 
 ```
