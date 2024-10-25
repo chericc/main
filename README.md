@@ -135,6 +135,7 @@ export LIBS="-pthread"
 copy from https://github.com/ireader/media-server
 
 # libwebsocket
-cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF
+sudo apt install zlib1g-dev
+cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF -DLWS_WITH_MINIMAL_EXAMPLES=ON -DLWS_WITHOUT_EXTENSIONS=OFF
 
 ```
