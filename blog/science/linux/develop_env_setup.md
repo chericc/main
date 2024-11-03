@@ -343,6 +343,8 @@ Host github.com
     ProxyCommand nc -v -x 192.168.1.203:51837 %h %p
     # macos
     ProxyCommand nc -X 5 -x 127.0.0.1:1080 %h %p
+    # windows
+    ProxyCommand connect -S 127.0.0.1:7890 %h %p
 
 ```
 
