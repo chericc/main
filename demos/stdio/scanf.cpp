@@ -1,6 +1,21 @@
 #include <stdio.h>
 #include <time.h>
 
+void test_rtsp_url()
+{
+    char url[] = "rtsp://admin:123456@10.10.10.1/0/0";
+    
+	char username[32];
+	char password[32];
+	char host[32];
+	char path[32];
+
+    sscanf(url, "rtsp://%[^:]:%[^@]@%[^/]%s", username, password, host, path);
+
+    printf("rtsp: [%s,%s,%s,%s]\n", username, password, host, path);
+    return ;
+}
+
 void test1()
 {
     // get 357
@@ -40,6 +55,6 @@ void test_utc()
 
 int main() 
 {
-    test_utc();
+    test_rtsp_url();
     return 0;
 }
