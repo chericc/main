@@ -10,6 +10,7 @@
 #include "rtp-profile.h"
 #include "rtp-demuxer.h"
 #include "xlog.hpp"
+#include "packet_stable.hpp"
 
 #define GENERAL_NET_TIMEOUT_MS  2000
 
@@ -59,15 +60,13 @@ struct rtsp_client_wrapper_obj_t {
     RunningStatus status;
 
     rdp_demuxer_ctx_t demuxer[8];
+    PacketStable *stable[8];
 };
 
-int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp, int flags)
+void on_packet_stable_data_cb(const void *data, size_t bytes, void *user_data)
 {
-    rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(param);
+    rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(user_data);
 
-    // xlog_war("idx:%d, encoding: %s, ts: %d, bytes: %d, flags: %d\n", 
-    //     demux_ctx->idx, demux_ctx->encoding, timestamp, bytes, flags);
-    
     do {
         auto data_cb = demux_ctx->obj->param.data_cb;
         if (!data_cb) {
@@ -79,10 +78,34 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
         if (RTP_PAYLOAD_H265 == demux_ctx->payload
             || RTP_PAYLOAD_H264 == demux_ctx->payload) {
             const uint8_t start_code[] = { 0, 0, 0, 1 };
-            data_cb(demux_ctx->idx, demux_ctx->payload, start_code, sizeof(start_code), timestamp);
+            data_cb(demux_ctx->idx, demux_ctx->payload, start_code, sizeof(start_code));
         }
         
-        data_cb(demux_ctx->idx, demux_ctx->payload, packet, bytes, timestamp);
+        data_cb(demux_ctx->idx, demux_ctx->payload, data, bytes);
+    } while (false);
+
+    return ;
+}
+
+int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp, int flags)
+{
+    rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(param);
+
+    // APP_LOGW("idx:%d, encoding: %s, ts: %d, bytes: %d, flags: %d\n", 
+    //     demux_ctx->idx, demux_ctx->encoding, timestamp, bytes, flags);
+    
+    do {
+        int idx = demux_ctx->idx;
+        if (idx < 0 || idx >= ARRAY_SIZE(demux_ctx->obj->stable)) {
+            xlog_err("invalid idx(%d)\n", idx);
+            break;
+        }
+
+        if (!demux_ctx->obj->stable[idx]) {
+            demux_ctx->obj->stable[idx] = new PacketStable(on_packet_stable_data_cb, demux_ctx);
+        }
+
+        demux_ctx->obj->stable[idx]->push(packet, bytes, timestamp / 90);
     } while (false);
 
     return 0;
@@ -322,6 +345,21 @@ int rtsp_client_deinit(rtsp_client_wrapper_obj_t *obj)
             socket_close(obj->socket);
         } else {
             xlog_err("socket is not created\n");
+        }
+        
+        for (auto &ref : obj->demuxer) {
+            if (ref.demuxer) {
+                xlog_dbg("destroy demuxer\n");
+                rtp_demuxer_destroy(&ref.demuxer);
+                ref.demuxer = nullptr;
+            }
+        }
+        for (auto &ref : obj->stable) {
+            if (ref) {
+                xlog_dbg("destroy stable\n");
+                delete ref;
+                ref = nullptr;
+            }
         }
     } while (false);
 

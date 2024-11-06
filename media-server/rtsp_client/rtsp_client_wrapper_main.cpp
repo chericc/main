@@ -1,14 +1,17 @@
 #include "rtsp_client_wrapper.h"
 #include "xlog.hpp"
+#include "packet_stable.hpp"
 
-static void data_cb(int ch, int payload, const void *data, size_t bytes, uint32_t timestamp)
+
+static void data_cb(int ch, int payload, const void *data, size_t bytes)
 {
     if (ch == 0) {
-        xlog_war("ch:%d, payload:%d, bytes:%d, timestamp=%u\n", ch, payload, (int)bytes, timestamp);
+        xlog_dbg("data: size=%d\n", (int)bytes);
+    } else {
+        // xlog_dbg("data: size=%d\n", (int)bytes);
     }
-    
-    constexpr int ch_num = 4;
 
+    constexpr int ch_num = 4;
     static FILE *fp_array[ch_num];
 
     const char *encode_name = "UNKNOWN";

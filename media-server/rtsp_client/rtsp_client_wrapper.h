@@ -13,7 +13,7 @@ typedef intptr_t rtsp_client_wrapper_handle_t;
 /* 
 payload: rtp-profile.h / RTP_PAYLOAD_xxx
  */
-typedef void(*rtsp_client_wrapper_data_cb)(int ch, int payload, const void *data, size_t bytes, uint32_t timestamp);
+typedef void(*rtsp_client_wrapper_data_cb)(int ch, int payload, const void *data, size_t bytes);
 
 struct rtsp_client_wrapper_param {
     const char *host;
