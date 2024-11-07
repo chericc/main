@@ -20,7 +20,11 @@ PacketStable::PacketStable(packet_stable_data_cb cb, void *user_data)
 
 PacketStable::~PacketStable()
 {
-    Lock lock(_mutex_queue);
+    _trd_run_flag = false;
+    
+    _mutex_queue.lock();
+    _mutex_queue.unlock();
+    
     _cond_over_low.notify_one();
     _cond_need_wait.notify_one();
     xlog_dbg("wait thread\n");
