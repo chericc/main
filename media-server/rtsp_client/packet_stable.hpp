@@ -26,6 +26,11 @@ struct Packet
         ts_ms = ts_ms_;
     };
     ~Packet() = default;
+    void append(const void *data_, size_t bytes_) {
+        size_t oldsize = data.size();
+        data.resize(oldsize + bytes_);
+        memcpy(data.data() + oldsize, data_, bytes_);
+    }
 };
 
 class PacketStable

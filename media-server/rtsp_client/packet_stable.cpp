@@ -46,6 +46,14 @@ void PacketStable::push(const void *data, size_t bytes, uint32_t timestamp_ms)
             break;
         }
 
+        if (!_queue.empty()) {
+            if (_queue.back()->ts_ms == timestamp_ms) {
+                _queue.back()->append(data, bytes);
+                xlog_dbg("append: final size=%d\n", (int)_queue.back()->data.size());
+                break;
+            }
+        }
+
         auto pkt = std::make_shared<Packet>(data, bytes, timestamp_ms);
 
         _queue.push_back(pkt);
@@ -63,10 +71,13 @@ void PacketStable::_trd_worker()
     while (_trd_run_flag) {
         Lock lock(_mutex_queue);
 
+        xlog_dbg("waiting low level\n");
+
         while (_trd_run_flag && _queue.size() < QUEUE_LOW_LEVEL) {
-            xlog_dbg("waiting low level\n");
             _cond_over_low.wait(lock);
         }
+
+        xlog_dbg("start poping .....\n");
 
         while (_trd_run_flag && !_queue.empty()) {
             auto now = Clock::now();
@@ -90,8 +101,7 @@ void PacketStable::_trd_worker()
             xlog_dbg("queue.size=%u\n", (int)_queue.size());
         }
 
-
-        
+        xlog_dbg("not enough packets\n");
     }
     
 }

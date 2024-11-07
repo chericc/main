@@ -74,13 +74,6 @@ void on_packet_stable_data_cb(const void *data, size_t bytes, void *user_data)
             break;
         }
         
-        // support h264 and h265 only
-        // if (RTP_PAYLOAD_H265 == demux_ctx->payload
-        //     || RTP_PAYLOAD_H264 == demux_ctx->payload) {
-        //     const uint8_t start_code[] = { 0, 0, 0, 1 };
-        //     data_cb(demux_ctx->idx, demux_ctx->payload, start_code, sizeof(start_code));
-        // }
-        
         data_cb(demux_ctx->idx, demux_ctx->payload, data, bytes);
     } while (false);
 
@@ -91,10 +84,12 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
 {
     rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(param);
 
-    // APP_LOGW("idx:%d, encoding: %s, ts: %d, bytes: %d, flags: %d\n", 
-    //     demux_ctx->idx, demux_ctx->encoding, timestamp, bytes, flags);
-    
+    // if (demux_ctx->idx == 0) {
+    //     xlog_dbg("idx:%d, encoding: %s, ts: %d, bytes: %d, flags: %d\n", 
+    //         demux_ctx->idx, demux_ctx->encoding, timestamp / 90, bytes, flags);
+    // }
     do {
+
         int idx = demux_ctx->idx;
         if (idx < 0 || idx >= ARRAY_SIZE(demux_ctx->obj->stable)) {
             xlog_err("invalid idx(%d)\n", idx);
@@ -105,9 +100,27 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
             demux_ctx->obj->stable[idx] = new PacketStable(on_packet_stable_data_cb, demux_ctx);
         }
 
-        if (idx == 0) {
-            demux_ctx->obj->stable[idx]->push(packet, bytes, timestamp / 90);
+        if (demux_ctx->payload == RTP_PAYLOAD_H265
+            || demux_ctx->payload == RTP_PAYLOAD_H264) {
+            
+            static std::mutex mutex;
+            static std::vector<uint8_t> buffer;
+            std::lock_guard<std::mutex> lock(mutex);
+
+            const uint8_t start_code[] = { 0, 0, 0, 1 };
+            size_t combined_size = sizeof(start_code) + bytes;
+
+            if (buffer.size() < combined_size) {
+                buffer.resize(combined_size);
+                xlog_dbg("buffer size:%d\n", (int)combined_size);
+            }
+
+            memcpy(buffer.data(), start_code, sizeof(start_code));
+            memcpy(buffer.data() + sizeof(start_code), packet, bytes);
+
+            demux_ctx->obj->stable[idx]->push(buffer.data(), combined_size, timestamp / 90);
         }
+
     } while (false);
 
     return 0;
