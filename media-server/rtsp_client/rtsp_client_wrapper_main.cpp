@@ -6,7 +6,18 @@
 static void data_cb(int ch, int payload, const void *data, size_t bytes)
 {
     if (ch == 0) {
-        xlog_dbg("data: size=%d\n", (int)bytes);
+        // xlog_dbg("data: size=%d\n", (int)bytes);
+
+        if (1) {
+            using Clock = std::chrono::steady_clock;
+            auto now = Clock::now();
+            static Clock::time_point tp_last;
+
+            auto passed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - tp_last).count();
+            xlog_dbg("passed=%d ms\n", (int)passed_ms);
+            tp_last = now;
+        }
+
     } else {
         // xlog_dbg("data: size=%d\n", (int)bytes);
     }
@@ -42,11 +53,11 @@ static void data_cb(int ch, int payload, const void *data, size_t bytes)
 int main()
 {
     rtsp_client_wrapper_param param = {};
-    param.host = "10.0.0.103";
+    param.host = "10.0.0.100";
     param.file = "0/1";
     param.port = "554";
-    param.username = "test";
-    param.password = "test";
+    param.username = "admin";
+    param.password = "123456";
     param.data_cb = data_cb;
     rtsp_client_wrapper_handle_t handle = rtsp_client_wrapper_start(&param);
 

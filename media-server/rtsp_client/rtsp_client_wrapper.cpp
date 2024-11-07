@@ -75,11 +75,11 @@ void on_packet_stable_data_cb(const void *data, size_t bytes, void *user_data)
         }
         
         // support h264 and h265 only
-        if (RTP_PAYLOAD_H265 == demux_ctx->payload
-            || RTP_PAYLOAD_H264 == demux_ctx->payload) {
-            const uint8_t start_code[] = { 0, 0, 0, 1 };
-            data_cb(demux_ctx->idx, demux_ctx->payload, start_code, sizeof(start_code));
-        }
+        // if (RTP_PAYLOAD_H265 == demux_ctx->payload
+        //     || RTP_PAYLOAD_H264 == demux_ctx->payload) {
+        //     const uint8_t start_code[] = { 0, 0, 0, 1 };
+        //     data_cb(demux_ctx->idx, demux_ctx->payload, start_code, sizeof(start_code));
+        // }
         
         data_cb(demux_ctx->idx, demux_ctx->payload, data, bytes);
     } while (false);
@@ -105,7 +105,9 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
             demux_ctx->obj->stable[idx] = new PacketStable(on_packet_stable_data_cb, demux_ctx);
         }
 
-        demux_ctx->obj->stable[idx]->push(packet, bytes, timestamp / 90);
+        if (idx == 0) {
+            demux_ctx->obj->stable[idx]->push(packet, bytes, timestamp / 90);
+        }
     } while (false);
 
     return 0;

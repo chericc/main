@@ -18,20 +18,41 @@ PacketStable::PacketStable(packet_stable_data_cb cb, void *user_data)
     _trd = std::make_shared<std::thread>(trd);
 }
 
+PacketStable::~PacketStable()
+{
+    Lock lock(_mutex_queue);
+    _cond_over_low.notify_one();
+    _cond_need_wait.notify_one();
+    xlog_dbg("wait thread\n");
+    _trd->join();
+    xlog_dbg("wait thread end\n");
+}
+
 void PacketStable::push(const void *data, size_t bytes, uint32_t timestamp_ms)
 {
+    xlog_dbg("timestamp: %u\n", timestamp_ms);
+
     do {
         Lock lock(_mutex_queue);
 
         if (_queue.size() > QUEUE_MAX) {
-            xlog_err("queue full\n");
+            // old packets is cleared, no need to wait any more.
+            // or will get old packets again(wait too long).
+            xlog_err("!!!!!! queue full \n");
+            _queue.clear();
+            _last_ts_ms = 0;
+            _last_dts = Clock::time_point::min();
+            _cond_need_wait.notify_one();
             break;
         }
 
         auto pkt = std::make_shared<Packet>(data, bytes, timestamp_ms);
 
         _queue.push_back(pkt);
-        _cond_not_empty.notify_one();
+
+        if (_queue.size() > QUEUE_LOW_LEVEL) {
+            _cond_over_low.notify_one();
+        }
     } while (0);
 
     return ;
@@ -39,54 +60,43 @@ void PacketStable::push(const void *data, size_t bytes, uint32_t timestamp_ms)
 
 void PacketStable::_trd_worker()
 {
-    while (true) {
+    while (_trd_run_flag) {
         Lock lock(_mutex_queue);
 
-        if (_queue.empty()) {
-            // xlog_dbg("wait empty\n");
-            _cond_not_empty.wait(lock);
-            continue;
+        while (_trd_run_flag && _queue.size() < QUEUE_LOW_LEVEL) {
+            xlog_dbg("waiting low level\n");
+            _cond_over_low.wait(lock);
         }
 
-        // xlog_dbg("not empty\n");
-
-        auto front = _queue.front();
-
-        // calculate dts
-
-        // first packet
-        if (_last_dts == Clock::time_point::min()) {
-            xlog_dbg("first packet\n");
-            _send_packet(front);
+        while (_trd_run_flag && !_queue.empty()) {
+            auto now = Clock::now();
+            auto front = _queue.front();
             _queue.pop_front();
-            continue;
-        } 
+            if (_last_dts == Clock::time_point::min()) {
+                _send_packet(front);
+                _last_dts = now;
+                _last_ts_ms = front->ts_ms;
+            } else {
+                auto ms_dts_diff = front->ts_ms - _last_ts_ms;
+                Timepoint tp_dts = _last_dts + Ms(ms_dts_diff);
+                auto wait_ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp_dts - now).count();
+                // xlog_dbg("wait %d ms(%d)\n", (int)wait_ms, front->ts_ms);
+                _cond_need_wait.wait_until(lock, tp_dts);
+                _send_packet(front);
+                _last_dts = tp_dts;
+                _last_ts_ms = front->ts_ms;
+            }
 
-        // not first packet
-        if (front->ts_ms >= _last_ts_ms) { // timestamp not reversed
-            auto ms_dts_diff = front->ts_ms - _last_ts_ms;
-            Timepoint tp_dts = _last_dts + Ms(ms_dts_diff);
-            _cond_need_wait.wait_until(lock, tp_dts);
-            _send_packet(front);
-        } else { // timestamp reversed 2^32 / 90 / 1000 / 3600 = 13.26 hours
-            xlog_dbg("timestamp reverse detected\n");
-            // calculation is same as not reversed
-            auto ms_dts_diff = front->ts_ms - _last_ts_ms;
-            Timepoint tp_dts = _last_dts + Ms(ms_dts_diff);
-            _cond_need_wait.wait_until(lock, tp_dts);
-            _send_packet(front);
+            xlog_dbg("queue.size=%u\n", (int)_queue.size());
         }
 
-        _queue.pop_front();
 
-        // xlog_dbg("queue.size=%u\n", (int)_queue.size());
+        
     }
     
 }
 
 void PacketStable::_send_packet(PacketPtr const& packet)
 {
-    _last_dts = Clock::now();
-    _last_ts_ms = packet->ts_ms;
     _cb(packet->data.data(), packet->data.size(), _user_data);
 }

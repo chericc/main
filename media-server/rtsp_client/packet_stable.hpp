@@ -31,9 +31,11 @@ struct Packet
 class PacketStable
 {
 public:
-    const size_t QUEUE_MAX = 100;
+    const size_t QUEUE_MAX = 40;
+    const size_t QUEUE_LOW_LEVEL = 20;
 public:
     PacketStable(packet_stable_data_cb cb, void *user_data);
+    ~PacketStable();
 
     // notes: packets should already be sorted with timestamp
     // (i.e. timestamp_ms always forward)
@@ -51,8 +53,7 @@ private:
 
     std::mutex _mutex_queue;
     std::deque<PacketPtr> _queue;
-    std::condition_variable _cond_not_empty;
-    std::condition_variable _cond_not_full;
+    std::condition_variable _cond_over_low;
     std::condition_variable _cond_need_wait;
 
     bool _trd_run_flag = false;
