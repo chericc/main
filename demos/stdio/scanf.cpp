@@ -1,5 +1,14 @@
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
+
+void test_wifi_info()
+{
+    const char *content = "RSSI=-32";
+    char value[32];
+    sscanf(content, "%*[^=]=%s", value);
+    printf("value=%d\n", atoi(value));
+}
 
 void test_rtsp_url()
 {
@@ -55,6 +64,6 @@ void test_utc()
 
 int main() 
 {
-    test_rtsp_url();
+    test_wifi_info();
     return 0;
 }
