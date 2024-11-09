@@ -138,4 +138,13 @@ copy from https://github.com/ireader/media-server
 sudo apt install zlib1g-dev
 cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF -DLWS_WITH_MINIMAL_EXAMPLES=ON -DLWS_WITHOUT_EXTENSIONS=OFF
 
+# live555
+COMPILE_OPTS = -DNO_OPENSSL=1 -DNO_STD_LIB=1
+LIBS_FOR_CONSOLE_APPLICATION = 
+PREFIX = /home/test/opensrc/live555/output
+
+./genMakefiles ...
+mkdir output
+make && make install
+
 ```
