@@ -4,43 +4,39 @@ aux_source_directory(. src_xplay)
 aux_source_directory(test src_xplay_test)
 
 include_directories(
-    ${G_FFMPEG_INC_PATH}
+    ${HEADER_FFMPEG}
     ${G_XTOOLS_XLOG_HEADER_PATH}
-    ${G_GOOGLETEST_INC_PATH}
     ${G_XPLAY_HEADER_PATH}
     ${G_XTOOLS_XTHREAD_HEADER_PATH}
     ${G_XTOOLS_XUTILITY_HEADER_PATH}
 )
 
-link_directories(
-    ${G_FFMPEG_LIB_PATH}
-)
-
 add_library(
     ${G_XPLAY} SHARED ${src_xplay}
 )
+
+set(LIB_FFMPEG 
+    ${LIB_FFMPEG_AVFORMAT}
+    ${LIB_FFMPEG_AVCODEC}
+    ${LIB_FFMPEG_AVUTIL}
+    ${LIB_FFMPEG_AVSWRESAMPLE}
+    ${LIB_FFMPEG_SWSCALE}
+)
+
 target_link_libraries(
     ${G_XPLAY}
     ${G_XTOOLS}
-    avformat swscale avformat avcodec avutil swresample
+    ${LIB_FFMPEG}
 )
 
-if(${gnu})
+if(LIB_GOOGLETEST)
+
 set(COMMON_LIB 
     ${G_XTOOLS}
     avformat swscale avformat avcodec avutil swresample 
-    ${G_GOOGLETEST}
-    pthread)
-elseif(${msvc})
-set(COMMON_LIB 
-    ${G_XTOOLS}
-    avformat swscale avformat avcodec avutil swresample
     ${G_GOOGLETEST})
-elseif(${clang})
-set(COMMON_LIB 
-    ${G_XTOOLS}
-    avformat swscale avformat avcodec avutil swresample
-    ${G_GOOGLETEST})
+if(${gnu})
+set(COMMON_LIB ${COMMON_LIB} pthread)
 endif()
 
 add_definitions(-DRES_VIDEO_PATH="${G_RESOURCE_PATH}/video")
@@ -58,3 +54,5 @@ target_link_libraries(
 
 add_test(NAME ${L_XPLAY_TEST}
         COMMAND ${L_XPLAY_TEST})
+
+endif()

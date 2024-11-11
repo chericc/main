@@ -5,8 +5,8 @@ project(main)
 message("compiler is " ${CMAKE_CXX_COMPILER_ID})
 
 if(NOT CMAKE_BUILD_TYPE)
-  message(WARNING "CMAKE_BUILD_TYPE not set, default to release")
-  set(CMAKE_BUILD_TYPE "Release")
+  message(WARNING "CMAKE_BUILD_TYPE not set, default to Release")
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMAKE_BUILD_TYPE not set, default to Release" FORCE)
 endif()
 
 # platform
@@ -35,100 +35,46 @@ else()
 add_compile_options(-Wall -Wextra)
 endif()
 
+# googletest
+find_library(LIB_GOOGLETEST gtest)
+
+# ffmpeg
+find_library(LIB_FFMPEG_AVFORMAT avformat)
+find_library(LIB_FFMPEG_AVCODEC avcodec)
+find_library(LIB_FFMPEG_AVUTIL avutil)
+find_library(LIB_FFMPEG_AVSWRESAMPLE swresample)
+find_library(LIB_FFMPEG_SWSCALE swscale)
+find_path(HEADER_FFMPEG libavformat)
+
+# SDL2
+find_library(LIB_SDL2 SDL2main)
+
+# fdk-aac
+find_library(LIB_FDKAAC fdk-aac)
+
+# freetype
+find_library(LIB_FREETYPE freetype)
+
+# libevent
+find_library(LIB_EVENT event)
+
+# cjson
+find_library(LIB_CJSON cjson cjson_utils)
+
+# curl
+find_library(LIB_CURL curl)
+
+# libwebsocket
+find_library(LIB_WEBSOCKETS websockets)
+
+# test_comm just for test use
+
 # main
 set(G_GOOGLETEST_MAIN_SRCFILE ${CMAKE_SOURCE_DIR}/test.cpp)
 
 # resource
 set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 
-# googletest
-set(G_GOOGLETEST gtest)
-if(${msvc})
-set(G_GOOGLETEST_PATH D:/opensrc/googletest/install)
-elseif(${gnu})
-set(G_GOOGLETEST_PATH /home/test/opensrc/googletest/build/output)
-elseif(${clang})
-set(G_GOOGLETEST_PATH ~/opensrc/googletest/build/output)
-endif()
-set(G_GOOGLETEST_LIB_PATH ${G_GOOGLETEST_PATH}/lib)
-set(G_GOOGLETEST_INC_PATH ${G_GOOGLETEST_PATH}/include)
-
-# ffmpeg
-if(${msvc})
-set(G_FFMPEG_PATH D:/opensrc/ffmpeg/ffmpeg-full_build-shared)
-elseif(${gnu})
-set(G_FFMPEG_PATH /home/test/opensrc/ffmpeg/build/output)
-elseif(${clang})
-set(G_FFMPEG_PATH ~/opensrc/ffmpeg/build/output)
-endif()
-set(G_FFMPEG_LIB_PATH ${G_FFMPEG_PATH}/lib)
-set(G_FFMPEG_INC_PATH ${G_FFMPEG_PATH}/include)
-
-# SDL2
-if(${msvc})
-set(G_SDL2_PATH D:/opensrc/SDL/install)
-elseif(${clang})
-set(G_SDL2_PATH ~/opensrc/SDL/build/output/)
-elseif(${gnu})
-set(G_SDL2_PATH ~/opensrc/SDL/build/output/)
-endif()
-set(G_SDL2_LIB_PATH ${G_SDL2_PATH}/lib)
-set(G_SDL2_INC_PATH ${G_SDL2_PATH}/include)
-set(G_SDL2 SDL2 SDL2main)
-
-# fdk-aac
-set(G_FDKAAC_PATH /home/test/opensrc/fdkaac/build/output)
-set(G_FDKAAC_LIB_PATH ${G_FDKAAC_PATH}/lib)
-set(G_FDKAAC_INC_PATH ${G_FDKAAC_PATH}/include/fdk-aac)
-
-# freetype
-if(${msvc})
-set(G_FREETYPE_PATH D:/opensrc/freetype/build/out)
-elseif(${gnu})
-set(G_FREETYPE_PATH ~/opensrc/freetype/build/output)
-elseif(${clang})
-set(G_FREETYPE_PATH ~/opensrc/freetype/build/output)
-endif()
-set(G_FREETYPE_LIB_PATH ${G_FREETYPE_PATH}/lib)
-set(G_FREETYPE_INC_PATH ${G_FREETYPE_PATH}/include/freetype2)
-
-# opengl depends
-## glfw
-if(${msvc})
-set(G_GLFW_PATH D:/opensrc/glfw/glfw-3.3.9/out/install/x64-Debug)
-set(G_GLFW_LIB_PATH ${G_GLFW_PATH}/lib)
-set(G_GLFW_INC_PATH ${G_GLFW_PATH}/include)
-endif()
-
-# libevent
-set(G_LIBEVENT event)
-if(${msvc})
-elseif(${gnu})
-set(G_LIBEVENT_PATH ~/opensrc/libevent/build/output)
-elseif(${clang})
-endif()
-set(G_LIBEVENT_LIB_PATH ${G_LIBEVENT_PATH}/lib)
-set(G_LIBEVENT_INC_PATH ${G_LIBEVENT_PATH}/include)
-
-# cjson
-set(G_CJSON_LIBS cjson cjson_utils)
-set(G_CJSON_PATH ~/opensrc/cjson/build/output)
-set(G_CJSON_LIB_PATH ${G_CJSON_PATH}/lib)
-set(G_CJSON_INC_PATH ${G_CJSON_PATH}/include)
-
-# curl
-set(G_CURL_LIBNAME curl)
-set(G_CURL_PATH ~/opensrc/curl/build/output)
-set(G_CURL_LIB_PATH ${G_CURL_PATH}/lib)
-set(G_CURL_INC_PATH ${G_CURL_PATH}/include)
-
-# libwebsocket
-set(G_LWSNAME websockets)
-set(G_LWS_PATH ~/opensrc/libwebsocket/build/output)
-set(G_LWS_LIB_PATH ${G_LWS_PATH}/lib)
-set(G_LWS_INC_PATH ${G_LWS_PATH}/include)
-
-# test_comm just for test use
 set(G_TEST_COMM test_comm)
 set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
 set(G_TEST_COMM_LIB_PATH ${G_TSET_COMM_LIB_PATH}/lib)
@@ -175,12 +121,6 @@ set(G_NET net)
 set(G_PCAP2TS pcap2ts)
 set(G_PCAP2TS_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/pcap2ts)
 
-# add googletest include path
-
-link_directories(${G_GOOGLETEST_LIB_PATH})
-include_directories(${G_GOOGLETEST_INC_PATH})
-include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
-
 if(${gnu})
 link_libraries(pthread)
 endif()
@@ -191,15 +131,6 @@ include(CTest)
 
 option(USE_ASAN "use asan(ASAN)" OFF)
 option(USE_BIG_ENDIAN "big endian" OFF)
-option(WITH_GTEST "has googletest" OFF)
-option(WITH_FREETYPE "has freetype(library)" OFF)
-option(WITH_FFMPEG  "has ffmpeg(library)" OFF)
-option(WITH_OPENGL "has OpenGL environment" OFF)
-option(WITH_LIBEVENT "has libevent" OFF)
-option(WITH_SDL "has SDL" OFF)
-option(WITH_CJSON "has cJSON" OFF)
-option(WITH_CURL "has curl" OFF)
-option(WITH_LWS "has libwebsockets" OFF)
 option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
 if (USE_ASAN)
@@ -242,18 +173,28 @@ add_subdirectory(audio/wav/demuxer)
 add_subdirectory(cs/DesignPatterns)
 add_subdirectory(cs/Algorithm)
 
+if(LIB_CJSON)
 add_subdirectory(demos/cjson)
+endif()
+
+if(LIB_CURL)
 add_subdirectory(demos/curl)
+endif()
+
 add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/h264_sei)
 add_subdirectory(demos/mjson)
 add_subdirectory(demos/mkdir)
-add_subdirectory(demos/network)
-if(WITH_LWS)
+
+if(LIB_EVENT)
+add_subdirectory(demos/libevent)
+endif()
+
+if(LIB_WEBSOCKETS)
 add_subdirectory(demos/websockets)
 endif()
 
-if(WITH_SDL)
+if(LIB_SDL)
 add_subdirectory(demos/sdl)
 endif()
 
@@ -269,11 +210,17 @@ endif()
 add_subdirectory(stl)
 add_subdirectory(test_comm)
 add_subdirectory(textenc)
-if(WITH_FFMPEG)
+
+if(LIB_FFMPEG_AVFORMAT
+  AND LIB_FFMPEG_AVCODEC
+  AND LIB_FFMPEG_AVUTIL
+  AND LIB_FFMPEG_AVSWRESAMPLE
+  AND LIB_FFMPEG_SWSCALE)
 add_subdirectory(xmedia/xplay)
-if(WITH_SDL)
+if(LIB_SDL)
 add_subdirectory(xmedia/xdisplay)
-endif()
-endif()
+endif() # sdl
+endif() # ffmpeg
+
 add_subdirectory(xmedia/pcap2ts)
 add_subdirectory(xtools)

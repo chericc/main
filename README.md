@@ -2,6 +2,15 @@
 
 ( 0_0 )
 
+## Compile cmds
+
+```bash
+export OPENSRC_LIB_PATH=/home/test/opensrc
+export CMAKE_INCLUDE_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/include
+export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+```
+
 ## Ubuntu setup
 
 ```bash

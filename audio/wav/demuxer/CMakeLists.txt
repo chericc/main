@@ -20,7 +20,7 @@ target_link_libraries(${G_XWAV_DEMUXER}
     ${G_XTOOLS})
 
 # tests
-if(WITH_GTEST)
+if(LIB_GOOGLETEST)
 
 if(${gnu})
 set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_XWAV_DEMUXER} ${G_XTOOLS} pthread)

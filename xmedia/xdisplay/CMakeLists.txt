@@ -10,11 +10,6 @@ include_directories(
 	${G_XTOOLS_XUTILITY_HEADER_PATH}
 )
 
-link_directories(
-	${G_SDL2_LIB_PATH}
-	${G_FFMPEG_LIB_PATH}
-)
-
 add_executable(
 	${L_XDISPLAY}
 	${src_xdisplay}
