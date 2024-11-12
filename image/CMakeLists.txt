@@ -15,7 +15,7 @@ include_directories(
     ${G_XTOOLS_XIO_HEADER_PATH}
     ${G_IMAGE_BMP_HEADER_PATH}
     ${G_IMAGE_IMAGEVIEW_HEADER_PATH}
-    ${G_FREETYPE_INC_PATH}
+    ${HEADER_FREETYPE}
     ${G_IMAGE_FREETYPEWRAPPER_HEADER_PATH}
     ${G_TEXTENC_UTF8_HEADER_PATH}
 )
@@ -32,9 +32,6 @@ add_library(${G_IMAGE}
 target_link_libraries(${G_IMAGE}
     ${G_XTOOLS}
     ${G_TEXTENC})
-
-if (WITH_FREETYPE)
-endif()
 
 if(${gnu})
 set(COMMON_LIB ${G_GOOGLETEST} ${G_TEST_COMM} ${G_IMAGE} ${G_XTOOLS} ${G_TEXTENC} pthread)
@@ -67,16 +64,17 @@ add_test(NAME ${L_IMAGE_IMAGEVIEW_TEST}
         COMMAND ${L_IMAGE_IMAGEVIEW_TEST})
 endif()
 
-if (WITH_FREETYPE)
-target_link_libraries(${G_IMAGE}
-    freetype)
+if (LIB_FREETYPE)
+# target_link_libraries(${G_IMAGE}
+#     freetype)
 
-target_sources(${G_IMAGE} 
-    PRIVATE ${src_freetypewrapper})
+# target_sources(${G_IMAGE} 
+#     PRIVATE ${src_freetypewrapper})
 
 add_executable(${L_IMAGE_FREETYPEWRAPPER_DEMO}
-    ${src_freetypewrapper_demo})
+    ${src_freetypewrapper_demo}
+    ${src_freetypewrapper})
 target_link_libraries(${L_IMAGE_FREETYPEWRAPPER_DEMO}
     ${COMMON_LIB}
-    )
+    ${LIB_FREETYPE})
 endif()

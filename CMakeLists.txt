@@ -54,6 +54,7 @@ find_library(LIB_FDKAAC fdk-aac)
 
 # freetype
 find_library(LIB_FREETYPE freetype)
+find_path(HEADER_FREETYPE freetype PATH_SUFFIXES freetype2) # freetype2/freetype
 
 # libevent
 find_library(LIB_EVENT event)
