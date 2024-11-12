@@ -1,9 +1,9 @@
 #pragma once
 
-#include <SDL.h>
-
 #include <memory>
 
+
+#include "SDL2/SDL.h"
 #include "xplay.hpp"
 
 struct State {

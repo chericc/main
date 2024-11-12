@@ -3,6 +3,8 @@ set(L_XPLAY_TEST test_xplay)
 aux_source_directory(. src_xplay)
 aux_source_directory(test src_xplay_test)
 
+message("HEADER" ${HEADER_FFMPEG})
+
 include_directories(
     ${HEADER_FFMPEG}
     ${G_XTOOLS_XLOG_HEADER_PATH}
@@ -19,7 +21,7 @@ set(LIB_FFMPEG
     ${LIB_FFMPEG_AVFORMAT}
     ${LIB_FFMPEG_AVCODEC}
     ${LIB_FFMPEG_AVUTIL}
-    ${LIB_FFMPEG_AVSWRESAMPLE}
+    ${LIB_FFMPEG_SWRESAMPLE}
     ${LIB_FFMPEG_SWSCALE}
 )
 
@@ -29,7 +31,7 @@ target_link_libraries(
     ${LIB_FFMPEG}
 )
 
-if(LIB_GOOGLETEST)
+if(LIB_GTEST)
 
 set(COMMON_LIB 
     ${G_XTOOLS}

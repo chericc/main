@@ -6,6 +6,7 @@ aux_source_directory(. src_xdisplay)
 add_definitions(-DRES_VIDEO_PATH="${G_RESOURCE_PATH}/video")
 
 include_directories(
+    ${HEADER_FFMPEG}
 	${G_XTOOLS_XTHREAD_HEADER_PATH}
 	${G_XTOOLS_XUTILITY_HEADER_PATH}
 )

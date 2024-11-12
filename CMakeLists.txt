@@ -36,13 +36,13 @@ add_compile_options(-Wall -Wextra)
 endif()
 
 # googletest
-find_library(LIB_GOOGLETEST gtest)
+find_library(LIB_GTEST gtest)
 
 # ffmpeg
 find_library(LIB_FFMPEG_AVFORMAT avformat)
 find_library(LIB_FFMPEG_AVCODEC avcodec)
 find_library(LIB_FFMPEG_AVUTIL avutil)
-find_library(LIB_FFMPEG_AVSWRESAMPLE swresample)
+find_library(LIB_FFMPEG_SWRESAMPLE swresample)
 find_library(LIB_FFMPEG_SWSCALE swscale)
 find_path(HEADER_FFMPEG libavformat)
 
@@ -214,10 +214,10 @@ add_subdirectory(textenc)
 if(LIB_FFMPEG_AVFORMAT
   AND LIB_FFMPEG_AVCODEC
   AND LIB_FFMPEG_AVUTIL
-  AND LIB_FFMPEG_AVSWRESAMPLE
+  AND LIB_FFMPEG_SWRESAMPLE
   AND LIB_FFMPEG_SWSCALE)
 add_subdirectory(xmedia/xplay)
-if(LIB_SDL)
+if(LIB_SDL2)
 add_subdirectory(xmedia/xdisplay)
 endif() # sdl
 endif() # ffmpeg

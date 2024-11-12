@@ -11,6 +11,26 @@ export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 ```
 
+## or
+
+```bash
+# may have version compatibility problem
+sudo apt install \
+libsdl2-dev \
+libavformat-dev \
+libavcodec-dev \
+libavutil-dev \
+libswresample-dev \
+libswscale-dev \
+libfreetype-dev \
+libgtest-dev \
+libwebsockets-dev \
+libfdk-aac-dev \
+libevent-dev \
+libcurl4-openssl-dev \
+libcjson-dev -y
+```
+
 ## Ubuntu setup
 
 ```bash

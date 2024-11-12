@@ -47,7 +47,7 @@ endif()
 add_definitions(-DRES_BMP_PATH="${G_RESOURCE_PATH}/bmp")
 add_definitions(-DRES_FONT_PATH="${G_RESOURCE_PATH}/font")
 
-if(LIB_GOOGLETEST)
+if(LIB_GTEST)
 add_executable(${L_IMAGE_BMP_TEST}
     ${src_bmp_test}
     ${G_GOOGLETEST_MAIN_SRCFILE})
