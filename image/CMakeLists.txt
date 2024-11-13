@@ -15,7 +15,6 @@ include_directories(
     ${G_XTOOLS_XIO_HEADER_PATH}
     ${G_IMAGE_BMP_HEADER_PATH}
     ${G_IMAGE_IMAGEVIEW_HEADER_PATH}
-    ${HEADER_FREETYPE}
     ${G_IMAGE_FREETYPEWRAPPER_HEADER_PATH}
     ${G_TEXTENC_UTF8_HEADER_PATH}
 )
@@ -65,6 +64,10 @@ add_test(NAME ${L_IMAGE_IMAGEVIEW_TEST}
 endif()
 
 if (LIB_FREETYPE)
+
+include_directories(
+    ${HEADER_FREETYPE})
+
 # target_link_libraries(${G_IMAGE}
 #     freetype)
 
