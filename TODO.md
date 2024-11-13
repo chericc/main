@@ -21,3 +21,4 @@
 - png support (png --> rgba)
 - linux kernel's free, available, between kmalloc and malloc. can kmalloc failed when available. can malloc fail when available.
 - configs --> into cjson format
+- use flask in python, create a good front-end for c programs.
