@@ -184,6 +184,7 @@ endif()
 
 add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/h264_sei)
+add_subdirectory(demos/json_nlohmann)
 add_subdirectory(demos/mjson)
 add_subdirectory(demos/mkdir)
 
