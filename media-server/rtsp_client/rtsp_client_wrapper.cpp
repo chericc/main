@@ -91,7 +91,7 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
     do {
 
         int idx = demux_ctx->idx;
-        if (idx < 0 || idx >= ARRAY_SIZE(demux_ctx->obj->stable)) {
+        if (idx < 0 || idx >= (int)ARRAY_SIZE(demux_ctx->obj->stable)) {
             xlog_err("invalid idx(%d)\n", idx);
             break;
         }
@@ -317,13 +317,25 @@ void *trd_recv_rtsp(void *args)
     prctl(PR_SET_NAME, "rtsp_client_recv");
 
     socket_setnonblock(obj->socket, 0);
+    socket_setrecvtimeout(obj->socket, 1);
+    socket_setkeepalive(obj->socket, true);
 
     uint8_t buf[64 * 1024];
     while (obj->trd_recv_running_flag) {
+        errno = 0;
         int ret_recv = socket_recv(obj->socket, buf, sizeof(buf), 0);
-        if (ret_recv <= 0) {
-            xlog_err("recv end or error\n");
+        int errno_cache = errno;
+        if (ret_recv == 0) {
+            xlog_war("recv eof\n");
             break;
+        } else if (ret_recv < 0) {
+            if (errno_cache == EAGAIN || errno_cache == EWOULDBLOCK) {
+                xlog_war("recv timeout(error:%s)\n", strerror(errno_cache));
+                continue;
+            } else {
+                xlog_err("recv error(error:%s)\n", strerror(errno_cache));
+            break;
+            }
         }
         int ret_input = rtsp_client_input(obj->rtsp, buf, ret_recv);
         if (ret_input != 0) {

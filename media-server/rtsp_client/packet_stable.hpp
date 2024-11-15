@@ -36,8 +36,8 @@ struct Packet
 class PacketStable
 {
 public:
-    const size_t QUEUE_MAX = 40;
-    const size_t QUEUE_LOW_LEVEL = 20;
+    const size_t QUEUE_MAX = 10;
+    const size_t QUEUE_LOW_LEVEL = 5;
 public:
     PacketStable(packet_stable_data_cb cb, void *user_data);
     ~PacketStable();

@@ -34,7 +34,6 @@ PacketStable::~PacketStable()
 
 void PacketStable::push(const void *data, size_t bytes, uint32_t timestamp_ms)
 {
-    xlog_dbg("timestamp: %u\n", timestamp_ms);
 
     do {
         Lock lock(_mutex_queue);
@@ -53,7 +52,7 @@ void PacketStable::push(const void *data, size_t bytes, uint32_t timestamp_ms)
         if (!_queue.empty()) {
             if (_queue.back()->ts_ms == timestamp_ms) {
                 _queue.back()->append(data, bytes);
-                xlog_dbg("append: final size=%d\n", (int)_queue.back()->data.size());
+                // xlog_dbg("append: final size=%d\n", (int)_queue.back()->data.size());
                 break;
             }
         }
@@ -83,10 +82,14 @@ void PacketStable::_trd_worker()
 
         xlog_dbg("start poping .....\n");
 
+        _last_dts = Clock::time_point::min(); // re-start
+
+        int count = 0;
         while (_trd_run_flag && !_queue.empty()) {
             auto now = Clock::now();
             auto front = _queue.front();
             _queue.pop_front();
+            ++count;
             if (_last_dts == Clock::time_point::min()) {
                 _send_packet(front);
                 _last_dts = now;
@@ -102,10 +105,10 @@ void PacketStable::_trd_worker()
                 _last_ts_ms = front->ts_ms;
             }
 
-            xlog_dbg("queue.size=%u\n", (int)_queue.size());
+            // xlog_dbg("queue.size=%u\n", (int)_queue.size());
         }
 
-        xlog_dbg("not enough packets\n");
+        xlog_dbg("not enough packets(%d packets sent)\n", count);
     }
     
 }

@@ -48,7 +48,7 @@ static void data_cb(int ch, int payload, const void *data, size_t bytes)
 int main()
 {
     rtsp_client_wrapper_param param = {};
-    param.host = "10.0.0.100";
+    param.host = "10.0.0.104";
     param.file = "0/1";
     param.port = "554";
     param.username = "admin";
