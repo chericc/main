@@ -428,7 +428,11 @@ sudo vim /etc/tomcat9/web.xml
 set -g status-right "%H:%M:%S %d-%b"
 
 # 设置整个状态栏背景颜色 bg(背景色) fg(前景色)
-set -g status-style "bg=#882244"
+set -g status-bg blue
+set -g status-fg white
+# set -g status-style bold
+# set -g window-active-style fg=white,bg=blue,bold
+# set -g window-style fg=gray,bg=black
 
 set -g base-index 1
 set -g pane-base-index 1
