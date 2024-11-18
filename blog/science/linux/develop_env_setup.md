@@ -455,3 +455,37 @@ set -sg escape-time 0
 set -g display-time 1500
 set -g remain-on-exit off
 ```
+
+```bash
+# 右下角类似效果：21:58:48 12-12
+set -g status-right "%H:%M:%S %d-%b"
+
+# 设置整个状态栏背景颜色 bg(背景色) fg(前景色)
+set -g status-style "bg=#882244"
+
+# 分别设置状态栏左右颜色
+# set -g status-left "bg=#3a3a3a"                                                                                                                                                                                # set -g status-left "fg=#bcbcbc"
+
+
+set -g base-index 1
+set -g pane-base-index 1
+                                                                                                                                                                                                                 
+set -g status-interval 1    # 状态栏刷新时间(右下角秒针会跳动)
+set -g status-justify left  # 状态栏窗口列表(window list)左对齐
+
+set -g visual-activity on # 启用活动警告
+set -wg monitor-activity on # 非当前窗口有内容更新时在状态栏通知
+set -g message-style "bg=#202529, fg=#91A8BA" # 指定消息通知的前景、后景色
+
+set -wg window-status-current-format " #I:#W#F " # 状态栏当前窗口名称格式(#I：序号，#w：窗口名 称，#F：间隔符)
+set -wg window-status-current-style "fg=#d7fcaf,bg=#60875f" # 状态栏当前窗口名称的样式
+set -wg window-status-separator "" # 状态栏窗口名称之间的间隔
+
+
+
+# 命令回滚/历史数量限制
+set -g history-limit 20480
+set -sg escape-time 0
+set -g display-time 1500
+set -g remain-on-exit off
+```
