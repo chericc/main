@@ -155,4 +155,7 @@ git branch -u origin/<remote-branch> <local-branch>
 # info
 git branch -vv
 
+# push local branch to remote
+git push origin <local-branch-name>[:<remote-branch-name>]
+
 ```
