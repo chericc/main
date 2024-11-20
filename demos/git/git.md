@@ -135,3 +135,24 @@ echo "\`\`\`" > $logfile
 git log -p --since "1 month ago" $docdir | sed -E "s/\`\`\`|^Author.*|^commit.*|^diff.*//g" | sed -E "s/(^Date.*)/\`\`\`\n## \1\n\n\`\`\`/g" >> $logfile
 echo "\`\`\`" >> $logfile
 ```
+
+## branch 
+
+```bash
+
+# switch branch 
+git checkout <branchname>
+
+# delete branch 
+git branch -d <branchname>
+
+# create branch 
+git branch <branchname>
+
+# connect to remote branch 
+git branch -u origin/<remote-branch> <local-branch>
+
+# info
+git branch -vv
+
+```
