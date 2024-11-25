@@ -1,5 +1,16 @@
 # TODO
 
+- [ ] 二级指针
+#include <stdio.h>
+int main()
+{
+    int a[4] = { 1, 2, 3, 4 };
+    printf("a=%p\n", a);
+    printf("&a=%p\n", &a);
+    int **t = &a;
+    printf("t[0]=%d,t[1]=%d\n", t[0], t[1]);
+    return 0;
+}
 - [ ] blog/science/linux/锁的实现.md
 - [ ] blog/science/linux/系统调用.md
 - [ ] demos/memorypool
