@@ -1,16 +1,6 @@
 # TODO
 
 - [ ] 二级指针
-#include <stdio.h>
-int main()
-{
-    int a[4] = { 1, 2, 3, 4 };
-    printf("a=%p\n", a);
-    printf("&a=%p\n", &a);
-    int **t = &a;
-    printf("t[0]=%d,t[1]=%d\n", t[0], t[1]);
-    return 0;
-}
 - [ ] blog/science/linux/锁的实现.md
 - [ ] blog/science/linux/系统调用.md
 - [ ] demos/memorypool
@@ -22,7 +12,7 @@ int main()
 - [ ] android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md 及其对linux平台开发调试的启发，android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
 - [ ] seperate debug info(objcopy) blog
 - [ ] png support (png --> rgba)
-- [ ] linux kernel's free, available, between kmalloc and malloc. can kmalloc failed when available. can malloc fail when available.
+- [x] linux kernel's free, available, between kmalloc and malloc. can kmalloc failed when available. can malloc fail when available.
 - [x] blog/science/cpp/右值和右值引用.md
 - [x] net/tcp/tcpsocket(not important)
 - [x] demos/ffmpeg
