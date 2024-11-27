@@ -159,3 +159,9 @@ git branch -vv
 git push origin <local-branch-name>[:<remote-branch-name>]
 
 ```
+
+## git clone --recursive failed
+
+```bash
+git submodule update --init --recursive
+```
