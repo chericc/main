@@ -28,3 +28,10 @@ cmake -LH .
 ## cross compile
 
 cmake -DCMAKE_TOOLCHAIN_FILE=<crossfile>
+
+## cmake --build
+
+```bash
+# cmake build with mul threads
+cmake --build . -- -j4
+```
