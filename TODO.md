@@ -1,6 +1,5 @@
 # TODO
 
-- [ ] 二级指针
 - [ ] blog/science/linux/锁的实现.md
 - [ ] blog/science/linux/系统调用.md
 - [ ] demos/memorypool
@@ -11,8 +10,9 @@
 - [ ] cma内存与linux页迁移：为什么scudo分配器，在分配小内存时，无法使用剩余很多的cma内存，而分配大内存时，可以使用剩余的cma内存？页迁移：https://blog.csdn.net/21cnbao/article/details/108067917
 - [ ] android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md 及其对linux平台开发调试的启发，android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
 - [ ] seperate debug info(objcopy) blog
-- [ ] png support (png --> rgba)
-- [ ] std::promise with producer and consumer
+- [x] std::promise with producer and consumer
+- [x] png support (png --> rgba)(python can do this)
+- [x] 二级指针
 - [x] linux kernel's free, available, between kmalloc and malloc. can kmalloc failed when available. can malloc fail when available.
 - [x] blog/science/cpp/右值和右值引用.md
 - [x] net/tcp/tcpsocket(not important)
