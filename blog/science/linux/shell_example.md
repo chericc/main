@@ -254,12 +254,36 @@ IFS="$OLDIFS"
 echo Pack time: $(date +"%Y-%m-%d %T") > version.txt
 ```
 
-## 获取配置文件中的 = 后的名字
+## 获取配置文件中的信息
 
 ```bash
 DeviceModel = IPC_NYX_JZ_ID_P10
 
 echo "AAA_BV1 = CCC_DV123" | sed "s/.*= *\(.*\)/\1/g"
+```
+
+```bash
+{
+  "ver":"1.0.0",
+  "date":"20240806",
+}
+
+cat cfg.txt | grep date | sed -E "s/[^:]+:\"([0-9]*).*/\1/g"
+# or
+cat cfg.txt | grep date | sed -E "s/[^0-9]*([0-9]*).*/\1/g"
+# or
+cat cfg.txt | grep date | sed -E "s/[^:]*:\"([^\"]*)\".*/\1/g"
+```
+
+## 比较文件的内容
+
+```bash
+version=20240808
+version_file=version.txt
+if ! echo $version | cmp -s $version_file 
+then
+echo $version > $version_file
+fi
 ```
 
 ## 按列求和
