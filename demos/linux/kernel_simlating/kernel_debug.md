@@ -36,8 +36,46 @@ SYSTEM_TRUSTED_KEY=n
 SYSTEM_REVOCATION_KEYS=n
 ```
 
+## start up
+
+```bash
+
+/etc/inittab
+
+# or
+
+/sbin/init --> systemd
+
+```
+
+## build root filesystem
+
+```bash
+# create disk
+qemu-img create -f raw disk.img 1G
+# create partition
+fdisk ./disk.img
+# after partition create
+# fdisk -l disk.img
+Disk disk.img: 1 GiB, 1073741824 bytes, 2097152 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x1429fb50
+
+Device     Boot Start     End Sectors  Size Id Type
+disk.img1        2048 2097151 2095104 1023M 83 Linux
+# make squashfs fs for root
+mksquashfs rootfs rootfs.squashfs -no-xattrs -all-root
+# copy fs to disk's root partition(default sda)
+dd if=rootfs.squashfs of=disk.img bs=1 count=4096 seek=2048
+# 
+qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "console=ttyS0,root=/dev/sda1" -drive file=./disk.img,format=raw
+```
+
 ## fs
 
 ```bash
-qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0+ -m 512M -nographic -serial mon:stdio
+qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "console=ttyS0"
 ```
