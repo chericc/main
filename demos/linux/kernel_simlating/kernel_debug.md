@@ -1,10 +1,12 @@
 # kernel_debug
 
-## ref
+## kernel
+
+### ref
 
 `https://www.linuxprobe.com/processof-linuxrootfsand-linuxrc.html`
 
-## download kernel
+### download kernel
 
 ```bash
 # git clone 
@@ -13,7 +15,7 @@ git clone https://mirrors.ustc.edu.cn/linux.git/
 wget https://mirrors.tuna.tsinghua.edu.cn/kernel/v6.x/linux-6.12.tar.xz
 ```
 
-## build and config
+### build and config
 
 ```bash
 sudo apt install libncurses-dev flex bison libssl-dev libelf-dev -y
@@ -31,16 +33,10 @@ make -C ../linux/ INSTALL_PATH=$(pwd)/output O=$(pwd) install
 # -->
 # arch/x86/boot/bzImage
 # 
-
-
 ```
 
-```bash
-SYSTEM_TRUSTED_KEY=n
-SYSTEM_REVOCATION_KEYS=n
-```
 
-## start up
+### start up
 
 ```bash
 
@@ -52,7 +48,35 @@ SYSTEM_REVOCATION_KEYS=n
 
 ```
 
-## build root filesystem
+
+## busybox
+
+### download
+
+```bash
+wget https://busybox.net/downloads/busybox-1.36.1.tar.bz2
+```
+
+### build
+
+```bash
+make help
+make allyesconfig
+make defconfig
+make menuconfig
+
+make install
+make install-hardlinks
+
+make KBUILD_SRC=../busybox-1.36.1 -f ../busybox-1.36.1/Makefile defconfig
+make 
+
+```
+
+
+## rootfs
+
+### build rootfs
 
 ```bash
 # create disk
@@ -78,7 +102,7 @@ dd if=rootfs.squashfs of=disk.img bs=1 count=4096 seek=2048
 qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "console=ttyS0,root=/dev/sda1" -drive file=./disk.img,format=raw
 ```
 
-## fs
+### fs
 
 ```bash
 qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "console=ttyS0"
