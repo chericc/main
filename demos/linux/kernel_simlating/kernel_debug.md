@@ -1,5 +1,9 @@
 # kernel_debug
 
+## ref
+
+`https://www.linuxprobe.com/processof-linuxrootfsand-linuxrc.html`
+
 ## download kernel
 
 ```bash
