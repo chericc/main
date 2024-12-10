@@ -69,7 +69,7 @@ make install
 make install-hardlinks
 
 make KBUILD_SRC=../busybox-1.36.1 -f ../busybox-1.36.1/Makefile defconfig
-make 
+make CONFIG_PREFIX=./output install 
 
 ```
 
@@ -105,5 +105,7 @@ qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e0
 ### fs
 
 ```bash
+mkdir  dev  etc  home  lib   mnt  proc  root   sys  tmp   var -p
+
 qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "console=ttyS0"
 ```
