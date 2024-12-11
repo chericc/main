@@ -177,3 +177,43 @@ mkdir output
 make && make install
 
 ```
+
+
+# wpa_supplicant
+
+## dbus-1
+
+not necessay
+
+```bash
+sudo apt install libexpat1-dev -y
+cmake ../dbus-dbus-1.14/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output
+
+# cross
+cmake ../dbus-dbus-1.14/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
+```
+
+## libnl-3.0
+
+```bash
+wget https://www.infradead.org/~tgr/libnl/files/libnl-3.2.25.tar.gz
+env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc ./configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-shared=no
+```
+
+## build
+
+```bash
+wget https://w1.fi/releases/wpa_supplicant-2.9.tar.gz
+
+# comment out some unnecessary options
+# 
+# src/drivers/drivers.mak
+# before 'ifdef CONFIG_LIBNL32', add
+# DRV_LIBS += $(shell $(PKG_CONFIG) --libs libnl-3.0)
+# DRV_LIBS += $(shell $(PKG_CONFIG) --libs libnl-genl-3.0)
+
+env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH pkg-config --modversion libnl-3.0 
+env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH pkg-config --libs libnl-3.0 
+env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH pkg-config --libs libnl-genl-3.0
+env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc LD=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-ld LIBS="-lpthread -lm $LIBS" PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH make 
+```
