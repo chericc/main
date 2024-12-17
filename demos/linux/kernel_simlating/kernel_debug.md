@@ -123,7 +123,7 @@ mksquashfs rootfs /dev/loop5p1 -no-xattrs -all-root -noappend
 # copy fs to disk's root partition(default sda)
 dd if=rootfs.squashfs of=disk.img bs=1 count=651264 seek=2048 conv=notrunc
 # 
-qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "root=/dev/sda1 rw console=ttyS0 init=/linuxrc" -drive file=./disk.img,format=raw
+qemu-system-x86_64 -kernel ../kernel/build/output/vmlinuz-6.12.0-10553-gb86545e02e8c -m 512M -nographic -serial mon:stdio -append "root=/dev/sda1 rw console=ttyS0 init=/linuxrc" -drive file=./disk.img,format=raw -accel kvm -smp 2
 ```
 
 ### fs
