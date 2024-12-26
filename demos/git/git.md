@@ -165,3 +165,9 @@ git push origin <local-branch-name>[:<remote-branch-name>]
 ```bash
 git submodule update --init --recursive
 ```
+
+## combine
+
+```bash
+git subtree add --prefix=sdk_diff/diff ../sdk_diff_log master --squash
+```
