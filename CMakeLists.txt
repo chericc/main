@@ -67,6 +67,7 @@ find_library(LIB_CURL curl)
 
 # libwebsocket
 find_library(LIB_WEBSOCKETS websockets)
+find_path(HEADER_LIBWEBSOCKETS libwebsockets.h)
 
 # test_comm just for test use
 

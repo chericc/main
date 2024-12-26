@@ -1,26 +1,31 @@
 #include <libwebsockets.h>
 
 #include <string.h>
+#include <stdio.h>
+#include <array>
+
+#include "xlog.hpp"
 
 static int callback_example(struct lws *wsi, enum lws_callback_reasons reason,
                             void *user, void *in, size_t len) {
     switch (reason) {
         case LWS_CALLBACK_CLIENT_ESTABLISHED: {
-            lwsl_user("Connected to server\n");
+            xlog_dbg("Connected to server\n");
             lws_callback_on_writable(wsi);
             break;
         }
         case LWS_CALLBACK_CLIENT_RECEIVE: {
-            lwsl_user("Received data: %s\n", (char *)in);
+            xlog_dbg("Received data: %s\n", (char *)in);
+            lws_callback_on_writable(wsi);
             break;
         }
         case LWS_CALLBACK_CLIENT_WRITEABLE: {
-            lwsl_user("Sending message\n");
+            xlog_dbg("Sending message\n");
             const char *msg = "Hello, WebSocket!";
             size_t msg_len = strlen(msg);
-            unsigned char buf[LWS_PRE + msg_len];
-            memcpy(&buf[LWS_PRE], msg, msg_len);
-            lws_write(wsi, &buf[LWS_PRE], msg_len, LWS_WRITE_TEXT);
+            unsigned char buf[LWS_PRE + 128] = {};
+            memcpy(&buf[LWS_PRE], msg, msg_len + 1);
+            lws_write(wsi, &buf[LWS_PRE], msg_len + 1, LWS_WRITE_TEXT);
             break;
         }
         default: {
@@ -35,11 +40,13 @@ int main(void) {
 
     struct lws_protocols protocols[2] = {
         { 
-                .name = "example-protocol", 
-                .callback = callback_example, 
-                .per_session_data_size = 0, 
-                .rx_buffer_size = 4096 
+                "lws-minimal-server-echo", 
+                callback_example, 
+                0,
+                4096,
+                0, nullptr, 0, 
             },
+            LWS_PROTOCOL_LIST_TERM,
     };
 
     memset(&info, 0, sizeof(info));
@@ -47,12 +54,12 @@ int main(void) {
     info.protocols = protocols;
 
     struct lws_context *context = lws_create_context(&info);
-    struct lws_client_connect_info ccinfo = { 0 };
+    struct lws_client_connect_info ccinfo = {};
     ccinfo.context = context;
-    ccinfo.address = "example.com";
-    ccinfo.port = 80;
+    ccinfo.address = "127.0.0.1";
+    ccinfo.port = 7681;
     ccinfo.path = "/";
-    ccinfo.protocol = "example-protocol";
+    ccinfo.protocol = "";
     lws_client_connect_via_info(&ccinfo);
 
     while (lws_service(context, 1000) >= 0) {}

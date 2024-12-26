@@ -1,1 +1,2 @@
-add_subdirectory(demo_libwebsockets)
+add_subdirectory(demo_libwebsockets_client)
+add_subdirectory(demo_libwebsockets_server)
