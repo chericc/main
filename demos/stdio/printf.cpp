@@ -24,10 +24,18 @@ static int gen_uuid(const char *token, char *output, int output_size)
     return 0;
 }
 
+static int print_size(const char *str, size_t size)
+{
+    printf("str with size=%d is: <%.*s>\n", (int)size, (int)size, str);
+    return 0;
+}
+
 int main()
 {
     char buf[128];
     gen_uuid("token", buf, sizeof(buf));
     printf("uuid: <%s>\n", buf);
+
+    print_size("hello", 2);
     return 0;
 }
