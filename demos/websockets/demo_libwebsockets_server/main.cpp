@@ -6,7 +6,8 @@
 
 int main()
 {
-    lws_server_wrapper_init();
+    LwsServerWrapperParam param = {};
+    lws_server_wrapper_init(&param);
 
     for (int i = 0; i < 10; ++i) {
         xlog_dbg("wait\n");
