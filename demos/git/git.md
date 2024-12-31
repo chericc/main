@@ -158,6 +158,9 @@ git branch -vv
 # push local branch to remote
 git push origin <local-branch-name>[:<remote-branch-name>]
 
+# track branch
+git branch --set-upstream-to=origin/<branchname> <branchname>
+
 ```
 
 ## git clone --recursive failed
