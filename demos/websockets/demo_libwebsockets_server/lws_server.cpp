@@ -1,16 +1,33 @@
 #include "lws_server.hpp"
 
+#include <sys/prctl.h>
+
 // #include "fw/util/app-log.h"
 #include "xlog.hpp"
 
-// #define xlog_war xlog_war
+#include "lws_server_config.h"
+
+// #define xlog_dbg xlog_dbg
 // #define xlog_err xlog_err
 
-#define RX_BUF_SIZE (64 * 1024)
-#define CLIENT_MAX_NUM  2
+#define RX_BUF_SIZE (64 * 1024)  
 #define PING_PACKET_SIZE    (16 * 1024)
 
+#define FUNC_SCOPE_LOG 
+// #define FUNC_SCOPE_LOG FuncScopeLog log__(__func__);
+
 namespace {
+
+class FuncScopeLog {
+public:
+    FuncScopeLog(std::string func) : _func(func) {
+        xlog_dbg("%s in\n", _func.c_str());
+    }
+    ~FuncScopeLog() {
+        xlog_dbg("%s leave\n", _func.c_str());
+    }
+    std::string _func;
+};
 
 struct ClientCtx {
     LwsServerClient *client;
@@ -19,7 +36,7 @@ struct ClientCtx {
 
 void my_lws_log_emit_t(int level, const char *line)
 {
-    xlog_war("lws log: %s\n", line);
+    xlog_dbg("lws log: %s\n", line);
 }
 
 int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
@@ -37,20 +54,28 @@ int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
 
 }
 
-int LwsServerClient::setDisconnectCb(std::function<void(void)> cbDisconnect)
+int LwsServerClient::setNotifyCb(ClientCallbacks cbs)
 {
-    UniLock lock(_mutex);
+    UniRecuLock lock(_mutex);
     do {
-        if (!cbDisconnect) {
+        if (!cbs.cbOnData || !cbs.cbOnDisconnected) {
             xlog_err("null cb\n");
             break;
         }
 
-        _disconnectCb = cbDisconnect;
+        _notify_cbs = cbs;
         
+        if (!_msgs_received.empty()) {
+            for (size_t i = 0; i < _msgs_received.size(); ++i) {
+                xlog_dbg("already have received data for client(%p,%s)\n", this, _info.c_str());
+                cbs.cbOnData(this, _msgs_received[i].data(), _msgs_received[i].size());
+            }
+            _msgs_received.clear();
+        }
+
         if (_state == State::Disconnected) {
-            xlog_war("already disconnected, notify directly\n");
-            _disconnectCb();
+            xlog_dbg("already disconnected, notify directly\n");
+            cbs.cbOnDisconnected(this);
         }
     } while (0);
     return 0;
@@ -58,44 +83,94 @@ int LwsServerClient::setDisconnectCb(std::function<void(void)> cbDisconnect)
 
 std::string const&LwsServerClient::info()
 {
-    UniLock lock(_mutex);
+    UniRecuLock lock(_mutex);
     return _info;
 }
 
-int LwsServerClient::request(Request const& req, Response &resp)
+std::string const&LwsServerClient::uri()
 {
-    UniLock lock(_mutex);
+    UniRecuLock lock(_mutex);
+    return _uri;
+}
+
+int LwsServerClient::sendData(const void *data, size_t size)
+{
+    bool error_flag = false;
+    UniRecuLock lock(_mutex);
+
+    do {
+        if (!_need_write_cb) {
+            xlog_err("cb null\n");
+            error_flag = true;
+            break;
+        }
+
+        if (_msgs_to_send.size() > MAX_MSG_CACHE_NUM) {
+            xlog_err("msg cache full\n");
+            error_flag = true;
+            break;
+        }
+
+        _msgs_to_send.emplace_back(std::vector<uint8_t>((uint8_t*)data, (uint8_t*)data + size));
+        _need_write_cb();
+    } while (0);
+
+    return error_flag ? -1 : 0;
+}
+
+int LwsServerClient::withNeedWriteCb(NeedWriteCb need_write_cb)
+{
+    UniRecuLock lock(_mutex);
+    _need_write_cb = need_write_cb;
     return 0;
 }
 
-int LwsServerClient::setInfo(std::string const& info)
+int LwsServerClient::withInfo(std::string const& info)
 {
-    UniLock lock(_mutex);
+    UniRecuLock lock(_mutex);
     _info = info;
     return 0;
 }
 
-int LwsServerClient::onWritable(struct lws *wsi, std::function<WriteCb> cb)
+int LwsServerClient::withUri(std::string const& uri)
 {
-    UniLock lock(_mutex);
-    char msg[64] = "hello from server\n";
-    int ret = cb(wsi, msg, sizeof(msg), LWS_WRITE_TEXT);
+    UniRecuLock lock(_mutex);
+    _uri = uri;
+    return 0;
+}
+
+int LwsServerClient::onWritable(struct lws *wsi, WriteCb cb)
+{
+    UniRecuLock lock(_mutex);
+    int ret = 0;
+    for (size_t i = 0; i < _msgs_to_send.size(); ++i) {
+        ret = cb(wsi, _msgs_to_send[i].data(), _msgs_to_send[i].size(), LWS_WRITE_TEXT);
+    }
+    _msgs_to_send.clear();
     return ret;
 }
 
 int LwsServerClient::onReceive(const void *data, size_t size)
 {
-    UniLock lock(_mutex);
-    xlog_war("on receive: %s(size:%zu)\n", (const char *)data, size);
+    UniRecuLock lock(_mutex);
+    // xlog_dbg("on receive: %s(size:%zu)\n", (const char *)data, size);
+    if (_notify_cbs.cbOnData) {
+        _notify_cbs.cbOnData(this, data, size);
+    } else {
+        xlog_err("cbOnData null\n");
+
+    }
     return 0;
 }
 
 int LwsServerClient::onDisconnected()
 {
-    UniLock lock(_mutex);
+    UniRecuLock lock(_mutex);
     _state = State::Disconnected;
-    if (_disconnectCb) {
-        _disconnectCb();
+    if (_notify_cbs.cbOnDisconnected) {
+        _notify_cbs.cbOnDisconnected(this);
+    } else {
+        xlog_err("disconnect cb is null\n");
     }
     return 0;
 }
@@ -103,19 +178,19 @@ int LwsServerClient::onDisconnected()
 LwsServer::LwsServer(const LwsServerParam& param)
  : _param(param)
 {
-    UniLock lock(_mutex);
+    FUNC_SCOPE_LOG
+    UniRecuLock lock(_mutex);
 
     _s_msg_data = (msg_data_t*)malloc(sizeof(*_s_msg_data));
     if (!_s_msg_data) {
         xlog_err("malloc failed\n");
     }
-
-    _init();
 }
 
 LwsServer::~LwsServer()
 {
-    UniLock lock(_mutex);
+    FUNC_SCOPE_LOG
+    UniRecuLock lock(_mutex);
     _deinit();
 
     if (_s_msg_data) {
@@ -126,23 +201,34 @@ LwsServer::~LwsServer()
 
 int LwsServer::init()
 {
-    UniLock lock(_mutex);
+    FUNC_SCOPE_LOG
+    UniRecuLock lock(_mutex);
     int ret = _init();
     return ret;
 }
 
 int LwsServer::deinit()
 {
-    UniLock lock(_mutex);
+    FUNC_SCOPE_LOG
+    UniRecuLock lock(_mutex);
     int ret = _deinit();
     return ret;
 }
 
 LwsServerClient* LwsServer::waitClient(int timeout_ms)
 {
-    UniLock lock(_mutex);
-    auto client = _waitClient(timeout_ms);
+    FUNC_SCOPE_LOG
+    UniRecuLock lock(_mutex);
+    auto client = _waitClient(lock, timeout_ms);
     return client;
+}
+
+int LwsServer::destroyClient(LwsServerClient *client)
+{
+    FUNC_SCOPE_LOG
+    UniRecuLock lock(_mutex);
+    int ret = _restoreClient(client);
+    return ret;
 }
 
 int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
@@ -154,33 +240,52 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
 
     switch (reason) {
         case LWS_CALLBACK_WSI_CREATE: {
-            xlog_war("wsi create\n");
+            xlog_dbg("wsi create\n");
             break;
         }
         case LWS_CALLBACK_WSI_DESTROY: {
-            xlog_war("wsi destroy\n");
+            xlog_dbg("wsi destroy\n");
             break;
         }
         case LWS_CALLBACK_PROTOCOL_INIT: {
-            xlog_war("protocol init\n");
+            xlog_dbg("protocol init\n");
             // per_conn_cctx
             break;
         }
         case LWS_CALLBACK_PROTOCOL_DESTROY: {
-            xlog_war("protocol destroy\n");
+            xlog_dbg("protocol destroy\n");
             break;
         }
         case LWS_CALLBACK_ESTABLISHED: {
-            xlog_war("established\n");
+            xlog_dbg("established\n");
+
             per_conn_cctx->client = _produceClient();
             if (per_conn_cctx->client) {
-                
+
+                auto needWriteCb = [wsi](){
+                    // 注意wsi生命周期（捕获的wsi是client连接时的wsi）
+                    // client在disconnected之后，不能调用
+                    // 
+                    // xlog_dbg("trigger writable\n");
+                    lws_callback_on_writable(wsi);
+                };
+
                 char name[64] = {};
                 lws_get_peer_simple(wsi, name, sizeof(name));
 
+                char uri[64] = {};
+                if (lws_hdr_copy(wsi, uri, sizeof(uri), WSI_TOKEN_GET_URI) < 0) {
+                    xlog_err("get uri failed\n");
+                }
+
                 char client_info[128] = {};
-                snprintf(client_info, sizeof(client_info), "name:%s", name);
-                per_conn_cctx->client->setInfo(client_info);
+                snprintf(client_info, sizeof(client_info), "name:%s,path:%s", name, uri);
+
+                xlog_dbg("name: %s, uri: %s\n", name, uri);
+
+                per_conn_cctx->client->withUri(uri);
+                per_conn_cctx->client->withInfo(client_info);
+                per_conn_cctx->client->withNeedWriteCb(needWriteCb);
                 
                 _onClientConnected(per_conn_cctx->client);
             } else {
@@ -189,7 +294,7 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_SERVER_WRITEABLE: {
-            xlog_war("server writable\n");
+            // xlog_dbg("server writable\n");
             if (per_conn_cctx->client) {
                 auto write_cb = [this](struct lws *wsi, const void *data, size_t size, lws_write_protocol protocol) {
                     return _writeData(wsi, data, size, protocol);
@@ -201,7 +306,8 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_RECEIVE: {
-            xlog_war("receive msg: <%s>\n", (const char*)in);
+            // xlog_dbg("receive msg: <%s>\n", (const char*)in);
+            // xlog_dbg("receive msg\n");
             if (per_conn_cctx->client) {
                 per_conn_cctx->client->onReceive(in, len);
             } else {
@@ -210,14 +316,19 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_CLOSED: {
-            xlog_war("close\n");
-            xlog_war("client is: %p\n", (void*)per_conn_cctx->client);
+            xlog_dbg("close, client is: %p(%s)\n", per_conn_cctx->client, 
+                per_conn_cctx->client->info().c_str());
+
             if (per_conn_cctx->client) {
                 _onClientDisconnected(per_conn_cctx->client);
                 // _restoreClient(per_conn_cctx->client);
             } else {
-                xlog_war("client is null\n");
+                xlog_dbg("client is null\n");
             }
+
+            // lws_close_reason(wsi, LWS_CLOSE_STATUS_NORMAL, (unsigned char*)"", 0);
+            // lws_close_free_wsi(wsi, LWS_CLOSE_STATUS_NORMAL, "server");
+            ret = -1;
             break;
         }
         default: {
@@ -229,13 +340,14 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
 
 int LwsServer::_init()
 {
+    FUNC_SCOPE_LOG
     bool error_flag = false;
 
     do {
         auto cb_trd = [this]() { return this->_trdWorkder(); };
 
         if (_trd_worker) {
-            xlog_err("worker already started\n");
+            xlog_dbg("worker already started\n");
             error_flag = 1;
             break;
         }
@@ -249,16 +361,13 @@ int LwsServer::_init()
 
 void LwsServer::_trdWorkder()
 {
+    prctl(PR_SET_NAME, "lws_server");
+
     bool error_flag = false;
 	struct lws_context *context = nullptr;
 	struct lws_context_creation_info info = {};
 
-    // todo
-    // set trd name
-
     do {
-
-        // lws_set_log_level(LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_INFO | LLL_DEBUG, my_lws_log_emit_t);
         lws_set_log_level(LLL_ERR | LLL_WARN, my_lws_log_emit_t);
 
         info.port = _param.port;
@@ -273,7 +382,7 @@ void LwsServer::_trdWorkder()
         //      | LWS_SERVER_OPTION_VALIDATE_UTF8 | LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
         info.options = 0;
         info.user = this;
-        xlog_war("this: %p\n", (void*)this);
+        xlog_dbg("this: %p\n", (void*)this);
         context = lws_create_context(&info);
         if (!context) {
             xlog_err("lws_create_context failed\n");
@@ -282,12 +391,12 @@ void LwsServer::_trdWorkder()
         }
         _lws_context = context;
 
-        xlog_war("lws service begin\n");
+        xlog_dbg("lws service begin\n");
         int ret = 0;
         while (ret >= 0 && !_trd_interrupted_flag) {
             ret = lws_service(context, 0);
         }
-        xlog_war("lws service end\n");
+        xlog_dbg("lws service end\n");
     } while (0);
 
     if (error_flag) {
@@ -304,10 +413,11 @@ void LwsServer::_trdWorkder()
 
 int LwsServer::_deinit()
 {
+    FUNC_SCOPE_LOG
     int error_flag = 0;
     do {
         if (!_trd_worker) {
-            xlog_war("trd_worker not started\n");
+            xlog_dbg("trd_worker not started\n");
             error_flag = 1;
             break;
         }
@@ -318,38 +428,53 @@ int LwsServer::_deinit()
         }
 
         if (_lws_context) {
-            xlog_war("cancel service\n");
+            xlog_dbg("cancel service\n");
             lws_cancel_service(_lws_context);
             _lws_context = nullptr;
         }
 
         _trd_interrupted_flag = true;
 
-        xlog_war("join start\n");
+        xlog_dbg("join start\n");
         _trd_worker->join();
-        xlog_war("join fin\n");
+        xlog_dbg("join fin\n");
         _trd_worker = nullptr;
+
+        UniLock lock(_mutex_allocated_client_trace_pool);
+        if (!_allocated_client_trace_pool.empty()) {
+            xlog_err("deinit while pool not empty\n");
+            for (size_t i = 0; i < _allocated_client_trace_pool.size(); ++i) {
+                xlog_err("delete client: %d\n", i);
+                delete _allocated_client_trace_pool[i];
+                _allocated_client_trace_pool[i] = nullptr;
+            }
+        }
     } while (0);
 
     return error_flag ? -1 : 0;
 }
 
-LwsServerClient* LwsServer::_waitClient(int timeout_ms)
+LwsServerClient* LwsServer::_waitClient(UniRecuLock &call_lock, int timeout_ms)
 {
-    xlog_err("not implemented yet\n");
+    FUNC_SCOPE_LOG
 
     LwsServerClient *client_ret = nullptr;
 
     do {
-        UniLock _mutex_client_connected;
+        UniLock lock(_mutex_client_connected);
         if (!_client_connected.empty()) {
+            xlog_dbg("got on directly\n");
             client_ret = _client_connected.back();
             _client_connected.pop_back();
             break;
         }
 
-        _cond_client_connected_changed.wait_for(_mutex_client_connected, 
+        // xlog_dbg("no client, need wait\n");
+        call_lock.unlock();
+        _cond_client_connected_changed.wait_for(lock, 
             std::chrono::milliseconds(timeout_ms));
+        call_lock.lock();
+        // xlog_dbg("wait end\n");
         
         if (!_client_connected.empty()) {
             client_ret = _client_connected.back();
@@ -363,32 +488,37 @@ LwsServerClient* LwsServer::_waitClient(int timeout_ms)
 
 LwsServerClient *LwsServer::_produceClient()
 {
+    FUNC_SCOPE_LOG
+    UniLock lock(_mutex_allocated_client_trace_pool);
     LwsServerClient *client_ret = nullptr;
     do {
-        if (_client_pool.size() > CLIENT_MAX_NUM) {
-            xlog_err("client num over\n");
+        if (_allocated_client_trace_pool.size() > LWS_SERVER_MAX_CLIENT_NUM) {
+            xlog_err("client num over(num=%zu)\n", _allocated_client_trace_pool.size());
             break;
         }
 
         auto client = new LwsServerClient();
-        _client_pool.push_back(client);
+        _allocated_client_trace_pool.push_back(client);
         client_ret = client;
     } while (0);
 
-    xlog_war("pool size:%zu\n", _client_pool.size());
+    xlog_dbg("pool size:%zu\n", _allocated_client_trace_pool.size());
     return client_ret;
 }
 
-void LwsServer::_restoreClient(LwsServerClient* client)
+int LwsServer::_restoreClient(LwsServerClient* client)
 {
+    FUNC_SCOPE_LOG
+    bool error_flag = false;
+    UniLock lock(_mutex_allocated_client_trace_pool);
     do {
         bool find_flag = false;
 
-        for (auto it = _client_pool.begin(); it != _client_pool.end(); ) {
+        for (auto it = _allocated_client_trace_pool.begin(); it != _allocated_client_trace_pool.end(); ) {
             if (*it == client) {
-                xlog_war("deleting client: %s\n", (*it)->info().c_str());
+                xlog_dbg("deleting client: %s\n", (*it)->info().c_str());
                 delete *it;
-                it = _client_pool.erase(it); // delete this client
+                it = _allocated_client_trace_pool.erase(it); // delete this client
                 find_flag = true;
             } else {
                 ++it;
@@ -397,15 +527,17 @@ void LwsServer::_restoreClient(LwsServerClient* client)
 
         if (!find_flag) {
             xlog_err("client not found, may leak\n");
+            error_flag = true;
         }
     } while (0);
 
-    xlog_war("pool size:%zu\n", _client_pool.size());
-    return ;
+    xlog_dbg("pool size:%zu\n", _allocated_client_trace_pool.size());
+    return error_flag ? -1 : 0;
 }
 
 void LwsServer::_onClientConnected(LwsServerClient *client)
 {
+    FUNC_SCOPE_LOG
     do {
         if (!client) {
             xlog_err("client is null\n");
@@ -414,7 +546,7 @@ void LwsServer::_onClientConnected(LwsServerClient *client)
 
         UniLock lock(_mutex_client_connected);
 
-        if (_client_connected.size() > CLIENT_MAX_NUM) {
+        if (_client_connected.size() > LWS_SERVER_MAX_CLIENT_NUM) {
             xlog_err("inner error, client num over\n");
             break;
         }
@@ -422,14 +554,14 @@ void LwsServer::_onClientConnected(LwsServerClient *client)
         _client_connected.push_back(client);
         _cond_client_connected_changed.notify_one();
         
-        xlog_war("connected client num:%zu\n", _client_connected.size());
+        xlog_dbg("connected client num:%zu\n", _client_connected.size());
     } while (0);
     return ;
 }
 
 void LwsServer::_onClientDisconnected(LwsServerClient *client)
 {
-    bool found_flag = false;
+    FUNC_SCOPE_LOG
     do {
         if (!client) {
             xlog_err("client is null\n");
@@ -438,27 +570,15 @@ void LwsServer::_onClientDisconnected(LwsServerClient *client)
 
         // notify client of disconnected state
         client->onDisconnected();
-
-        UniLock lock(_mutex_client_connected);
-        for (auto it = _client_connected.begin(); it != _client_connected.end(); ) {
-            if (*it == client) {
-                it = _client_connected.erase(it);
-                found_flag = true;
-            } else {
-                ++it;
-            }
-        }
     } while (0);
 
-    if (!found_flag) {
-        xlog_err("client not found\n");
-    }
-    xlog_war("connected client num:%zu\n", _client_connected.size());
+    xlog_dbg("connected client num:%zu\n", _client_connected.size());
     return ;
 }
 
 int LwsServer::_writeData(struct lws *wsi, const void *data, size_t size, lws_write_protocol protocol)
 {
+    FUNC_SCOPE_LOG
     bool error_flag = false;
     do {
         if (!_s_msg_data) {
@@ -482,7 +602,7 @@ int LwsServer::_writeData(struct lws *wsi, const void *data, size_t size, lws_wr
             break;
         }
 
-        xlog_war("sent: %d bytes\n", ret);
+        // xlog_dbg("sent: %d bytes\n", ret);
     } while (0);
 
     return error_flag ? -1 : 0;

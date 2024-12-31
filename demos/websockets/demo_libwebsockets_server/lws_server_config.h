@@ -1,0 +1,7 @@
+#ifndef __LWS_SERVER_CONFIG_H__
+#define __LWS_SERVER_CONFIG_H__
+
+#define LWS_SERVER_MAX_CLIENT_NUM   5
+#define LWS_SERVER_MSG_BUF_SIZE     (64 * 1024)
+
+#endif // __LWS_SERVER_CONFIG_H__

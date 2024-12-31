@@ -18,6 +18,7 @@ using std::string;
 using std::mutex;
 using std::condition_variable;
 using UniLock = std::unique_lock<mutex>;
+using UniRecuLock = std::unique_lock<std::recursive_mutex>;
 
 struct LwsServerParam {
     int heartbeat_interval_usec;
@@ -26,42 +27,31 @@ struct LwsServerParam {
     string app_uri;
 };
 
-typedef void(*lws_server_client_cb_on_msg)(const char *cmd, const char *args, const char *in_msg, int *out_code, char *out_msg, size_t out_msg_size);
-typedef void(*lws_server_client_cb_on_heartbeat_msg)(const char *msg);
-
-struct LwsServerClientParam {
-    // lws_server_client_cb_on_msg cb_on_msg;
-    // lws_server_client_cb_on_heartbeat_msg cb_on_heartbeat;
-};
-
 class LwsServer;
 
 class LwsServerClient {
 public:
-    struct Request {
-        string cmd_id;
-        string msg_id;
-        string args;
-        string json_to_send;
+    enum {
+        MAX_MSG_CACHE_NUM = 5,
+    };
 
-        int ms_wait = 0;
-    };
-    struct Response {
-        std::vector<uint8_t> data;
-        int code = 0;
-    };
+    using DisconnectCb = std::function<void(LwsServerClient*)>;
+    using OnDataCb = std::function<void(LwsServerClient*, const void *data, size_t size)>;
     struct ClientCallbacks {
-        std::function<void(void)> cbOnDisconnected;
+        DisconnectCb cbOnDisconnected;
+        OnDataCb cbOnData;
     };
-    int setDisconnectCb(std::function<void(void)>);
+    int setNotifyCb(ClientCallbacks cbs);
     std::string const &info();
-    int request(Request const& req, Response &resp);
+    std::string const &uri();
+    int sendData(const void *data, size_t size);
 
-    using NeedWriteCb = void();
-    int setNeedWriteCb(NeedWriteCb);
-    int setInfo(std::string const& info);
-    using WriteCb = int(struct lws *wsi, const void *data, size_t size, lws_write_protocol protocol);
-    int onWritable(struct lws *wsi, std::function<WriteCb>);
+    using NeedWriteCb = std::function<void()>;
+    int withNeedWriteCb(NeedWriteCb);
+    int withInfo(std::string const& info);
+    int withUri(std::string const& uri);
+    using WriteCb = std::function<int(struct lws *wsi, const void *data, size_t size, lws_write_protocol protocol)>;
+    int onWritable(struct lws *wsi, WriteCb);
     int onReceive(const void *data, size_t size);
     int onDisconnected();
 private:
@@ -76,8 +66,14 @@ private:
     };
     State _state = State::Init;
     string _info = "null";
-    std::function<void(void)> _disconnectCb;
-    mutex _mutex;
+    string _uri = "null";
+
+    NeedWriteCb _need_write_cb;
+    ClientCallbacks _notify_cbs;
+    std::vector<std::vector<uint8_t>> _msgs_to_send;
+    std::vector<std::vector<uint8_t>> _msgs_received;
+
+    std::recursive_mutex _mutex;
 
     friend class LwsServer;
 };
@@ -94,7 +90,7 @@ public:
     // 注意，如果client断开连接了，则对象就会被马上销毁掉
     // 返回的client在使用时应注意如果断开，则应清除
     LwsServerClient* waitClient(int timeout_ms);
-    void destroyClient(LwsServerClient *client);
+    int destroyClient(LwsServerClient *client);
 
     int cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
                               void *user, void *in, size_t len);
@@ -102,7 +98,7 @@ private:
     int _init();
     int _deinit();
     void _trdWorkder();
-    LwsServerClient* _waitClient(int timeout_ms);
+    LwsServerClient* _waitClient(UniRecuLock &lock, int timeout_ms);
 
     void _onClientConnected(LwsServerClient *client);
     void _onClientDisconnected(LwsServerClient *client);
@@ -112,9 +108,9 @@ private:
     // weak ref
     // 涉及到资源泄漏，封装一下
     LwsServerClient *_produceClient();
-    void _restoreClient(LwsServerClient* client);
+    int _restoreClient(LwsServerClient* client);
 
-    mutex _mutex;
+    std::recursive_mutex _mutex;
     std::shared_ptr<std::thread> _trd_worker;
     bool _trd_interrupted_flag = false;
     
@@ -127,8 +123,8 @@ private:
     std::vector<LwsServerClient*> _client_connected;
 
     // 分配池，用于跟踪可能的泄漏
-    std::vector<LwsServerClient*> _client_pool;
-
+    mutex _mutex_allocated_client_trace_pool;
+    std::vector<LwsServerClient*> _allocated_client_trace_pool;
 
     struct msg_data_t {
         uint8_t _internal_head[LWS_PRE];
