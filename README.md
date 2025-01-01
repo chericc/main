@@ -5,9 +5,9 @@
 ## Compile cmds
 
 ```bash
-export OPENSRC_LIB_PATH=/home/test/opensrc
-export CMAKE_INCLUDE_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/include
-export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib
+export OPENSRC_LIB_PATH=~/opensrc
+export CMAKE_INCLUDE_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/include:$OPENSRC_LIB_PATH/libwebsockets/build/output/include
+export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib:$OPENSRC_LIB_PATH/libwebsockets/build/output/lib
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 ```
 
@@ -165,7 +165,7 @@ copy from https://github.com/ireader/media-server
 
 # libwebsocket
 sudo apt install zlib1g-dev
-cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF -DLWS_WITH_MINIMAL_EXAMPLES=ON -DLWS_WITHOUT_EXTENSIONS=OFF
+cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF -DLWS_WITH_MINIMAL_EXAMPLES=OFF -DLWS_WITHOUT_EXTENSIONS=OFF
 
 # live555
 COMPILE_OPTS = -DNO_OPENSSL=1 -DNO_STD_LIB=1
