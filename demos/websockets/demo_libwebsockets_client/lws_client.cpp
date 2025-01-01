@@ -57,8 +57,8 @@ int main(void) {
     struct lws_client_connect_info ccinfo = {};
     ccinfo.context = context;
     ccinfo.address = "127.0.0.1";
-    ccinfo.port = 7681;
-    ccinfo.path = "/";
+    ccinfo.port = 9008;
+    ccinfo.path = "/app";
     ccinfo.protocol = "";
     lws_client_connect_via_info(&ccinfo);
 
