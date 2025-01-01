@@ -67,7 +67,7 @@ int LwsServerClient::setNotifyCb(ClientCallbacks cbs)
         
         if (!_msgs_received.empty()) {
             for (size_t i = 0; i < _msgs_received.size(); ++i) {
-                xlog_dbg("already have received data for client(%p,%s)\n", this, _info.c_str());
+                xlog_dbg("already have received data for client(%p,%s)\n", (void*)this, _info.c_str());
                 cbs.cbOnData(this, _msgs_received[i].data(), _msgs_received[i].size());
             }
             _msgs_received.clear();
@@ -278,7 +278,7 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
                     xlog_err("get uri failed\n");
                 }
 
-                char client_info[128] = {};
+                char client_info[256] = {};
                 snprintf(client_info, sizeof(client_info), "name:%s,path:%s", name, uri);
 
                 xlog_dbg("name: %s, uri: %s\n", name, uri);
@@ -316,7 +316,7 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_CLOSED: {
-            xlog_dbg("close, client is: %p(%s)\n", per_conn_cctx->client, 
+            xlog_dbg("close, client is: %p(%s)\n", (void*)per_conn_cctx->client, 
                 per_conn_cctx->client->info().c_str());
 
             if (per_conn_cctx->client) {
@@ -444,7 +444,7 @@ int LwsServer::_deinit()
         if (!_allocated_client_trace_pool.empty()) {
             xlog_err("deinit while pool not empty\n");
             for (size_t i = 0; i < _allocated_client_trace_pool.size(); ++i) {
-                xlog_err("delete client: %d\n", i);
+                xlog_err("delete client: %zu\n", i);
                 delete _allocated_client_trace_pool[i];
                 _allocated_client_trace_pool[i] = nullptr;
             }

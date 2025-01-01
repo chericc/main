@@ -49,7 +49,7 @@ Frame* FrameQueue::peek_last() { return &queue[rindex]; }
 
 Frame* FrameQueue::peek_writable() {
     std::unique_lock<std::mutex> lock(mutex);
-    while (size >= queue.size() && !pktq->abort_request()) {
+    while (size >= (int)queue.size() && !pktq->abort_request()) {
         xlog_trc("frame queue full, wait");
         cond.wait(lock);
     }
@@ -75,7 +75,7 @@ Frame* FrameQueue::peek_readable() {
 }
 
 void FrameQueue::push() {
-    if (++windex == queue.size()) {
+    if (++windex == (int)queue.size()) {
         windex = 0;
     }
     std::unique_lock<std::mutex> lock(mutex);
@@ -91,7 +91,7 @@ void FrameQueue::next() {
     }
 
     unref_item(&queue[rindex]);
-    if (++rindex == queue.size()) {
+    if (++rindex == (int)queue.size()) {
         rindex = 0;
     }
 

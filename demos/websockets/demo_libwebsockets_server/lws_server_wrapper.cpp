@@ -81,7 +81,7 @@ void on_client_disconnect(LwsServerClient *client)
 
         // note: client is already freed 
         xlog_dbg("client disconnected: %p(%s), num:%zu\n", 
-            client, client_info.c_str(), s_ctx.vec_client_connected.size());
+            (void*)client, client_info.c_str(), s_ctx.vec_client_connected.size());
 
         if (!found_flag) {
             xlog_err("client not found\n");

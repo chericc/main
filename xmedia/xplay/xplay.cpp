@@ -42,8 +42,6 @@ int XPlay::close() {
 }
 
 int XPlay::doOpen(const OptValues& opt) {
-    int ret = 0;
-
     if (_is) {
         doClose();
     }
@@ -118,6 +116,8 @@ int XPlay::streamComponentOpen(int stream_index) {
 
     int berror = false;
 
+    (void)berror;
+
     AVCodecContext* avctx = nullptr;
     AVFormatContext* ic = nullptr;
     const AVCodec* codec = nullptr;
@@ -176,6 +176,9 @@ int XPlay::streamComponentOpen(int stream_index) {
                     xlog_err("decoderStart failed");
                     break;
                 }
+                break;
+            }
+            default: {
                 break;
             }
         }
@@ -241,6 +244,9 @@ int Decoder::decodeFrame(AVFrame* frame, AVSubtitle* sub) {
             switch (avctx->codec_type) {
                 case AVMEDIA_TYPE_VIDEO: {
                     ret = avcodec_receive_frame(avctx, frame);
+                    break;
+                }
+                default: {
                     break;
                 }
             }
@@ -447,6 +453,8 @@ int XPlay::videoThread() {
     AVRational tb{};
     AVRational frame_rate{};
 
+    (void)berror;
+
     frame = av_frame_alloc();
     tb = _is->video_st->time_base;
     frame_rate = av_guess_frame_rate(_is->ic, _is->video_st, nullptr);
@@ -494,6 +502,7 @@ int XPlay::videoThread() {
     return 0;
 }
 
+#if 0
 static void SaveYUVBlock(unsigned char* buf, int wrap, int xsize, int ysize,
                          FILE* fp) {
     for (int i = 0; i < ysize; ++i) {
@@ -551,6 +560,7 @@ static void saveFrame(AVFrame* frame) {
         fflush(fp);
     } while (0);
 }
+#endif 
 
 int XPlay::queuePicture(AVFrame* src_frame, double pts, double duration,
                         int64_t pos, int serial) {
@@ -615,7 +625,7 @@ int XPlay::doRefresh(RefreshState* state) {
         Frame* vp = nullptr;
         Frame* last_vp = nullptr;
         double last_duration = 0.0;
-        double duration = 0.0;
+        // double duration = 0.0;
         double delay = 0.0;
         double time = 0.0;
 
