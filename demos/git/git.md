@@ -174,3 +174,25 @@ git submodule update --init --recursive
 ```bash
 git subtree add --prefix=sdk_diff/diff ../sdk_diff_log master --squash
 ```
+
+## git merge commits between two branchs
+
+```bash
+# merge some commits from branch b_a to b_b.
+git checkout b_a
+git log
+git checkout b_b
+git cherry-pick <commit-id> <start_commit>^..<end_commit> ...
+# resolving conflicts ...
+# then
+git add .
+git cherry-pick --continue
+
+```
+
+## resolve conficts
+
+```bash
+git checkout --ours <binary-file>
+git checkout --theirs <binary-file>
+```
