@@ -523,3 +523,9 @@ usermod -d dst_dir -m username
 ```bash
 fuser -k /mnt/card
 ```
+
+# date -s
+
+```bash
+date -s "2025-01-03 14:30:00"
+```
