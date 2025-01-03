@@ -187,7 +187,6 @@ add_subdirectory(demos/ffmpeg)
 add_subdirectory(demos/h264_sei)
 add_subdirectory(demos/json_nlohmann)
 add_subdirectory(demos/mjson)
-add_subdirectory(demos/mkdir)
 
 if(LIB_EVENT)
 add_subdirectory(demos/libevent)
