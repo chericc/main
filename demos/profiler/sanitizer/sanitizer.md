@@ -98,3 +98,12 @@ LeakSanitizer is integrated into AddressSanitizer.
 ```
 
 This will link your program against a runtime library containing just the bare necessities required for LeakSanitizer to work. No compile-time instrumentation will be applied.
+
+## verbose 
+
+```bash
+# this works
+export ASAN_OPTIONS=log_path=asan_log:verbosity=2:quarantine_size_mb=8:malloc_context_size=2
+
+# 
+```
