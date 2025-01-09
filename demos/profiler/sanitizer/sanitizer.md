@@ -102,8 +102,17 @@ This will link your program against a runtime library containing just the bare n
 ## verbose 
 
 ```bash
+redzone=16
+max_redzone=2048
+quarantine_size_mb=4M
+malloc_context_size=2
+SHADOW_SCALE: 3
+SHADOW_GRANULARITY: 8
+```
+
+```bash
+
 # this works
 export ASAN_OPTIONS=log_path=asan_log:verbosity=2:quarantine_size_mb=8:malloc_context_size=2
-
 # 
 ```
