@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] mul-thread working model
+- [ ] in/inter-process data/packet transmission
 - [ ] rtsp client/server based on live555
 - [ ] linux/blockdev,... simulation
 - [ ] blog/science/linux/锁的实现.md
