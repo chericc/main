@@ -6,8 +6,8 @@
 
 ```bash
 export OPENSRC_LIB_PATH=~/opensrc
-export CMAKE_INCLUDE_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/include:$OPENSRC_LIB_PATH/libwebsockets/build/output/include
-export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib:$OPENSRC_LIB_PATH/libwebsockets/build/output/lib
+export CMAKE_INCLUDE_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/include:$OPENSRC_LIB_PATH/libwebsockets/build/output/include:$OPENSRC_LIB_PATH/live555/live/output/include
+export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib:$OPENSRC_LIB_PATH/libwebsockets/build/output/lib:$OPENSRC_LIB_PATH/live555/live/output/lib
 cmake .. -DCMAKE_BUILD_TYPE=Debug
 ```
 

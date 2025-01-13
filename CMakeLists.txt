@@ -69,6 +69,13 @@ find_library(LIB_CURL curl)
 find_library(LIB_WEBSOCKETS websockets)
 find_path(HEADER_LIBWEBSOCKETS libwebsockets.h)
 
+# live555
+find_library(LIB_LIVE555_BasicUsageEnvironment BasicUsageEnvironment)
+find_library(LIB_LIVE555_groupsock groupsock)
+find_library(LIB_LIVE555_liveMedia liveMedia)
+find_library(LIB_LIVE555_UsageEnvironment UsageEnvironment)
+find_path(HEADER_LIB_LIVE555 liveMedia)
+
 # test_comm just for test use
 
 # main
@@ -190,6 +197,10 @@ add_subdirectory(demos/mjson)
 
 if(LIB_EVENT)
 add_subdirectory(demos/libevent)
+endif()
+
+if(LIB_LIVE555)
+add_subdirectory(demos/rtsp)
 endif()
 
 if(LIB_WEBSOCKETS)
