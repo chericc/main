@@ -77,8 +77,16 @@ if [ -d "$TESTFILE" ]; then echo "exist"; fi
 
 ```bash
 #!/bin/sh
-if [ true ] || [ false ]; then
+if [[ 1 < 2 && 4 < 3 ]]; then
+echo "bad"
+else 
 echo "ok"
+fi
+
+if [[ 1 < 2 || 4 < 3 ]]; then
+echo "ok"
+else 
+echo "bad"
 fi
 
 ```
