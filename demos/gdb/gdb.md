@@ -19,3 +19,10 @@ gdb ./a.out
 target remote 10.0.0.101:8008
 
 ```
+
+## signal
+
+```bash
+handle SIGPIPE nostop noprint
+```
+
