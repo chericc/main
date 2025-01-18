@@ -31,6 +31,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, void *ctx)
 // Custom debug callback function (optional)
 static int debug_callback(CURL *handle, curl_infotype type, char *data, size_t size, void *userptr) {
     const char *text;
+    (void)text;
     switch (type) {
         case CURLINFO_TEXT:
             // text = "== Info";
@@ -162,6 +163,10 @@ int main(void)
     curl_global_init(CURL_GLOBAL_DEFAULT);
 
     curl_demo_request();
+
+    if (0) {
+        curl_demo_post();
+    }
 
     curl_global_cleanup();
 
