@@ -94,6 +94,8 @@ public:
 
     int cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
                               void *user, void *in, size_t len);
+    int cbOnHttp(struct lws *wsi, enum lws_callback_reasons reason,
+                              void *user, void *in, size_t len);
 private:
     int _init();
     int _deinit();

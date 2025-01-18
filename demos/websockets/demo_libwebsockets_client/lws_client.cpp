@@ -35,12 +35,17 @@ static int callback_example(struct lws *wsi, enum lws_callback_reasons reason,
     return 0;
 }
 
+static void my_lws_log_emit_t(int level, const char *line)
+{
+    xlog_dbg("lws log: %s", line);
+}
+
 int main(void) {
     struct lws_context_creation_info info;
 
     struct lws_protocols protocols[2] = {
         { 
-                "lws-minimal-server-echo", 
+                "my-test-lws-client", 
                 callback_example, 
                 0,
                 4096,
@@ -48,6 +53,8 @@ int main(void) {
             },
             LWS_PROTOCOL_LIST_TERM,
     };
+
+    lws_set_log_level(LLL_ERR | LLL_WARN, my_lws_log_emit_t);
 
     memset(&info, 0, sizeof(info));
     info.port = CONTEXT_PORT_NO_LISTEN;
@@ -59,7 +66,7 @@ int main(void) {
     ccinfo.address = "127.0.0.1";
     ccinfo.port = 9008;
     ccinfo.path = "/app";
-    ccinfo.protocol = "";
+    ccinfo.protocol = "my-test-lws-server";
     lws_client_connect_via_info(&ccinfo);
 
     while (lws_service(context, 1000) >= 0) {}

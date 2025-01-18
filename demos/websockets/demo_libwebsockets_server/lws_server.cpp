@@ -34,9 +34,13 @@ struct ClientCtx {
     // std::shared_ptr<LwsServerClient> client;
 };
 
+struct HttpClientCtx {
+    string path;
+};
+
 void my_lws_log_emit_t(int level, const char *line)
 {
-    xlog_dbg("lws log: %s\n", line);
+    xlog_dbg("lws log: %s", line);
 }
 
 int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
@@ -48,6 +52,19 @@ int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
 
     int ret = 0;
     ret = server->cbOnWebSocket(wsi, reason, user, in, len);
+
+    return ret;
+}
+
+int callback_http(struct lws *wsi, enum lws_callback_reasons reason,
+                              void *user, void *in, size_t len) 
+{
+    void *user_data = lws_context_user(lws_get_context(wsi));
+
+    LwsServer *server = reinterpret_cast<LwsServer*>(user_data);
+
+    int ret = 0;
+    ret = server->cbOnHttp(wsi, reason, user, in, len);
 
     return ret;
 }
@@ -338,6 +355,32 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
     return ret;
 }
 
+int LwsServer::cbOnHttp(struct lws *wsi, enum lws_callback_reasons reason,
+                            void *user, void *in, size_t len)
+{
+    // int ret = 0;
+    HttpClientCtx *per_conn_cctx = reinterpret_cast<HttpClientCtx*>(user);
+
+    switch (reason) {
+        case LWS_CALLBACK_HTTP: {
+            xlog_dbg("LWS_CALLBACK_HTTP, in: %s\n", (const char *)in);
+
+            per_conn_cctx->path = (const char *)in;
+            break;
+        }
+        case LWS_CALLBACK_CLOSED_HTTP: {
+            xlog_dbg("LWS_CALLBACK_CLOSED_HTTP\n");
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+    return lws_callback_http_dummy(wsi, reason, user, in, len);
+}
+
 int LwsServer::_init()
 {
     FUNC_SCOPE_LOG
@@ -372,10 +415,15 @@ void LwsServer::_trdWorkder()
 
         info.port = _param.port;
         lws_protocols protocols[] = {
-            { "lws-minimal-server-echo", 
+            {
+                "http",
+                callback_http, sizeof(HttpClientCtx), 
+                RX_BUF_SIZE, 0, NULL, 0
+            },
+            { "my-test-lws-server", 
                 callback_websocket, sizeof(ClientCtx), 
                 RX_BUF_SIZE, 0, NULL, 0 },
-                LWS_PROTOCOL_LIST_TERM,
+            LWS_PROTOCOL_LIST_TERM,
         };
         info.protocols = protocols;
         // info.options = LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME 
