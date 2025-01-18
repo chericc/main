@@ -26,10 +26,8 @@ int main()
     param.cb_on_event = on_event_cb;
     lws_server_wrapper_init(&param);
 
-    for (int i = 0; i < 10; ++i) {
-        xlog_dbg("wait\n");
-        sleep(5);
-    }
+    getchar();
+    getchar();
 
     lws_server_wrapper_deinit();
 
