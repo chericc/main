@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] valgrind and more (save memory, etc.)
 - [ ] mul-thread working model
 - [ ] in/inter-process data/packet transmission
 - [ ] rtsp client/server based on live555
