@@ -6,6 +6,9 @@
 
 /*
 
+活动选择问题的最优子结构性质：
+
+见 greedy_algorithm.md 。
 
 
 */
