@@ -6,6 +6,7 @@ aux_source_directory(quicksort src_quicksort)
 aux_source_directory(nth src_nth)
 aux_source_directory(tree src_tree)
 aux_source_directory(dynamic_programing src_dp)
+aux_source_directory(greedy_algorithm src_greedy)
 
 include_directories(
     ${G_XTOOLS_XLOG_HEADER_PATH} 
@@ -15,6 +16,7 @@ include_directories(
     nth
     tree
     dynamic_programing
+    greedy_algorithm
 )
 
 link_directories(${G_XTOOLS})
@@ -27,4 +29,5 @@ add_executable(${ALG}
     ${src_nth}
     ${src_tree}
     ${src_dp}
+    ${src_greedy}
 )

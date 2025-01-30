@@ -22,7 +22,31 @@ struct Job {
 
 std::vector<Job> select_largest_job_set(std::vector<Job> jobs)
 {
+    // 我们直接用优化的单层循环替换递归的形式实现
+    std::vector<Job> sel;
 
+    size_t i = 0;
+    while (i < jobs.size()) {
+        sel.push_back(jobs[i]);
+        int fin_time = jobs[i].fini_time;
+        int got_flag = 0;
+        while (i < jobs.size()) {
+            if (jobs[i].start_time >= fin_time) {
+                got_flag = 1;
+                break;
+            } else {
+                ++i;
+                continue;
+            }
+        }
+        if (got_flag) {
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    return sel;
 }
 
 }
@@ -47,7 +71,7 @@ void ActivitySelect::registerTest()
 
         auto dump_job = [](std::vector<Job> const& jobs) {
             for (size_t i = 0; i < jobs.size(); ++i) {
-                xlog_dbg("job[%d]:[%d,%d]\n", i, jobs[i].start_time, jobs[i].fini_time);
+                xlog_dbg("job[%zu]:[%d,%d]\n", i, jobs[i].start_time, jobs[i].fini_time);
             }
         };
 
