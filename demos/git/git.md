@@ -128,12 +128,18 @@ git archive -o
 ## git log
 
 ```bash
+# log recently changes
 docdir=docs/docs
 logfile=$docdir/log.md
 echo "# log\n" > $logfile
 echo "\`\`\`" > $logfile
 git log -p --since "1 month ago" $docdir | sed -E "s/\`\`\`|^Author.*|^commit.*|^diff.*//g" | sed -E "s/(^Date.*)/\`\`\`\n## \1\n\n\`\`\`/g" >> $logfile
 echo "\`\`\`" >> $logfile
+```
+
+```bash
+# print more info
+git log --oneline --graph --decorate --all
 ```
 
 ## branch 
