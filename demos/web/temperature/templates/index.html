@@ -1,0 +1,58 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>每日温度变化</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.2/dist/echarts.min.js"></script>
+</head>
+<body>
+    <h1>最近七日温度变化</h1>
+    <div id="chart" style="width: 1000px;height:500px;"></div>
+
+    <script>
+        // 从模板获取数据
+        const temperatures = {{ temperatures|tojson }};
+        
+        // 处理数据为ECharts需要的格式
+        const dates = temperatures.map(item => item.date);
+        const temps = temperatures.map(item => item.temperature);
+
+        // 初始化图表
+        const chart = echarts.init(document.getElementById('chart'));
+        
+        const option = {
+            title: {
+                text: '温度变化趋势'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            xAxis: {
+                type: 'category',
+                data: dates,
+                name: '日期'
+            },
+            yAxis: {
+                type: 'value',
+                name: '温度 (°C)',
+                min: Math.min(...temps) - 2,
+                max: Math.max(...temps) + 2
+            },
+            series: [{
+                data: temps,
+                type: 'line',
+                smooth: true,
+                markPoint: {
+                    data: [
+                        { type: 'max', name: '最高' },
+                        { type: 'min', name: '最低' }
+                    ]
+                },
+                areaStyle: {}
+            }]
+        };
+
+        chart.setOption(option);
+    </script>
+</body>
+</html>
