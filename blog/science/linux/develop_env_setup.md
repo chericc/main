@@ -251,6 +251,9 @@ conda config --help
 conda config --set auto_activate_base false
 conda init --reverse $SHELL
 
+source ~/miniconda3/bin/activate
+conda init --all
+
 # source
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 
