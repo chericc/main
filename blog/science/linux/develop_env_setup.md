@@ -284,8 +284,8 @@ conda remove -n python27 --all
 ### 配置pip源
 
 ```bash
-python3 -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple/
-python3 -m pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+python -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple/
+python -m pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 ```
 
 
