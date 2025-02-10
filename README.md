@@ -228,3 +228,9 @@ export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
 export LIBS="-pthread"
 ../haveged-1.9.19/configure --prefix=$(pwd)/output --disable-shared --host=arm-linux-gnueabihf
 ```
+
+# mosquito
+
+```bash
+cmake ../mosquitto-2.0.20 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DDOCUMENTATION=OFF
+```
