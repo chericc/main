@@ -1,18 +1,50 @@
 # n2n
 
-##
+## build
 
-supernode -v -p 10010 -f -c com.txt
+```bash
+./autogen.sh
+./configure
+make
+```
 
-# List of allowed communities
-test
-* xxx a+r4ATJw4mPpBRP9hbZy7bZYnCbDY5QnRCnYyACa2KK
-# * xxx 123456
-* zzz -QQu8cGik+hWSP7lEC59wiBiFQc1hNlLxi0gUQC7GZO
-# * zzz 123456
+## supernode
 
+```bash
+tools/n2n-keygen test 123
+* test wY4Ayb3rOGzSO2MvRJf-DwVr-HLQ4pplvF-IZYE6JJe
 
-comu-->
-DRC7bUSX-rCHz48OFFo2F2j3hO4QmEfvuxcc+guGhZS
+--> ./community.list
+```
 
-edge -c test -P DRC7bUSX-rCHz48OFFo2F2j3hO4QmEfvuxcc+guGhZS -l 127.0.0.1:10010 -f
+community.list:
+
+```bash
+test_comm # this is allowed community
+* test wY4Ayb3rOGzSO2MvRJf-DwVr-HLQ4pplvF-IZYE6JJe
+```
+
+```bash
+./supernode -v -p 10010 -f -c com.txt -a 10.10.50.0-10.10.50.0/24 -c ./community.list
+```
+
+```
+
+## edge
+
+```bash
+-c: community name
+-l: server
+-e: prefer ip
+./edge -c test_comm -l 127.0.0.1:10010 -f -e 10.10.50.1 -k 123 -I test -A4 -J 123
+```
+
+## windows
+
+happynet
+
+高级参数：
+
+-A4 -J 123 -k 123 -Itest
+
+其中服务密钥对应：./edge 中的 -k
