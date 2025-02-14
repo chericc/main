@@ -165,7 +165,7 @@ copy from https://github.com/ireader/media-server
 
 # libwebsocket
 sudo apt install zlib1g-dev
-cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF -DLWS_WITH_MINIMAL_EXAMPLES=OFF -DLWS_WITHOUT_EXTENSIONS=OFF
+cmake ../libwebsockets-4.3.3 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DLWS_WITH_SSL=OFF -DLWS_WITH_MINIMAL_EXAMPLES=OFF -DLWS_WITHOUT_EXTENSIONS=OFF -DLWS_ROLE_MQTT=ON
 
 # live555
 COMPILE_OPTS = -DNO_OPENSSL=1 -DNO_STD_LIB=1
