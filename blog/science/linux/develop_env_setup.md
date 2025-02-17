@@ -426,6 +426,27 @@ sudo vim /etc/tomcat9/web.xml
 ## tmux
 
 ```bash
+# new session
+tmux new -t session-name
+# attach session
+tmux at -t session-name
+
+# choose session
+in tmux
+ctrl+b s 
+/esc
+
+# detach session
+ctrl+b d
+
+# copy mode
+crtl+b [
+
+# search in copy mode
+ctrl+f
+```
+
+```bash
 # ~/.tmux.conf
 
 # 右下角类似效果：21:58:48 12-12
