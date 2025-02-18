@@ -244,5 +244,8 @@ cmake . -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED=OFF -DZMQ_BUILD_TEST
 # nanomsg
 
 ```bash
-
+cmake ../nanomsg-1.2.1/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF
+# demo
+export CMAKE_PREFIX_PATH=/home/test/opensrc/nanomsg/build/output/
+cmake ../
 ```
