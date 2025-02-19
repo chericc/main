@@ -9,7 +9,7 @@ using namespace nlohmann;
 
 struct classmate {
     string name;
-    string address;
+    char address[64];
     int age;
 };
 
@@ -48,7 +48,7 @@ int main()
 
     classmate part;
     part.name = "Potter";
-    part.address = "Tianjin";
+    snprintf(part.address, sizeof(part.address), "Tianjin");
     part.age = 19;
 
     pe.attr.classmates.push_back(part);
