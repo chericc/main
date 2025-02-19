@@ -13,15 +13,29 @@ struct classmate {
     int age;
 };
 
+struct person_attr {
+    std::vector<classmate> classmates;
+    classmate header;
+};
+
 struct person {
     string name;
     string address;
     int age;
-    std::vector<classmate> classmates;
+    person_attr attr;
+};
+
+struct interface_person {
+    string name;
+    string address;
+    int age;
+    nlohmann::json attr;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(classmate, name, address, age)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(person, name, address, age, classmates)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(person_attr, classmates, header)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(person, name, address, age, attr)
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(interface_person, name, address, age, attr)
 
 int main()
 {
@@ -37,9 +51,11 @@ int main()
     part.address = "Tianjin";
     part.age = 19;
 
-    pe.classmates.push_back(part);
+    pe.attr.classmates.push_back(part);
     part.name = "Jim";
-    pe.classmates.push_back(part);
+    pe.attr.classmates.push_back(part);
+
+    pe.attr.header = part;
 
     json jp = pe;
 
@@ -47,18 +63,13 @@ int main()
 
     // from arbitrary ends here
 
-    auto p_de_arbitrary = jp.template get<person>();
+    auto p_de_arbitrary = jp.template get<interface_person>();
     
-    xlog_dbg("name: %s, address: %s, age: %d\n", 
+    xlog_dbg("name: %s, address: %s, age: %d, attr: %s\n", 
         p_de_arbitrary.name.c_str(),
         p_de_arbitrary.address.c_str(),
-        p_de_arbitrary.age);
-    for (auto const &ref : p_de_arbitrary.classmates) {
-        xlog_dbg("classmates: [name:%s,address:%s,age:%d]\n", 
-            ref.name.c_str(),
-            ref.address.c_str(),
-            ref.age);
-    }
-
+        p_de_arbitrary.age,
+        p_de_arbitrary.attr.dump().c_str());
+        
     return 0;
 }
