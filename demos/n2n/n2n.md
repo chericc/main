@@ -25,7 +25,7 @@ test_comm # this is allowed community
 ```
 
 ```bash
-./supernode -v -p 10010 -f -c com.txt -a 10.10.50.0-10.10.50.0/24 -c ./community.list
+./supernode -v -p 10010 -f -a 10.10.50.0-10.10.50.0/24 -c ./community.list
 ```
 
 ```
