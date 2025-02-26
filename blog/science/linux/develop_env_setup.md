@@ -525,3 +525,8 @@ set -g prefix C-n
 unbind C-b
 unbind C-a
 ```
+
+```bash
+# 更新配置
+tmux source-file ~/.tmux.conf
+```
