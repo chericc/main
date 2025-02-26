@@ -106,6 +106,8 @@ secretKey = "xxx"
 bindAddr = "127.0.0.1"
 bindPort = 16000
 keepTunnelOpen = false
+fallbackTo = "stcp_visitor"
+fallbackTimeoutMs = 200
 ```
 
 ```bash
