@@ -330,6 +330,9 @@ export https_proxy="http://10.0.0.2:7897"
 export http_proxy="http://192.168.1.235:7897"
 export https_proxy="http://192.168.1.235:7897"
 
+unset http_proxy
+unset https_proxy
+
 # proxy setting for git
 
 # for https
@@ -513,4 +516,11 @@ set -g history-limit 20480
 set -sg escape-time 0
 set -g display-time 1500
 set -g remain-on-exit off
+```
+
+
+```bash
+# 快捷键
+set -g prefix C-a
+unbind C-b
 ```

@@ -173,6 +173,8 @@ git branch --set-upstream-to=origin/<branchname> <branchname>
 
 ```bash
 git submodule update --init --recursive
+# or 
+git clone --recursive
 ```
 
 ## combine
