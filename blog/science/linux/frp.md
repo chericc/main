@@ -49,6 +49,7 @@ auth.token="ccc"
 ```
 
 ```bash
+# the pc to be connected
 # frpc.toml
 serverAddr = "x.x.x.x"
 serverPort = 17000
@@ -58,7 +59,14 @@ auth.token="ccc"
 # natHoleStunServer = "xxx"
 
 [[proxies]]
-name = "p2p_ssh"
+name = "stcp_ssh"
+type = "stcp"
+secretKey = "xxx"
+localIP = "127.0.0.1"
+localPort = 22
+
+[[proxies]]
+name = "xtcp_ssh"
 type = "xtcp"
 secretKey = "xxx"
 localIP = "127.0.0.1"
@@ -66,6 +74,7 @@ localPort = 22
 ```
 
 ```bash
+# the pc connecting
 # frpc.toml
 serverAddr = "x.x.x.x"
 serverPort = 17000
@@ -83,13 +92,19 @@ transport.useEncryption = true
 transport.useCompression = true
 
 [[visitors]]
-name = "p2p_ssh_visitor"
+name = "stcp_visitor"
+type = "stcp"
+serverName = "stcp_ssh"
+secretKey = "xxx"
+bindPort = -1
+
+[[visitors]]
+name = "xtcp_visitor"
 type = "xtcp"
-serverName = "p2p_ssh"
+serverName = "xtcp_ssh"
 secretKey = "xxx"
 bindAddr = "127.0.0.1"
 bindPort = 16000
-# when automatic tunnel persistence is required, set it to true
 keepTunnelOpen = false
 ```
 
