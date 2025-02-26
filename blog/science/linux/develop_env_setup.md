@@ -521,6 +521,7 @@ set -g remain-on-exit off
 
 ```bash
 # 快捷键
-set -g prefix C-a
+set -g prefix C-n
 unbind C-b
+unbind C-a
 ```
