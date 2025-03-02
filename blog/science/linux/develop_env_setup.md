@@ -530,3 +530,15 @@ unbind C-a
 # 更新配置
 tmux source-file ~/.tmux.conf
 ```
+
+## ubuntu
+
+### 不能调用输入法的问题
+
+```bash
+export GTK_IM_MODULE=xim
+export QT_IM_MODULE=xim
+export XMODIFIERS=@im=fcitx
+
+source ~/.bashrc; code
+```

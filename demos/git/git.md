@@ -204,3 +204,9 @@ git cherry-pick --continue
 git checkout --ours <binary-file>
 git checkout --theirs <binary-file>
 ```
+
+## 回退到指定版本
+
+```bash
+git checkout <commit|tag> --recurse-submodules
+```
