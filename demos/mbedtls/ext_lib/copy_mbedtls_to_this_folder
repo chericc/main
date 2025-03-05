@@ -1,0 +1,5 @@
+# copy
+
+# path should like
+ext_lib/mbedtls/include/mbedtls/*.h
+ext_lib/mbedtls/library/*.c
