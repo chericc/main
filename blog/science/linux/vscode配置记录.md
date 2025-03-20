@@ -132,7 +132,7 @@ InlayHints:
     "editor.formatOnPaste": true,
     "editor.detectIndentation": false
 
-```cfg
+```
 
 # We'll use defaults from the LLVM style, but with 4 columns indentation.
 BasedOnStyle: Google
