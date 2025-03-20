@@ -132,15 +132,12 @@ InlayHints:
     "editor.formatOnPaste": true,
     "editor.detectIndentation": false
 
-```
-
 # We'll use defaults from the LLVM style, but with 4 columns indentation.
 BasedOnStyle: Google
 IndentWidth: 4
 
 Language: Cpp
 # Force pointers to the type for C++.
-
 ```
 
 ## max_user_watches
