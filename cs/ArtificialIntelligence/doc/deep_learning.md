@@ -170,7 +170,9 @@ $$
 
 如果$\bold{v}$是$\bold{A}$的特征向量，那么任何缩放后的向量$s\bold{v}$（$s\in \Reals, s\ne 0$）也是$\bold{A}$的特征向量，并且$s\bold{v}$和$\bold{v}$具有相同的特征值。因此，我们通常只考虑单位特征向量。
 
-假设矩阵$\bold{A}$有$n$个线性无关的特征向量$\{\bold{v}^{(1)},...,\bold{v}^{(n)}\}$，对应着特征值$\{\lambda_1,...,\lambda_n\}$。我们将特征向量连接成一个矩阵，使得每一列是一个特征向量：$\bold{V}=[\bold{v}^{(1)},...,\bold{v}^{(n)}]$。类似地，我们也可以将特征值连接成一个向量$\bold{\lambda}=[\lambda_1,...,\lambda_n]^\top$因此$\bold{A}$的特征分解可以记作
+假设矩阵$\bold{A}$有$n$个线性无关的特征向量$\{\bold{v}^{(1)},...,\bold{v}^{(n)}\}$，对应着特征值$\{\lambda_1,...,\lambda_n\}$。我们将特征向量连接成一个矩阵，使得每一列是一个特征向量：$\bold{V}=[\bold{v}^{(1)},...,\bold{v}^{(n)}]$。类似地，我们也可以将特征值连接成一个向量$\bold{\lambda}=[\lambda_1,...,\lambda_n]^\top$。可以得到$\bold{AP}=\bold{P}diag{\bold{\lambda}}$。
+
+因此$\bold{A}$的特征分解可以记作
 $$
 \bold{A}=\bold{V}diag(\bold{\lambda})\bold{V}^{-1}
 $$
