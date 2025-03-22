@@ -2,6 +2,12 @@
 
 [toc]
 
+## ssh
+
+```bash
+sudo apt install openssh-server
+```
+
 ## samba服务
 
 在windows下查看linux下的文件，从而实现在windows下编辑，在linux下编译的开发方式。
