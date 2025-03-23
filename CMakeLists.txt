@@ -47,7 +47,7 @@ find_library(LIB_FFMPEG_SWSCALE swscale)
 find_path(HEADER_FFMPEG libavformat)
 
 # SDL2
-find_library(LIB_SDL2 SDL2main)
+find_library(LIB_SDL2 SDL2-2.0)
 
 # fdk-aac
 find_library(LIB_FDKAAC fdk-aac)
@@ -75,6 +75,11 @@ find_library(LIB_LIVE555_groupsock groupsock)
 find_library(LIB_LIVE555_liveMedia liveMedia)
 find_library(LIB_LIVE555_UsageEnvironment UsageEnvironment)
 find_path(HEADER_LIB_LIVE555 liveMedia)
+
+# lvgl
+find_library(LIB_LVGL liblvgl.a)
+find_library(LIB_LVGL_THORVG liblvgl_thorvg.a)
+find_path(HEADER_LVGL lvgl/lvgl.h)
 
 # test_comm just for test use
 
@@ -199,16 +204,16 @@ if(LIB_EVENT)
 add_subdirectory(demos/libevent)
 endif()
 
+if(LIB_LVGL)
+add_subdirectory(demos/lvgl/demo)
+endif()
+
 if(LIB_LIVE555)
 add_subdirectory(demos/rtsp)
 endif()
 
 if(LIB_WEBSOCKETS)
 add_subdirectory(demos/websockets)
-endif()
-
-if(LIB_SDL)
-add_subdirectory(demos/sdl)
 endif()
 
 add_subdirectory(demos/tinyframe)
