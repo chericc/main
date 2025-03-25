@@ -210,3 +210,8 @@ git checkout --theirs <binary-file>
 ```bash
 git checkout <commit|tag> --recurse-submodules
 ```
+
+```bash
+# 重新回到某个分支
+git checkout branch-name
+```
