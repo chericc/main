@@ -133,7 +133,9 @@ sudo sh -c 'echo "java -Djava.awt.headless=true -jar /home/test/opensrc/plantuml
 sudo chmod 775 /usr/bin/plantuml
 
 # iperf3
-../iperf-3.1.3/configure --prefix=$(pwd)/output
+env \
+CC=/opt/mips-gcc720-glibc229/bin/mips-linux-gnu-gcc \
+../iperf-3.17.1/configure --prefix=$(pwd)/output --host=mips --prefix=$(pwd)/output
 
 # irqbalance
 # irqbalance-1.9.2 >
