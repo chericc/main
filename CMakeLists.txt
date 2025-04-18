@@ -208,6 +208,8 @@ if(LIB_LVGL)
 add_subdirectory(demos/lvgl/demo)
 endif()
 
+add_subdirectory(demos/packet_stable)
+
 if(LIB_LIVE555)
 add_subdirectory(demos/rtsp)
 endif()
