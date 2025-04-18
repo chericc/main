@@ -2,8 +2,8 @@ set(LIB_NAME packet_stable)
 aux_source_directory(. src)
 add_library(${LIB_NAME} ${src})
 
-include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
-link_libraries(${G_XTOOLS} ${LIB_NAME})
+include_directories(. ${G_XTOOLS_XLOG_HEADER_PATH})
+link_libraries(${LIB_NAME} ${G_XTOOLS})
 
 set(BIN_NAME demo_packet_stable)
 aux_source_directory(./demo_packet_stable src_packet_stable)
