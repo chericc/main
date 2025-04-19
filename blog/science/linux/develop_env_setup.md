@@ -369,6 +369,7 @@ Host github.com
 network:
   ethernets:
     enp0s3:
+      optional: yes
       dhcp4: no
       addresses:
         - "192.168.1.201/24"
@@ -384,9 +385,23 @@ network:
       #dhcp4: yes
       dhcp4: no
       addresses: [192.168.2.30/24]
+      optional: yes
     enp0s9:
       dhcp4: yes
+      optional: yes
   version: 2
+
+# 00-installer-config-wifi.yaml
+# This is the network config written by 'subiquity'
+network:
+  version: 2
+  wifis:
+    wlo1:
+      optional: true
+      dhcp4: true
+      access-points:
+        Mi:
+          password: 12345678
 
 ```
 
