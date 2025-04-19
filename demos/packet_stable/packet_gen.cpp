@@ -10,11 +10,22 @@
 #include "xlog.hpp"
 
 using unilock = std::unique_lock<std::mutex>;
+using packet_clock = std::chrono::steady_clock;
+using packet_tp = std::chrono::time_point<packet_clock>;
 
 enum thread_state {
     SLEEP,
     RUN,
     DEAD,
+};
+
+struct packet {
+    packet_tp dec_time;
+    packet_tp out_time;
+};
+
+struct packet_queue {
+
 };
 
 struct thread_ctx {
@@ -26,6 +37,8 @@ struct thread_ctx {
     std::condition_variable cond_state_activated;
 
     std::shared_ptr<std::thread> trd;
+
+
 };
 
 struct packet_gen_ctx {
