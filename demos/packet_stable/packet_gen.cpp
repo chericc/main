@@ -223,6 +223,10 @@ int packet_gen_destroy(packet_gen_handle obj)
                 xlog_dbg("join trd end: %d\n", i);
             }
         }
+
+        xlog_dbg("deleting obj\n");
+        delete ctx;
+        ctx = nullptr;
     } while (0);
     return 0;
 }

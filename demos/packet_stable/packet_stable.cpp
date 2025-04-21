@@ -137,6 +137,11 @@ int packet_stable_destroy(packet_stable_handle obj)
     xlog_dbg("join begin\n");
     ctx->trd->join();
     xlog_dbg("join end\n");
+
+    xlog_dbg("deleting ctx\n");
+    delete ctx;
+    ctx = nullptr;
+
     return 0;
 }
 
