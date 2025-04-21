@@ -21,7 +21,7 @@ struct packet_gen_jitter_conf {
     int jitter_possibility; // 抖动可能性[0-10000]
 };
 
-typedef void (*packet_gen_cb)(int ch, uint64_t time_ms, uint64_t packet_id);
+typedef void (*packet_gen_cb)(int ch, uint64_t time_ms, uint64_t packet_id, void *user);
 
 struct packet_gen_conf {
     int buf_ms; // 缓冲时长
@@ -33,6 +33,7 @@ struct packet_gen_conf {
     int enable_out_order;
 
     packet_gen_cb packet_cb;
+    void *user;
 };
 
 #define packet_gen_handle_invalid (NULL)

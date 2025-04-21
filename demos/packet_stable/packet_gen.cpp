@@ -162,8 +162,8 @@ void trd_worker_push_packets(std::shared_ptr<thread_ctx> ctx)
         auto out_tp = packet_map_to_real_time(ctx, &pkt);
         std::this_thread::sleep_until(out_tp);
         if (ctx->conf.packet_cb) {
-            auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(pkt.out_time.time_since_epoch()).count();
-            ctx->conf.packet_cb(ctx->channel_id, time_ms, pkt.packet_id);
+            auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(pkt.dec_time.time_since_epoch()).count();
+            ctx->conf.packet_cb(ctx->channel_id, time_ms, pkt.packet_id, ctx->conf.user);
         }
         
     }

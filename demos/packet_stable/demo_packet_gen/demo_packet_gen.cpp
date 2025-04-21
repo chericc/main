@@ -5,7 +5,7 @@
 
 #include "xlog.hpp"
 
-static void gen_cb(int ch, uint64_t time_ms, uint64_t packet_id)
+static void gen_cb(int ch, uint64_t time_ms, uint64_t packet_id, void *user)
 {
     using clock = std::chrono::steady_clock;
     using timepoint = clock::time_point;
