@@ -152,11 +152,6 @@ void trd_worker_push_packets(std::shared_ptr<thread_ctx> ctx)
             default: break;
         }
 
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-
-        xlog_dbg("run %d\n", ctx->channel_id);
-
-
         auto pkt = packet_new(ctx);
         packet_apply_delay(ctx, &pkt);
         packet_apply_jitter(ctx, &pkt);
@@ -166,6 +161,10 @@ void trd_worker_push_packets(std::shared_ptr<thread_ctx> ctx)
         
         auto out_tp = packet_map_to_real_time(ctx, &pkt);
         std::this_thread::sleep_until(out_tp);
+        if (ctx->conf.packet_cb) {
+            auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(pkt.out_time.time_since_epoch()).count();
+            ctx->conf.packet_cb(ctx->channel_id, time_ms, pkt.packet_id);
+        }
         
     }
 
@@ -228,7 +227,7 @@ int packet_gen_destroy(packet_gen_handle obj)
     return 0;
 }
 
-int packet_gen_start(packet_gen_handle obj, packet_gen_cb cb)
+int packet_gen_start(packet_gen_handle obj)
 {
     auto *ctx = static_cast<packet_gen_ctx*>(obj);
     do {
