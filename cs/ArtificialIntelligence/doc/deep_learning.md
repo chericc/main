@@ -244,14 +244,25 @@ $$
 \bold{c}^*=\text{arg min}_{\bold{c}}||\bold{x}-g(\bold{c})||_2
 $$
 
+注：$\text{arg min}_\bold{c}$表示使函数取得最小值的自变量值。
+
 我们可以用平方$L^2$范数替代$L^2$范数，因为两者在相同的值$\bold{c}$上取得最小值。这是因为$L^2$范数是非负的，并且平方运算在非负值上是单调递增的。
 $$
 \bold{c}^*=\text{arg min}_\bold{c}||\bold{x}-g(\bold{c})||_2^2
 $$
 该最小化函数可以简化成
 $$
-
+(\bold{x}-g(\bold{c}))^\top(\bold{x}-g(\bold{c}))\\
+=\bold{x}^\top\bold{x}-2\bold{x}^\top g(\bold{c})+g(\bold{c})^\top g(\bold{c})
 $$
+
+因为第一项不依赖$\bold{c}$，因此可以忽略。代入$g(\bold{c})$的定义，有
+$$
+\bold{c}^*&=\text{arg min}_{\bold{c}}-2\bold{x}^\top \bold{Dc}+\bold{c}^\top\bold{D}^\top\bold{Dc} \\
+&=\text{arg min}_{\bold{c}}-2\bold{x}^\top \bold{Dc}+\bold{c}^\top \bold{I}_l\bold{c} \\
+$$
+根据矩阵$\bold{D}$的正交性和单位范数约束有
+
 
 
 ## 5 机器学习基础
