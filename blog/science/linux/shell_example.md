@@ -294,6 +294,15 @@ echo $version > $version_file
 fi
 ```
 
+```bash
+if [ ! -f /data/Isp_Ae_Config.txt ] || ! diff -q /app/Isp_Ae_Config.txt /data/Isp_Ae_Config.txt > /dev/null; then
+  echo "diff, cp"
+  cp /app/Isp_Ae_Config.txt /data/Isp_Ae_Config.txt
+else
+  echo "same"
+fi
+```
+
 ## 按列求和
 
 ```bash
