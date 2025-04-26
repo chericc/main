@@ -180,76 +180,47 @@ PREFIX = /home/test/opensrc/live555/live/output
 mkdir output
 make && make install
 
-```
+# mosquitto
+cmake ../mosquitto-2.0.20 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DDOCUMENTATION=OFF
+
+# nanomsg
+cmake ../nanomsg-1.2.1/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF
+## demo
+export CMAKE_PREFIX_PATH=/home/test/opensrc/nanomsg/build/output/
+
+# zeromq
+cmake . -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED=OFF -DZMQ_BUILD_TESTS=OFF -DWITH_PERF_TOOL=OFF -DWITH_LIBSODIUM=OFF -DWITH_LIBBSD=OFF -DBUILD_SHARED=OFF -DENABLE_CLANG=OFF -DENABLE_CPACK=OFF -DBUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
+
+# haveged
+## generate random infomation for linux.
+export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
+export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
+export LIBS="-pthread"
+../haveged-1.9.19/configure --prefix=$(pwd)/output --disable-shared --host=arm-linux-gnueabihf
 
 
-# wpa_supplicant
-
-## dbus-1
-
-not necessay
-
-```bash
+# dbus-1
 sudo apt install libexpat1-dev -y
 cmake ../dbus-dbus-1.14/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output
 
 # cross
 cmake ../dbus-dbus-1.14/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
-```
 
-## libnl-3.0
-
-```bash
+# libnl-3.0
 wget https://www.infradead.org/~tgr/libnl/files/libnl-3.2.25.tar.gz
 env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc ./configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --enable-shared=no
-```
 
-## build
-
-```bash
+# wpa_supplicant
 wget https://w1.fi/releases/wpa_supplicant-2.9.tar.gz
-
-# comment out some unnecessary options
-# 
-# src/drivers/drivers.mak
-# before 'ifdef CONFIG_LIBNL32', add
-# DRV_LIBS += $(shell $(PKG_CONFIG) --libs libnl-3.0)
-# DRV_LIBS += $(shell $(PKG_CONFIG) --libs libnl-genl-3.0)
-
+## comment out some unnecessary options
+## 
+## src/drivers/drivers.mak
+## before 'ifdef CONFIG_LIBNL32', add
+## DRV_LIBS += $(shell $(PKG_CONFIG) --libs libnl-3.0)
+## DRV_LIBS += $(shell $(PKG_CONFIG) --libs libnl-genl-3.0)
 env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH pkg-config --modversion libnl-3.0 
 env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH pkg-config --libs libnl-3.0 
 env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH pkg-config --libs libnl-genl-3.0
 env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc LD=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-ld LIBS="-lpthread -lm $LIBS" PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH make 
 ```
 
-# haveged
-
-generate random infomation for linux.
-
-```bash
-export CC="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc" 
-export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
-export LIBS="-pthread"
-../haveged-1.9.19/configure --prefix=$(pwd)/output --disable-shared --host=arm-linux-gnueabihf
-```
-
-# mosquito
-
-```bash
-cmake ../mosquitto-2.0.20 -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DDOCUMENTATION=OFF
-```
-
-# zeromq
-
-```bash
-cmake . -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED=OFF -DZMQ_BUILD_TESTS=OFF -DWITH_PERF_TOOL=OFF -DWITH_LIBSODIUM=OFF -DWITH_LIBBSD=OFF -DBUILD_SHARED=OFF -DENABLE_CLANG=OFF -DENABLE_CPACK=OFF -DBUILD_TESTS=OFF -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
-```
-
-# nanomsg
-
-```bash
-cmake ../nanomsg-1.2.1/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF
-# demo
-export CMAKE_PREFIX_PATH=/home/test/opensrc/nanomsg/build/output/
-cmake ../
-```
