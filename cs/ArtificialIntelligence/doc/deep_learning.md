@@ -258,10 +258,29 @@ $$
 
 因为第一项不依赖$\bold{c}$，因此可以忽略。代入$g(\bold{c})$的定义，有
 $$
-\bold{c}^*&=\text{arg min}_{\bold{c}}-2\bold{x}^\top \bold{Dc}+\bold{c}^\top\bold{D}^\top\bold{Dc} \\
-&=\text{arg min}_{\bold{c}}-2\bold{x}^\top \bold{Dc}+\bold{c}^\top \bold{I}_l\bold{c} \\
+\bold{c}^*=\text{arg min}_{\bold{c}}-2\bold{x}^\top \bold{Dc}+\bold{c}^\top\bold{D}^\top\bold{Dc}
 $$
+
 根据矩阵$\bold{D}$的正交性和单位范数约束有
+
+$$
+\bold{c}^*=\text{arg min}_{\bold{c}}-2\bold{x}^\top \bold{Dc}+\bold{c}^\top \bold{I}_l\bold{c}
+$$
+
+我们可以通过向量微积分来求解这个最优化问题。
+$$
+\nabla_{\bold{c}}(-2\bold{x}^\top\bold{Dc}+\bold{c}^\top\bold{c})=0\\
+-2\bold{D}^\top\bold{x}+2\bold{c}=0\\
+\bold{c}=\bold{D}^\top\bold{x}
+$$
+这使得算法很高效：最优编码$\bold{x}$只需要一个矩阵 - 向量乘法操作。为了编码向量，我们使用编码函数
+$$
+f(\bold{x})=\bold{D}^\top\bold{x}
+$$
+进一步使用矩阵乘法，我们也可以定义PCA重构操作：
+$$
+
+$$
 
 
 
