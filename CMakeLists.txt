@@ -210,7 +210,7 @@ endif()
 
 add_subdirectory(demos/packet_stable)
 
-if(LIB_LIVE555)
+if(LIB_LIVE555_BasicUsageEnvironment)
 add_subdirectory(demos/rtsp)
 endif()
 
