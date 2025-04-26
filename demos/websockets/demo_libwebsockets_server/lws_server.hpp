@@ -2,6 +2,7 @@
 
 #include "inc.hpp"
 #include "libwebsockets.h"
+#include "lws_server_client.hpp"
 
 using std::string;
 using std::mutex;
@@ -15,9 +16,6 @@ struct LwsServerParam {
     string screen_uri;
     string app_uri;
 };
-
-class LwsServer;
-
 
 class LwsServer {
 public:
@@ -75,5 +73,3 @@ private:
     };
     msg_data_t* _s_msg_data = nullptr;
 };
-
-#endif // __LWS_SERVER_H__

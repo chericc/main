@@ -11,3 +11,4 @@
 #include <chrono>
 #include <functional>
 
+using std::string;
