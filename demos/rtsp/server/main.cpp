@@ -4,7 +4,7 @@
 
 int main()
 {
-    xlog_dbg("hello world\n");
+    xlog_dbg("rtsp server started\n");
 
     TaskScheduler *scheduler = nullptr;
     UsageEnvironment *env = nullptr;

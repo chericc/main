@@ -46,6 +46,7 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
     ServerMediaSession *sms = getServerMediaSession(streamName);
 
     do {
+        xlog_dbg("opening file %s\n", streamName);
 
         fp = fopen(streamName, "rb");
         if (!fp) {
