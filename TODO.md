@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] gpac作为视频格式标准检查工具
 - [ ] valgrind and more (save memory, etc.)
 - [ ] mul-thread working model
 - [ ] in/inter-process data/packet transmission
