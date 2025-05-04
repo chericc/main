@@ -14,3 +14,4 @@ link_libraries(
     ${LIB_LIVE555_BasicUsageEnvironment})
 
 add_subdirectory(server)
+add_subdirectory(client)
