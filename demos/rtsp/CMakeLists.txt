@@ -1,17 +1,16 @@
 
-add_definitions(-DNO_OPENSSL=1)
+add_definitions(-DNO_OPENSSL=1 -DSOCKLEN_T=socklen_t -DNO_OPENSSL=1 -DNO_STD_LIB=1)
 
 include_directories(
-    ${HEADER_LIB_LIVE555}/BasicUsageEnvironment
-    ${HEADER_LIB_LIVE555}/groupsock
-    ${HEADER_LIB_LIVE555}/liveMedia
-    ${HEADER_LIB_LIVE555}/UsageEnvironment)
+    ${PATH_LIB_LIVE555}/groupsock/include
+    ${PATH_LIB_LIVE555}/liveMedia/include
+    ${PATH_LIB_LIVE555}/UsageEnvironment/include
+    ${PATH_LIB_LIVE555}/BasicUsageEnvironment/include)
 
-link_libraries(
-    ${LIB_LIVE555_liveMedia}
-    ${LIB_LIVE555_groupsock}
-    ${LIB_LIVE555_UsageEnvironment}
-    ${LIB_LIVE555_BasicUsageEnvironment})
+aux_source_directory(${PATH_LIB_LIVE555}/groupsock src_live555)
+aux_source_directory(${PATH_LIB_LIVE555}/liveMedia src_live555)
+aux_source_directory(${PATH_LIB_LIVE555}/UsageEnvironment src_live555)
+aux_source_directory(${PATH_LIB_LIVE555}/BasicUsageEnvironment src_live555)
 
 add_subdirectory(server)
 add_subdirectory(client)

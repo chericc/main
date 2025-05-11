@@ -1,33 +1,21 @@
 #include "xlog.hpp"
 
-#include "rtsp_server.hpp"
+#include "rtsp_server.h"
 
 int main()
 {
-    xlog_dbg("rtsp server started\n");
+    struct rtsp_server_param param = {};
+    param.port = 8888;
 
-    TaskScheduler *scheduler = nullptr;
-    UsageEnvironment *env = nullptr;
-    UserAuthenticationDatabase *authDB = nullptr;
-    RTSPServer *rtspServer = nullptr;
+    snprintf(param.username, sizeof(param.username), "%s", "admin");
+    snprintf(param.password, sizeof(param.password), "%s", "123456");
 
-    do {
-        scheduler = BasicTaskScheduler::createNew();
-        env = BasicUsageEnvironment::createNew(*scheduler);
+    auto server = rtsp_server_new(&param);
 
-        authDB = new UserAuthenticationDatabase;
-        authDB->addUserRecord("admin", "123456");
+    getchar();
+    getchar();
 
-        portNumBits port = 8888;
-        rtspServer = MyRTSPServer::createNew(*env, port, authDB);
-    
-        if (!rtspServer) {
-            xlog_err("create rtsp server failed\n");
-            break;
-        }
-
-        env->taskScheduler().doEventLoop();
-    } while (0);
+    rtsp_server_delete(server);
 
     return 0;
 }

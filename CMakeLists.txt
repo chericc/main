@@ -70,11 +70,7 @@ find_library(LIB_WEBSOCKETS websockets)
 find_path(HEADER_LIBWEBSOCKETS libwebsockets.h)
 
 # live555
-find_library(LIB_LIVE555_BasicUsageEnvironment BasicUsageEnvironment)
-find_library(LIB_LIVE555_groupsock groupsock)
-find_library(LIB_LIVE555_liveMedia liveMedia)
-find_library(LIB_LIVE555_UsageEnvironment UsageEnvironment)
-find_path(HEADER_LIB_LIVE555 liveMedia)
+find_path(PATH_LIB_LIVE555 liveMedia)
 
 # lvgl
 find_library(LIB_LVGL liblvgl.a)
@@ -210,7 +206,7 @@ endif()
 
 add_subdirectory(demos/packet_stable)
 
-if(LIB_LIVE555_BasicUsageEnvironment)
+if(PATH_LIB_LIVE555)
 add_subdirectory(demos/rtsp)
 endif()
 

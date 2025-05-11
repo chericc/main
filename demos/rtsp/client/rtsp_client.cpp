@@ -425,7 +425,7 @@ rtsp_client_obj rtsp_client_start(rtsp_client_param const* param)
         ctx = new RtspClientCtx{};
         ctx->param = *param;
 
-        std::atomic_init(&ctx->eventLoopWatchVariable, 0);
+        ctx->eventLoopWatchVariable = 0;
 
         ctx->trd = std::make_shared<std::thread>(trd_func, ctx);
 

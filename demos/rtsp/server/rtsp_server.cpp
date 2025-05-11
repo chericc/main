@@ -1,15 +1,43 @@
-#include "rtsp_server.hpp"
+#include "rtsp_server.h"
 
+#include <BasicUsageEnvironment.hh>
+#include <GroupsockHelper.hh>
 #include <liveMedia.hh>
+
+#include <thread>
+#include <memory>
 #include <cstdio>
 
 #include "xlog.hpp"
 
 namespace {
 
+struct rtsp_server_ctx {
+    std::shared_ptr<std::thread> trd;
+
+    struct rtsp_server_param param = {};
+
+    EventLoopWatchVariable loopVariable;
+};
+
 ServerMediaSession* createNewSms(UsageEnvironment& env, const char *filename, FILE *fp);
 
-}
+class MyRTSPServer : public RTSPServer {
+public:
+    static MyRTSPServer* createNew(UsageEnvironment &env, Port port,
+        UserAuthenticationDatabase *authDB, 
+        unsigned int reclamationSeconds = 10);
+protected:
+    MyRTSPServer(UsageEnvironment &env, int ipv4Socket, int ipv6Socket, Port port,
+        UserAuthenticationDatabase *authDB, unsigned int reclamationSeconds);
+    ~MyRTSPServer() override;
+
+protected:
+    void lookupServerMediaSession(const char *streamName,
+        lookupServerMediaSessionCompletionFunc *completionFunc,
+        void *completionClientData,
+        Boolean isFirstLoopupInSession) override;
+};
 
 MyRTSPServer *MyRTSPServer::createNew(UsageEnvironment &env, Port port,
         UserAuthenticationDatabase *authDB, 
@@ -86,8 +114,6 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
 
     return ;
 }
-
-namespace {
 
 struct MatroskaDemuxCreationState 
 {
@@ -252,4 +278,98 @@ ServerMediaSession* createNewSms(UsageEnvironment& env, const char *filename, FI
     return sms;
 }
 
+void rtsp_server_trd(struct rtsp_server_ctx *ctx)
+{
+
+    TaskScheduler *scheduler = nullptr;
+    UsageEnvironment *env = nullptr;
+    UserAuthenticationDatabase *authDB = nullptr;
+    RTSPServer *rtspServer = nullptr;
+
+    do {
+        scheduler = BasicTaskScheduler::createNew();
+        env = BasicUsageEnvironment::createNew(*scheduler);
+
+        xlog_dbg("server: [%s/%s], port=%d\n", 
+            ctx->param.username, ctx->param.password,
+            ctx->param.port);
+
+        authDB = new UserAuthenticationDatabase;
+        authDB->addUserRecord(ctx->param.username, ctx->param.password);
+
+        portNumBits port = ctx->param.port;
+        rtspServer = MyRTSPServer::createNew(*env, port, authDB);
+    
+        if (!rtspServer) {
+            xlog_err("create rtsp server failed\n");
+            break;
+        }
+
+        xlog_dbg("rtsp server started\n");
+        env->taskScheduler().doEventLoop(&ctx->loopVariable);
+        xlog_dbg("rtsp server stopped\n");
+    } while (0);
+
+    if (rtspServer) {
+        Medium::close(rtspServer);
+        rtspServer = nullptr;
+    }
+
+    if (authDB) {
+        delete authDB;
+        authDB = nullptr;
+    }
+
+    if (env) {
+        if (!env->reclaim()) {
+            xlog_err("delete env failed\n");
+        }
+    }
+
+    if (scheduler) {
+        delete scheduler;
+        scheduler = nullptr;
+    }
+
+    return ;
+}
+
+}
+
+rtsp_server_obj rtsp_server_new(const struct rtsp_server_param *param)
+{
+    struct rtsp_server_ctx *ctx = nullptr;
+
+    do {
+        ctx = new rtsp_server_ctx{};
+        ctx->param = *param;
+        ctx->loopVariable = 0;
+        ctx->trd = std::make_shared<std::thread>(rtsp_server_trd, ctx);
+    } while (0);
+
+    return reinterpret_cast<rtsp_server_obj>(ctx);
+}
+
+int rtsp_server_delete(rtsp_server_obj obj)
+{
+    auto ctx = reinterpret_cast<struct rtsp_server_ctx*>(obj);
+    do {
+        if (!ctx) {
+            break;
+        }
+
+        xlog_dbg("notify thread exit\n");
+        ctx->loopVariable = 1;
+
+        if (ctx->trd->joinable()) {
+            xlog_dbg("wait thread\n");
+            ctx->trd->join();
+            xlog_dbg("wait thread end\n");
+        }
+
+        delete ctx;
+        ctx = nullptr;
+    } while(0);
+
+    return 0;
 }
