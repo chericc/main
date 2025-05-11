@@ -9,19 +9,39 @@
 
 #include "xlog.hpp"
 
-#define RTSP_CLIENT_VERVOSITY_LEVEL     1
+#define RTSP_CLIENT_VERVOSITY_LEVEL     0
 #define REQUEST_STREAMING_OVER_TCP False
 #define DUMMY_SINK_RECEIVE_BUFFER_SIZE 100000
 
 namespace {
 
-struct StreamClientState {
+class StreamClientState {
+public:
+    // StreamClientState();
+    ~StreamClientState();
+
     MediaSubsessionIterator *iter = nullptr;
     MediaSession *session = nullptr;
     MediaSubsession *subsession = nullptr;
-    TaskToken streamTimerTask;
-    double duration;
+    TaskToken streamTimerTask = nullptr;
+    double duration = 0.0f;
+
+
 };
+
+StreamClientState::~StreamClientState()
+{
+    xlog_dbg("delete iter\n");
+    delete iter;
+
+    if (session) {
+        xlog_dbg("close session\n");
+        auto &env = session->envir();
+        env.taskScheduler().unscheduleDelayedTask(streamTimerTask);
+        Medium::close(session);
+        session = nullptr;
+    }
+}
 
 class MySink : public MediaSink {
 public:
@@ -51,6 +71,7 @@ struct RtspClientCtx {
 
     std::shared_ptr<std::thread> trd;
     EventLoopWatchVariable eventLoopWatchVariable;
+    RTSPClient *rtsp_client = nullptr;
 };
 
 class MyRTSPClient : public RTSPClient
@@ -82,10 +103,13 @@ MyRTSPClient* MyRTSPClient::createNew(UsageEnvironment& env, const char *rtspURL
 
 MyRTSPClient::MyRTSPClient(UsageEnvironment& env, char const* rtspURL,
     int verbosityLevel, char const* applicationName, portNumBits tunnelOverHTTPPortNum)
-: RTSPClient(env,rtspURL, verbosityLevel, applicationName, tunnelOverHTTPPortNum, -1) {
+: RTSPClient(env,rtspURL, verbosityLevel, applicationName, tunnelOverHTTPPortNum, -1)
+{
 }
 
-MyRTSPClient::~MyRTSPClient() {
+MyRTSPClient::~MyRTSPClient() 
+{
+    
 }
 
 MySink *MySink::createNew(UsageEnvironment& env, MediaSubsession& subsession, char const* streamId)
@@ -123,7 +147,7 @@ void MySink::afterGettingFrame(unsigned int frameSize,
     return ;
 }
 
-Boolean MySink::continuePlaying() 
+Boolean MySink::continuePlaying()
 {
     if (!fSource) {
         xlog_err("error\n");
@@ -347,7 +371,8 @@ void continueAfterDESCRIBE(RTSPClient* rtspClient, int resultCode, char *resultS
 
         const char *sdpDescription = resultString;
         resultString = nullptr;
-        xlog_dbg("got a SDP description: %s\n", sdpDescription);
+        // xlog_dbg("got a SDP description: %s\n", sdpDescription);
+        xlog_dbg("got a SDP description\n");
 
         auto& scs = ((MyRTSPClient*)rtspClient)->scs;
         scs.session = MediaSession::createNew(env, sdpDescription);
@@ -385,6 +410,10 @@ int openUrl(UsageEnvironment& env, RtspClientCtx &ctx)
             break;
         }
 
+        xlog_dbg("rtsp client: %s\n", rtsp_client->name());
+
+        ctx.rtsp_client = rtsp_client;
+
         Authenticator auth(ctx.param.username, ctx.param.password);
         rtsp_client->sendDescribeCommand(continueAfterDESCRIBE, &auth);
     } while (0);
@@ -409,8 +438,33 @@ void trd_func(RtspClientCtx *ctx)
             break;
         }
 
+        xlog_dbg("rtsp client started\n");
         env->taskScheduler().doEventLoop(&ctx->eventLoopWatchVariable);
+        xlog_dbg("rtsp client stopped\n");
+
+        auto &session = ((MyRTSPClient*)ctx->rtsp_client)->scs.session;
+        if(session) {
+            ctx->rtsp_client->sendTeardownCommand(*session, nullptr);
+        }
     } while (0);
+
+    if (ctx->rtsp_client) {
+        xlog_dbg("close rtsp client: %s\n", ctx->rtsp_client->name());
+        Medium::close(ctx->rtsp_client);
+        ctx->rtsp_client = nullptr;
+    }
+
+    if (env) {
+        if (!env->reclaim()) {
+            xlog_err("reclaim failed\n");
+        }
+        env = nullptr;
+    }
+
+    if (scheduler) {
+        delete scheduler;
+        scheduler = nullptr;
+    }
 
     return ;
 }
@@ -428,9 +482,6 @@ rtsp_client_obj rtsp_client_start(rtsp_client_param const* param)
         ctx->eventLoopWatchVariable = 0;
 
         ctx->trd = std::make_shared<std::thread>(trd_func, ctx);
-
-        xlog_dbg("waiting\n");
-        ctx->trd->join();
     } while (0);
 
     return reinterpret_cast<rtsp_client_obj>(ctx);
@@ -438,6 +489,27 @@ rtsp_client_obj rtsp_client_start(rtsp_client_param const* param)
 
 int rtsp_client_stop(rtsp_client_obj obj)
 {
-    xlog_err("nothing\n");
+    do {
+        auto *ctx = reinterpret_cast<RtspClientCtx*>(obj);
+        if (!ctx) {
+            xlog_dbg("null obj\n");
+            break;
+        }
+
+        ctx->eventLoopWatchVariable = 1;
+        if (ctx->trd->joinable()) {
+            ctx->trd->join();
+        }
+
+        if (ctx->rtsp_client) {
+            // ctx->rtsp_client->close()
+            Medium::close(ctx->rtsp_client);
+            ctx->rtsp_client = nullptr;
+        }
+
+        delete ctx;
+        ctx = nullptr;
+    } while (0);
+    
     return 0;
 }
