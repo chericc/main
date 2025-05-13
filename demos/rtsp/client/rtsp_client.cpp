@@ -450,7 +450,7 @@ void trd_func(RtspClientCtx *ctx)
 
     if (ctx->rtsp_client) {
         xlog_dbg("close rtsp client: %s\n", ctx->rtsp_client->name());
-        Medium::close(ctx->rtsp_client);
+        shutdownStream(ctx->rtsp_client);
         ctx->rtsp_client = nullptr;
     }
 
@@ -499,12 +499,6 @@ int rtsp_client_stop(rtsp_client_obj obj)
         ctx->eventLoopWatchVariable = 1;
         if (ctx->trd->joinable()) {
             ctx->trd->join();
-        }
-
-        if (ctx->rtsp_client) {
-            // ctx->rtsp_client->close()
-            Medium::close(ctx->rtsp_client);
-            ctx->rtsp_client = nullptr;
         }
 
         delete ctx;
