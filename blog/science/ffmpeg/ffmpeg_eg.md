@@ -325,3 +325,9 @@ ffmpeg -i 2.m2ts -c:v libsvtav1 -an -b:v 2048k -cpu-used 16 -pass 2 -f mp4 -t 12
 ffmpeg -i 2.m2ts -c:v libsvtav1 -preset -2 -svtav1-params tune=0 -an -b:v 2048k -pass 1 -f mp4 -t 120 -y NUL
 ffmpeg -i 2.m2ts -c:v libsvtav1 -preset -2 -svtav1-params tune=0 -an -b:v 2048k -pass 2 -f mp4 -t 120 -y panda_av1_2048.mp4
 ```
+
+## g711a
+
+```bash
+ffmpeg -i input.mp3 -c:a pcm_alaw -ar 8000 -ac 1 -f alaw output.g711a
+```
