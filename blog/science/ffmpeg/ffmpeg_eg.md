@@ -331,3 +331,10 @@ ffmpeg -i 2.m2ts -c:v libsvtav1 -preset -2 -svtav1-params tune=0 -an -b:v 2048k 
 ```bash
 ffmpeg -i input.mp3 -c:a pcm_alaw -ar 8000 -ac 1 -f alaw output.g711a
 ```
+
+## imgag --> pixels 
+
+```bash
+ffmpeg -i input.jpg -vf scale=1280:720 -pix_fmt rgb565 output.rgb
+```
+
