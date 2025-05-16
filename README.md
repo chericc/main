@@ -224,3 +224,8 @@ env PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/
 env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc LD=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-ld LIBS="-lpthread -lm $LIBS" PKG_CONFIG_PATH=/home/test/opensrc/libnl/libnl-3.2.25/output/lib/pkgconfig:/home/test/opensrc/dbus/build/output/lib/pkgconfig:$PKG_CONFIG_PATH make 
 ```
 
+# dosfstools
+
+```bash
+../dosfstools-4.1/configure --prefix=$(pwd)/output
+```
