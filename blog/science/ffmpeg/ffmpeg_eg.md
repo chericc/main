@@ -338,3 +338,14 @@ ffmpeg -i input.mp3 -c:a pcm_alaw -ar 8000 -ac 1 -f alaw output.g711a
 ffmpeg -i input.jpg -vf scale=1280:720 -pix_fmt rgb565 output.rgb
 ```
 
+## 标准化
+
+```bash
+ffmpeg -i input.aac -af loudnorm=I=-0.1:TP=-0.1:LRA=11 -c:a aac output_normalized.aac
+ffmpeg -i input.aac -af "compand=attacks=0:points=-80/-80|-20/-20|0/0,volume=0dB" -c:a aac output_compressed.aac
+
+ffmpeg -i input.aac -af "volumedetect" -f null /dev/null
+ffmpeg -i input.aac -af "volume=5.0dB" output_max.wav
+
+
+```
