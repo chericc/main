@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #ifdef USE_LINUX_SYSCALLS__
 

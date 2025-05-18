@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 int main(int argc, char** argv) {
     std::vector<FILE*> fps = {stdout};

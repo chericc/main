@@ -4,7 +4,7 @@
 
 #include "comm.hpp"
 #include "packet.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 static void debug_packet(std::shared_ptr<SharedPacket> packet) {
     xlog_dbg("PacketType: %s", PacketInfo::typeName(packet->cur_type));

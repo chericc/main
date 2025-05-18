@@ -3,7 +3,7 @@
 #include <thread>
 #include <chrono>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 static void gen_cb(int ch, uint64_t time_ms, uint64_t packet_id, void *user)
 {

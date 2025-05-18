@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xperftest.hpp"
 
 TEST(xperftest, base) {

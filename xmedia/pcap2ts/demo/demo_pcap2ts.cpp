@@ -5,7 +5,7 @@
 
 #include "file_parser.hpp"
 #include "pcap_ng_parser.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xutility.hpp"
 
 int main(int argc, char* argv[]) {

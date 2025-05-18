@@ -1,7 +1,7 @@
 #include "rbtreedemo.hpp"
 
 #include "alg.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 #include "rbtree.hpp"
 
 namespace Tree {

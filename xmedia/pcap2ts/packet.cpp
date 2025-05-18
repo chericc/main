@@ -4,7 +4,7 @@
 #include <inttypes.h>
 
 #include "comm.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define ETHERNET_TYPE_IPv4 (0x0800)
 #define ETHERNET_TYPE_IPv6 (0x86dd)

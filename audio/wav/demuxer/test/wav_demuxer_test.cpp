@@ -5,7 +5,7 @@
 #include <list>
 
 #include "test_comm.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 struct TestDemux {
     std::string file;

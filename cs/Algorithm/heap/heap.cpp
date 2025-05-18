@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "alg.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 void MaxHeap::registerTest() {
     auto test = []() -> void {

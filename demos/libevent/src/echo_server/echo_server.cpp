@@ -13,7 +13,7 @@
 #include <mutex>
 #include <string>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xos_independent.hpp"
 
 static std::string sockaddr_str(struct sockaddr* paddr, int socklen) {

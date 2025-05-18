@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <array>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 static int callback_example(struct lws *wsi, enum lws_callback_reasons reason,
                             void *user, void *in, size_t len) {

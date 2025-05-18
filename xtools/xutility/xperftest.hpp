@@ -3,7 +3,7 @@
 #include <chrono>
 #include <string>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 class XPeriodPrint {
    public:

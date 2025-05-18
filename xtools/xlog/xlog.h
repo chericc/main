@@ -1,22 +1,18 @@
 
 /**
  * @file xlog.h
- * @author xlog's author
- * @brief
- * @version x.x
  * @date 2021-12-27
- *
- * @copyright Copyright (c) 2021
- *
  */
 
 #pragma once
 
-#include <cstdio>
-#include <ostream>
-#include <vector>
+#include <stdio.h>
 
-using XLOG_LEVEL = enum XLOG_LEVEL {
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+typedef enum XLOG_LEVEL_t {
     XLOG_LEVEL_TRACE = 1 << 0,
     XLOG_LEVEL_DEBUG = 1 << 1,
     XLOG_LEVEL_LOG = 1 << 2,
@@ -25,7 +21,7 @@ using XLOG_LEVEL = enum XLOG_LEVEL {
     XLOG_LEVEL_ERROR = 1 << 5,
     XLOG_LEVEL_CRITICAL = 1 << 6,
     XLOG_LEVEL_BUTT = 1 << 7,
-};
+} XLOG_LEVEL;
 
 #define XLOG_ALLOW_ALL (~0U)
 #define XLOG_ALLOW_DBG (~((unsigned int)XLOG_LEVEL_TRACE))
@@ -53,23 +49,9 @@ void xlog(XLOG_LEVEL level, const char* file, int line, const char* func,
 void xlog_setmask(unsigned int mask);
 unsigned int xlog_getmask();
 
-void xlog_setoutput(const std::vector<FILE*>& fps);
+void xlog_setoutput(FILE *fp[], size_t fp_num);
+const char* xlog_basename(const char* filepath);
 
-struct XLogMessageData;
-
-class XLogMessage {
-   public:
-    XLogMessage(const char* file, int line, const char* function,
-                XLOG_LEVEL severity);
-    ~XLogMessage();
-    std::ostream& stream();
-    XLogMessageData* data_;
-
-   private:
-    XLogMessage(const XLogMessage&);
-};
-
-// xlog_inf("This is amazing");
 #define xlog_trc(...) \
     xlog(XLOG_LEVEL_TRACE, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 #define xlog_dbg(...) \
@@ -86,17 +68,6 @@ class XLogMessage {
 #define xlog_cri(...) \
     xlog(XLOG_LEVEL_CRITICAL, __FILE__, __LINE__, __FUNCTION__, ##__VA_ARGS__)
 
-// XLOG(INFO) --> XLOGINFO
-// XLOG(INFO) << "This is amazing"
-#define XLOG(level) XLOG##level.stream()
-
-#define XLOGTRC XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_TRACE)
-#define XLOGDBG XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_DEBUG)
-#define XLOGLOG XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_LOG)
-#define XLOGINF \
-    XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_INFORMATION)
-#define XLOGWAR \
-    XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_WARNING)
-#define XLOGERR XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_ERROR)
-#define XLOGCRI \
-    XLogMessage(__FILE__, __LINE__, __FUNCTION__, XLOG_LEVEL_CRITICAL)
+#ifdef __cplusplus
+}
+#endif // __cplusplus

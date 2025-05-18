@@ -1,6 +1,4 @@
-#include "xlog.hpp"
-
-// #define __STDC_WANT_LIB_EXT2__ 1
+#include "xlog.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -11,16 +9,14 @@
 #include <iomanip>
 #include <mutex>
 #include <sstream>
-#include <streambuf>
 #include <thread>
 #include <vector>
 
-static const std::size_t kMaxLogMessageLen = 30000;
 static unsigned int s_log_mask = 0xffffffff;
 static std::vector<FILE*> s_fps = {stdout};
 static std::mutex s_call_mutex;
 
-static const char* const_basename(const char* filepath) {
+const char* xlog_basename(const char* filepath) {
     const char* base = strrchr(filepath, '/');
     if (!base) base = strrchr(filepath, '\\');
     return base ? (base + 1) : filepath;
@@ -85,7 +81,7 @@ unsigned int xlog_getmask() {
     return s_log_mask;
 }
 
-void xlog_setoutput(const std::vector<FILE*>& fps) {
+void xlog_setoutput(FILE *fp[], size_t fp_num) {
     std::unique_lock<std::mutex> lock(s_call_mutex);
 
     // close all output
@@ -97,11 +93,12 @@ void xlog_setoutput(const std::vector<FILE*>& fps) {
     s_fps.clear();
     s_fps.shrink_to_fit();
 
-    for (auto const& it : fps) {
-        if (!it) {
+    for (size_t i = 0; i < fp_num; ++i) {
+        auto ref = fp[i];
+        if (!ref) {
             continue;
         }
-        s_fps.push_back(it);
+        s_fps.push_back(ref);
     }
 
     return;
@@ -121,7 +118,7 @@ void xlog(XLOG_LEVEL level, const char* file, int line, const char* func,
         fprintf(it, "[%s]", now_str().c_str());
         fprintf(it, "[%s]", trd_str().c_str());
         fprintf(it, "[%s]", xlog_getlevel(level));
-        fprintf(it, "[%s %d %s] ", const_basename(file), line, func);
+        fprintf(it, "[%s %d %s] ", xlog_basename(file), line, func);
         va_start(ap, format);
         vfprintf(it, format, ap);
         va_end(ap);
@@ -135,83 +132,3 @@ void xlog(XLOG_LEVEL level, const char* file, int line, const char* func,
 
     return;
 }
-
-class LogStreamBuf : public std::streambuf {
-   public:
-    // REQUIREMENTS: "len" must be >= 2 to account for the '\n' and '\0'.
-    // LogStreamBuf(char* buf, int len) { setp(buf, buf + len - 2); }
-
-    // REQUIREMENTS: "len" must be >= 2 to account for the '\0'.
-    LogStreamBuf(char* buf, int len) { setp(buf, buf + len - 2); }
-
-    // This effectively ignores overflow.
-    int_type overflow(int_type ch) { return ch; }
-
-    // Legacy public ostrstream method.
-    size_t pcount() const { return pptr() - pbase(); }
-    char* pbase() const { return std::streambuf::pbase(); }
-};
-
-class LogStream : public std::ostream {
-   public:
-    LogStream(char* buf, int len, int64_t ctr)
-        : std::ostream(nullptr), streambuf_(buf, len), ctr_(ctr), self_(this) {
-        rdbuf(&streambuf_);
-    }
-
-    LogStream(const LogStream&) = delete;
-    LogStream& operator=(const LogStream&) = delete;
-
-    // Legacy std::streambuf methods.
-    size_t pcount() const { return streambuf_.pcount(); }
-    char* pbase() const { return streambuf_.pbase(); }
-    char* str() const { return pbase(); }
-
-   private:
-    LogStreamBuf streambuf_;
-    int64_t ctr_;      // Counter hack (for the LOG_EVERY_X() macro)
-    LogStream* self_;  // Consistency check hack
-};
-
-struct XLogMessageData {
-    XLogMessageData() : stream_(message_text_, kMaxLogMessageLen, 0) {}
-    // Buffer space; contains complete message text.
-    char message_text_[kMaxLogMessageLen + 1];
-    LogStream stream_;
-    XLOG_LEVEL severity_;  // What level is this XLogMessage logged at?
-    int line_;             // line number where logging call is.
-
-    size_t num_prefix_chars_;     // # of chars of prefix in this message
-    size_t num_chars_to_log_;     // # of chars of msg to send to log
-    size_t num_chars_to_syslog_;  // # of chars of msg to send to syslog
-    const char* basename_;        // basename of file that called LOG
-    const char* fullname_;        // fullname of file that called LOG
-    const char* function_;
-
-    XLogMessageData(const XLogMessageData&) = delete;
-    XLogMessageData& operator=(const XLogMessageData&) = delete;
-};
-
-XLogMessage::XLogMessage(const char* file, int line, const char* function,
-                         XLOG_LEVEL severity) {
-    // Init(file, line, severity, &XLogMessage::SendToLog);
-    data_ = new XLogMessageData;
-
-    data_->basename_ = const_basename(file);
-    data_->fullname_ = file;
-    data_->line_ = line;
-    data_->severity_ = severity;
-    data_->function_ = function;
-}
-
-XLogMessage::~XLogMessage() {
-    data_->num_chars_to_log_ = data_->stream_.pcount();
-    data_->message_text_[data_->num_chars_to_log_] = '\0';
-    // std::cout << "hahaha>>" << data_->basename_ << ":" << data_->line_ << " "
-    // << data_->message_text_ << "\r\n";
-    xlog(data_->severity_, data_->basename_, data_->line_, data_->function_,
-         "%s", data_->message_text_);
-    delete data_;
-}
-
-std::ostream& XLogMessage::stream() { return data_->stream_; }

@@ -5,7 +5,7 @@
 
 #include "packet_gen.h"
 #include "packet_stable.h"
-#include "xlog.hpp"
+#include "xlog.h"
 
 static void packet_cb(struct packet_stable_packet const *packet, void *user)
 {

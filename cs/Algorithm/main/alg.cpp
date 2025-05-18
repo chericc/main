@@ -1,6 +1,6 @@
 #include "alg.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 std::shared_ptr<MainAlgManager> MainAlgManager::instance_;
 

@@ -1,6 +1,6 @@
 #include "house_builder.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 void House::setFoundation(const std::string& s) { foundation = s; }
 

@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "text_formatter.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 int main() {
     std::string text = "John.5th year.Boy.156cm.";

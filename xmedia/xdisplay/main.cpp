@@ -1,5 +1,5 @@
 #include "xdisplay.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 #if defined(X_WINDOWS_PLATFORM)
 #pragma comment(linker, "/subsystem:console")

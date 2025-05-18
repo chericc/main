@@ -3,7 +3,7 @@
 #include <inttypes.h>
 
 #include "comm.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 FileParser::FileParser() {}
 

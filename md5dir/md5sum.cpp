@@ -1,7 +1,7 @@
 
 #include "md5sum.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define perror_msg xlog_err
 #define error_msg xlog_err

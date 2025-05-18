@@ -8,7 +8,7 @@
 #include <string>
 
 #include "event2/util.h"
-#include "xlog.hpp"
+#include "xlog.h"
 
 static void event_log(int is_warning, const char* msg) {
     if (is_warning) {

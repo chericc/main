@@ -5,7 +5,7 @@
 #include "nth_minium.hpp"
 #include "printtreedemo.hpp"
 #include "quicksort.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 #include "rbtreedemo.hpp"
 #include "lcs.hpp"
 #include "activity_select.hpp"

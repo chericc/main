@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xtimer.hpp"
 
 int main() {

@@ -8,7 +8,7 @@
 #include <memory>
 #include <cstdio>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 namespace {
 

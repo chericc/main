@@ -4,7 +4,7 @@
 #include "alg.hpp"
 #include "printtree.hpp"
 #include "treenode.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 namespace Tree {
 

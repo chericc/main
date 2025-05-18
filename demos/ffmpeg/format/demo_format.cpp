@@ -6,7 +6,7 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define array_nb(array) (sizeof(array) / sizeof(array[0]))
 

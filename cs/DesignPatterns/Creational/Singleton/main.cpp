@@ -1,4 +1,4 @@
-#include <xlog.hpp>
+#include <xlog.h>
 
 #include "global_config.hpp"
 

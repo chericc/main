@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 XPeriodPrint::XPeriodPrint(const char* file, int line, const char* function,
                            XLOG_LEVEL severity, const char* description) {

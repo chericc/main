@@ -1,6 +1,6 @@
 #include "pizza.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 void Pizza::bakePizza() { xlog_dbg("Pizza baked at 400 for 20 minutes"); }
 

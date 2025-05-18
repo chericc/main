@@ -1,7 +1,7 @@
 #include <thread>
 
 #include "inttypes.h"
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xtest_clock.hpp"
 #include "xthread.hpp"
 

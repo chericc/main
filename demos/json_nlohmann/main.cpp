@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define JSON_DIAGNOSTICS 1
 #include "json.hpp"

@@ -3,7 +3,7 @@
 #include <sys/prctl.h>
 
 // #include "fw/util/app-log.h"
-#include "xlog.hpp"
+#include "xlog.h"
 
 #include "lws_server_config.h"
 

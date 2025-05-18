@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xos_independent.hpp"
 
 XIO::XIO(const std::string& url, const std::string& mode) {

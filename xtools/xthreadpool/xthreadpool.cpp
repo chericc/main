@@ -2,7 +2,7 @@
 
 #include <iomanip>
 
-#include "xlog.hpp"
+#include "xlog_cxx.hpp"
 
 XThreadPool::ThreadContainer::ThreadContainer(Notify notify) {
     notify_ = notify;

@@ -5,7 +5,7 @@
 
 #include <condition_variable>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 struct XTestClock::InnerData {
     // dur_diff越大，则表示虚拟时间越快，或者说等待越提前返回；

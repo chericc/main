@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xthreadpool.hpp"
 
 TEST(xthreadpool, singletask) {

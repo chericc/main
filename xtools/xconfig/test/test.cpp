@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "xconfig.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 TEST(xconfig, base) {
     std::string file("config.ini");

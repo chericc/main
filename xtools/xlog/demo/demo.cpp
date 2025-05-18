@@ -1,10 +1,10 @@
 #include <thread>
 
-#include "xlog.hpp"
+#include "xlog_cxx.hpp"
 
 int main() {
-    std::vector<FILE*> fps = {stdout};
-    xlog_setoutput(fps);
+    FILE* fps[] = {stdout};
+    xlog_setoutput(fps, sizeof(fps)/sizeof(fps[0]));
 
     xlog_setmask(XLOG_LEVEL_ERROR | XLOG_LEVEL_CRITICAL);
 

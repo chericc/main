@@ -3,7 +3,7 @@
 
 #include "lvgl/lvgl.h"
 #include "lvgl/src/widgets/label/lv_label.h"
-#include "xlog.hpp"
+#include "xlog.h"
 
 int main()
 {

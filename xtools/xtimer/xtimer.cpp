@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xthread.hpp"
 
 // https://www.cnblogs.com/sunsky303/p/14154190.html

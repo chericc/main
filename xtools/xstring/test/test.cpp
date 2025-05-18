@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xstring.hpp"
 
 TEST(xstring, base) {

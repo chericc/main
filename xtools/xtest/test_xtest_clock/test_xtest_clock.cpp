@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xtest_clock.hpp"
 
 TEST(xtestclock, init) {

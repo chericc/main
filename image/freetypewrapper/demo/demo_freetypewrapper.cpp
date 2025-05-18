@@ -2,7 +2,7 @@
 #include "bmp.hpp"
 #include "freetypewrapper.hpp"
 #include "imageview.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 static const int s_pixel_depth = 3;
 

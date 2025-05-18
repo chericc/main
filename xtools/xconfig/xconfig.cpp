@@ -2,7 +2,7 @@
 #include "xconfig.hpp"
 
 #include "xconfig_imp.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 XConfig::XConfig(const std::string& filename, bool readonly)
     : d(new XConfigImp(filename, readonly)) {}

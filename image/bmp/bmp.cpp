@@ -2,7 +2,7 @@
 
 #include <inttypes.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define MKLE16(a, b) ((a) | ((uint16_t)b << 8))
 

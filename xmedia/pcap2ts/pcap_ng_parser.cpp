@@ -6,7 +6,7 @@
 
 #include "fileio.hpp"
 #include "xbswap.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xutility.hpp"
 
 #define BYTE_ORDER_MAGIC 0x1A2B3C4D

@@ -13,7 +13,7 @@
 #include <array>
 #include <cstring>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xos_independent.hpp"
 
 struct options {

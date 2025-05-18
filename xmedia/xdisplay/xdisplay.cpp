@@ -1,6 +1,6 @@
 #include "xdisplay.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define ARRAY_ELEMS(array) (sizeof(array) / sizeof(array[0]))
 

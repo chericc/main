@@ -1,4 +1,4 @@
-#include <xlog.hpp>
+#include <xlog.h>
 
 #include "cjson/cJSON.h"
 // #include "cjson/cJSON_Utils.h"

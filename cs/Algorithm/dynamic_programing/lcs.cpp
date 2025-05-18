@@ -5,7 +5,7 @@
 #include <list>
 
 #include "alg.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 namespace {
 

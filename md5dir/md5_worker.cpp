@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "md5sum.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 Md5Worker::~Md5Worker() { finish(); }
 

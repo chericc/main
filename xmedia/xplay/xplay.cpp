@@ -2,7 +2,7 @@
 
 #include "xplay.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define array_sizeof(array) ((sizeof(array)) / (sizeof(array[0])))
 

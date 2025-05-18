@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "alg.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 void NthMinium::register_test() {
     auto test = []() {

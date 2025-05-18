@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define MKTAG(a, b, c, d) \
     ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))

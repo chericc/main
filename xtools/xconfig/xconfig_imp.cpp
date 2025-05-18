@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 #include "xstring.hpp"
 
 XConfigImp::XConfigImp(const std::string& filename, bool readonly) {

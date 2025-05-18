@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <random>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 using UniClock = std::unique_lock<std::mutex>;
 using Clock = std::chrono::steady_clock;

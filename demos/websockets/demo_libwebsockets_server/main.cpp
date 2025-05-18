@@ -2,7 +2,7 @@
 
 #include <unistd.h>
 #include "lws_server_wrapper.h"
-#include "xlog.hpp"
+#include "xlog.h"
 
 void on_msg_cb(unsigned int clientID, LWS_SERVER_WRAPPER_CLIENT_TYPE type, const void *data, size_t size)
 {

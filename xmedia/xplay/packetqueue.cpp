@@ -1,7 +1,7 @@
 
 #include "packetqueue.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 typedef struct MyAVPacketList {
     AVPacket* pkt{nullptr};

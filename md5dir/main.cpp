@@ -7,7 +7,7 @@
 
 #include "md5_worker.hpp"
 #include "search_dir.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 int test(const char* path, int jobs) {
     int size = 0;

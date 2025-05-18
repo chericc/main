@@ -8,7 +8,7 @@
 #include <condition_variable>
 #include <cstring>
 
-#include <xlog.hpp>
+#include <xlog.h>
 
 using namespace std::chrono;
 using Clock = steady_clock;

@@ -1,7 +1,7 @@
 
 #include "framequeue.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 void FrameQueue::unref_item(Frame* vp) {
     av_frame_unref(vp->frame);

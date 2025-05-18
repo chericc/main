@@ -3,7 +3,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "xlog.hpp"
+#include <stdint.h>
+
+#include "xlog.h"
 
 typedef struct {
 	int payload_type; // [out]

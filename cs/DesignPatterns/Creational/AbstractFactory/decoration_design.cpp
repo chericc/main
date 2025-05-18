@@ -1,6 +1,6 @@
 #include "decoration_design.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 /**************** main ****************/
 

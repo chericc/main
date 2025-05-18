@@ -3,11 +3,12 @@
 #include <thread>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "RTSPClient.hh"
 #include "BasicUsageEnvironment.hh"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define RTSP_CLIENT_VERVOSITY_LEVEL     0
 #define REQUEST_STREAMING_OVER_TCP False

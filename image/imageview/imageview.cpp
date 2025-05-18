@@ -1,6 +1,6 @@
 #include "imageview.hpp"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 ImageView::ImageView(int w, int h, int depth, std::vector<uint8_t> init_pixel) {
     if (init_pixel.empty()) {

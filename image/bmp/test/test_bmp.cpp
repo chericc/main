@@ -5,7 +5,7 @@
 
 #include "bmp.hpp"
 #include "test_comm.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 struct TestInfo {
     std::string filename;

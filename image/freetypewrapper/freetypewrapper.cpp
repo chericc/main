@@ -5,7 +5,7 @@
 #include <limits>
 
 #include "utf8_enc.hpp"
-#include "xlog.hpp"
+#include "xlog.h"
 
 #define INT_TO_FP_26_6(integer) ((integer)*64)
 #define FP_26_6_TO_INT(FP26_6) ((FP26_6) / 64)

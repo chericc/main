@@ -1,4 +1,4 @@
-#include "xlog.hpp"
+#include "xlog.h"
 
 int main() {
     xlog_dbg("Just clone it");
