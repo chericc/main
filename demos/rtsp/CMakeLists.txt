@@ -14,3 +14,4 @@ aux_source_directory(${PATH_LIB_LIVE555}/BasicUsageEnvironment src_live555)
 
 add_subdirectory(server)
 add_subdirectory(client)
+add_subdirectory(live555wrap)
