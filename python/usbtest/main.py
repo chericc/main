@@ -25,6 +25,14 @@ def test():
     for hub in usb_hubs:
         print(f'{hub}')
 
+    pnp_ent = w.Win32_PnPEntity()
+    for pnp in pnp_ent:
+        print(f'${pnp}')
+
+    usb_ctl = w.Win32_USBControllerDevice()
+    for uc in usb_ctl:
+        print(f'${uc}')
+
 if __name__ == "__main__":
     print("begin")
     test()

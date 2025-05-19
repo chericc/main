@@ -6,6 +6,7 @@ python -m pip install wmi pywin32
 
 https://timgolden.me.uk/python/wmi/tutorial.html#the-basics
 
+https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-logicaldisktopartition
 
 ## Win32_LogicalDisk
 
