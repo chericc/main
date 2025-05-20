@@ -1,68 +1,71 @@
-import wmi
-import sys
+import win32com.client
+import win32api
+import win32con
+import ctypes
+from ctypes import wintypes
 
-def get_drive_usb_device_pnpid(drive_letter):
-    c = wmi.WMI()
-    
-    for logical_disk in c.Win32_LogicalDisk():
-        if logical_disk.DeviceID.upper() == drive_letter.upper():
-            for partition in c.Win32_DiskPartition():
-                for logical_disk_link in partition.associators("Win32_LogicalDiskToPartition"):
-                    if logical_disk_link.DeviceID.upper() == drive_letter.upper():
-                        for disk_drive in c.Win32_DiskDrive():
-                            for partition_link in disk_drive.associators("Win32_DiskDriveToDiskPartition"):
-                                if partition_link.DeviceID == partition.DeviceID:
-                                    if 'USB' in disk_drive.PNPDeviceID:
-                                        return disk_drive.PNPDeviceID
+# Load cfgmgr32.dll for device tree traversal
+cfgmgr32 = ctypes.WinDLL("cfgmgr32")
+
+# CM_Get_Child / CM_Get_Sibling constants
+CM_LOCATE_DEVNODE_NORMAL = 0
+
+# Define CM functions
+CM_Get_Child = cfgmgr32.CM_Get_Child
+CM_Get_Child.argtypes = [ctypes.POINTER(ctypes.c_ulong), ctypes.c_ulong, ctypes.c_ulong]
+CM_Get_Child.restype = ctypes.c_ulong
+
+CM_Get_Sibling = cfgmgr32.CM_Get_Sibling
+CM_Get_Sibling.argtypes = [ctypes.POINTER(ctypes.c_ulong), ctypes.c_ulong, ctypes.c_ulong]
+CM_Get_Sibling.restype = ctypes.c_ulong
+
+CM_Get_Parent = cfgmgr32.CM_Get_Parent
+CM_Get_Parent.argtypes = [ctypes.POINTER(ctypes.c_ulong), ctypes.c_ulong, ctypes.c_ulong]
+CM_Get_Parent.restype = ctypes.c_ulong
+
+CM_Get_Device_ID = cfgmgr32.CM_Get_Device_IDW
+CM_Get_Device_ID.argtypes = [ctypes.c_ulong, ctypes.c_wchar_p, ctypes.c_ulong, ctypes.c_ulong]
+CM_Get_Device_ID.restype = ctypes.c_ulong
+
+MAX_DEVICE_ID_LEN = 200
+
+def get_device_id(dev_inst):
+    buffer = ctypes.create_unicode_buffer(MAX_DEVICE_ID_LEN)
+    if CM_Get_Device_ID(dev_inst, buffer, MAX_DEVICE_ID_LEN, 0) == 0:
+        return buffer.value
     return None
 
-def find_device_tree_path(pnp_device_id):
-    c = wmi.WMI(namespace="root\\cimv2")
-    devices = list(c.Win32_PnPEntity())
-    dev_map = {dev.PNPDeviceID: dev for dev in devices if dev.PNPDeviceID}
+def walk_device_tree(dev_inst, depth=0):
+    dev_id = get_device_id(dev_inst)
+    indent = "  " * depth
+    if dev_id:
+        print(f"{indent}- {dev_id}")
 
-    path = []
-    current_id = pnp_device_id
+    # 遍历子设备
+    child = ctypes.c_ulong()
+    if CM_Get_Child(ctypes.byref(child), dev_inst, 0) == 0:
+        walk_device_tree(child.value, depth + 1)
 
-    while current_id in dev_map:
-        dev = dev_map[current_id]
-        path.append((dev.Name, dev.PNPDeviceID))
-        
-        # 查找父设备
-        parent_id = None
-        try:
-            assoc_query = f"ASSOCIATORS OF {{Win32_PnPEntity.DeviceID='{current_id.replace('\\', '\\\\')}'}} WHERE AssocClass=Win32_PnPEntity"
-            parents = c.query(assoc_query)
-            if parents:
-                parent_id = parents[0].PNPDeviceID
-        except:
-            break
+        # 遍历兄弟设备
+        sibling = ctypes.c_ulong()
+        while CM_Get_Sibling(ctypes.byref(sibling), child.value, 0) == 0:
+            walk_device_tree(sibling.value, depth + 1)
+            child = sibling
 
-        if not parent_id or parent_id == current_id:
-            break
-        current_id = parent_id
+def main():
+    # 使用 WMI 获取所有 USB 控制器
+    wmi = win32com.client.GetObject("winmgmts:")
+    usb_controllers = wmi.InstancesOf("Win32_USBController")
 
-    return path
+    for controller in usb_controllers:
+        print(f"\n[USB Controller] {controller.Name}")
+        # 获取 Device Instance Handle（DevInst）
+        pnp_device_id = controller.PNPDeviceID
 
-def main(drive_letter):
-    print(f"查找盘符 {drive_letter} 对应的USB设备树路径...")
-    pnp_id = get_drive_usb_device_pnpid(drive_letter)
-    if not pnp_id:
-        print("未找到该盘符对应的USB设备。")
-        return
-
-    print(f"\n✅ 找到PNPDeviceID: {pnp_id}\n")
-
-    tree = find_device_tree_path(pnp_id)
-    print("📦 USB设备树路径（从子设备到主控制器）:")
-    for level, (name, dev_id) in enumerate(tree):
-        indent = "  " * level
-        print(f"{indent}- {name}")
-        print(f"{indent}  PNPDeviceID: {dev_id}")
+        # 获取根 DevInst（通过 Config Manager）
+        dev_inst = ctypes.c_ulong()
+        if cfgmgr32.CM_Locate_DevNodeW(ctypes.byref(dev_inst), ctypes.c_wchar_p(pnp_device_id), CM_LOCATE_DEVNODE_NORMAL) == 0:
+            walk_device_tree(dev_inst.value)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("用法: python find_usb_tree.py <盘符>")
-        print("例如: python find_usb_tree.py E:")
-    else:
-        main(sys.argv[1].upper())
+    main()
