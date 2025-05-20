@@ -1,21 +1,25 @@
+import time
+
 import serial
-from numpy.matlib import empty
 
 
 class UsbSerialCmd:
     def __init__(self, serial_name: ''):
         self.__serialName = serial_name
         self.__serial = serial.Serial(self.__serialName, 9600)
+
     def send_msg(self, msg: bytearray, expected_length: int):
         self.__serial.write(msg)
         self.__serial.flush()
         response = self.__serial.read_until(size=expected_length)
         return response
+
     def make_msg(self, msg: bytearray):
         msg = bytearray([0xf3]) + msg
         crc = self.__crc_data(msg)
         msg += crc
         return msg
+
     def filter_response(self, response: bytearray):
         if len(response) <= 4:
             print('response length is too short')
@@ -52,6 +56,38 @@ class UsbSerialCmd:
         print(f'response: {resp.hex()}')
         return resp
 
+    def control_all_port(self, open: bool):
+        byte_value = 0x0
+        if open:
+            byte_value = 0xff
+        else:
+            byte_value = 0x00
+
+        bits_switch = bytearray(8)
+        for i in range(8):
+            bits_switch[i] = byte_value
+        self.set_usb_port_state(bits_switch)
+
+    def control_usb_port(self, port_number: int, open: bool):
+        if port_number < 0 or port_number > 63:
+            return None
+        resp = self.get_usb_open_state()
+        if resp == None:
+            print('get open state failed')
+            return None
+        if len(resp) < 8:
+            print('response length is too short')
+            return None
+        changed_resp = bytearray(resp)
+        byte_idx = port_number // 4
+        new_byte = changed_resp[byte_idx]
+        if open:
+            new_byte |= (0x1 << (port_number % 8))
+        else:
+            new_byte ^= (0x1 << (port_number % 8))
+        changed_resp[byte_idx] = new_byte
+        self.set_usb_port_state(changed_resp)
+
     def __crc_data(self, data: bytearray, init_val: bytes = 0xff):
         crch = init_val
         crcl = init_val
@@ -60,6 +96,7 @@ class UsbSerialCmd:
             crch = crcl ^ self.h_array[byte]
             crcl = self.l_array[byte]
         return bytearray([crch, crcl])
+
     h_array = bytearray([
         0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0,
         0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41,
@@ -132,7 +169,15 @@ if __name__ == "__main__":
     se.get_model_id()
     se.get_usb_open_state()
 
-    bit_switch = bytearray([0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
-    se.set_usb_port_state(bit_switch)
+    # bit_switch = bytearray([0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF])
+    # se.set_usb_port_state(bit_switch)
+
+    se.control_usb_port(0, True)
+    se.control_usb_port(1, False)
+
+    time.sleep(1)
+    se.control_all_port(False)
+    time.sleep(1)
+    se.control_all_port(True)
 
     print("end")
