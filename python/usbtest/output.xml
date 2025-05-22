@@ -1,0 +1,1796 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UvcViewAll xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="USB">
+  <UvcView xmlns="">
+    <MachineInfo>
+      <UvcMajorVersion>1</UvcMajorVersion>
+      <UvcMinorVersion>5</UvcMinorVersion>
+      <UvcMajorSpecVersion>2</UvcMajorSpecVersion>
+      <UvcMinorSpecVersion>0</UvcMinorSpecVersion>
+      <CollectionTime>0001-01-01T00:00:00</CollectionTime>
+    </MachineInfo>
+    <UsbTree>
+      <UsbController ServiceName="USBXHCI" UsbProtocol="USB 3.0" DeviceName="符合 USB xHCI 的主机控制器" DeviceClass="USB" HwId="PCI\VEN_8086&amp;DEV_A0ED&amp;SUBSYS_30048086&amp;REV_20" DeviceId="PCI\VEN_8086&amp;DEV_A0ED&amp;SUBSYS_30048086&amp;REV_20\3&amp;11583659&amp;0&amp;A0">
+        <ControllerInfo>
+          <VendorId>32902</VendorId>
+          <DeviceId>41197</DeviceId>
+          <DriverKey>{36fc9e60-c465-11cf-8056-444553540000}\0001</DriverKey>
+          <SubSysId>805601414</SubSysId>
+          <Revision>32</Revision>
+          <DebugPort>0</DebugPort>
+          <NumberOfRootPorts>12</NumberOfRootPorts>
+          <ControllerFlavor>0</ControllerFlavor>
+          <ControllerFlavorString>USB_HcGeneric</ControllerFlavorString>
+          <PortSwitchingEnabled>false</PortSwitchingEnabled>
+          <SelectiveSuspendEnabled>false</SelectiveSuspendEnabled>
+          <LegacyBios>0</LegacyBios>
+        </ControllerInfo>
+        <PowerMapping>
+          <PowerMap IsPowered="false" CanWakeUp="false" HubState="S? (unmapped)   " HostControllerState="D0              " SystemState="S0 (working)    " />
+          <PowerMap IsPowered="false" CanWakeUp="false" HubState="D3              " HostControllerState="D? (unspecified)" SystemState="S1 (sleep)      " />
+          <PowerMap IsPowered="false" CanWakeUp="false" HubState="D3              " HostControllerState="D? (unspecified)" SystemState="S2 (sleep)      " />
+          <PowerMap IsPowered="true" CanWakeUp="true" HubState="D2              " HostControllerState="D3              " SystemState="S3 (sleep)      " />
+          <PowerMap IsPowered="true" CanWakeUp="true" HubState="D2              " HostControllerState="D3              " SystemState="S4 (Hibernate)  " />
+          <LastSleepState>S? (unmapped)   </LastSleepState>
+        </PowerMapping>
+        <RootHub>
+          <HubNodeInformation>
+            <HubNode>UsbHub</HubNode>
+            <HubInformation>
+              <IsRootHub>true</IsRootHub>
+              <IsBusPowered>false</IsBusPowered>
+              <HubDescriptor HubControlCurrent="0" PowerOntoPowerGood="2" NumberOfPorts="16" DescriptorType="41" DescriptorLength="9" />
+              <HubCharacteristics OverCurrentProtection="Global" CompoundDevice="false" PowerSwitching="Ganged" HubCharacteristicsValue="0" />
+            </HubInformation>
+            <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+          </HubNodeInformation>
+          <HubName>USB#ROOT_HUB30#4&amp;f366d86&amp;0&amp;0#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+          <HubInformationEx>
+            <HubType>UsbRootHub</HubType>
+            <HighestPortNumber>16</HighestPortNumber>
+            <HubDescriptor HubControlCurrent="0" PowerOntoPowerGood="0" NumberOfPorts="0" DescriptorType="0" DescriptorLength="0" />
+          </HubInformationEx>
+          <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="true" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="true" HubIsHighSpeedCapable="false" />
+          <ExternalHub DeviceName="通用 USB 集线器" DeviceClass="USB" UsbProtocol="USB 2.0" ServiceName="USBHUB3" HwId="USB\VID_05E3&amp;PID_0610&amp;REV_0656" DeviceId="USB\VID_05E3&amp;PID_0610\5&amp;28D68EF5&amp;0&amp;2">
+            <HubNodeInformation>
+              <HubNode>UsbHub</HubNode>
+              <HubInformation>
+                <IsRootHub>true</IsRootHub>
+                <IsBusPowered>false</IsBusPowered>
+                <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="0" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                <HubCharacteristics OverCurrentProtection="Global" CompoundDevice="false" PowerSwitching="Ganged" HubCharacteristicsValue="224" />
+              </HubInformation>
+              <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+            </HubNodeInformation>
+            <HubName>USB#VID_05E3&amp;PID_0610#5&amp;28d68ef5&amp;0&amp;2#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+            <HubInformationEx>
+              <HubType>Usb20Hub</HubType>
+              <HighestPortNumber>4</HighestPortNumber>
+              <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="0" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+            </HubInformationEx>
+            <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="true" HubIsHighSpeedCapable="true" />
+            <ConnectionInfo>
+              <ConnectionInfoStruct>
+                <ConnectionIndex>2</ConnectionIndex>
+                <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="1622" IdProduct="1552" IdVendor="1507" MaxPacketSize0="64" DeviceProtocol="1" DeviceSubclass="0" DeviceClass="9" CdUSB="528" DescriptorType="1" Length="18" />
+                <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                <Speed>2</Speed>
+                <SpeedStr>High</SpeedStr>
+                <DeviceIsHub>true</DeviceIsHub>
+                <DeviceAddress>0</DeviceAddress>
+                <NumOfOpenPipes>1</NumOfOpenPipes>
+                <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+              </ConnectionInfoStruct>
+              <IProductStringDescEn>USB2.1 Hub</IProductStringDescEn>
+              <DeviceClassDetails>
+                <DeviceType>Hub Device</DeviceType>
+                <UvcVersion>0</UvcVersion>
+              </DeviceClassDetails>
+              <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+              <VendorString>Genesys Logic, Inc.</VendorString>
+              <ManufacturerString>GenesysLogic</ManufacturerString>
+              <ProductString>USB2.1 Hub</ProductString>
+              <LangIdString>English (United States)</LangIdString>
+              <SerialString>?</SerialString>
+            </ConnectionInfo>
+            <UsbDevice UsbProtocol="USB 1.1" UsbPortNumber="1" DeviceName="USB-SERIAL CH340" DeviceClass="Ports" DeviceId="USB\VID_1A86&amp;PID_7523\6&amp;158A5FA7&amp;0&amp;1" ServiceName="CH341SER_A64" HwId="USB\VID_1A86&amp;PID_7523&amp;REV_8134">
+              <ConnectionInfo>
+                <ConnectionInfoStruct>
+                  <ConnectionIndex>1</ConnectionIndex>
+                  <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="0" CdDevice="33076" IdProduct="29987" IdVendor="6790" MaxPacketSize0="8" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="255" CdUSB="272" DescriptorType="1" Length="18" />
+                  <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                  <Speed>1</Speed>
+                  <SpeedStr>Full</SpeedStr>
+                  <DeviceIsHub>false</DeviceIsHub>
+                  <DeviceAddress>0</DeviceAddress>
+                  <NumOfOpenPipes>3</NumOfOpenPipes>
+                  <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                  <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                </ConnectionInfoStruct>
+                <IProductStringDescEn>USB Serial</IProductStringDescEn>
+                <DeviceClassDetails>
+                  <DeviceType>Vendor specific device</DeviceType>
+                  <UvcVersion>0</UvcVersion>
+                </DeviceClassDetails>
+                <MaxPacketSizeInBytes>8</MaxPacketSizeInBytes>
+                <VendorString>Nanjing Qinherg Electronics Co., Ltd.</VendorString>
+                <ManufacturerString>?</ManufacturerString>
+                <ProductString>USB Serial</ProductString>
+                <LangIdString>English (United States)</LangIdString>
+                <SerialString>?</SerialString>
+              </ConnectionInfo>
+              <PortConnector>
+                <ConnectionIndex>1</ConnectionIndex>
+                <ActualLength>170</ActualLength>
+                <UsbPortProperties>
+                  <PortIsUserConnectable>true</PortIsUserConnectable>
+                  <PortIsDebugCapable>false</PortIsDebugCapable>
+                </UsbPortProperties>
+                <CompanionIndex>0</CompanionIndex>
+                <CompanionPortNumber>1</CompanionPortNumber>
+                <CompanionHubSymbolicLinkName>USB#VID_05E3&amp;PID_0626#5&amp;28d68ef5&amp;0&amp;16#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+              </PortConnector>
+              <DeviceConfiguration>
+                <ConfigurationDescriptor BLength="9" MaxPower="52" BConfigurationValue="1" IConfiguration="0" BmAttributes="128" BDescriptorType="2" WTotalLength="39" BNumInterfaces="1">
+                  <AttributesStr>Bus Powered</AttributesStr>
+                  <MaxCurrent>104 mA</MaxCurrent>
+                </ConfigurationDescriptor>
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="1" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="0" BNumEndpoints="3" BInterfaceClass="255">
+                  <InterfaceDetails>
+                    <DeviceClass>Vendor Specific Device</DeviceClass>
+                  </InterfaceDetails>
+                </InterfaceDescriptor>
+                <EndpointDescriptor EndpointPacketSizeValidation="ERROR: wMaxPacketSize bits 15-13 should be 0" EndpointPacketInfo="1795 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="513" Interval="0" MaxPacketSize="65283" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <ConnectionInfoV2>
+                <ConnectionIndex>1</ConnectionIndex>
+                <Length>16</Length>
+                <Usb110Supported>true</Usb110Supported>
+                <Usb200Supported>true</Usb200Supported>
+                <Usb300Supported>false</Usb300Supported>
+                <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+                <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+              </ConnectionInfoV2>
+            </UsbDevice>
+            <UsbDevice UsbProtocol="USB 1.1" UsbPortNumber="2" DeviceName="USB-SERIAL CH340" DeviceClass="Ports" DeviceId="USB\VID_1A86&amp;PID_7523\6&amp;158A5FA7&amp;0&amp;2" ServiceName="CH341SER_A64" HwId="USB\VID_1A86&amp;PID_7523&amp;REV_0254">
+              <ConnectionInfo>
+                <ConnectionInfoStruct>
+                  <ConnectionIndex>2</ConnectionIndex>
+                  <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="0" CdDevice="596" IdProduct="29987" IdVendor="6790" MaxPacketSize0="8" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="255" CdUSB="272" DescriptorType="1" Length="18" />
+                  <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                  <Speed>1</Speed>
+                  <SpeedStr>Full</SpeedStr>
+                  <DeviceIsHub>false</DeviceIsHub>
+                  <DeviceAddress>0</DeviceAddress>
+                  <NumOfOpenPipes>3</NumOfOpenPipes>
+                  <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                  <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                </ConnectionInfoStruct>
+                <IProductStringDescEn>USB2.0-Serial</IProductStringDescEn>
+                <DeviceClassDetails>
+                  <DeviceType>Vendor specific device</DeviceType>
+                  <UvcVersion>0</UvcVersion>
+                </DeviceClassDetails>
+                <MaxPacketSizeInBytes>8</MaxPacketSizeInBytes>
+                <VendorString>Nanjing Qinherg Electronics Co., Ltd.</VendorString>
+                <ManufacturerString>?</ManufacturerString>
+                <ProductString>USB2.0-Serial</ProductString>
+                <LangIdString>English (United States)</LangIdString>
+                <SerialString>?</SerialString>
+              </ConnectionInfo>
+              <PortConnector>
+                <ConnectionIndex>2</ConnectionIndex>
+                <ActualLength>170</ActualLength>
+                <UsbPortProperties>
+                  <PortIsUserConnectable>true</PortIsUserConnectable>
+                  <PortIsDebugCapable>false</PortIsDebugCapable>
+                </UsbPortProperties>
+                <CompanionIndex>0</CompanionIndex>
+                <CompanionPortNumber>2</CompanionPortNumber>
+                <CompanionHubSymbolicLinkName>USB#VID_05E3&amp;PID_0626#5&amp;28d68ef5&amp;0&amp;16#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+              </PortConnector>
+              <DeviceConfiguration>
+                <ConfigurationDescriptor BLength="9" MaxPower="48" BConfigurationValue="1" IConfiguration="0" BmAttributes="128" BDescriptorType="2" WTotalLength="39" BNumInterfaces="1">
+                  <AttributesStr>Bus Powered</AttributesStr>
+                  <MaxCurrent>96 mA</MaxCurrent>
+                </ConfigurationDescriptor>
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="1" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="0" BNumEndpoints="3" BInterfaceClass="255">
+                  <InterfaceDetails>
+                    <DeviceClass>Vendor Specific Device</DeviceClass>
+                  </InterfaceDetails>
+                </InterfaceDescriptor>
+                <EndpointDescriptor EndpointPacketSizeValidation="ERROR: wMaxPacketSize bits 15-13 should be 0" EndpointPacketInfo="1795 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="513" Interval="0" MaxPacketSize="65283" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <ConnectionInfoV2>
+                <ConnectionIndex>2</ConnectionIndex>
+                <Length>16</Length>
+                <Usb110Supported>true</Usb110Supported>
+                <Usb200Supported>true</Usb200Supported>
+                <Usb300Supported>false</Usb300Supported>
+                <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+                <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+              </ConnectionInfoV2>
+            </UsbDevice>
+            <NoDevice Name="[Port4] " UsbPortNumber="0" />
+            <DeviceConfiguration>
+              <ConfigurationDescriptor BLength="9" MaxPower="50" BConfigurationValue="1" IConfiguration="0" BmAttributes="224" BDescriptorType="2" WTotalLength="25" BNumInterfaces="1">
+                <AttributesStr>Bus Powered</AttributesStr>
+                <MaxCurrent>100 mA</MaxCurrent>
+              </ConfigurationDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="0" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="9">
+                <InterfaceDetails>
+                  <DeviceClass>HUB Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="257 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="2305" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+              <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 190 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 8 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="8" SupportsLowSpeed="false" WU2DevExitLat="190" />
+              <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="6" BDevCapabilityType="2" />
+              <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                <ContainerIdStr>9F4B56F0-1DF6-11E0-AC64-8020C9A66</ContainerIdStr>
+              </UsbDispContIdCapExtDescriptor>
+            </BosDescriptor>
+            <ConnectionInfoV2>
+              <ConnectionIndex>2</ConnectionIndex>
+              <Length>16</Length>
+              <Usb110Supported>true</Usb110Supported>
+              <Usb200Supported>true</Usb200Supported>
+              <Usb300Supported>false</Usb300Supported>
+              <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+              <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+              <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+              <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+            </ConnectionInfoV2>
+            <ExternalHub DeviceName="通用 USB 集线器" DeviceClass="USB" UsbProtocol="USB 2.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_5411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_5411\6&amp;158A5FA7&amp;0&amp;3">
+              <HubNodeInformation>
+                <HubNode>UsbHub</HubNode>
+                <HubInformation>
+                  <IsRootHub>true</IsRootHub>
+                  <IsBusPowered>false</IsBusPowered>
+                  <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                  <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="169" />
+                </HubInformation>
+                <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+              </HubNodeInformation>
+              <HubName>USB#VID_0BDA&amp;PID_5411#6&amp;158a5fa7&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+              <HubInformationEx>
+                <HubType>Usb20Hub</HubType>
+                <HighestPortNumber>4</HighestPortNumber>
+                <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+              </HubInformationEx>
+              <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="true" HubIsMultiTtCapable="true" HubIsHighSpeed="true" HubIsHighSpeedCapable="true" />
+              <ConnectionInfo>
+                <ConnectionInfoStruct>
+                  <ConnectionIndex>3</ConnectionIndex>
+                  <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="21521" IdVendor="3034" MaxPacketSize0="64" DeviceProtocol="2" DeviceSubclass="0" DeviceClass="9" CdUSB="528" DescriptorType="1" Length="18" />
+                  <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                  <Speed>2</Speed>
+                  <SpeedStr>High</SpeedStr>
+                  <DeviceIsHub>true</DeviceIsHub>
+                  <DeviceAddress>0</DeviceAddress>
+                  <NumOfOpenPipes>1</NumOfOpenPipes>
+                  <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                  <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                </ConnectionInfoStruct>
+                <IProductStringDescEn>4-Port USB 2.1 Hub</IProductStringDescEn>
+                <DeviceClassDetails>
+                  <DeviceType>Hub Device</DeviceType>
+                  <UvcVersion>0</UvcVersion>
+                </DeviceClassDetails>
+                <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+                <VendorString>Realtek Semiconductor Corp.</VendorString>
+                <ManufacturerString>Generic</ManufacturerString>
+                <ProductString>4-Port USB 2.1 Hub</ProductString>
+                <LangIdString>English (United States)</LangIdString>
+                <SerialString>?</SerialString>
+              </ConnectionInfo>
+              <UsbDevice UsbProtocol="USB 1.1" UsbPortNumber="1" DeviceName="USB-SERIAL CH340" DeviceClass="Ports" DeviceId="USB\VID_1A86&amp;PID_7523\7&amp;2DC959B&amp;0&amp;1" ServiceName="CH341SER_A64" HwId="USB\VID_1A86&amp;PID_7523&amp;REV_0264">
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>1</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="0" CdDevice="612" IdProduct="29987" IdVendor="6790" MaxPacketSize0="8" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="255" CdUSB="272" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>1</Speed>
+                    <SpeedStr>Full</SpeedStr>
+                    <DeviceIsHub>false</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>3</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>USB Serial</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Vendor specific device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>8</MaxPacketSizeInBytes>
+                  <VendorString>Nanjing Qinherg Electronics Co., Ltd.</VendorString>
+                  <ManufacturerString>?</ManufacturerString>
+                  <ProductString>USB Serial</ProductString>
+                  <LangIdString>English (United States)</LangIdString>
+                  <SerialString>?</SerialString>
+                </ConnectionInfo>
+                <PortConnector>
+                  <ConnectionIndex>1</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>1</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_0411#6&amp;356dedf1&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+                <DeviceConfiguration>
+                  <ConfigurationDescriptor BLength="9" MaxPower="49" BConfigurationValue="1" IConfiguration="0" BmAttributes="128" BDescriptorType="2" WTotalLength="39" BNumInterfaces="1">
+                    <AttributesStr>Bus Powered</AttributesStr>
+                    <MaxCurrent>98 mA</MaxCurrent>
+                  </ConfigurationDescriptor>
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="1" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="0" BNumEndpoints="3" BInterfaceClass="255">
+                    <InterfaceDetails>
+                      <DeviceClass>Vendor Specific Device</DeviceClass>
+                    </InterfaceDetails>
+                  </InterfaceDescriptor>
+                  <EndpointDescriptor EndpointPacketSizeValidation="ERROR: wMaxPacketSize bits 15-13 should be 0" EndpointPacketInfo="1795 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="513" Interval="0" MaxPacketSize="65283" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="32 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="32" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>1</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>true</Usb110Supported>
+                  <Usb200Supported>true</Usb200Supported>
+                  <Usb300Supported>false</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+              </UsbDevice>
+              <DeviceConfiguration>
+                <ConfigurationDescriptor BLength="9" MaxPower="0" BConfigurationValue="1" IConfiguration="0" BmAttributes="224" BDescriptorType="2" WTotalLength="41" BNumInterfaces="1">
+                  <AttributesStr>Bus Powered</AttributesStr>
+                  <MaxCurrent>0 mA</MaxCurrent>
+                </ConfigurationDescriptor>
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="1" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="9">
+                  <InterfaceDetails>
+                    <DeviceClass>HUB Interface</DeviceClass>
+                  </InterfaceDetails>
+                </InterfaceDescriptor>
+                <EndpointDescriptor EndpointPacketInfo="257 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="256" Interval="0" MaxPacketSize="2305" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="1" BNumEndpoints="1" BInterfaceClass="9">
+                  <InterfaceDetails>
+                    <DeviceClass>HUB Interface</DeviceClass>
+                  </InterfaceDetails>
+                </InterfaceDescriptor>
+                <EndpointDescriptor EndpointPacketSizeValidation="ERROR: Invalid maximum packet size, should be between 513 and 1024" EndpointPacketInfo="2 transactions per microframe, 257 max bytes" EndpointType="Ischronous Transfer Type - No Synchronization" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="512" Interval="0" MaxPacketSize="2305" Attributes="1" EndpointAddress="0" DescriptorType="4" Length="9" />
+              </DeviceConfiguration>
+              <DeviceConfiguration>
+                <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+              </DeviceConfiguration>
+              <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                  <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                </UsbDispContIdCapExtDescriptor>
+              </BosDescriptor>
+              <ConnectionInfoV2>
+                <ConnectionIndex>3</ConnectionIndex>
+                <Length>16</Length>
+                <Usb110Supported>true</Usb110Supported>
+                <Usb200Supported>true</Usb200Supported>
+                <Usb300Supported>false</Usb300Supported>
+                <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+              </ConnectionInfoV2>
+              <ExternalHub DeviceName="通用 USB 集线器" DeviceClass="USB" UsbProtocol="USB 2.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_5411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_5411\7&amp;2DC959B&amp;0&amp;2">
+                <HubNodeInformation>
+                  <HubNode>UsbHub</HubNode>
+                  <HubInformation>
+                    <IsRootHub>true</IsRootHub>
+                    <IsBusPowered>false</IsBusPowered>
+                    <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                    <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="169" />
+                  </HubInformation>
+                  <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+                </HubNodeInformation>
+                <HubName>USB#VID_0BDA&amp;PID_5411#7&amp;2dc959b&amp;0&amp;2#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+                <HubInformationEx>
+                  <HubType>Usb20Hub</HubType>
+                  <HighestPortNumber>4</HighestPortNumber>
+                  <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                </HubInformationEx>
+                <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="true" HubIsMultiTtCapable="true" HubIsHighSpeed="true" HubIsHighSpeedCapable="true" />
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>2</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="21521" IdVendor="3034" MaxPacketSize0="64" DeviceProtocol="2" DeviceSubclass="0" DeviceClass="9" CdUSB="528" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>2</Speed>
+                    <SpeedStr>High</SpeedStr>
+                    <DeviceIsHub>true</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>1</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>4-Port USB 2.1 Hub</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Hub Device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+                  <VendorString>Realtek Semiconductor Corp.</VendorString>
+                  <ManufacturerString>Generic</ManufacturerString>
+                  <ProductString>4-Port USB 2.1 Hub</ProductString>
+                  <LangIdString>English (United States)</LangIdString>
+                  <SerialString>?</SerialString>
+                </ConnectionInfo>
+                <UsbDevice UsbProtocol="USB 2.0" UsbPortNumber="2" DeviceName="USB 大容量存储设备" DeviceClass="USB" DeviceId="USB\VID_302E&amp;PID_041B\0000000000000000" ServiceName="USBSTOR" HwId="USB\VID_302E&amp;PID_041B&amp;REV_0419">
+                  <ConnectionInfo>
+                    <ConnectionInfoStruct>
+                      <ConnectionIndex>2</ConnectionIndex>
+                      <DeviceDescriptor NumConfigurations="1" ISerialNumber="3" IProduct="2" IManufacturer="1" CdDevice="1049" IdProduct="1051" IdVendor="12334" MaxPacketSize0="64" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="0" CdUSB="512" DescriptorType="1" Length="18" />
+                      <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                      <Speed>2</Speed>
+                      <SpeedStr>High</SpeedStr>
+                      <DeviceIsHub>false</DeviceIsHub>
+                      <DeviceAddress>0</DeviceAddress>
+                      <NumOfOpenPipes>2</NumOfOpenPipes>
+                      <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                      <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                      <Pipe>
+                        <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="512" Attributes="2" EndpointAddress="129" DescriptorType="5" Length="7" />
+                        <ScheduleOffset>0</ScheduleOffset>
+                      </Pipe>
+                      <Pipe>
+                        <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="1" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="512" Attributes="2" EndpointAddress="1" DescriptorType="5" Length="7" />
+                        <ScheduleOffset>0</ScheduleOffset>
+                      </Pipe>
+                    </ConnectionInfoStruct>
+                    <IProductStringDescEn>USB Composite Device</IProductStringDescEn>
+                    <DeviceClassDetails>
+                      <DeviceType>Interface Class Defined Device</DeviceType>
+                      <UvcVersion>0</UvcVersion>
+                    </DeviceClassDetails>
+                    <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+                    <VendorString>Vendor ID not listed with USB.org</VendorString>
+                    <ManufacturerString>Lombo Technology</ManufacturerString>
+                    <ProductString>USB Composite Device</ProductString>
+                    <LangIdString>English (United States)</LangIdString>
+                    <SerialString>0000000000000000</SerialString>
+                  </ConnectionInfo>
+                  <PortConnector>
+                    <ConnectionIndex>2</ConnectionIndex>
+                    <ActualLength>166</ActualLength>
+                    <UsbPortProperties>
+                      <PortIsUserConnectable>true</PortIsUserConnectable>
+                      <PortIsDebugCapable>false</PortIsDebugCapable>
+                    </UsbPortProperties>
+                    <CompanionIndex>0</CompanionIndex>
+                    <CompanionPortNumber>2</CompanionPortNumber>
+                    <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_0411#7&amp;b6d4a78&amp;0&amp;2#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                  </PortConnector>
+                  <DeviceConfiguration>
+                    <ConfigurationDescriptor BLength="9" MaxPower="250" BConfigurationValue="1" IConfiguration="4" BmAttributes="128" BDescriptorType="2" WTotalLength="32" BNumInterfaces="1">
+                      <ConfStringDesc>cfg 1</ConfStringDesc>
+                      <AttributesStr>Bus Powered</AttributesStr>
+                      <MaxCurrent>500 mA</MaxCurrent>
+                    </ConfigurationDescriptor>
+                  </DeviceConfiguration>
+                  <DeviceConfiguration>
+                    <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="6" BInterfaceProtocol="80" IInterface="5" BAlternateSetting="0" BNumEndpoints="2" BInterfaceClass="8">
+                      <InterfaceDetails>
+                        <DeviceClass>Mass Storage USB Device</DeviceClass>
+                      </InterfaceDetails>
+                      <StringDesc>Mass Storage</StringDesc>
+                    </InterfaceDescriptor>
+                    <EndpointDescriptor EndpointPacketInfo="2 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="5" WInterval="20486" Interval="0" MaxPacketSize="2050" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+                  </DeviceConfiguration>
+                  <DeviceConfiguration>
+                    <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="512" Attributes="2" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  </DeviceConfiguration>
+                  <DeviceConfiguration>
+                    <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="1" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="512" Attributes="2" EndpointAddress="1" DescriptorType="5" Length="7" />
+                  </DeviceConfiguration>
+                  <ConnectionInfoV2>
+                    <ConnectionIndex>2</ConnectionIndex>
+                    <Length>16</Length>
+                    <Usb110Supported>true</Usb110Supported>
+                    <Usb200Supported>true</Usb200Supported>
+                    <Usb300Supported>false</Usb300Supported>
+                    <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                    <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+                    <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                    <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                  </ConnectionInfoV2>
+                </UsbDevice>
+                <NoDevice Name="[Port1] " UsbPortNumber="0" />
+                <NoDevice Name="[Port3] " UsbPortNumber="0" />
+                <NoDevice Name="[Port4] " UsbPortNumber="0" />
+                <DeviceConfiguration>
+                  <ConfigurationDescriptor BLength="9" MaxPower="0" BConfigurationValue="1" IConfiguration="0" BmAttributes="224" BDescriptorType="2" WTotalLength="41" BNumInterfaces="1">
+                    <AttributesStr>Bus Powered</AttributesStr>
+                    <MaxCurrent>0 mA</MaxCurrent>
+                  </ConfigurationDescriptor>
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="1" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="9">
+                    <InterfaceDetails>
+                      <DeviceClass>HUB Interface</DeviceClass>
+                    </InterfaceDetails>
+                  </InterfaceDescriptor>
+                  <EndpointDescriptor EndpointPacketInfo="257 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="256" Interval="0" MaxPacketSize="2305" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="1" BNumEndpoints="1" BInterfaceClass="9">
+                    <InterfaceDetails>
+                      <DeviceClass>HUB Interface</DeviceClass>
+                    </InterfaceDetails>
+                  </InterfaceDescriptor>
+                  <EndpointDescriptor EndpointPacketSizeValidation="ERROR: Invalid maximum packet size, should be between 513 and 1024" EndpointPacketInfo="2 transactions per microframe, 257 max bytes" EndpointType="Ischronous Transfer Type - No Synchronization" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="512" Interval="0" MaxPacketSize="2305" Attributes="1" EndpointAddress="0" DescriptorType="4" Length="9" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                  <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                  <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                  <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                    <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                  </UsbDispContIdCapExtDescriptor>
+                </BosDescriptor>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>2</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>true</Usb110Supported>
+                  <Usb200Supported>true</Usb200Supported>
+                  <Usb300Supported>false</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+                <PortConnector>
+                  <ConnectionIndex>2</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>2</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_0411#6&amp;356dedf1&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+              </ExternalHub>
+              <ExternalHub DeviceName="通用 USB 集线器" DeviceClass="USB" UsbProtocol="USB 2.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_5411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_5411\7&amp;2DC959B&amp;0&amp;3">
+                <HubNodeInformation>
+                  <HubNode>UsbHub</HubNode>
+                  <HubInformation>
+                    <IsRootHub>true</IsRootHub>
+                    <IsBusPowered>false</IsBusPowered>
+                    <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                    <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="169" />
+                  </HubInformation>
+                  <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+                </HubNodeInformation>
+                <HubName>USB#VID_0BDA&amp;PID_5411#7&amp;2dc959b&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+                <HubInformationEx>
+                  <HubType>Usb20Hub</HubType>
+                  <HighestPortNumber>4</HighestPortNumber>
+                  <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                </HubInformationEx>
+                <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="true" HubIsMultiTtCapable="true" HubIsHighSpeed="true" HubIsHighSpeedCapable="true" />
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>3</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="21521" IdVendor="3034" MaxPacketSize0="64" DeviceProtocol="2" DeviceSubclass="0" DeviceClass="9" CdUSB="528" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>2</Speed>
+                    <SpeedStr>High</SpeedStr>
+                    <DeviceIsHub>true</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>1</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>ERROR: No String descriptor for index 2</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Hub Device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+                  <VendorString>Realtek Semiconductor Corp.</VendorString>
+                  <ManufacturerString>ERROR: No String descriptor for index 1</ManufacturerString>
+                  <ProductString>ERROR: No String descriptor for index 2</ProductString>
+                  <LangIdString>ERROR: No String descriptor for index 2</LangIdString>
+                  <SerialString>ERROR: No String descriptor for index 0</SerialString>
+                </ConnectionInfo>
+                <NoDevice Name="[Port1] " UsbPortNumber="0" />
+                <NoDevice Name="[Port2] " UsbPortNumber="0" />
+                <NoDevice Name="[Port3] " UsbPortNumber="0" />
+                <NoDevice Name="[Port4] " UsbPortNumber="0" />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                  <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                  <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                  <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                    <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                  </UsbDispContIdCapExtDescriptor>
+                </BosDescriptor>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>3</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>true</Usb110Supported>
+                  <Usb200Supported>true</Usb200Supported>
+                  <Usb300Supported>false</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+                <PortConnector>
+                  <ConnectionIndex>3</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>3</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_0411#6&amp;356dedf1&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+              </ExternalHub>
+              <ExternalHub DeviceName="通用 USB 集线器" DeviceClass="USB" UsbProtocol="USB 2.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_5411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_5411\7&amp;2DC959B&amp;0&amp;4">
+                <HubNodeInformation>
+                  <HubNode>UsbHub</HubNode>
+                  <HubInformation>
+                    <IsRootHub>true</IsRootHub>
+                    <IsBusPowered>false</IsBusPowered>
+                    <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                    <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="169" />
+                  </HubInformation>
+                  <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+                </HubNodeInformation>
+                <HubName>USB#VID_0BDA&amp;PID_5411#7&amp;2dc959b&amp;0&amp;4#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+                <HubInformationEx>
+                  <HubType>Usb20Hub</HubType>
+                  <HighestPortNumber>4</HighestPortNumber>
+                  <HubDescriptor HubControlCurrent="100" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                </HubInformationEx>
+                <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="true" HubIsMultiTtCapable="true" HubIsHighSpeed="true" HubIsHighSpeedCapable="true" />
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>4</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="21521" IdVendor="3034" MaxPacketSize0="64" DeviceProtocol="2" DeviceSubclass="0" DeviceClass="9" CdUSB="528" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>2</Speed>
+                    <SpeedStr>High</SpeedStr>
+                    <DeviceIsHub>true</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>1</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>4-Port USB 2.1 Hub</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Hub Device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+                  <VendorString>Realtek Semiconductor Corp.</VendorString>
+                  <ManufacturerString>Generic</ManufacturerString>
+                  <ProductString>4-Port USB 2.1 Hub</ProductString>
+                  <LangIdString>English (United States)</LangIdString>
+                  <SerialString>?</SerialString>
+                </ConnectionInfo>
+                <UsbDevice UsbProtocol="USB 2.0" UsbPortNumber="2" DeviceName="USB 大容量存储设备" DeviceClass="USB" DeviceId="USB\VID_14CD&amp;PID_1212\121220160204" ServiceName="USBSTOR" HwId="USB\VID_14CD&amp;PID_1212&amp;REV_0100">
+                  <ConnectionInfo>
+                    <ConnectionInfoStruct>
+                      <ConnectionIndex>2</ConnectionIndex>
+                      <DeviceDescriptor NumConfigurations="1" ISerialNumber="2" IProduct="3" IManufacturer="1" CdDevice="256" IdProduct="4626" IdVendor="5325" MaxPacketSize0="64" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="0" CdUSB="512" DescriptorType="1" Length="18" />
+                      <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                      <Speed>2</Speed>
+                      <SpeedStr>High</SpeedStr>
+                      <DeviceIsHub>false</DeviceIsHub>
+                      <DeviceAddress>0</DeviceAddress>
+                      <NumOfOpenPipes>2</NumOfOpenPipes>
+                      <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                      <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                      <Pipe>
+                        <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="512" Attributes="2" EndpointAddress="129" DescriptorType="5" Length="7" />
+                        <ScheduleOffset>0</ScheduleOffset>
+                      </Pipe>
+                      <Pipe>
+                        <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="512" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                        <ScheduleOffset>0</ScheduleOffset>
+                      </Pipe>
+                    </ConnectionInfoStruct>
+                    <IProductStringDescEn>Mass Storage Device</IProductStringDescEn>
+                    <DeviceClassDetails>
+                      <DeviceType>Interface Class Defined Device</DeviceType>
+                      <UvcVersion>0</UvcVersion>
+                    </DeviceClassDetails>
+                    <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+                    <VendorString>MOAI ELECTRONICS CORPORATION</VendorString>
+                    <ManufacturerString>Generic</ManufacturerString>
+                    <ProductString>Mass Storage Device</ProductString>
+                    <LangIdString>English (United States)</LangIdString>
+                    <SerialString>121220160204</SerialString>
+                  </ConnectionInfo>
+                  <PortConnector>
+                    <ConnectionIndex>2</ConnectionIndex>
+                    <ActualLength>166</ActualLength>
+                    <UsbPortProperties>
+                      <PortIsUserConnectable>true</PortIsUserConnectable>
+                      <PortIsDebugCapable>false</PortIsDebugCapable>
+                    </UsbPortProperties>
+                    <CompanionIndex>0</CompanionIndex>
+                    <CompanionPortNumber>2</CompanionPortNumber>
+                    <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_0411#7&amp;b6d4a78&amp;0&amp;4#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                  </PortConnector>
+                  <DeviceConfiguration>
+                    <ConfigurationDescriptor BLength="9" MaxPower="50" BConfigurationValue="1" IConfiguration="0" BmAttributes="128" BDescriptorType="2" WTotalLength="32" BNumInterfaces="1">
+                      <AttributesStr>Bus Powered</AttributesStr>
+                      <MaxCurrent>100 mA</MaxCurrent>
+                    </ConfigurationDescriptor>
+                  </DeviceConfiguration>
+                  <DeviceConfiguration>
+                    <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="6" BInterfaceProtocol="80" IInterface="0" BAlternateSetting="0" BNumEndpoints="2" BInterfaceClass="8">
+                      <InterfaceDetails>
+                        <DeviceClass>Mass Storage USB Device</DeviceClass>
+                      </InterfaceDetails>
+                    </InterfaceDescriptor>
+                    <EndpointDescriptor EndpointPacketInfo="2 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="20486" Interval="0" MaxPacketSize="2050" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+                  </DeviceConfiguration>
+                  <DeviceConfiguration>
+                    <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="512" Attributes="2" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  </DeviceConfiguration>
+                  <DeviceConfiguration>
+                    <EndpointDescriptor EndpointPacketInfo="512 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="512" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                  </DeviceConfiguration>
+                  <ConnectionInfoV2>
+                    <ConnectionIndex>2</ConnectionIndex>
+                    <Length>16</Length>
+                    <Usb110Supported>true</Usb110Supported>
+                    <Usb200Supported>true</Usb200Supported>
+                    <Usb300Supported>false</Usb300Supported>
+                    <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                    <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+                    <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                    <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                  </ConnectionInfoV2>
+                </UsbDevice>
+                <NoDevice Name="[Port1] " UsbPortNumber="0" />
+                <NoDevice Name="[Port3] " UsbPortNumber="0" />
+                <NoDevice Name="[Port4] " UsbPortNumber="0" />
+                <DeviceConfiguration>
+                  <ConfigurationDescriptor BLength="9" MaxPower="0" BConfigurationValue="1" IConfiguration="0" BmAttributes="224" BDescriptorType="2" WTotalLength="41" BNumInterfaces="1">
+                    <AttributesStr>Bus Powered</AttributesStr>
+                    <MaxCurrent>0 mA</MaxCurrent>
+                  </ConfigurationDescriptor>
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="1" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="9">
+                    <InterfaceDetails>
+                      <DeviceClass>HUB Interface</DeviceClass>
+                    </InterfaceDetails>
+                  </InterfaceDescriptor>
+                  <EndpointDescriptor EndpointPacketInfo="257 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="256" Interval="0" MaxPacketSize="2305" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="1" BNumEndpoints="1" BInterfaceClass="9">
+                    <InterfaceDetails>
+                      <DeviceClass>HUB Interface</DeviceClass>
+                    </InterfaceDetails>
+                  </InterfaceDescriptor>
+                  <EndpointDescriptor EndpointPacketSizeValidation="ERROR: Invalid maximum packet size, should be between 513 and 1024" EndpointPacketInfo="2 transactions per microframe, 257 max bytes" EndpointType="Ischronous Transfer Type - No Synchronization" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="512" Interval="0" MaxPacketSize="2305" Attributes="1" EndpointAddress="0" DescriptorType="4" Length="9" />
+                </DeviceConfiguration>
+                <DeviceConfiguration>
+                  <EndpointDescriptor EndpointPacketInfo="1 transactions per microframe, 1 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="12" MaxPacketSize="1" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                </DeviceConfiguration>
+                <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                  <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                  <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                  <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                    <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                  </UsbDispContIdCapExtDescriptor>
+                </BosDescriptor>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>4</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>true</Usb110Supported>
+                  <Usb200Supported>true</Usb200Supported>
+                  <Usb300Supported>false</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+                <PortConnector>
+                  <ConnectionIndex>4</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>4</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_0411#6&amp;356dedf1&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+              </ExternalHub>
+              <PortConnector>
+                <ConnectionIndex>3</ConnectionIndex>
+                <ActualLength>170</ActualLength>
+                <UsbPortProperties>
+                  <PortIsUserConnectable>true</PortIsUserConnectable>
+                  <PortIsDebugCapable>false</PortIsDebugCapable>
+                </UsbPortProperties>
+                <CompanionIndex>0</CompanionIndex>
+                <CompanionPortNumber>3</CompanionPortNumber>
+                <CompanionHubSymbolicLinkName>USB#VID_05E3&amp;PID_0626#5&amp;28d68ef5&amp;0&amp;16#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+              </PortConnector>
+            </ExternalHub>
+            <PortConnector>
+              <ConnectionIndex>2</ConnectionIndex>
+              <ActualLength>152</ActualLength>
+              <UsbPortProperties>
+                <PortIsUserConnectable>true</PortIsUserConnectable>
+                <PortIsDebugCapable>false</PortIsDebugCapable>
+              </UsbPortProperties>
+              <CompanionIndex>0</CompanionIndex>
+              <CompanionPortNumber>16</CompanionPortNumber>
+              <CompanionHubSymbolicLinkName>USB#ROOT_HUB30#4&amp;f366d86&amp;0&amp;0#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+            </PortConnector>
+          </ExternalHub>
+          <ExternalHub DeviceName="通用 SuperSpeed USB 集线器" DeviceClass="USB" UsbProtocol="USB 3.0" ServiceName="USBHUB3" HwId="USB\VID_05E3&amp;PID_0626&amp;REV_0656" DeviceId="USB\VID_05E3&amp;PID_0626\5&amp;28D68EF5&amp;0&amp;16">
+            <HubNodeInformation>
+              <HubNode>UsbHub</HubNode>
+              <HubInformation>
+                <IsRootHub>true</IsRootHub>
+                <IsBusPowered>false</IsBusPowered>
+                <HubDescriptor HubControlCurrent="144" PowerOntoPowerGood="0" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                <HubCharacteristics OverCurrentProtection="Global" CompoundDevice="false" PowerSwitching="Ganged" HubCharacteristicsValue="0" />
+              </HubInformation>
+              <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+            </HubNodeInformation>
+            <HubName>USB#VID_05E3&amp;PID_0626#5&amp;28d68ef5&amp;0&amp;16#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+            <HubInformationEx>
+              <HubType>Usb30Hub</HubType>
+              <HighestPortNumber>4</HighestPortNumber>
+              <Hub30Descriptor DeviceRemovable="0" HubDelay="0" HubHdrDecLat="4" HubControlCurrent="144" PowerOntoPowerGood="0" HubCharacteristics="0" NumberOfPorts="4" DescriptorType="42" Length="12" />
+            </HubInformationEx>
+            <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="false" HubIsHighSpeedCapable="false" />
+            <ConnectionInfo>
+              <ConnectionInfoStruct>
+                <ConnectionIndex>16</ConnectionIndex>
+                <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="1622" IdProduct="1574" IdVendor="1507" MaxPacketSize0="9" DeviceProtocol="3" DeviceSubclass="0" DeviceClass="9" CdUSB="800" DescriptorType="1" Length="18" />
+                <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                <Speed>3</Speed>
+                <SpeedStr>Super</SpeedStr>
+                <DeviceIsHub>true</DeviceIsHub>
+                <DeviceAddress>0</DeviceAddress>
+                <NumOfOpenPipes>1</NumOfOpenPipes>
+                <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="Invalid bus speed" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="8" MaxPacketSize="2" Attributes="19" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+              </ConnectionInfoStruct>
+              <IProductStringDescEn>ERROR: No String descriptor for index 2</IProductStringDescEn>
+              <DeviceClassDetails>
+                <DeviceType>Hub Device</DeviceType>
+                <UvcVersion>0</UvcVersion>
+              </DeviceClassDetails>
+              <MaxPacketSizeInBytes>9</MaxPacketSizeInBytes>
+              <VendorString>Genesys Logic, Inc.</VendorString>
+              <ManufacturerString>ERROR: No String descriptor for index 1</ManufacturerString>
+              <ProductString>ERROR: No String descriptor for index 2</ProductString>
+              <LangIdString>ERROR: No String descriptor for index 2</LangIdString>
+              <SerialString>ERROR: No String descriptor for index 0</SerialString>
+            </ConnectionInfo>
+            <NoDevice Name="[Port1] " UsbPortNumber="0" />
+            <NoDevice Name="[Port2] " UsbPortNumber="0" />
+            <NoDevice Name="[Port4] " UsbPortNumber="0" />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+              <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 190 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 8 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="8" SupportsLowSpeed="false" WU2DevExitLat="190" />
+              <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="6" BDevCapabilityType="2" />
+              <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                <ContainerIdStr>9F4B56F0-1DF6-11E0-AC64-8020C9A66</ContainerIdStr>
+              </UsbDispContIdCapExtDescriptor>
+            </BosDescriptor>
+            <ConnectionInfoV2>
+              <ConnectionIndex>16</ConnectionIndex>
+              <Length>16</Length>
+              <Usb110Supported>false</Usb110Supported>
+              <Usb200Supported>false</Usb200Supported>
+              <Usb300Supported>true</Usb300Supported>
+              <DeviceIsOperatingAtSuperSpeedOrHigher>true</DeviceIsOperatingAtSuperSpeedOrHigher>
+              <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+              <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+              <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+            </ConnectionInfoV2>
+            <ExternalHub DeviceName="通用 SuperSpeed USB 集线器" DeviceClass="USB" UsbProtocol="USB 3.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_0411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_0411\6&amp;356DEDF1&amp;0&amp;3">
+              <HubNodeInformation>
+                <HubNode>UsbHub</HubNode>
+                <HubInformation>
+                  <IsRootHub>true</IsRootHub>
+                  <IsBusPowered>false</IsBusPowered>
+                  <HubDescriptor HubControlCurrent="2" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                  <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="9" />
+                </HubInformation>
+                <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+              </HubNodeInformation>
+              <HubName>USB#VID_0BDA&amp;PID_0411#6&amp;356dedf1&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+              <HubInformationEx>
+                <HubType>Usb30Hub</HubType>
+                <HighestPortNumber>4</HighestPortNumber>
+                <Hub30Descriptor DeviceRemovable="0" HubDelay="0" HubHdrDecLat="2" HubControlCurrent="2" PowerOntoPowerGood="50" HubCharacteristics="9" NumberOfPorts="4" DescriptorType="42" Length="12" />
+              </HubInformationEx>
+              <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="false" HubIsHighSpeedCapable="false" />
+              <ConnectionInfo>
+                <ConnectionInfoStruct>
+                  <ConnectionIndex>3</ConnectionIndex>
+                  <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="1041" IdVendor="3034" MaxPacketSize0="9" DeviceProtocol="3" DeviceSubclass="0" DeviceClass="9" CdUSB="800" DescriptorType="1" Length="18" />
+                  <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                  <Speed>3</Speed>
+                  <SpeedStr>Super</SpeedStr>
+                  <DeviceIsHub>true</DeviceIsHub>
+                  <DeviceAddress>0</DeviceAddress>
+                  <NumOfOpenPipes>1</NumOfOpenPipes>
+                  <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                  <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                  <Pipe>
+                    <EndpointDescriptor EndpointPacketInfo="Invalid bus speed" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="8" MaxPacketSize="2" Attributes="19" EndpointAddress="129" DescriptorType="5" Length="7" />
+                    <ScheduleOffset>0</ScheduleOffset>
+                  </Pipe>
+                </ConnectionInfoStruct>
+                <IProductStringDescEn>ERROR: No String descriptor for index 2</IProductStringDescEn>
+                <DeviceClassDetails>
+                  <DeviceType>Hub Device</DeviceType>
+                  <UvcVersion>0</UvcVersion>
+                </DeviceClassDetails>
+                <MaxPacketSizeInBytes>9</MaxPacketSizeInBytes>
+                <VendorString>Realtek Semiconductor Corp.</VendorString>
+                <ManufacturerString>ERROR: No String descriptor for index 1</ManufacturerString>
+                <ProductString>ERROR: No String descriptor for index 2</ProductString>
+                <LangIdString>ERROR: No String descriptor for index 2</LangIdString>
+                <SerialString>ERROR: No String descriptor for index 0</SerialString>
+              </ConnectionInfo>
+              <NoDevice Name="[Port1] " UsbPortNumber="0" />
+              <DeviceConfiguration />
+              <DeviceConfiguration />
+              <DeviceConfiguration />
+              <DeviceConfiguration />
+              <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                  <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                </UsbDispContIdCapExtDescriptor>
+              </BosDescriptor>
+              <ConnectionInfoV2>
+                <ConnectionIndex>3</ConnectionIndex>
+                <Length>16</Length>
+                <Usb110Supported>false</Usb110Supported>
+                <Usb200Supported>false</Usb200Supported>
+                <Usb300Supported>true</Usb300Supported>
+                <DeviceIsOperatingAtSuperSpeedOrHigher>true</DeviceIsOperatingAtSuperSpeedOrHigher>
+                <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+              </ConnectionInfoV2>
+              <ExternalHub DeviceName="通用 SuperSpeed USB 集线器" DeviceClass="USB" UsbProtocol="USB 3.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_0411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_0411\7&amp;B6D4A78&amp;0&amp;2">
+                <HubNodeInformation>
+                  <HubNode>UsbHub</HubNode>
+                  <HubInformation>
+                    <IsRootHub>true</IsRootHub>
+                    <IsBusPowered>false</IsBusPowered>
+                    <HubDescriptor HubControlCurrent="2" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                    <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="9" />
+                  </HubInformation>
+                  <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+                </HubNodeInformation>
+                <HubName>USB#VID_0BDA&amp;PID_0411#7&amp;b6d4a78&amp;0&amp;2#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+                <HubInformationEx>
+                  <HubType>Usb30Hub</HubType>
+                  <HighestPortNumber>4</HighestPortNumber>
+                  <Hub30Descriptor DeviceRemovable="0" HubDelay="0" HubHdrDecLat="2" HubControlCurrent="2" PowerOntoPowerGood="50" HubCharacteristics="9" NumberOfPorts="4" DescriptorType="42" Length="12" />
+                </HubInformationEx>
+                <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="false" HubIsHighSpeedCapable="false" />
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>2</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="1041" IdVendor="3034" MaxPacketSize0="9" DeviceProtocol="3" DeviceSubclass="0" DeviceClass="9" CdUSB="800" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>3</Speed>
+                    <SpeedStr>Super</SpeedStr>
+                    <DeviceIsHub>true</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>1</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="Invalid bus speed" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="8" MaxPacketSize="2" Attributes="19" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>ERROR: No String descriptor for index 2</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Hub Device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>9</MaxPacketSizeInBytes>
+                  <VendorString>Realtek Semiconductor Corp.</VendorString>
+                  <ManufacturerString>ERROR: No String descriptor for index 1</ManufacturerString>
+                  <ProductString>ERROR: No String descriptor for index 2</ProductString>
+                  <LangIdString>ERROR: No String descriptor for index 2</LangIdString>
+                  <SerialString>ERROR: No String descriptor for index 0</SerialString>
+                </ConnectionInfo>
+                <NoDevice Name="[Port1] " UsbPortNumber="0" />
+                <NoDevice Name="[Port2] " UsbPortNumber="0" />
+                <NoDevice Name="[Port3] " UsbPortNumber="0" />
+                <NoDevice Name="[Port4] " UsbPortNumber="0" />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                  <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                  <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                  <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                    <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                  </UsbDispContIdCapExtDescriptor>
+                </BosDescriptor>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>2</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>false</Usb110Supported>
+                  <Usb200Supported>false</Usb200Supported>
+                  <Usb300Supported>true</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>true</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+                <PortConnector>
+                  <ConnectionIndex>2</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>2</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_5411#6&amp;158a5fa7&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+              </ExternalHub>
+              <ExternalHub DeviceName="通用 SuperSpeed USB 集线器" DeviceClass="USB" UsbProtocol="USB 3.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_0411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_0411\7&amp;B6D4A78&amp;0&amp;3">
+                <HubNodeInformation>
+                  <HubNode>UsbHub</HubNode>
+                  <HubInformation>
+                    <IsRootHub>true</IsRootHub>
+                    <IsBusPowered>false</IsBusPowered>
+                    <HubDescriptor HubControlCurrent="2" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                    <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="9" />
+                  </HubInformation>
+                  <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+                </HubNodeInformation>
+                <HubName>USB#VID_0BDA&amp;PID_0411#7&amp;b6d4a78&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+                <HubInformationEx>
+                  <HubType>Usb30Hub</HubType>
+                  <HighestPortNumber>4</HighestPortNumber>
+                  <Hub30Descriptor DeviceRemovable="0" HubDelay="0" HubHdrDecLat="2" HubControlCurrent="2" PowerOntoPowerGood="50" HubCharacteristics="9" NumberOfPorts="4" DescriptorType="42" Length="12" />
+                </HubInformationEx>
+                <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="false" HubIsHighSpeedCapable="false" />
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>3</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="1041" IdVendor="3034" MaxPacketSize0="9" DeviceProtocol="3" DeviceSubclass="0" DeviceClass="9" CdUSB="800" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>3</Speed>
+                    <SpeedStr>Super</SpeedStr>
+                    <DeviceIsHub>true</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>1</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="Invalid bus speed" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="8" MaxPacketSize="2" Attributes="19" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>ERROR: No String descriptor for index 2</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Hub Device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>9</MaxPacketSizeInBytes>
+                  <VendorString>Realtek Semiconductor Corp.</VendorString>
+                  <ManufacturerString>ERROR: No String descriptor for index 1</ManufacturerString>
+                  <ProductString>ERROR: No String descriptor for index 2</ProductString>
+                  <LangIdString>ERROR: No String descriptor for index 2</LangIdString>
+                  <SerialString>ERROR: No String descriptor for index 0</SerialString>
+                </ConnectionInfo>
+                <NoDevice Name="[Port1] " UsbPortNumber="0" />
+                <NoDevice Name="[Port2] " UsbPortNumber="0" />
+                <NoDevice Name="[Port3] " UsbPortNumber="0" />
+                <NoDevice Name="[Port4] " UsbPortNumber="0" />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                  <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                  <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                  <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                    <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                  </UsbDispContIdCapExtDescriptor>
+                </BosDescriptor>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>3</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>false</Usb110Supported>
+                  <Usb200Supported>false</Usb200Supported>
+                  <Usb300Supported>true</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>true</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+                <PortConnector>
+                  <ConnectionIndex>3</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>3</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_5411#6&amp;158a5fa7&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+              </ExternalHub>
+              <ExternalHub DeviceName="通用 SuperSpeed USB 集线器" DeviceClass="USB" UsbProtocol="USB 3.0" ServiceName="USBHUB3" HwId="USB\VID_0BDA&amp;PID_0411&amp;REV_0126" DeviceId="USB\VID_0BDA&amp;PID_0411\7&amp;B6D4A78&amp;0&amp;4">
+                <HubNodeInformation>
+                  <HubNode>UsbHub</HubNode>
+                  <HubInformation>
+                    <IsRootHub>true</IsRootHub>
+                    <IsBusPowered>false</IsBusPowered>
+                    <HubDescriptor HubControlCurrent="2" PowerOntoPowerGood="50" NumberOfPorts="4" DescriptorType="41" DescriptorLength="9" />
+                    <HubCharacteristics OverCurrentProtection="Individual" CompoundDevice="false" PowerSwitching="Individual" HubCharacteristicsValue="9" />
+                  </HubInformation>
+                  <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+                </HubNodeInformation>
+                <HubName>USB#VID_0BDA&amp;PID_0411#7&amp;b6d4a78&amp;0&amp;4#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+                <HubInformationEx>
+                  <HubType>Usb30Hub</HubType>
+                  <HighestPortNumber>4</HighestPortNumber>
+                  <Hub30Descriptor DeviceRemovable="0" HubDelay="0" HubHdrDecLat="2" HubControlCurrent="2" PowerOntoPowerGood="50" HubCharacteristics="9" NumberOfPorts="4" DescriptorType="42" Length="12" />
+                </HubInformationEx>
+                <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="false" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="false" HubIsHighSpeedCapable="false" />
+                <ConnectionInfo>
+                  <ConnectionInfoStruct>
+                    <ConnectionIndex>4</ConnectionIndex>
+                    <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="294" IdProduct="1041" IdVendor="3034" MaxPacketSize0="9" DeviceProtocol="3" DeviceSubclass="0" DeviceClass="9" CdUSB="800" DescriptorType="1" Length="18" />
+                    <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                    <Speed>3</Speed>
+                    <SpeedStr>Super</SpeedStr>
+                    <DeviceIsHub>true</DeviceIsHub>
+                    <DeviceAddress>0</DeviceAddress>
+                    <NumOfOpenPipes>1</NumOfOpenPipes>
+                    <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                    <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                    <Pipe>
+                      <EndpointDescriptor EndpointPacketInfo="Invalid bus speed" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="8" MaxPacketSize="2" Attributes="19" EndpointAddress="129" DescriptorType="5" Length="7" />
+                      <ScheduleOffset>0</ScheduleOffset>
+                    </Pipe>
+                  </ConnectionInfoStruct>
+                  <IProductStringDescEn>ERROR: No String descriptor for index 2</IProductStringDescEn>
+                  <DeviceClassDetails>
+                    <DeviceType>Hub Device</DeviceType>
+                    <UvcVersion>0</UvcVersion>
+                  </DeviceClassDetails>
+                  <MaxPacketSizeInBytes>9</MaxPacketSizeInBytes>
+                  <VendorString>Realtek Semiconductor Corp.</VendorString>
+                  <ManufacturerString>ERROR: No String descriptor for index 1</ManufacturerString>
+                  <ProductString>ERROR: No String descriptor for index 2</ProductString>
+                  <LangIdString>ERROR: No String descriptor for index 2</LangIdString>
+                  <SerialString>ERROR: No String descriptor for index 0</SerialString>
+                </ConnectionInfo>
+                <NoDevice Name="[Port1] " UsbPortNumber="0" />
+                <NoDevice Name="[Port2] " UsbPortNumber="0" />
+                <NoDevice Name="[Port3] " UsbPortNumber="0" />
+                <NoDevice Name="[Port4] " UsbPortNumber="0" />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <DeviceConfiguration />
+                <BosDescriptor WTotalLength="42" BNumDeviceCaps="3" BLength="5" BDescriptorType="15">
+                  <UsbSuperSpeedExtensionDescriptor BmAttributes="0" LatencyToleranceMsgCapable="false" BFunctionalitySupport="1" BDevCapabilityType="3" U2DevExitLatencyString="Less than 1023 micro-seconds" BLength="10" BDescriptorType="16" SupportsSuperSpeed="true" SupportsHighSpeed="true" U1DevExitLatencyString="Less than 10 micro-seconds" LowestSpeed="full-speed" SupportsFullSpeed="true" WSpeedsSupported="14" BU1DevExitLat="10" SupportsLowSpeed="false" WU2DevExitLat="1023" />
+                  <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="62494" BDevCapabilityType="2" />
+                  <UsbDispContIdCapExtDescriptor BDevCapabilityType="4" BLength="20" BReserved="0" BDescriptorType="16">
+                    <ContainerIdStr>20B9CDE5-7039-E011-A935-02A5D5C51B</ContainerIdStr>
+                  </UsbDispContIdCapExtDescriptor>
+                </BosDescriptor>
+                <ConnectionInfoV2>
+                  <ConnectionIndex>4</ConnectionIndex>
+                  <Length>16</Length>
+                  <Usb110Supported>false</Usb110Supported>
+                  <Usb200Supported>false</Usb200Supported>
+                  <Usb300Supported>true</Usb300Supported>
+                  <DeviceIsOperatingAtSuperSpeedOrHigher>true</DeviceIsOperatingAtSuperSpeedOrHigher>
+                  <DeviceIsSuperSpeedCapableOrHigher>true</DeviceIsSuperSpeedCapableOrHigher>
+                  <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+                  <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+                </ConnectionInfoV2>
+                <PortConnector>
+                  <ConnectionIndex>4</ConnectionIndex>
+                  <ActualLength>168</ActualLength>
+                  <UsbPortProperties>
+                    <PortIsUserConnectable>true</PortIsUserConnectable>
+                    <PortIsDebugCapable>false</PortIsDebugCapable>
+                  </UsbPortProperties>
+                  <CompanionIndex>0</CompanionIndex>
+                  <CompanionPortNumber>4</CompanionPortNumber>
+                  <CompanionHubSymbolicLinkName>USB#VID_0BDA&amp;PID_5411#6&amp;158a5fa7&amp;0&amp;3#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+                </PortConnector>
+              </ExternalHub>
+              <PortConnector>
+                <ConnectionIndex>3</ConnectionIndex>
+                <ActualLength>168</ActualLength>
+                <UsbPortProperties>
+                  <PortIsUserConnectable>true</PortIsUserConnectable>
+                  <PortIsDebugCapable>false</PortIsDebugCapable>
+                </UsbPortProperties>
+                <CompanionIndex>0</CompanionIndex>
+                <CompanionPortNumber>3</CompanionPortNumber>
+                <CompanionHubSymbolicLinkName>USB#VID_05E3&amp;PID_0610#5&amp;28d68ef5&amp;0&amp;2#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+              </PortConnector>
+            </ExternalHub>
+            <PortConnector>
+              <ConnectionIndex>16</ConnectionIndex>
+              <ActualLength>152</ActualLength>
+              <UsbPortProperties>
+                <PortIsUserConnectable>true</PortIsUserConnectable>
+                <PortIsDebugCapable>true</PortIsDebugCapable>
+              </UsbPortProperties>
+              <CompanionIndex>0</CompanionIndex>
+              <CompanionPortNumber>2</CompanionPortNumber>
+              <CompanionHubSymbolicLinkName>USB#ROOT_HUB30#4&amp;f366d86&amp;0&amp;0#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+            </PortConnector>
+          </ExternalHub>
+          <UsbDevice UsbProtocol="USB 1.1" UsbPortNumber="1" DeviceName="USB Composite Device" DeviceClass="USB" DeviceId="USB\VID_046D&amp;PID_C345\5&amp;28D68EF5&amp;0&amp;1" ServiceName="usbccgp" HwId="USB\VID_046D&amp;PID_C345&amp;REV_5600">
+            <ConnectionInfo>
+              <ConnectionInfoStruct>
+                <ConnectionIndex>1</ConnectionIndex>
+                <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="22016" IdProduct="49989" IdVendor="1133" MaxPacketSize0="8" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="0" CdUSB="512" DescriptorType="1" Length="18" />
+                <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                <Speed>1</Speed>
+                <SpeedStr>Full</SpeedStr>
+                <DeviceIsHub>false</DeviceIsHub>
+                <DeviceAddress>0</DeviceAddress>
+                <NumOfOpenPipes>3</NumOfOpenPipes>
+                <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="4" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="14 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="2" MaxPacketSize="14" Attributes="3" EndpointAddress="130" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="64 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="3" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="4" MaxPacketSize="64" Attributes="3" EndpointAddress="131" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+              </ConnectionInfoStruct>
+              <IProductStringDescEn>Logi TKL Mechanical Keyboard</IProductStringDescEn>
+              <DeviceClassDetails>
+                <DeviceType>Interface Class Defined Device</DeviceType>
+                <UvcVersion>0</UvcVersion>
+              </DeviceClassDetails>
+              <MaxPacketSizeInBytes>8</MaxPacketSizeInBytes>
+              <VendorString>Logitech Inc.</VendorString>
+              <ManufacturerString>Logitech</ManufacturerString>
+              <ProductString>Logi TKL Mechanical Keyboard</ProductString>
+              <LangIdString>English (United States)</LangIdString>
+              <SerialString>?</SerialString>
+            </ConnectionInfo>
+            <PortConnector>
+              <ConnectionIndex>1</ConnectionIndex>
+              <ActualLength>152</ActualLength>
+              <UsbPortProperties>
+                <PortIsUserConnectable>true</PortIsUserConnectable>
+                <PortIsDebugCapable>false</PortIsDebugCapable>
+              </UsbPortProperties>
+              <CompanionIndex>0</CompanionIndex>
+              <CompanionPortNumber>13</CompanionPortNumber>
+              <CompanionHubSymbolicLinkName>USB#ROOT_HUB30#4&amp;f366d86&amp;0&amp;0#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+            </PortConnector>
+            <DeviceConfiguration>
+              <ConfigurationDescriptor BLength="9" MaxPower="50" BConfigurationValue="1" IConfiguration="4" BmAttributes="160" BDescriptorType="2" WTotalLength="84" BNumInterfaces="3">
+                <ConfStringDesc>U156.00_B0010</ConfStringDesc>
+                <AttributesStr>Bus Powered</AttributesStr>
+                <MaxCurrent>100 mA</MaxCurrent>
+              </ConfigurationDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="1" BInterfaceProtocol="1" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="257" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="67" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="4" MaxPacketSize="8" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="1" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="0" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="1" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="1" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="50" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="14 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="2" MaxPacketSize="14" Attributes="3" EndpointAddress="130" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="2" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="0" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="2" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="31" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="64 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="3" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="4" MaxPacketSize="64" Attributes="3" EndpointAddress="131" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <ConnectionInfoV2>
+              <ConnectionIndex>1</ConnectionIndex>
+              <Length>16</Length>
+              <Usb110Supported>true</Usb110Supported>
+              <Usb200Supported>true</Usb200Supported>
+              <Usb300Supported>false</Usb300Supported>
+              <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+              <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+              <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+              <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+            </ConnectionInfoV2>
+          </UsbDevice>
+          <UsbDevice UsbProtocol="USB 1.1" UsbPortNumber="3" DeviceName="USB Composite Device" DeviceClass="USB" DeviceId="USB\VID_1532&amp;PID_0084\5&amp;28D68EF5&amp;0&amp;3" ServiceName="usbccgp" HwId="USB\VID_1532&amp;PID_0084&amp;REV_0200">
+            <ConnectionInfo>
+              <ConnectionInfoStruct>
+                <ConnectionIndex>3</ConnectionIndex>
+                <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="2" IManufacturer="1" CdDevice="512" IdProduct="132" IdVendor="5426" MaxPacketSize0="64" DeviceProtocol="0" DeviceSubclass="0" DeviceClass="0" CdUSB="512" DescriptorType="1" Length="18" />
+                <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                <Speed>1</Speed>
+                <SpeedStr>Full</SpeedStr>
+                <DeviceIsHub>false</DeviceIsHub>
+                <DeviceAddress>0</DeviceAddress>
+                <NumOfOpenPipes>4</NumOfOpenPipes>
+                <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="13 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="13" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="16 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="16" Attributes="3" EndpointAddress="130" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="3" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="131" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="2 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="4" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="2" Attributes="3" EndpointAddress="132" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+              </ConnectionInfoStruct>
+              <IProductStringDescEn>Razer DeathAdder V2</IProductStringDescEn>
+              <DeviceClassDetails>
+                <DeviceType>Interface Class Defined Device</DeviceType>
+                <UvcVersion>0</UvcVersion>
+              </DeviceClassDetails>
+              <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+              <VendorString>Razer (Asia-Pacific) Pte Ltd.</VendorString>
+              <ManufacturerString>Razer</ManufacturerString>
+              <ProductString>Razer DeathAdder V2</ProductString>
+              <LangIdString>English (United States)</LangIdString>
+              <SerialString>?</SerialString>
+            </ConnectionInfo>
+            <PortConnector>
+              <ConnectionIndex>3</ConnectionIndex>
+              <ActualLength>152</ActualLength>
+              <UsbPortProperties>
+                <PortIsUserConnectable>true</PortIsUserConnectable>
+                <PortIsDebugCapable>false</PortIsDebugCapable>
+              </UsbPortProperties>
+              <CompanionIndex>0</CompanionIndex>
+              <CompanionPortNumber>15</CompanionPortNumber>
+              <CompanionHubSymbolicLinkName>USB#ROOT_HUB30#4&amp;f366d86&amp;0&amp;0#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</CompanionHubSymbolicLinkName>
+            </PortConnector>
+            <DeviceConfiguration>
+              <ConfigurationDescriptor BLength="9" MaxPower="250" BConfigurationValue="1" IConfiguration="0" BmAttributes="224" BDescriptorType="2" WTotalLength="109" BNumInterfaces="4">
+                <AttributesStr>Bus Powered</AttributesStr>
+                <MaxCurrent>500 mA</MaxCurrent>
+              </ConfigurationDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="0" WNumClasses="0" BLength="9" BInterfaceSubclass="1" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="0" EndpointDirection="Out" SyncAddress="0" WInterval="513" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="0" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="110" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="13 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="13" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="1" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="1" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="1" EndpointDirection="Out" SyncAddress="0" WInterval="256" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="1" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="159" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="16 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="16" Attributes="3" EndpointAddress="130" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="2" WNumClasses="0" BLength="9" BInterfaceSubclass="1" BInterfaceProtocol="1" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="257" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="2" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="61" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="8 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="3" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="8" Attributes="3" EndpointAddress="131" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <InterfaceDescriptor BDescriptorType="4" BInterfaceNumber="3" WNumClasses="0" BLength="9" BInterfaceSubclass="0" BInterfaceProtocol="2" IInterface="0" BAlternateSetting="0" BNumEndpoints="1" BInterfaceClass="3">
+                <InterfaceDetails>
+                  <DeviceClass>HID Interface</DeviceClass>
+                </InterfaceDetails>
+              </InterfaceDescriptor>
+              <EndpointDescriptor EndpointPacketInfo="769 max bytes" EndpointType="Control Transfer Type" EndpointId="3" EndpointDirection="Out" SyncAddress="0" WInterval="512" Interval="0" MaxPacketSize="769" Attributes="0" EndpointAddress="3" DescriptorType="4" Length="9" />
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <HidDescriptor BLength="9" BNumDescriptors="1" BDescriptorType="33" BCountryCode="0" BcdHID="273">
+                <OptionalDescriptor WDescriptorLength="325" BDescriptorType="34" />
+              </HidDescriptor>
+            </DeviceConfiguration>
+            <DeviceConfiguration>
+              <EndpointDescriptor EndpointPacketInfo="2 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="4" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="2" Attributes="3" EndpointAddress="132" DescriptorType="5" Length="7" />
+            </DeviceConfiguration>
+            <ConnectionInfoV2>
+              <ConnectionIndex>3</ConnectionIndex>
+              <Length>16</Length>
+              <Usb110Supported>true</Usb110Supported>
+              <Usb200Supported>true</Usb200Supported>
+              <Usb300Supported>false</Usb300Supported>
+              <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+              <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+              <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+              <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+            </ConnectionInfoV2>
+          </UsbDevice>
+          <UsbDevice UsbProtocol="USB 1.1" UsbPortNumber="10" DeviceName="英特尔(R) 无线 Bluetooth(R)" DeviceClass="Bluetooth" DeviceId="USB\VID_8087&amp;PID_0026\5&amp;28D68EF5&amp;0&amp;10" ServiceName="BTHUSB" HwId="USB\VID_8087&amp;PID_0026&amp;REV_0002">
+            <ConnectionInfo>
+              <ConnectionInfoStruct>
+                <ConnectionIndex>10</ConnectionIndex>
+                <DeviceDescriptor NumConfigurations="1" ISerialNumber="0" IProduct="0" IManufacturer="0" CdDevice="2" IdProduct="38" IdVendor="32903" MaxPacketSize0="64" DeviceProtocol="1" DeviceSubclass="1" DeviceClass="224" CdUSB="513" DescriptorType="1" Length="18" />
+                <CurrentConfigurationValue>1</CurrentConfigurationValue>
+                <Speed>1</Speed>
+                <SpeedStr>Full</SpeedStr>
+                <DeviceIsHub>false</DeviceIsHub>
+                <DeviceAddress>0</DeviceAddress>
+                <NumOfOpenPipes>5</NumOfOpenPipes>
+                <UsbConnectionStatus>DeviceConnected</UsbConnectionStatus>
+                <DevicePowerState>PowerDeviceUnspecified</DevicePowerState>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="64 max bytes" EndpointType="Interrupt Transfer Type" EndpointId="1" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="64" Attributes="3" EndpointAddress="129" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="64 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="64" Attributes="2" EndpointAddress="2" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="64 max bytes" EndpointType="Bulk Transfer Type" EndpointId="2" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="64" Attributes="2" EndpointAddress="130" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="0 max bytes" EndpointType="Ischronous Transfer Type - No Synchronization" EndpointId="3" EndpointDirection="Out" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="0" Attributes="1" EndpointAddress="3" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+                <Pipe>
+                  <EndpointDescriptor EndpointPacketInfo="0 max bytes" EndpointType="Ischronous Transfer Type - No Synchronization" EndpointId="3" EndpointDirection="In" SyncAddress="0" WInterval="0" Interval="1" MaxPacketSize="0" Attributes="1" EndpointAddress="131" DescriptorType="5" Length="7" />
+                  <ScheduleOffset>0</ScheduleOffset>
+                </Pipe>
+              </ConnectionInfoStruct>
+              <DeviceClassDetails>
+                <DeviceType>Wireless Controller(Bluetooth) Device</DeviceType>
+                <SubclassTypeError>ERROR:  bDeviceSubClass is invalid - 1</SubclassTypeError>
+                <UvcVersion>0</UvcVersion>
+              </DeviceClassDetails>
+              <MaxPacketSizeInBytes>64</MaxPacketSizeInBytes>
+              <VendorString>Intel</VendorString>
+              <ManufacturerString>ERROR: No String descriptor for index 0</ManufacturerString>
+              <ProductString>ERROR: No String descriptor for index 0</ProductString>
+              <LangIdString>ERROR: No String descriptor for index 0</LangIdString>
+              <SerialString>ERROR: No String descriptor for index 0</SerialString>
+            </ConnectionInfo>
+            <PortConnector>
+              <ConnectionIndex>10</ConnectionIndex>
+              <ActualLength>18</ActualLength>
+              <UsbPortProperties>
+                <PortIsUserConnectable>false</PortIsUserConnectable>
+                <PortIsDebugCapable>false</PortIsDebugCapable>
+              </UsbPortProperties>
+              <CompanionIndex>0</CompanionIndex>
+              <CompanionPortNumber>0</CompanionPortNumber>
+              <CompanionHubSymbolicLinkName />
+            </PortConnector>
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <DeviceConfiguration />
+            <BosDescriptor WTotalLength="12" BNumDeviceCaps="1" BLength="5" BDescriptorType="15">
+              <UsbUsb20ExtensionDescriptor BLength="7" SupportsLinkPowerManagement="true" BDescriptorType="16" BmAttributes="1038" BDevCapabilityType="2" />
+            </BosDescriptor>
+            <ConnectionInfoV2>
+              <ConnectionIndex>10</ConnectionIndex>
+              <Length>16</Length>
+              <Usb110Supported>true</Usb110Supported>
+              <Usb200Supported>true</Usb200Supported>
+              <Usb300Supported>false</Usb300Supported>
+              <DeviceIsOperatingAtSuperSpeedOrHigher>false</DeviceIsOperatingAtSuperSpeedOrHigher>
+              <DeviceIsSuperSpeedCapableOrHigher>false</DeviceIsSuperSpeedCapableOrHigher>
+              <DeviceIsOperatingAtSuperSpeedPlusOrHigher>false</DeviceIsOperatingAtSuperSpeedPlusOrHigher>
+              <DeviceIsSuperSpeedPlusCapableOrHigher>false</DeviceIsSuperSpeedPlusCapableOrHigher>
+            </ConnectionInfoV2>
+          </UsbDevice>
+          <NoDevice Name="[Port4] " UsbPortNumber="0" />
+          <NoDevice Name="[Port5] " UsbPortNumber="0" />
+          <NoDevice Name="[Port6] " UsbPortNumber="0" />
+          <NoDevice Name="[Port7] " UsbPortNumber="0" />
+          <NoDevice Name="[Port8] " UsbPortNumber="0" />
+          <NoDevice Name="[Port9] " UsbPortNumber="0" />
+          <NoDevice Name="[Port11] " UsbPortNumber="0" />
+          <NoDevice Name="[Port12] " UsbPortNumber="0" />
+          <NoDevice Name="[Port13] " UsbPortNumber="0" />
+          <NoDevice Name="[Port14] " UsbPortNumber="0" />
+          <NoDevice Name="[Port15] " UsbPortNumber="0" />
+        </RootHub>
+      </UsbController>
+      <UsbController ServiceName="USBXHCI" UsbProtocol="USB 3.0" DeviceName="符合 USB xHCI 的主机控制器" DeviceClass="USB" HwId="PCI\VEN_8086&amp;DEV_9A13&amp;SUBSYS_00000000&amp;REV_01" DeviceId="PCI\VEN_8086&amp;DEV_9A13&amp;SUBSYS_00000000&amp;REV_01\3&amp;11583659&amp;0&amp;68">
+        <ControllerInfo>
+          <VendorId>32902</VendorId>
+          <DeviceId>39443</DeviceId>
+          <DriverKey>{36fc9e60-c465-11cf-8056-444553540000}\0000</DriverKey>
+          <SubSysId>0</SubSysId>
+          <Revision>1</Revision>
+          <DebugPort>0</DebugPort>
+          <NumberOfRootPorts>1</NumberOfRootPorts>
+          <ControllerFlavor>0</ControllerFlavor>
+          <ControllerFlavorString>USB_HcGeneric</ControllerFlavorString>
+          <PortSwitchingEnabled>false</PortSwitchingEnabled>
+          <SelectiveSuspendEnabled>false</SelectiveSuspendEnabled>
+          <LegacyBios>0</LegacyBios>
+        </ControllerInfo>
+        <PowerMapping>
+          <PowerMap IsPowered="false" CanWakeUp="false" HubState="S? (unmapped)   " HostControllerState="D0              " SystemState="S0 (working)    " />
+          <PowerMap IsPowered="false" CanWakeUp="false" HubState="D3              " HostControllerState="D? (unspecified)" SystemState="S1 (sleep)      " />
+          <PowerMap IsPowered="false" CanWakeUp="false" HubState="D3              " HostControllerState="D? (unspecified)" SystemState="S2 (sleep)      " />
+          <PowerMap IsPowered="true" CanWakeUp="true" HubState="D2              " HostControllerState="D3              " SystemState="S3 (sleep)      " />
+          <PowerMap IsPowered="true" CanWakeUp="true" HubState="D2              " HostControllerState="D3              " SystemState="S4 (Hibernate)  " />
+          <LastSleepState>S? (unmapped)   </LastSleepState>
+        </PowerMapping>
+        <RootHub>
+          <HubNodeInformation>
+            <HubNode>UsbHub</HubNode>
+            <HubInformation>
+              <IsRootHub>true</IsRootHub>
+              <IsBusPowered>false</IsBusPowered>
+              <HubDescriptor HubControlCurrent="0" PowerOntoPowerGood="2" NumberOfPorts="5" DescriptorType="41" DescriptorLength="9" />
+              <HubCharacteristics OverCurrentProtection="Global" CompoundDevice="false" PowerSwitching="Ganged" HubCharacteristicsValue="0" />
+            </HubInformation>
+            <MiParentNumberOfInterfaces>0</MiParentNumberOfInterfaces>
+          </HubNodeInformation>
+          <HubName>USB#ROOT_HUB30#4&amp;3ce02d8&amp;0&amp;0#{f18a0e88-c30c-11d0-8815-00a0c906bed8}</HubName>
+          <HubInformationEx>
+            <HubType>UsbRootHub</HubType>
+            <HighestPortNumber>5</HighestPortNumber>
+            <HubDescriptor HubControlCurrent="0" PowerOntoPowerGood="0" NumberOfPorts="0" DescriptorType="0" DescriptorLength="0" />
+          </HubInformationEx>
+          <HubCapabilityEx HubIsBusPowered="false" HubIsArmedWakeOnConnect="false" HubIsRoot="true" HubIsMultiTt="false" HubIsMultiTtCapable="false" HubIsHighSpeed="true" HubIsHighSpeedCapable="false" />
+          <NoDevice Name="[Port1] " UsbPortNumber="0" />
+          <NoDevice Name="[Port2] " UsbPortNumber="0" />
+          <NoDevice Name="[Port3] " UsbPortNumber="0" />
+          <NoDevice Name="[Port4] " UsbPortNumber="0" />
+          <NoDevice Name="[Port5] " UsbPortNumber="0" />
+        </RootHub>
+      </UsbController>
+    </UsbTree>
+  </UvcView>
+</UvcViewAll>
