@@ -2,7 +2,7 @@ import subprocess
 import os
 import xml.etree.cElementTree as ET
 import copy
-# from lxml import etree
+import wmi
 
 def get_usb_tree_view_as_xml(output_file: ''):
     try:
@@ -19,11 +19,6 @@ def get_usb_tree_view_as_xml(output_file: ''):
     except FileNotFoundError:
         print(f'USBTreeView could not find executable')
         return False
-
-def traverse(element, level=0):
-    print('  ' * level + f"{element.tag} {element.attrib}")
-    for child in element:
-        traverse(child, level + 1)
 
 def parse_xml_file(xml_file: str):
 
@@ -66,6 +61,13 @@ def parse_xml_file(xml_file: str):
         if dev_id is None:
             continue
         print('dev_id:', dev_id)
+        usb_devices = hub.findall('UsbDevice')
+        for usb_device in usb_devices:
+            prot = usb_device.get('UsbProtocol')  # USB 2.0
+            port_num = usb_device.get('UsbPortNumber') # 2 [1,2,3,4...]
+            name = usb_device.get('DeviceName') # USB 大容量存储设备
+            dev_id = usb_device.get('DeviceId') # USB\VID_302E&amp;PID_041B\0000000000000000
+            print(f'prot: {prot}, port_num: {port_num}, port: {port_num}, name: {name}, dev_id: {dev_id}')
 
     return True
 
@@ -78,6 +80,5 @@ if __name__ == "__main__":
         print(f'USBTreeView could not find executable')
         exit(-1)
     parse_xml_file(xml_file)
-
 
     print("end")
