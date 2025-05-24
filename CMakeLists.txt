@@ -192,7 +192,9 @@ add_subdirectory(demos/curl)
 endif()
 
 add_subdirectory(demos/ffmpeg)
+if(${gnu})
 add_subdirectory(demos/h264_sei)
+endif()
 add_subdirectory(demos/json_nlohmann)
 add_subdirectory(demos/mjson)
 
@@ -214,7 +216,9 @@ if(LIB_WEBSOCKETS)
 add_subdirectory(demos/websockets)
 endif()
 
+if(${gnu})
 add_subdirectory(demos/tinyframe)
+endif()
 
 add_subdirectory(image)
 
