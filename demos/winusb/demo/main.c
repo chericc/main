@@ -5,6 +5,6 @@
 int main()
 {
 	printf("hello\n");
-	mwu_get_disk_id_with_dev_id(NULL, NULL, 0);
+	mwu_get_disk_id_with_dev_id(NULL);
 	return 0;
 }

@@ -4,7 +4,8 @@
 extern "C" {
 #endif // __cplusplus
 
-int mwu_get_disk_id_with_dev_id(const char *devid, char *disk_id, size_t disk_id_size);
+typedef int(*mwu_disk_id_cb)(const char* disk_id);
+int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb);
 
 #ifdef __cplusplus
 }

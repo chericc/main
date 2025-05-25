@@ -71,14 +71,42 @@ def parse_xml_file(xml_file: str):
 
     return True
 
+
+def get_drive_letters_from_pnpdeviceid(pnp_device_id):
+    c = wmi.WMI()
+    drive_letters = []
+    try:
+        disk_index = None
+        disk_drives = c.Win32_DiskDrive()
+        for disk_drive in disk_drives:
+            print(f'disk_drive: {disk_drive.PNPDeviceID}, index: {disk_drive.Index}')
+            if disk_drive.PNPDeviceID == pnp_device_id:
+                print('found disk')
+                disk_index = disk_drive.Index
+        if disk_index is None:
+            return False
+        disk_partitions =c.Win32_DiskPartition()
+        for disk_partition in disk_partitions:
+            if disk_partition.DiskIndex == disk_index:
+                print(f'found partition')
+                logical_disks = disk_partition.associators('Win32_LogicalDiskToPartition')
+                for logical_disk in logical_disks:
+                    print(f'ldisk: {logical_disk.Name}')
+                    drive_letters.append(logical_disk.Name)
+        return drive_letters
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
 if __name__ == "__main__":
     print("begin")
-    xml_file='output.xml'
-    # xml_file = 'test.xml'
-    ret = get_usb_tree_view_as_xml(xml_file)
-    if not ret:
-        print(f'USBTreeView could not find executable')
-        exit(-1)
-    parse_xml_file(xml_file)
+    # xml_file='output.xml'
+    # ret = get_usb_tree_view_as_xml(xml_file)
+    # if not ret:
+    #     print(f'USBTreeView could not find executable')
+    #     exit(-1)
+    # parse_xml_file(xml_file)
+
+    get_drive_letters_from_pnpdeviceid(R'SCSI\DISK&VEN_WDC&PROD_WDS500G2B0B-00YS\5&2B637674&0&040000')
 
     print("end")

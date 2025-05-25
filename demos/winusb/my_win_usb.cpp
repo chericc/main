@@ -5,6 +5,8 @@
 #include <cfgmgr32.h>
 #include <devguid.h>
 #include <initguid.h>
+#include <wbemidl.h>
+#include <comdef.h>
 
 #include <vector>
 #include <string>
@@ -12,7 +14,7 @@
 
 #include "xlog.h"
 
-int mwu_get_disk_id_with_dev_id(const char* devid, char* disk_id, size_t disk_id_size)
+int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb)
 {
 	int suc_flag = 0;
 	HDEVINFO hDevInfo = INVALID_HANDLE_VALUE;
@@ -57,9 +59,13 @@ int mwu_get_disk_id_with_dev_id(const char* devid, char* disk_id, size_t disk_id
 
 			xlog_dbg("parent: %s\n", parent_id);
 			xlog_dbg("node: %s\n", instance_id);
+			if (cb) {
+				if (cb(parent_id)) {
+					break;
+				}
+			}
 		}
 
-		suc_flag = 1;
 	} while (0);
 
 	if (hDevInfo != INVALID_HANDLE_VALUE) {
