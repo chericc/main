@@ -212,10 +212,6 @@ if(PATH_LIB_LIVE555)
 add_subdirectory(demos/rtsp)
 endif()
 
-if(LIB_WEBSOCKETS)
-add_subdirectory(demos/websockets)
-endif()
-
 if(${gnu})
 add_subdirectory(demos/tinyframe)
 endif()
@@ -224,6 +220,14 @@ add_subdirectory(image)
 
 if(${gnu})
 add_subdirectory(md5dir)
+endif()
+
+if(LIB_WEBSOCKETS)
+add_subdirectory(demos/websockets)
+endif()
+
+if(${msvc})
+add_subdirectory(demos/winusb)
 endif()
 
 add_subdirectory(stl)
