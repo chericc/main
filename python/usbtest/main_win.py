@@ -1,0 +1,142 @@
+import tkinter as tk
+from tkinter import ttk
+import random
+import threading
+import time
+from queue import Queue
+
+
+class StatusMonitorApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("状态监控面板")
+        self.buttons = []
+        self.status_queue = Queue()
+        self.running = True
+
+        # 创建UI
+        self.setup_ui()
+
+        # 启动状态监控线程
+        self.start_monitor_thread()
+
+        # 启动UI更新循环
+        self.update_ui()
+
+    def setup_ui(self):
+        # 主框架
+        main_frame = ttk.Frame(self.root)
+        main_frame.pack(expand=True, fill='both', padx=10, pady=10)
+
+        # 按钮网格框架
+        grid_frame = ttk.Frame(main_frame)
+        grid_frame.pack(expand=True, fill='both')
+
+        # 创建10个按钮，3行4列布局
+        for i in range(10):
+            row = i // 4
+            col = i % 4
+            grid_frame.columnconfigure(col, weight=1)
+            grid_frame.rowconfigure(row, weight=1)
+
+            btn = tk.Button(
+                grid_frame,
+                text=f"设备 {i + 1}",
+                font=('Arial', 12),
+                relief='raised',
+                width=10,
+                height=3
+            )
+            btn.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
+            self.buttons.append(btn)
+
+        # 控制面板
+        control_frame = ttk.Frame(main_frame)
+        control_frame.pack(fill='x', pady=10)
+
+        self.status_label = tk.Label(control_frame, text="状态: 运行中", fg="green")
+        self.status_label.pack(side='left', padx=10)
+
+        tk.Button(control_frame, text="停止监控", command=self.stop_monitoring).pack(side='right', padx=10)
+        tk.Button(control_frame, text="手动刷新", command=self.force_check).pack(side='right', padx=10)
+
+    def start_monitor_thread(self):
+        """启动状态监控线程"""
+        self.monitor_thread = threading.Thread(
+            target=self.monitor_status,
+            daemon=True
+        )
+        self.monitor_thread.start()
+
+    def status_check(self):
+        
+
+    def monitor_status(self):
+        """模拟定期检查外部状态的线程"""
+        while self.running:
+            # 这里模拟从外部系统获取状态
+            # 实际应用中可能是API调用、数据库查询等
+            time.sleep(2)  # 每2秒检查一次
+
+            # 生成模拟状态数据 (0=正常, 1=警告, 2=错误)
+            status_data = [random.randint(0, 2) for _ in range(10)]
+
+            # 将状态数据放入队列供UI线程使用
+            self.status_queue.put(status_data)
+
+    def update_ui(self):
+        """更新UI的主循环"""
+        try:
+            # 检查队列中是否有新状态
+            while not self.status_queue.empty():
+                status_data = self.status_queue.get_nowait()
+                self.apply_status_colors(status_data)
+        except:
+            pass
+
+        # 继续定期检查
+        if self.running:
+            self.root.after(500, self.update_ui)  # 每500ms检查一次更新
+
+    def apply_status_colors(self, status_data):
+        """根据状态数据更新按钮颜色"""
+        color_map = {
+            0: "green",  # 正常
+            1: "orange",  # 警告
+            2: "red"  # 错误
+        }
+
+        for i, status in enumerate(status_data):
+            if i < len(self.buttons):
+                self.buttons[i].config(
+                    bg=color_map.get(status, "gray"),
+                    fg="white" if status != 0 else "black"
+                )
+
+    def force_check(self):
+        """手动触发状态检查"""
+        # 清空队列以避免处理旧数据
+        while not self.status_queue.empty():
+            self.status_queue.get_nowait()
+
+        # 模拟立即生成新状态
+        status_data = [random.randint(0, 2) for _ in range(10)]
+        self.status_queue.put(status_data)
+
+    def stop_monitoring(self):
+        """停止监控线程"""
+        self.running = False
+        self.status_label.config(text="状态: 已停止", fg="red")
+
+    def on_closing(self):
+        """窗口关闭时的清理工作"""
+        self.running = False
+        self.root.destroy()
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.geometry("800x600")
+    app = StatusMonitorApp(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_closing)
+    root.mainloop()
