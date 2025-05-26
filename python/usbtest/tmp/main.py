@@ -3,6 +3,8 @@ import os
 import xml.etree.cElementTree as ET
 import copy
 import wmi
+import tkinter as tk
+from tkinter import ttk
 
 def get_usb_tree_view_as_xml(output_file: ''):
     try:
@@ -98,8 +100,8 @@ def get_drive_letters_from_pnpdeviceid(pnp_device_id):
         print(f"An error occurred: {e}")
         return False
 
-if __name__ == "__main__":
-    print("begin")
+# if __name__ == "__main__":
+#     print("begin")
     # xml_file='output.xml'
     # ret = get_usb_tree_view_as_xml(xml_file)
     # if not ret:
@@ -107,6 +109,37 @@ if __name__ == "__main__":
     #     exit(-1)
     # parse_xml_file(xml_file)
 
-    get_drive_letters_from_pnpdeviceid(R'SCSI\DISK&VEN_WDC&PROD_WDS500G2B0B-00YS\5&2B637674&0&040000')
+    # get_drive_letters_from_pnpdeviceid(R'SCSI\DISK&VEN_WDC&PROD_WDS500G2B0B-00YS\5&2B637674&0&040000')
 
-    print("end")
+    # print("end")
+
+def create_buttons():
+    root = tk.Tk()
+    root.title("蓝色编号按钮示例")
+
+    # 设置窗口大小
+    root.geometry("600x400")
+
+    # 创建一个框架来容纳按钮
+    frame = ttk.Frame(root)
+    frame.pack(expand=True, fill='both', padx=20, pady=20)
+
+    # 创建10个蓝色编号按钮
+    for i in range(1, 11):
+        button = tk.Button(
+            frame,
+            text=f"按钮 {i}",
+            bg="blue",  # 背景色为蓝色
+            fg="white",  # 文字颜色为白色
+            font=('Arial', 12),  # 设置字体
+            width=10,  # 设置按钮宽度
+            height=2  # 设置按钮高度
+        )
+        button.pack(pady=5)  # 垂直排列，每个按钮之间有5像素的间距
+        # button.
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    create_buttons()
