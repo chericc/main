@@ -3,6 +3,7 @@ import os
 import xml.etree.cElementTree as ET
 import copy
 import wmi
+import ctypes
 
 class PortsDevInfo:
     dev_id: str
@@ -12,6 +13,9 @@ class PortsDevInfo:
 class MySystem:
     def __init__(self):
         self.__default_xml_file = "output.xml"
+        self.__mylib = ctypes.CDLL('D:/code/main/python/usbtest/my_win_usb.dll')# Define the function prototype
+        self.__mylib.mwu_get_disk_id_with_dev_id_wrap.argtypes = [ctypes.c_char_p]  # Input: const char*
+        self.__mylib.mwu_get_disk_id_with_dev_id_wrap.restype = ctypes.c_char_p     # Output: const char*
 
     def get_usb_tree_view_as_xml(self, output_file: ''):
         try:
@@ -87,17 +91,60 @@ class MySystem:
         return port_infos
     def complete_volume(self, port_infos: list[PortsDevInfo]):
         for port_info in port_infos:
-            pass
+            dev_ids = sys.get_disk_with_dev_id(port_info.dev_id)
+            disk_id_list = dev_ids.split(',')
+            for disk_id in disk_id_list:
+                volume_name = sys.get_drive_letters_from_disk_dev_id(disk_id)
+                if volume_name is not None:
+                    port_info.volume = volume_name
+                    break
+
     def get_all_ports_dev_info(self) -> list[PortsDevInfo]:
         self.get_usb_tree_view_as_xml(self.__default_xml_file)
         dev_infos = self.parse_usb_xml(self.__default_xml_file)
         self.complete_volume(dev_infos)
         return dev_infos
 
+    def get_drive_letters_from_disk_dev_id(self, dev_id: str):
+        c = wmi.WMI()
+        drive_letters = []
+        try:
+            disk_index = None
+            disk_drives = c.Win32_DiskDrive()
+            for disk_drive in disk_drives:
+                print(f'disk_drive: {disk_drive.PNPDeviceID}, index: {disk_drive.Index}')
+                if disk_drive.PNPDeviceID == dev_id:
+                    print('found disk')
+                    disk_index = disk_drive.Index
+            if disk_index is None:
+                return None
+            disk_partitions = c.Win32_DiskPartition()
+            for disk_partition in disk_partitions:
+                if disk_partition.DiskIndex == disk_index:
+                    print(f'found partition')
+                    logical_disks = disk_partition.associators('Win32_LogicalDiskToPartition')
+                    for logical_disk in logical_disks:
+                        print(f'ldisk: {logical_disk.Name}')
+                        drive_letters.append(logical_disk.Name)
+            return drive_letters
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return None
+
+    def get_disk_with_dev_id(self, dev_id: str) -> str:
+        dev_id_bytes = dev_id.encode('utf-8')
+        # Example: Call the function with a device ID
+        disk_id = self.__mylib.mwu_get_disk_id_with_dev_id_wrap(dev_id_bytes)
+
+        # Convert the returned bytes to a Python string (if needed)
+        disk_id_str = disk_id.decode("utf-8") if disk_id else None
+        print("Disk ID:", disk_id_str)
+        return disk_id_str
+
 if __name__ == "__main__":
     print("begin")
     sys = MySystem()
     dev_infos = sys.get_all_ports_dev_info()
     for dev_info in dev_infos:
-        print(f'devinfo: port={dev_info.port_number}, id={dev_info.dev_id}')
+        print(f'devinfo: port={dev_info.port_number}, id={dev_info.dev_id}, volume={dev_info.volume}')
     print("end")
