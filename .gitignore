@@ -44,4 +44,4 @@ __pycache__
 build
 .cache
 output.txt
-.xml
+*.xml

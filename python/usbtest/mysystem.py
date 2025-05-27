@@ -6,8 +6,12 @@ import wmi
 import ctypes
 
 class PortsDevInfo:
-    dev_id: str
+    def __init__(self):
+        self.port_number = -1
+        self.dev_id = ''
+        self.volume = ''
     port_number: int
+    dev_id: str
     volume: str
 
 class MySystem:
@@ -91,19 +95,20 @@ class MySystem:
         return port_infos
     def complete_volume(self, port_infos: list[PortsDevInfo]):
         for port_info in port_infos:
-            dev_ids = sys.get_disk_with_dev_id(port_info.dev_id)
+            dev_ids = self.get_disk_with_dev_id(port_info.dev_id)
             disk_id_list = dev_ids.split(',')
             for disk_id in disk_id_list:
-                volume_name = sys.get_drive_letters_from_disk_dev_id(disk_id)
-                if volume_name is not None:
-                    port_info.volume = volume_name
+                volume_name = self.get_drive_letters_from_disk_dev_id(disk_id)
+                if volume_name is not None and len(volume_name) > 0 :
+                    port_info.volume = volume_name[0]
                     break
 
     def get_all_ports_dev_info(self) -> list[PortsDevInfo]:
         self.get_usb_tree_view_as_xml(self.__default_xml_file)
         dev_infos = self.parse_usb_xml(self.__default_xml_file)
         self.complete_volume(dev_infos)
-        return dev_infos
+        sorted_infos = sorted(dev_infos, key=lambda x: x.port_number)
+        return sorted_infos
 
     def get_drive_letters_from_disk_dev_id(self, dev_id: str):
         c = wmi.WMI()
