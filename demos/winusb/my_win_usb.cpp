@@ -12,9 +12,12 @@
 #include <string>
 #include <iostream>
 
-#include "xlog.h"
+#include <stdio.h>
 
-int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb)
+#define xlog_err printf
+#define xlog_dbg printf
+
+int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb, void *user_ptr)
 {
 	int suc_flag = 0;
 	HDEVINFO hDevInfo = INVALID_HANDLE_VALUE;
@@ -22,7 +25,7 @@ int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb)
 	do {
 		hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_DISKDRIVE, nullptr, nullptr, DIGCF_PRESENT);
 		if (hDevInfo == INVALID_HANDLE_VALUE) {
-			xlog_err("SetupDiGetClassDevs failed: %s\n", GetLastError());
+			xlog_err("SetupDiGetClassDevs failed: %d\n", GetLastError());
 			break;
 		}
 
@@ -60,7 +63,7 @@ int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb)
 			xlog_dbg("parent: %s\n", parent_id);
 			xlog_dbg("node: %s\n", instance_id);
 			if (cb) {
-				if (cb(parent_id)) {
+				if (cb(parent_id, instance_id, user_ptr)) {
 					break;
 				}
 			}

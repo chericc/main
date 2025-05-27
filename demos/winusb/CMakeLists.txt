@@ -1,5 +1,10 @@
 aux_source_directory(. src)
-add_library(my_win_usb ${src})
+add_library(my_win_usb SHARED ${src})
+target_link_libraries(my_win_usb Setupapi wbemuuid)
+
+set_target_properties(my_win_usb PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+)
 
 aux_source_directory(demo src_demo)
 
