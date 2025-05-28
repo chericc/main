@@ -7,6 +7,7 @@ import ctypes
 import pythoncom
 from contextlib import contextmanager
 import logging
+import myresource
 
 class PortsDevInfo:
     def __init__(self):
@@ -20,7 +21,8 @@ class PortsDevInfo:
 class MySystem:
     def __init__(self):
         self.__default_xml_file = "output.xml"
-        self.__mylib = ctypes.CDLL('D:/code/main/python/usbtest/my_win_usb.dll')# Define the function prototype
+        lib_path = myresource.resource_path('libs/my_win_usb.dll')
+        self.__mylib = ctypes.CDLL(lib_path)# Define the function prototype
         self.__mylib.mwu_get_disk_id_with_dev_id_wrap.argtypes = [ctypes.c_char_p]  # Input: const char*
         self.__mylib.mwu_get_disk_id_with_dev_id_wrap.restype = ctypes.c_char_p     # Output: const char*
 
@@ -30,7 +32,8 @@ class MySystem:
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             startupinfo.wShowWindow = subprocess.SW_HIDE
 
-            command = ['d:/code/usbview.exe', '/q', '/f', f'/savexml:{output_file}']
+            bin_path=myresource.resource_path('bins/usbview.exe')
+            command = [bin_path, '/q', '/f', f'/savexml:{output_file}']
 
             result = subprocess.run(command,
                                     check=True,

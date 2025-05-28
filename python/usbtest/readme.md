@@ -2,6 +2,15 @@
 
 python -m pip install wmi pywin32
 
+## pack
+
+```bash
+# gen
+pyinstaller.exe --name testapp --onefile main.py
+# use
+pyinstaller testapp.spec
+```
+
 # wmi
 
 https://timgolden.me.uk/python/wmi/tutorial.html#the-basics
@@ -164,3 +173,4 @@ SystemProperties            : {__GENUS, __CLASS, __SUPERCLASS, __DYNASTY...}
 Qualifiers                  : {dynamic, Locale, provider, UUID}
 Site                        : 
 Container                   : 
+
