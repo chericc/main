@@ -25,11 +25,17 @@ class MySystem:
 
     def get_usb_tree_view_as_xml(self, output_file: ''):
         try:
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+
             command = ['d:/code/usbview.exe', '/q', '/f', f'/savexml:{output_file}']
+
             result = subprocess.run(command,
                                     check=True,
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    text=True)
+                                    text=True,
+                                    startupinfo=startupinfo)
             print(f'USBTreeView executed ok. Output saved to {output_file}')
             return True
         except subprocess.CalledProcessError as e:
