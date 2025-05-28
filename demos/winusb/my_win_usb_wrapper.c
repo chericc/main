@@ -4,6 +4,8 @@
 
 #include "my_win_usb.h"
 
+#include "my_print.h"
+
 static char s_disk_id_str[2048];
 
 struct ctx {
@@ -22,7 +24,7 @@ int my_mwu_disk_id_cb(const char* dev_id, const char* disk_id, void *user)
 		}
 	}
 	else {
-		printf("not match: %s - %s\n", ctx->dev_id, dev_id);
+		MY_LOG("not match: %s - %s\n", ctx->dev_id, dev_id);
 	}
 	return 0;
 }
@@ -35,4 +37,8 @@ const char* mwu_get_disk_id_with_dev_id_wrap(const char* dev_id)
 	mwu_get_disk_id_with_dev_id(my_mwu_disk_id_cb, &ctx);
 	snprintf(s_disk_id_str, sizeof(s_disk_id_str), "%s", ctx.disk_id);
 	return s_disk_id_str;
+}
+void mwu_enable_log_wrap(int enable)
+{
+	mwu_enable_log(enable);
 }

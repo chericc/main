@@ -14,8 +14,7 @@
 
 #include <stdio.h>
 
-#define xlog_err printf
-#define xlog_dbg printf
+#include "my_print.h"
 
 int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb, void *user_ptr)
 {
@@ -25,7 +24,7 @@ int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb, void *user_ptr)
 	do {
 		hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_DISKDRIVE, nullptr, nullptr, DIGCF_PRESENT);
 		if (hDevInfo == INVALID_HANDLE_VALUE) {
-			xlog_err("SetupDiGetClassDevs failed: %d\n", GetLastError());
+			MY_LOG("SetupDiGetClassDevs failed: %d\n", GetLastError());
 			break;
 		}
 
@@ -34,7 +33,7 @@ int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb, void *user_ptr)
 		for (int i = 0; ; ++i) {
 			int ret = SetupDiEnumDeviceInfo(hDevInfo, i, &devInfoData);
 			if (!ret) {
-				xlog_dbg("iter end\n");
+				MY_LOG("iter end\n");
 				break;
 			}
 
@@ -43,25 +42,25 @@ int mwu_get_disk_id_with_dev_id(mwu_disk_id_cb cb, void *user_ptr)
 
 			ret = CM_Get_Device_ID(devInfoData.DevInst, instance_id, sizeof(instance_id), 0);
 			if (ret != CR_SUCCESS) {
-				xlog_err("get dev id failed\n");
+				MY_LOG("get dev id failed\n");
 				continue;
 			}
 
 			DEVINST parentDevInst = CR_INVALID_DEVINST;
 			ret = CM_Get_Parent(&parentDevInst, devInfoData.DevInst, 0);
 			if (ret != CR_SUCCESS) {
-				xlog_err("failed to get parent node\n");
+				MY_LOG("failed to get parent node\n");
 				continue;
 			}
 
 			ret = CM_Get_Device_ID(parentDevInst, parent_id, sizeof(parent_id), 0);
 			if (ret != CR_SUCCESS) {
-				xlog_err("get parent dev id failed\n");
+				MY_LOG("get parent dev id failed\n");
 				continue;
 			}
 
-			xlog_dbg("parent: %s\n", parent_id);
-			xlog_dbg("node: %s\n", instance_id);
+			MY_LOG("parent: %s\n", parent_id);
+			MY_LOG("node: %s\n", instance_id);
 			if (cb) {
 				if (cb(parent_id, instance_id, user_ptr)) {
 					break;
