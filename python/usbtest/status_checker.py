@@ -11,6 +11,7 @@ from mysystem import PortsDevInfo
 from myconfig import MyConfig
 import copy
 import os
+import shutil
 
 # 直接返回10个端口的状态，上层直接显示
 
@@ -26,20 +27,17 @@ class RunningState(Enum):
     AllPowerUp = 1
     HandlePorts = 2
 
-class PortState(Enum):
+class PortStateType(Enum):
     Init = 1
     WaitInsert = 2
     WaitVolumeMount = 3
     Upgrade = 4
     Upgraded = 5
 
-class PortStateCtx:
+class PortState:
     def __init__(self):
-        self.port_state = PortState.Init
-        # self.port_number = -1
-    # port_number: int # [0,1,2,...]
-    # port_volume: str # [ 'C', 'D', 'E', ... ]
-    port_state: PortState
+        self.port_state = PortStateType.Init
+    port_state: PortStateType
 
 class PortDeviceType(Enum):
     Camera = 1
@@ -107,10 +105,10 @@ class StatusChecker:
         self.__serial_name = serial_name
         self.__port_ctl = UsbSerialCmd(self.__serial_name)
         self.__system = MySystem()
-        self.__port_states: list[PortStateCtx] = []
+        self.__port_states: list[PortState] = []
         if len(self.__port_states) == 0:
             for i in range(MyConfig.hub_port_count):
-                port_state = PortStateCtx()
+                port_state = PortState()
                 self.__port_states.append(port_state)
 
     def get_port_state(self):
@@ -149,30 +147,30 @@ class StatusChecker:
                 port_info.port_number = i + 1
                 self.run_port(self.__port_states[i], port_info)
 
-    def run_handle_one_port_init(self, state: PortStateCtx, port_info: PortsDevInfo):
+    def run_handle_one_port_init(self, state: PortState, port_info: PortsDevInfo):
         # check if port exist
         if len(port_info.dev_id) == 0:
-            state.port_state = PortState.WaitInsert
+            state.port_state = PortStateType.WaitInsert
             print(f'port[{port_info.port_number}] is not inserted, into {state.port_state} state')
         elif len(port_info.volume) == 0:
-            state.port_state = PortState.WaitVolumeMount
+            state.port_state = PortStateType.WaitVolumeMount
             print(f'port[{port_info.port_number}] is not mounted, into {state.port_state} state')
         else:
-            state.port_state = PortState.Upgrade
+            state.port_state = PortStateType.Upgrade
             print(f'port[{port_info.port_number}] is mounted, into {state.port_state} state')
 
-    def run_handle_one_port_wait_insert(self, state: PortStateCtx, port_info: PortsDevInfo):
+    def run_handle_one_port_wait_insert(self, state: PortState, port_info: PortsDevInfo):
         if len(port_info.dev_id) == 0:
             print(f'port[{port_info.port_number}] is not inserted, wait')
         else:
-            state.port_state = PortState.WaitVolumeMount
+            state.port_state = PortStateType.WaitVolumeMount
             print(f'port[{port_info.port_number}] is inserted, into {state.port_state} state')
 
-    def run_handle_one_port_wait_volume_mount(self, state: PortStateCtx, port_info: PortsDevInfo):
+    def run_handle_one_port_wait_volume_mount(self, state: PortState, port_info: PortsDevInfo):
         if len(port_info.volume) == 0:
             print(f'port[{port_info.port_number}] is not mounted, wait')
         else:
-            state.port_state = PortState.Upgrade
+            state.port_state = PortStateType.Upgrade
             print(f'port[{port_info.port_number}] is mounted, into {state.port_state} state')
 
     def check_port_type(self, volume: str):
@@ -188,7 +186,7 @@ class StatusChecker:
         else:
             return None
 
-    def do_camera_upgrade(self, helper: PortTypeHelper, state: PortStateCtx, port_info: PortsDevInfo):
+    def do_camera_upgrade(self, helper: PortTypeHelper, state: PortState, port_info: PortsDevInfo):
         # check version
         version_dst = helper.get_version_dst()
         version_now = helper.get_version_src()
@@ -197,14 +195,24 @@ class StatusChecker:
             return False
         if int(version_now) < int(version_dst):
             print(f'port[{port_info.port_number}] need update: {version_now} < {version_dst}')
+            print(f'port[{port_info.port_number}] cp ota file: {helper.update_file_src_path} --> {helper.update_file_dst_path}')
+            shutil.copyfile(helper.update_file_src_path, helper.update_file_dst_path)
+            time.sleep(0.2)
+            print(f'port[{port_info.port_number}] power off]')
+            self.__port_ctl.control_usb_port(port_info.port_number, False)
+            time.sleep(0.2)
+            print(f'port[{port_info.port_number}] power on]')
+            self.__port_ctl.control_usb_port(port_info.port_number, True)
+            state.port_state = PortStateType.WaitVolumeMount
         else:
             print(f'port[{port_info.port_number}] need not update: {version_now} >= {version_dst}')
+            state.port_state = PortStateType.Upgraded
         return True
 
-    def run_handle_one_port_upgrade(self, state: PortStateCtx, port_info: PortsDevInfo):
+    def run_handle_one_port_upgrade(self, state: PortState, port_info: PortsDevInfo):
         print(f'port[{port_info.port_number}] in upgrade state({port_info.volume})')
         if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
-            state.port_state = PortState.Init
+            state.port_state = PortStateType.Init
             print(f'port[{port_info.port_number}] removed, into {state.port_state} state')
             return
         port_type_helper = self.check_port_type(port_info.volume)
@@ -213,15 +221,27 @@ class StatusChecker:
         else:
             self.do_camera_upgrade(port_type_helper, state, port_info)
 
-    def run_port(self, state: PortStateCtx, port_info: PortsDevInfo):
-        if state.port_state == PortState.Init:
+    def run_handle_one_port_upgraded(self, state: PortState, port_info: PortsDevInfo):
+        print(f'port[{port_info.port_number}] in upgraded state({port_info.volume}), wait unplugging')
+        if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
+            state.port_state = PortStateType.Init
+            print(f'port[{port_info.port_number}] removed, into {state.port_state} state')
+            return
+
+    def run_port(self, state: PortState, port_info: PortsDevInfo):
+        if state.port_state == PortStateType.Init:
             self.run_handle_one_port_init(state, port_info)
-        elif state.port_state == PortState.WaitInsert:
+        elif state.port_state == PortStateType.WaitInsert:
             self.run_handle_one_port_wait_insert(state, port_info)
-        elif state.port_state == PortState.WaitVolumeMount:
+        elif state.port_state == PortStateType.WaitVolumeMount:
             self.run_handle_one_port_wait_volume_mount(state, port_info)
-        elif state.port_state == PortState.Upgrade:
+        elif state.port_state == PortStateType.Upgrade:
             self.run_handle_one_port_upgrade(state, port_info)
+        elif state.port_state == PortStateType.Upgraded:
+            self.run_handle_one_port_upgraded(state, port_info)
+        else:
+            print(f'port[{port_info.port_number}] state invalid: {state.port_state}')
+            pass
 
     def run(self):
         if self.__running_state == RunningState.Init:
@@ -232,9 +252,9 @@ class StatusChecker:
             self.run_handle_ports()
 
 if __name__ == "__main__":
-    print("begin")
+    print('begin')
     checker = StatusChecker('COM14')
     while True:
         checker.run()
         time.sleep(3)
-    print("end")
+    print('end')

@@ -4,10 +4,12 @@ import xml.etree.cElementTree as ET
 import copy
 import wmi
 import ctypes
+import pythoncom
+from contextlib import contextmanager
 
 class PortsDevInfo:
     def __init__(self):
-        self.port_number = -1
+        self.port_number = -1  # 1,2,3,...
         self.dev_id = ''
         self.volume = ''
     port_number: int
@@ -84,7 +86,7 @@ class MySystem:
                 port_num = usb_device.get('UsbPortNumber')  # 2 [1,2,3,4...]
                 name = usb_device.get('DeviceName')  # USB 大容量存储设备
                 dev_id = usb_device.get('DeviceId')  # USB\VID_302E&amp;PID_041B\0000000000000000
-                port_num_in_hub = port_index + int(port_num)
+                port_num_in_hub = port_index + int(port_num)   # in [1,2,3,...]
                 print(f'port_num_in_hub: {port_num_in_hub}, dev_id: {dev_id}')
                 port_info = PortsDevInfo()
                 port_info.port_number = int(port_num_in_hub)
@@ -98,7 +100,7 @@ class MySystem:
             dev_ids = self.get_disk_with_dev_id(port_info.dev_id)
             disk_id_list = dev_ids.split(',')
             for disk_id in disk_id_list:
-                volume_name = self.get_drive_letters_from_disk_dev_id(disk_id)
+                volume_name = self.get_drive_letters_from_disk_dev_id_in_thread_wrapper(disk_id)
                 if volume_name is not None and len(volume_name) > 0 :
                     port_info.volume = volume_name[0]
                     break
@@ -109,6 +111,18 @@ class MySystem:
         self.complete_volume(dev_infos)
         sorted_infos = sorted(dev_infos, key=lambda x: x.port_number)
         return sorted_infos
+
+    @contextmanager
+    def com_initialized(self):
+        pythoncom.CoInitialize()
+        try:
+            yield
+        finally:
+            pythoncom.CoUninitialize()
+
+    def get_drive_letters_from_disk_dev_id_in_thread_wrapper(self, disk_id):
+        with self.com_initialized():
+            return self.get_drive_letters_from_disk_dev_id(disk_id)
 
     def get_drive_letters_from_disk_dev_id(self, dev_id: str):
         c = wmi.WMI()

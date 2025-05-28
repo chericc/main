@@ -4,7 +4,8 @@ import random
 import threading
 import time
 from queue import Queue
-
+import status_checker
+import myconfig
 
 class StatusMonitorApp:
     def __init__(self, root):
@@ -13,6 +14,7 @@ class StatusMonitorApp:
         self.buttons = []
         self.status_queue = Queue()
         self.running = True
+        self.status_checker = status_checker.StatusChecker(myconfig.MyConfig.com_port)
 
         # 创建UI
         self.setup_ui()
@@ -41,7 +43,7 @@ class StatusMonitorApp:
 
             btn = tk.Button(
                 grid_frame,
-                text=f"设备 {i + 1}",
+                text=f"端口{i + 1}",
                 font=('Arial', 12),
                 relief='raised',
                 width=10,
@@ -69,7 +71,9 @@ class StatusMonitorApp:
         self.monitor_thread.start()
 
     def status_check(self):
-        
+        self.status_checker.run()
+        ports_state = self.status_checker.get_port_state()
+        self.status_queue.put(ports_state)
 
     def monitor_status(self):
         """模拟定期检查外部状态的线程"""
@@ -78,19 +82,21 @@ class StatusMonitorApp:
             # 实际应用中可能是API调用、数据库查询等
             time.sleep(2)  # 每2秒检查一次
 
+            self.status_check()
+
             # 生成模拟状态数据 (0=正常, 1=警告, 2=错误)
-            status_data = [random.randint(0, 2) for _ in range(10)]
+            # status_data = [random.randint(0, 2) for _ in range(10)]
 
             # 将状态数据放入队列供UI线程使用
-            self.status_queue.put(status_data)
+            # self.status_queue.put(status_data)
 
     def update_ui(self):
         """更新UI的主循环"""
         try:
             # 检查队列中是否有新状态
             while not self.status_queue.empty():
-                status_data = self.status_queue.get_nowait()
-                self.apply_status_colors(status_data)
+                status_list = self.status_queue.get_nowait()
+                self.apply_status(status_list)
         except:
             pass
 
@@ -98,7 +104,7 @@ class StatusMonitorApp:
         if self.running:
             self.root.after(500, self.update_ui)  # 每500ms检查一次更新
 
-    def apply_status_colors(self, status_data):
+    def apply_status(self, status_list: list[status_checker.PortState]):
         """根据状态数据更新按钮颜色"""
         color_map = {
             0: "green",  # 正常
@@ -106,11 +112,34 @@ class StatusMonitorApp:
             2: "red"  # 错误
         }
 
-        for i, status in enumerate(status_data):
+        for i, status in enumerate(status_list):
             if i < len(self.buttons):
+                fg_color = 'black'
+                bg_color = 'white'
+                text = f'端口{i + 1}'
+                if status.port_state == status_checker.PortStateType.Init:
+                    bg_color = 'white'
+                    text += '/初始化'
+                elif status.port_state == status_checker.PortStateType.WaitInsert:
+                    bg_color = 'white'
+                    text += '/等待设备插入'
+                elif status.port_state == status_checker.PortStateType.WaitVolumeMount:
+                    bg_color = 'white'
+                    text += '/等待设备挂载'
+                elif status.port_state == status_checker.PortStateType.Upgrade:
+                    bg_color = 'white'
+                    text += '/升级中'
+                elif status.port_state == status_checker.PortStateType.Upgraded:
+                    bg_color = 'green'
+                    text += '/已升级'
+                else:
+                    bg_color = 'red'
+                    text += '/未知错误'
+
                 self.buttons[i].config(
-                    bg=color_map.get(status, "gray"),
-                    fg="white" if status != 0 else "black"
+                    bg=bg_color,
+                    fg=fg_color,
+                    text=text
                 )
 
     def force_check(self):

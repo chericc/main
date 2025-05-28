@@ -7,3 +7,4 @@ class MyConfig:
     screen_version_file_path: str = 'version.txt'
     screen_update_dst_file_path: str = 'update/update.bin'
     screen_update_file_from_path: str = 'd:/tmp/screen.20250307.bin'
+    com_port: str = 'COM14'

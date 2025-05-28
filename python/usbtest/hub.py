@@ -67,9 +67,11 @@ class UsbSerialCmd:
             bits_switch[i] = byte_value
         self.set_usb_port_state(bits_switch)
 
+    # port_number: 1,2,...,64
     def control_usb_port(self, port_number: int, open: bool):
-        if port_number < 0 or port_number > 63:
+        if port_number < 1 or port_number > 64:
             return None
+        port_number -= 1 # 0,1,...,63
         resp = self.get_usb_open_state()
         if resp == None:
             print('get open state failed')
