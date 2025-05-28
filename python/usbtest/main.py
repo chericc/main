@@ -15,18 +15,8 @@ if __name__ == "__main__":
         log_file_handle = logging.FileHandler(g_config.log_file)
         log_stream_handler = logging.StreamHandler(sys.stdout)
 
-        if g_config.log_level_file == 'DEBUG':
-            log_file_handle.setLevel(logging.DEBUG)
-        elif g_config.log_level_file == 'INFO':
-            log_file_handle.setLevel(logging.INFO)
-        elif g_config.log_level_file == 'WARNING':
-            log_file_handle.setLevel(logging.WARNING)
-        elif g_config.log_level_file == 'ERROR':
-            log_file_handle.setLevel(logging.ERROR)
-        else:
-            log_file_handle.setLevel(logging.INFO)
-
-        log_stream_handler.setLevel(logging.INFO)
+        log_file_handle.setLevel(g_config.map_log_level(g_config.log_level_file))
+        log_stream_handler.setLevel(g_config.map_log_level(g_config.log_level_console))
 
         logging.basicConfig(
             level=logging.INFO,

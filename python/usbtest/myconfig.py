@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Dict, Any
+import logging
 
 class MyConfig:
     hub_port_count: int = 10
@@ -14,6 +15,8 @@ class MyConfig:
     com_port: str = 'COM19'
     log_file: str = 'testapp.log'
     log_level_file: str = 'DEBUG' # DEBUG INFO WARNING ERROR
+    log_level_console: str = 'INFO'
+    update_interval_sec: int = 2
 
     _config_file: str = 'config.json'
 
@@ -30,8 +33,8 @@ class MyConfig:
                 for key, value in config_data.items():
                     if hasattr(self, key):
                         setattr(self, key, value)
-        else:
-            self.save_config()
+        logging.info('save configs')
+        self.save_config()
 
     def save_config(self) -> None:
         """将当前配置保存到JSON文件"""
@@ -40,5 +43,17 @@ class MyConfig:
                        if not key.startswith('_') and not callable(getattr(self, key))}
         with open(self._config_file, 'w', encoding='utf-8') as f:
             json.dump(config_data, f, indent=4)
+
+    def map_log_level(self, log_level: str) -> int:
+        if log_level == 'DEBUG':
+            return logging.DEBUG
+        elif log_level == 'INFO':
+            return logging.INFO
+        elif log_level == 'WARNING':
+            return logging.WARNING
+        elif log_level == 'ERROR':
+            return logging.ERROR
+        else:
+            return logging.INFO
 
 g_config = MyConfig()

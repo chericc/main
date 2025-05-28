@@ -4,12 +4,13 @@ import threading
 import time
 from queue import Queue
 import status_checker
-import myconfig
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import myexception
 import sys
+import logging
+from myconfig import g_config
 
 class StatusMonitorApp:
     def __init__(self, root):
@@ -18,7 +19,20 @@ class StatusMonitorApp:
         self.buttons = []
         self.status_queue = Queue()
         self.running = True
-        self.status_checker = status_checker.StatusChecker(myconfig.g_config.com_port)
+        self.status_checker = status_checker.StatusChecker(g_config.com_port)
+        self.cond_wait = threading.Condition()
+        self.color_font_bright = 'white'
+        self.color_font_dark = 'black'
+        self.color_normal = 'Silver'
+        self.color_font_normal = self.color_font_dark
+        self.color_inserted = 'white'
+        self.color_font_inserted = self.color_font_dark
+        self.color_active = 'blue'
+        self.color_font_active = self.color_font_bright
+        self.color_ok = 'green'
+        self.color_font_ok = self.color_font_bright
+        self.color_error = 'red'
+        self.color_font_error = self.color_font_bright
 
         # 创建UI
         self.setup_ui()
@@ -49,10 +63,12 @@ class StatusMonitorApp:
             btn = tk.Button(
                 grid_frame,
                 text=f"端口{i + 1}",
-                font=('Arial', 12),
+                font=('Microsoft YaHei', 12),
                 relief='raised',
                 width=10,
-                height=3
+                height=3,
+                bg = self.color_normal,
+                fg = self.color_font_dark
             )
             btn.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
             self.buttons.append(btn)
@@ -85,7 +101,10 @@ class StatusMonitorApp:
         while self.running:
             # 这里模拟从外部系统获取状态
             # 实际应用中可能是API调用、数据库查询等
-            time.sleep(2)  # 每2秒检查一次
+            # time.sleep(2)  # 每2秒检查一次
+            self.cond_wait.acquire()
+            self.cond_wait.wait(g_config.update_interval_sec)
+            self.cond_wait.release()
 
             self.status_check()
 
@@ -119,26 +138,32 @@ class StatusMonitorApp:
 
         for i, status in enumerate(status_list):
             if i < len(self.buttons):
-                fg_color = 'black'
-                bg_color = 'white'
+                bg_color = self.color_normal
+                fg_color = self.color_font_normal
                 text = f'端口{i + 1}'
                 if status.port_state == status_checker.PortStateType.Init:
-                    bg_color = 'white'
+                    bg_color = self.color_normal
+                    fg_color = self.color_font_normal
                     text += '/初始化'
                 elif status.port_state == status_checker.PortStateType.WaitInsert:
-                    bg_color = 'white'
+                    bg_color = self.color_normal
+                    fg_color = self.color_font_normal
                     text += '/等待设备插入'
                 elif status.port_state == status_checker.PortStateType.WaitVolumeMount:
-                    bg_color = 'white'
+                    bg_color = self.color_inserted
+                    fg_color = self.color_font_inserted
                     text += '/等待设备挂载'
                 elif status.port_state == status_checker.PortStateType.Upgrade:
-                    bg_color = 'white'
+                    bg_color = self.color_active
+                    fg_color = self.color_font_active
                     text += '/升级中'
                 elif status.port_state == status_checker.PortStateType.Upgraded:
-                    bg_color = 'green'
+                    bg_color = self.color_ok
+                    fg_color = self.color_font_ok
                     text += '/已升级'
                 else:
-                    bg_color = 'red'
+                    bg_color = self.color_error
+                    fg_color = self.color_font_error
                     text += '/未知错误'
 
                 self.buttons[i].config(
@@ -153,20 +178,22 @@ class StatusMonitorApp:
         while not self.status_queue.empty():
             self.status_queue.get_nowait()
 
-        # 模拟立即生成新状态
-        status_data = [random.randint(0, 2) for _ in range(10)]
-        self.status_queue.put(status_data)
+        self.cond_wait.acquire()
+        self.cond_wait.notify()
+        self.cond_wait.release()
+        pass
 
     def stop_monitoring(self):
         """停止监控线程"""
-        self.running = False
-        self.status_label.config(text="状态: 已停止", fg="red")
+        # self.running = False
+        # self.status_label.config(text="状态: 已停止", fg="red")
+        pass
 
     def on_closing(self):
         """窗口关闭时的清理工作"""
+        logging.info('closed')
         self.running = False
         self.root.destroy()
-
 
 if __name__ == "__main__":
     root = tk.Tk()
