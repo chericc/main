@@ -1,11 +1,12 @@
-import tkinter as tk
-from tkinter import ttk
+
 import random
 import threading
 import time
 from queue import Queue
 import status_checker
 import myconfig
+import tkinter as tk
+from tkinter import ttk
 
 class StatusMonitorApp:
     def __init__(self, root):

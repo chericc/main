@@ -6,6 +6,7 @@ import wmi
 import ctypes
 import pythoncom
 from contextlib import contextmanager
+import logging
 
 class PortsDevInfo:
     def __init__(self):
@@ -23,7 +24,7 @@ class MySystem:
         self.__mylib.mwu_get_disk_id_with_dev_id_wrap.argtypes = [ctypes.c_char_p]  # Input: const char*
         self.__mylib.mwu_get_disk_id_with_dev_id_wrap.restype = ctypes.c_char_p     # Output: const char*
 
-    def get_usb_tree_view_as_xml(self, output_file: ''):
+    def get_usb_tree_view_as_xml(self, output_file: str):
         try:
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
@@ -36,13 +37,13 @@ class MySystem:
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                     text=True,
                                     startupinfo=startupinfo)
-            print(f'USBTreeView executed ok. Output saved to {output_file}')
+            logging.debug(f'USBTreeView executed ok. Output saved to {output_file}')
             return True
         except subprocess.CalledProcessError as e:
-            print(f'USBTreeView failed with return code {e.returncode}')
+            logging.error(f'USBTreeView failed with return code {e.returncode}')
             return False
         except FileNotFoundError:
-            print(f'USBTreeView could not find executable')
+            logging.error(f'USBTreeView could not find executable')
             return False
     def parse_usb_xml(self, xml_file: str):
 
@@ -85,7 +86,7 @@ class MySystem:
             dev_id = hub.get('DeviceId')
             if dev_id is None:
                 continue
-            print('hub.dev_id:', dev_id)
+            logging.debug('hub.dev_id:', dev_id)
             usb_devices = hub.findall('UsbDevice')
             for usb_device in usb_devices:
                 prot = usb_device.get('UsbProtocol')  # USB 2.0
@@ -93,7 +94,7 @@ class MySystem:
                 name = usb_device.get('DeviceName')  # USB 大容量存储设备
                 dev_id = usb_device.get('DeviceId')  # USB\VID_302E&amp;PID_041B\0000000000000000
                 port_num_in_hub = port_index + int(port_num)   # in [1,2,3,...]
-                print(f'port_num_in_hub: {port_num_in_hub}, dev_id: {dev_id}')
+                logging.debug(f'port_num_in_hub: {port_num_in_hub}, dev_id: {dev_id}')
                 port_info = PortsDevInfo()
                 port_info.port_number = int(port_num_in_hub)
                 port_info.dev_id = dev_id
@@ -137,23 +138,23 @@ class MySystem:
             disk_index = None
             disk_drives = c.Win32_DiskDrive()
             for disk_drive in disk_drives:
-                print(f'disk_drive: {disk_drive.PNPDeviceID}, index: {disk_drive.Index}')
+                logging.debug(f'disk_drive: {disk_drive.PNPDeviceID}, index: {disk_drive.Index}')
                 if disk_drive.PNPDeviceID == dev_id:
-                    print('found disk')
+                    logging.debug('found disk')
                     disk_index = disk_drive.Index
             if disk_index is None:
                 return None
             disk_partitions = c.Win32_DiskPartition()
             for disk_partition in disk_partitions:
                 if disk_partition.DiskIndex == disk_index:
-                    print(f'found partition')
+                    logging.debug(f'found partition')
                     logical_disks = disk_partition.associators('Win32_LogicalDiskToPartition')
                     for logical_disk in logical_disks:
-                        print(f'ldisk: {logical_disk.Name}')
+                        logging.debug(f'ldisk: {logical_disk.Name}')
                         drive_letters.append(logical_disk.Name)
             return drive_letters
         except Exception as e:
-            print(f"An error occurred: {e}")
+            logging.error(f"An error occurred: {e}")
             return None
 
     def get_disk_with_dev_id(self, dev_id: str) -> str:
@@ -163,13 +164,13 @@ class MySystem:
 
         # Convert the returned bytes to a Python string (if needed)
         disk_id_str = disk_id.decode("utf-8") if disk_id else None
-        print("Disk ID:", disk_id_str)
+        logging.debug("Disk ID:", disk_id_str)
         return disk_id_str
 
 if __name__ == "__main__":
-    print("begin")
+    logging.info("begin")
     sys = MySystem()
     dev_infos = sys.get_all_ports_dev_info()
     for dev_info in dev_infos:
-        print(f'devinfo: port={dev_info.port_number}, id={dev_info.dev_id}, volume={dev_info.volume}')
-    print("end")
+        logging.info(f'devinfo: port={dev_info.port_number}, id={dev_info.dev_id}, volume={dev_info.volume}')
+    logging.info("end")

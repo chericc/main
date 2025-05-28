@@ -1,6 +1,7 @@
 import time
 
 import serial
+import logging
 
 class UsbSerialCmd:
     def __init__(self, serial_name: ''):
@@ -21,10 +22,10 @@ class UsbSerialCmd:
 
     def filter_response(self, response: bytearray):
         if len(response) <= 4:
-            print('response length is too short')
+            logging.error('response length is too short')
             return None
         if response[0] != 0xf3 and response[1] != 0x1:
-            print('response is not 0xf3 0x1')
+            logging.error('response is not 0xf3 0x1')
             return None
         return response[2:-2]
 
@@ -33,7 +34,7 @@ class UsbSerialCmd:
         msg = self.make_msg(msg)
         resp = self.send_msg(msg, 6)
         resp = self.filter_response(resp)
-        print(f'response:{resp.hex()}')
+        logging.debug(f'response:{resp.hex()}')
         return resp
 
     def get_usb_open_state(self):
@@ -41,7 +42,7 @@ class UsbSerialCmd:
         msg = self.make_msg(msg)
         resp = self.send_msg(msg, 12)
         resp = self.filter_response(resp)
-        print(f'response: {resp.hex()}')
+        logging.debug(f'response: {resp.hex()}')
         return resp
 
     def set_usb_port_state(self, bit_switch: bytearray):
@@ -52,7 +53,7 @@ class UsbSerialCmd:
         msg = self.make_msg(msg)
         resp = self.send_msg(msg, 12)
         resp = self.filter_response(resp)
-        print(f'response: {resp.hex()}')
+        logging.debug(f'response: {resp.hex()}')
         return resp
 
     def control_all_port(self, open: bool):
@@ -74,10 +75,10 @@ class UsbSerialCmd:
         port_number -= 1 # 0,1,...,63
         resp = self.get_usb_open_state()
         if resp == None:
-            print('get open state failed')
+            logging.error('get open state failed')
             return None
         if len(resp) < 8:
-            print('response length is too short')
+            logging.debug('response length is too short')
             return None
         changed_resp = bytearray(resp)
         byte_idx = port_number // 4
