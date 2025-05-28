@@ -11,7 +11,9 @@ class MyConfig:
     screen_version_file_path: str = 'version.txt'
     screen_update_dst_file_path: str = 'update/update.bin'
     screen_update_file_from_path: str = 'd:/tmp/screen.20250307.bin'
-    com_port: str = 'COM14'
+    com_port: str = 'COM19'
+    log_file: str = 'testapp.log'
+    log_level_file: str = 'DEBUG' # DEBUG INFO WARNING ERROR
 
     _config_file: str = 'config.json'
 
@@ -28,6 +30,8 @@ class MyConfig:
                 for key, value in config_data.items():
                     if hasattr(self, key):
                         setattr(self, key, value)
+        else:
+            self.save_config()
 
     def save_config(self) -> None:
         """将当前配置保存到JSON文件"""
@@ -36,3 +40,5 @@ class MyConfig:
                        if not key.startswith('_') and not callable(getattr(self, key))}
         with open(self._config_file, 'w', encoding='utf-8') as f:
             json.dump(config_data, f, indent=4)
+
+g_config = MyConfig()

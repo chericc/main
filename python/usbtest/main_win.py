@@ -7,6 +7,9 @@ import status_checker
 import myconfig
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
+import myexception
+import sys
 
 class StatusMonitorApp:
     def __init__(self, root):
@@ -15,7 +18,7 @@ class StatusMonitorApp:
         self.buttons = []
         self.status_queue = Queue()
         self.running = True
-        self.status_checker = status_checker.StatusChecker(myconfig.MyConfig.com_port)
+        self.status_checker = status_checker.StatusChecker(myconfig.g_config.com_port)
 
         # 创建UI
         self.setup_ui()
@@ -25,6 +28,7 @@ class StatusMonitorApp:
 
         # 启动UI更新循环
         self.update_ui()
+
 
     def setup_ui(self):
         # 主框架

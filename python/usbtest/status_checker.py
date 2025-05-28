@@ -8,7 +8,7 @@ import time
 from hub import UsbSerialCmd
 from mysystem import MySystem
 from mysystem import PortsDevInfo
-from myconfig import MyConfig
+from myconfig import g_config
 import copy
 import os
 import shutil
@@ -54,13 +54,13 @@ class PortTypeHelper:
     def __init__(self, port_dev_type: PortDeviceType = PortDeviceType.Unknown, volume: str = None):
         self.type : PortDeviceType = port_dev_type
         if self.type == PortDeviceType.Camera:
-            self.version_file_path = os.path.join(volume, MyConfig.camera_version_file_path)
-            self.update_file_dst_path = os.path.join(volume, MyConfig.camera_update_dst_file_path)
-            self.update_file_src_path = os.path.join(volume, MyConfig.camera_update_file_from_path)
+            self.version_file_path = os.path.join(volume, g_config.camera_version_file_path)
+            self.update_file_dst_path = os.path.join(volume, g_config.camera_update_dst_file_path)
+            self.update_file_src_path = os.path.join(volume, g_config.camera_update_file_from_path)
         elif self.type == PortDeviceType.Screen:
-            self.version_file_path = os.path.join(volume, MyConfig.screen_version_file_path)
-            self.update_file_dst_path = os.path.join(volume, MyConfig.screen_update_dst_file_path)
-            self.update_file_src_path = os.path.join(volume, MyConfig.screen_update_file_from_path)
+            self.version_file_path = os.path.join(volume, g_config.screen_version_file_path)
+            self.update_file_dst_path = os.path.join(volume, g_config.screen_update_dst_file_path)
+            self.update_file_src_path = os.path.join(volume, g_config.screen_update_file_from_path)
         else:
             logging.error('unknown port dev type')
     def get_version_src(self) -> str:
@@ -108,7 +108,7 @@ class StatusChecker:
         self.__system = MySystem()
         self.__port_states: list[PortState] = []
         if len(self.__port_states) == 0:
-            for i in range(MyConfig.hub_port_count):
+            for i in range(g_config.hub_port_count):
                 port_state = PortState()
                 self.__port_states.append(port_state)
 
@@ -122,7 +122,7 @@ class StatusChecker:
         self.__running_state = RunningState.AllPowerUp
     def run_all_powerup(self):
         # 所有端口上电后，等待设备开机
-        for count in range(MyConfig.wait_port_seconds):
+        for count in range(g_config.wait_port_seconds):
             time.sleep(1)
             all_ports_info = self.__system.get_all_ports_dev_info()
             if len(all_ports_info) > 0:
@@ -134,9 +134,9 @@ class StatusChecker:
         logging.debug('into HandlePorts state')
         self.__running_state = RunningState.HandlePorts
     def run_handle_ports(self):
-        port_num = MyConfig.hub_port_count
+        port_num = g_config.hub_port_count
         all_ports_info = self.__system.get_all_ports_dev_info()
-        for i in range(MyConfig.hub_port_count):
+        for i in range(g_config.hub_port_count):
             found_flag = False
             for k in all_ports_info:
                 if k.port_number == (i + 1):

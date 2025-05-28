@@ -2,11 +2,15 @@ import time
 
 import serial
 import logging
+import myexception
 
 class UsbSerialCmd:
     def __init__(self, serial_name: ''):
         self.__serialName = serial_name
-        self.__serial = serial.Serial(self.__serialName, 9600)
+        try:
+            self.__serial = serial.Serial(self.__serialName, 9600)
+        except Exception as e:
+            raise myexception.MyException(f'error open serial {serial_name}')
 
     def send_msg(self, msg: bytearray, expected_length: int):
         self.__serial.write(msg)
