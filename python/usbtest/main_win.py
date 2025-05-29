@@ -15,14 +15,16 @@ from myconfig import g_config
 class StatusMonitorApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("状态监控面板")
+        self.root.title("升级程序")
         self.buttons = []
         self.status_queue = Queue()
         self.running = True
         self.status_checker = status_checker.StatusChecker(g_config.com_port)
         self.cond_wait = threading.Condition()
+
         self.color_font_bright = 'white'
         self.color_font_dark = 'black'
+
         self.color_normal = 'Silver'
         self.color_font_normal = self.color_font_dark
         self.color_inserted = 'white'
@@ -68,7 +70,8 @@ class StatusMonitorApp:
                 width=10,
                 height=3,
                 bg = self.color_normal,
-                fg = self.color_font_dark
+                fg = self.color_font_normal,
+                # state = 'disabled'
             )
             btn.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
             self.buttons.append(btn)
@@ -108,12 +111,6 @@ class StatusMonitorApp:
 
             self.status_check()
 
-            # 生成模拟状态数据 (0=正常, 1=警告, 2=错误)
-            # status_data = [random.randint(0, 2) for _ in range(10)]
-
-            # 将状态数据放入队列供UI线程使用
-            # self.status_queue.put(status_data)
-
     def update_ui(self):
         """更新UI的主循环"""
         try:
@@ -141,26 +138,30 @@ class StatusMonitorApp:
                 bg_color = self.color_normal
                 fg_color = self.color_font_normal
                 text = f'端口{i + 1}'
-                if status.port_state == status_checker.PortStateType.Init:
+                if status.get_port_state() == status_checker.PortStateType.Init:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
                     text += '/初始化'
-                elif status.port_state == status_checker.PortStateType.WaitInsert:
+                elif status.get_port_state() == status_checker.PortStateType.WaitInsert:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
                     text += '/等待设备插入'
-                elif status.port_state == status_checker.PortStateType.WaitVolumeMount:
+                elif status.get_port_state() == status_checker.PortStateType.WaitVolumeMount:
                     bg_color = self.color_inserted
                     fg_color = self.color_font_inserted
                     text += '/等待设备挂载'
-                elif status.port_state == status_checker.PortStateType.Upgrade:
+                elif status.get_port_state() == status_checker.PortStateType.UpgradePrepare:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
-                    text += '/升级中'
-                elif status.port_state == status_checker.PortStateType.Upgraded:
+                    text += '/升级准备'
+                elif status.get_port_state() == status_checker.PortStateType.Upgrading:
+                    bg_color = self.color_active
+                    fg_color = self.color_font_active
+                    text += '/升级中...'
+                elif status.get_port_state() == status_checker.PortStateType.Upgraded:
                     bg_color = self.color_ok
                     fg_color = self.color_font_ok
-                    text += '/已升级'
+                    text += '/已是最新版本'
                 else:
                     bg_color = self.color_error
                     fg_color = self.color_font_error

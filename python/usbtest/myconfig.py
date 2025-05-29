@@ -17,6 +17,7 @@ class MyConfig:
     log_level_file: str = 'DEBUG' # DEBUG INFO WARNING ERROR
     log_level_console: str = 'INFO'
     update_interval_sec: int = 2
+    maximum_upgrade_duration_sec: int = 60
 
     _config_file: str = 'config.json'
 
@@ -45,6 +46,7 @@ class MyConfig:
             json.dump(config_data, f, indent=4)
 
     def map_log_level(self, log_level: str) -> int:
+        print('log_level:', log_level)
         if log_level == 'DEBUG':
             return logging.DEBUG
         elif log_level == 'INFO':
