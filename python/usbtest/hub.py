@@ -13,9 +13,11 @@ class UsbSerialCmd:
             raise myexception.MyException(f'error open serial {serial_name}')
 
     def send_msg(self, msg: bytearray, expected_length: int):
+        logging.debug(f'send raw msg: {msg.hex()}')
         self.__serial.write(msg)
         self.__serial.flush()
         response = self.__serial.read_until(size=expected_length)
+        logging.debug(f'response raw msg: {response.hex()}')
         return response
 
     def make_msg(self, msg: bytearray):
@@ -85,7 +87,7 @@ class UsbSerialCmd:
             logging.debug('response length is too short')
             return None
         changed_resp = bytearray(resp)
-        byte_idx = port_number // 4
+        byte_idx = port_number // 8
         new_byte = changed_resp[byte_idx]
         if open:
             new_byte |= (0x1 << (port_number % 8))
@@ -159,3 +161,10 @@ class UsbSerialCmd:
         0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42,
         0x43, 0x83, 0x41, 0x81, 0x80, 0x40
     ])
+
+if __name__ == "__main__":
+    hub = UsbSerialCmd('COM14')
+    logging.getLogger().setLevel(logging.DEBUG)
+    # hub.control_usb_port(9, False)
+    # hub.control_usb_port(5, True)
+    hub.control_usb_port(10, False)
