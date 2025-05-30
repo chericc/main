@@ -210,6 +210,12 @@ class StatusChecker:
         else:
             return None
 
+    def check_need_update_with_version(self, version_now: str, version_dst: str):
+        if g_config.update_to_bigger_version_only:
+            return int(version_now) < int(version_dst)
+        else:
+            return int(version_now) != int(version_dst)
+
     def do_camera_upgrade(self, helper: PortTypeHelper, state: PortState, port_info: PortsDevInfo):
         # check version
         version_dst = helper.get_version_dst()
@@ -217,8 +223,8 @@ class StatusChecker:
         if len(version_dst) == 0 or len(version_now) == 0:
             logging.error(f'port[{port_info.port_number}] get version failed: dst={version_dst}, now={version_now}')
             return
-        if int(version_now) < int(version_dst):
-            logging.debug(f'port[{port_info.port_number}] need update: {version_now} < {version_dst}')
+        if self.check_need_update_with_version(version_now, version_dst):
+            logging.debug(f'port[{port_info.port_number}] need update: {version_now} --> {version_dst}')
             logging.debug(f'port[{port_info.port_number}] cp ota file: {helper.update_file_src_path} --> {helper.update_file_dst_path}')
             shutil.copyfile(helper.update_file_src_path, helper.update_file_dst_path)
             time.sleep(0.2)

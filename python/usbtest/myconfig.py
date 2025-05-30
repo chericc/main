@@ -19,6 +19,7 @@ class MyConfig:
     log_level_all: str = 'DEBUG'
     update_interval_sec: int = 2
     maximum_upgrade_duration_sec: int = 60
+    update_to_bigger_version_only = True
 
     _config_file: str = 'config.json'
 
@@ -29,6 +30,7 @@ class MyConfig:
 
     def load_config(self) -> None:
         """从JSON文件加载配置"""
+        logging.info('loading configs')
         if Path(self._config_file).exists():
             with open(self._config_file, 'r', encoding='utf-8') as f:
                 config_data: Dict[str, Any] = json.load(f)
@@ -40,6 +42,7 @@ class MyConfig:
 
     def save_config(self) -> None:
         """将当前配置保存到JSON文件"""
+        logging.info('saving configs')
         config_data = {key: getattr(self, key)
                        for key in dir(self)
                        if not key.startswith('_') and not callable(getattr(self, key))}
@@ -47,7 +50,6 @@ class MyConfig:
             json.dump(config_data, f, indent=4)
 
     def map_log_level(self, log_level: str) -> int:
-        print('log_level:', log_level)
         if log_level == 'DEBUG':
             return logging.DEBUG
         elif log_level == 'INFO':
