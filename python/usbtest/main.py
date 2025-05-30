@@ -11,17 +11,21 @@ from tkinter import messagebox
 if __name__ == "__main__":
 
     try:
-
         log_file_handle = logging.FileHandler(g_config.log_file)
         log_stream_handler = logging.StreamHandler(sys.stdout)
 
-        # log_file_handle.setLevel(g_config.map_log_level(g_config.log_level_file))
-        # log_stream_handler.setLevel(g_config.map_log_level(g_config.log_level_console))
+        log_file_handle.setLevel(g_config.map_log_level(g_config.log_level_file))
+        log_stream_handler.setLevel(g_config.map_log_level(g_config.log_level_console))
+        log_level_all = g_config.map_log_level(g_config.log_level_all)
+
         log_file_handle.setLevel(logging.DEBUG)
         log_stream_handler.setLevel(logging.DEBUG)
 
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)
+
         logging.basicConfig(
-            level=logging.INFO,
+            level=log_level_all,
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 log_file_handle,

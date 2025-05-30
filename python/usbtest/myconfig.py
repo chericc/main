@@ -16,6 +16,7 @@ class MyConfig:
     log_file: str = 'testapp.log'
     log_level_file: str = 'DEBUG' # DEBUG INFO WARNING ERROR
     log_level_console: str = 'INFO'
+    log_level_all: str = 'DEBUG'
     update_interval_sec: int = 2
     maximum_upgrade_duration_sec: int = 60
 

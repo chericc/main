@@ -89,7 +89,7 @@ class MySystem:
             dev_id = hub.get('DeviceId')
             if dev_id is None:
                 continue
-            logging.debug('hub.dev_id:', dev_id)
+            logging.debug(f'hub.dev_id: {dev_id}')
             usb_devices = hub.findall('UsbDevice')
             for usb_device in usb_devices:
                 prot = usb_device.get('UsbProtocol')  # USB 2.0
@@ -166,8 +166,8 @@ class MySystem:
         disk_id = self.__mylib.mwu_get_disk_id_with_dev_id_wrap(dev_id_bytes)
 
         # Convert the returned bytes to a Python string (if needed)
-        disk_id_str = disk_id.decode("utf-8") if disk_id else None
-        logging.debug("Disk ID:", disk_id_str)
+        disk_id_str = disk_id.decode("utf-8") if disk_id else ''
+        logging.debug(f'Disk ID: {disk_id_str}')
         return disk_id_str
 
 if __name__ == "__main__":
