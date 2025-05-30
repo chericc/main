@@ -56,10 +56,10 @@ class StatusMonitorApp:
         grid_frame = ttk.Frame(main_frame)
         grid_frame.pack(expand=True, fill='both')
 
-        # 创建10个按钮，3行4列布局
+        # 创建10个按钮
         for i in range(10):
-            row = i // 4
-            col = i % 4
+            row = i % 10
+            col = i // 10
             grid_frame.columnconfigure(col, weight=1)
             grid_frame.rowconfigure(row, weight=1)
 
@@ -68,11 +68,10 @@ class StatusMonitorApp:
                 text=f"端口{i + 1}",
                 font=('Microsoft YaHei', 12),
                 relief='raised',
-                width=10,
-                height=3,
+                width=2,
+                height=1,
                 bg = self.color_normal,
                 fg = self.color_font_normal,
-                # state = 'disabled'
             )
             btn.grid(row=row, column=col, sticky="nsew", padx=5, pady=5)
             self.buttons.append(btn)
@@ -177,6 +176,10 @@ class StatusMonitorApp:
                     bg_color = self.color_ok
                     fg_color = self.color_font_ok
                     text += '/已是最新版本'
+                elif status.get_port_state() == status_checker.PortStateType.Error:
+                    bg_color = self.color_error
+                    fg_color = self.color_font_error
+                    text += '/错误'
                 else:
                     bg_color = self.color_error
                     fg_color = self.color_font_error

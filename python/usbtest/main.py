@@ -24,8 +24,8 @@ if __name__ == "__main__":
 
         logging.basicConfig(
             level=LOG_LEVEL_ROOT,
-            # format='%(asctime)s - %(levelname)s - %(funcName)s - %(filename)s - %(message)s',
-            format='%(asctime)s - %(levelname)s - %(message)s',
+            format='%(asctime)s - %(levelname)s - %(funcName)s - %(filename)s - %(message)s',
+            # format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 log_file_handle,
                 log_stream_handler
@@ -34,13 +34,15 @@ if __name__ == "__main__":
 
         logging.info("Starting")
         root = tk.Tk()
-        root.geometry("800x600")
+        root.geometry("400x600")
         app = main_win.StatusMonitorApp(root)
         root.protocol("WM_DELETE_WINDOW", app.on_closing)
         root.mainloop()
     except myexception.MyException as e:
+        logging.error(f'Error: {e}')
         messagebox.showinfo('Warning', e)
         sys.exit(1)
     except Exception as e:
+        logging.error(f'Error: {e}')
         messagebox.showinfo('Error', e)
         sys.exit(1)
