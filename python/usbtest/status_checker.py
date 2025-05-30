@@ -39,15 +39,19 @@ class PortStateType(Enum):
 class PortState:
     __port_state: PortStateType
     __state_update_time: float
+    __port_info: str
 
     def __init__(self):
         self.__port_state = PortStateType.Init
         self.__state_update_time: float = time.time()
     def get_port_state(self) -> PortStateType:
         return self.__port_state
-    def set_port_state(self, port_state: PortStateType):
+    def set_port_state(self, port_state: PortStateType, volume: str = ''):
         self.__port_state = port_state
         self.__state_update_time = time.time()
+        self.__port_info = f'{volume}'
+    def get_port_info(self) -> str:
+        return self.__port_info
     def state_update_duration(self) -> float:
         return time.time() - self.__state_update_time
 
@@ -168,7 +172,7 @@ class StatusChecker:
             state.set_port_state(PortStateType.WaitVolumeMount)
             logging.debug(f'port[{port_info.port_number}] is not mounted, into {state.get_port_state()} state')
         else:
-            state.set_port_state(PortStateType.UpgradePrepare)
+            state.set_port_state(PortStateType.UpgradePrepare, port_info.volume)
             logging.debug(f'port[{port_info.port_number}] is mounted, into {state.get_port_state()} state')
 
     def run_handle_one_port_wait_insert(self, state: PortState, port_info: PortsDevInfo):
@@ -182,7 +186,7 @@ class StatusChecker:
         if len(port_info.volume) == 0:
             logging.debug(f'port[{port_info.port_number}] is not mounted, wait')
         else:
-            state.set_port_state(PortStateType.UpgradePrepare)
+            state.set_port_state(PortStateType.UpgradePrepare, port_info.volume)
             logging.debug(f'port[{port_info.port_number}] is mounted, into {state.get_port_state()} state')
 
     def check_port_type(self, volume: str):
@@ -215,10 +219,10 @@ class StatusChecker:
             time.sleep(0.2)
             logging.debug(f'port[{port_info.port_number}] power on]')
             self.__port_ctl.control_usb_port(port_info.port_number, True)
-            state.set_port_state(PortStateType.Upgrading)
+            state.set_port_state(PortStateType.Upgrading, port_info.volume)
         else:
             logging.debug(f'port[{port_info.port_number}] need not update: {version_now} >= {version_dst}')
-            state.set_port_state(PortStateType.Upgraded)
+            state.set_port_state(PortStateType.Upgraded, port_info.volume)
         return
 
     def run_handle_one_port_upgrade_prepare(self, state: PortState, port_info: PortsDevInfo):
@@ -256,7 +260,7 @@ class StatusChecker:
             logging.debug(f'port[{port_info.port_number}] version not equal upgrading, need wait')
             return
         logging.debug(f'port[{port_info.port_number}] upgrade successful')
-        state.set_port_state(PortStateType.Upgraded)
+        state.set_port_state(PortStateType.Upgraded, port_info.volume)
 
     def run_handle_one_port_upgraded(self, state: PortState, port_info: PortsDevInfo):
         logging.debug(f'port[{port_info.port_number}] in upgraded state({port_info.volume}), wait unplugging')

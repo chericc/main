@@ -138,6 +138,7 @@ class StatusMonitorApp:
                 bg_color = self.color_normal
                 fg_color = self.color_font_normal
                 text = f'端口{i + 1}'
+                port_info = status.get_port_info()
                 if status.get_port_state() == status_checker.PortStateType.Init:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
@@ -166,6 +167,8 @@ class StatusMonitorApp:
                     bg_color = self.color_error
                     fg_color = self.color_font_error
                     text += '/未知错误'
+                if len(port_info) > 0:
+                    text += f'/{port_info}'
 
                 self.buttons[i].config(
                     bg=bg_color,
