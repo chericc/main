@@ -35,6 +35,7 @@ class PortStateType(Enum):
     UpgradePrepare = 4
     Upgrading = 5
     Upgraded = 6
+    Error = 7
 
 class PortState:
     __port_state: PortStateType
@@ -44,12 +45,19 @@ class PortState:
     def __init__(self):
         self.__port_state = PortStateType.Init
         self.__state_update_time: float = time.time()
+        self.__port_info = ''
     def get_port_state(self) -> PortStateType:
         return self.__port_state
-    def set_port_state(self, port_state: PortStateType, volume: str = ''):
+    def set_port_state(self, port_state: PortStateType, volume: str = '', info: str = ''):
         self.__port_state = port_state
         self.__state_update_time = time.time()
-        self.__port_info = f'{volume}'
+        self.__port_info = ''
+        if len(volume):
+            self.__port_info += f'{volume}'
+        if len(info):
+            if len(self.__port_info):
+                self.__port_info += '/'
+            self.__port_info += f'{info}'
     def get_port_info(self) -> str:
         return self.__port_info
     def state_update_duration(self) -> float:
@@ -237,6 +245,7 @@ class StatusChecker:
         else:
             self.do_camera_upgrade(port_type_helper, state, port_info)
 
+
     def run_handle_one_port_upgrading(self, state: PortState, port_info: PortsDevInfo):
         logging.debug(f'port[{port_info.port_number}] in upgrading state({port_info.volume})')
 
@@ -268,23 +277,36 @@ class StatusChecker:
             state.set_port_state(PortStateType.Init)
             logging.debug(f'port[{port_info.port_number}] removed, into {state.get_port_state()} state')
             return
+    def run_handle_one_port_error(self, state: PortState, port_info: PortsDevInfo):
+        logging.debug(f'port[{port_info.port_number}] in error state({port_info.volume}), wait unplugging')
+        if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
+            state.set_port_state(PortStateType.Init)
+            logging.debug(f'port[{port_info.port_number}] removed, into {state.get_port_state()} state')
+            return
 
     def run_port(self, state: PortState, port_info: PortsDevInfo):
-        if state.get_port_state() == PortStateType.Init:
-            self.run_handle_one_port_init(state, port_info)
-        elif state.get_port_state() == PortStateType.WaitInsert:
-            self.run_handle_one_port_wait_insert(state, port_info)
-        elif state.get_port_state() == PortStateType.WaitVolumeMount:
-            self.run_handle_one_port_wait_volume_mount(state, port_info)
-        elif state.get_port_state() == PortStateType.UpgradePrepare:
-            self.run_handle_one_port_upgrade_prepare(state, port_info)
-        elif state.get_port_state() == PortStateType.Upgrading:
-            self.run_handle_one_port_upgrading(state, port_info)
-        elif state.get_port_state() == PortStateType.Upgraded:
-            self.run_handle_one_port_upgraded(state, port_info)
-        else:
-            logging.error(f'port[{port_info.port_number}] state invalid: {state.get_port_state()}')
-            pass
+        try:
+            if state.get_port_state() == PortStateType.Init:
+                self.run_handle_one_port_init(state, port_info)
+            elif state.get_port_state() == PortStateType.WaitInsert:
+                self.run_handle_one_port_wait_insert(state, port_info)
+            elif state.get_port_state() == PortStateType.WaitVolumeMount:
+                self.run_handle_one_port_wait_volume_mount(state, port_info)
+            elif state.get_port_state() == PortStateType.UpgradePrepare:
+                self.run_handle_one_port_upgrade_prepare(state, port_info)
+            elif state.get_port_state() == PortStateType.Upgrading:
+                self.run_handle_one_port_upgrading(state, port_info)
+            elif state.get_port_state() == PortStateType.Upgraded:
+                self.run_handle_one_port_upgraded(state, port_info)
+            elif state.get_port_state() == PortStateType.Error:
+                self.run_handle_one_port_error(state, port_info)
+            else:
+                logging.error(f'port[{port_info.port_number}] state invalid: {state.get_port_state()}')
+                pass
+        except Exception as e:
+            logging.error(f'port[{port_info.port_number}] error')
+            state.set_port_state(PortStateType.Error, volume=f'{port_info.volume}', info=f'Error{e}')
+
 
     def run(self):
         if self.__running_state == RunningState.Init:

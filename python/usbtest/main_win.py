@@ -1,15 +1,14 @@
+"""Main window"""
 
-import random
-import threading
-import time
-from queue import Queue
-import status_checker
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
-import myexception
 import sys
 import logging
+import threading
+from queue import Queue
+import tkinter as tk
+from tkinter import ttk
+
+import status_checker
+import myexception
 from myconfig import g_config
 
 class StatusMonitorApp:
@@ -35,6 +34,8 @@ class StatusMonitorApp:
         self.color_font_ok = self.color_font_bright
         self.color_error = 'red'
         self.color_font_error = self.color_font_bright
+
+        self.error_in_other_thread: bool = False
 
         # 创建UI
         self.setup_ui()
@@ -101,25 +102,38 @@ class StatusMonitorApp:
 
     def monitor_status(self):
         """模拟定期检查外部状态的线程"""
-        while self.running:
-            # 这里模拟从外部系统获取状态
-            # 实际应用中可能是API调用、数据库查询等
-            # time.sleep(2)  # 每2秒检查一次
-            self.cond_wait.acquire()
-            self.cond_wait.wait(g_config.update_interval_sec)
-            self.cond_wait.release()
+        try:
 
-            self.status_check()
+            while self.running:
+                # 这里模拟从外部系统获取状态
+                # 实际应用中可能是API调用、数据库查询等
+                # time.sleep(2)  # 每2秒检查一次
+                logging.debug('before wait')
+                self.cond_wait.acquire()
+                self.cond_wait.wait(g_config.update_interval_sec)
+                self.cond_wait.release()
+                logging.debug('after wait')
+
+                self.status_check()
+        except Exception as e:
+            logging.error(f'error in programe{e}')
+            self.error_in_other_thread = True
+            
 
     def update_ui(self):
         """更新UI的主循环"""
         try:
+            if self.error_in_other_thread:
+                logging.error('error in other thread, terminate')
+                raise myexception.MyException('error in other thread')
+
             # 检查队列中是否有新状态
             while not self.status_queue.empty():
                 status_list = self.status_queue.get_nowait()
                 self.apply_status(status_list)
-        except:
-            pass
+        except Exception as e:
+            logging.error(f'exit: {e}')
+            sys.exit(1)
 
         # 继续定期检查
         if self.running:
@@ -182,9 +196,11 @@ class StatusMonitorApp:
         while not self.status_queue.empty():
             self.status_queue.get_nowait()
 
+        logging.debug('force check in')
         self.cond_wait.acquire()
         self.cond_wait.notify()
         self.cond_wait.release()
+        logging.debug('force check out')
         pass
 
     def stop_monitoring(self):

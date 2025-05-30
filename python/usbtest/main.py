@@ -1,12 +1,13 @@
-import main_win
+""" Module main """
 
 import logging
 import sys
-import main_win
 import tkinter as tk
+from tkinter import messagebox
+
+import main_win
 from myconfig import g_config
 import myexception
-from tkinter import messagebox
 
 if __name__ == "__main__":
 
@@ -16,16 +17,14 @@ if __name__ == "__main__":
 
         log_file_handle.setLevel(g_config.map_log_level(g_config.log_level_file))
         log_stream_handler.setLevel(g_config.map_log_level(g_config.log_level_console))
-        log_level_all = g_config.map_log_level(g_config.log_level_all)
-
-        log_file_handle.setLevel(logging.DEBUG)
-        log_stream_handler.setLevel(logging.DEBUG)
+        LOG_LEVEL_ROOT = g_config.map_log_level(g_config.log_level_all)
 
         for handler in logging.root.handlers[:]:
             logging.root.removeHandler(handler)
 
         logging.basicConfig(
-            level=log_level_all,
+            level=LOG_LEVEL_ROOT,
+            # format='%(asctime)s - %(levelname)s - %(funcName)s - %(filename)s - %(message)s',
             format='%(asctime)s - %(levelname)s - %(message)s',
             handlers=[
                 log_file_handle,

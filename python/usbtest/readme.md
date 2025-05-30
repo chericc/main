@@ -2,6 +2,10 @@
 
 python -m pip install wmi pywin32
 
+## pylint
+
+code style check
+
 ## pack
 
 ```bash
