@@ -32,7 +32,7 @@ class StatusMonitorApp:
         self.color_font_active = self.color_font_bright
         self.color_ok = 'green'
         self.color_font_ok = self.color_font_bright
-        self.color_error = 'red'
+        self.color_error = 'darkred'
         self.color_font_error = self.color_font_bright
 
         self.error_in_other_thread: bool = False
@@ -150,40 +150,48 @@ class StatusMonitorApp:
             if i < len(self.buttons):
                 bg_color = self.color_normal
                 fg_color = self.color_font_normal
-                text = f'端口{i + 1}'
+                text_port = f'端口{i + 1}'
+                text_state = ''
                 port_info = status.get_port_info()
                 if status.get_port_state() == status_checker.PortStateType.Init:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
-                    text += '/初始化'
+                    text_state = '初始化'
                 elif status.get_port_state() == status_checker.PortStateType.WaitInsert:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
-                    text += '/等待启动'
+                    text_state = '等待启动'
                 elif status.get_port_state() == status_checker.PortStateType.WaitVolumeMount:
                     bg_color = self.color_inserted
                     fg_color = self.color_font_inserted
-                    text += '/等待挂载'
+                    text_state = '等待挂载'
                 elif status.get_port_state() == status_checker.PortStateType.UpgradePrepare:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
-                    text += '/升级准备'
+                    text_state = '升级准备'
                 elif status.get_port_state() == status_checker.PortStateType.Upgrading:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
-                    text += '/升级中'
+                    text_state = '升级中'
+                elif status.get_port_state() == status_checker.PortStateType.CheckVersion:
+                    bg_color = self.color_active
+                    fg_color = self.color_font_active
+                    text_state = '版本核对'
                 elif status.get_port_state() == status_checker.PortStateType.Upgraded:
                     bg_color = self.color_ok
                     fg_color = self.color_font_ok
-                    text += '/已更新'
+                    text_state = '已更新'
                 elif status.get_port_state() == status_checker.PortStateType.Error:
                     bg_color = self.color_error
                     fg_color = self.color_font_error
-                    text += '/错误'
+                    text_state = '错误'
                 else:
                     bg_color = self.color_error
                     fg_color = self.color_font_error
-                    text += '/未知错误'
+                    text_state = '未知错误'
+                text = ''
+                text += text_port
+                text += f'/{text_state}'
                 if len(port_info) > 0:
                     text += f'/{port_info}'
 

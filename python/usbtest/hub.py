@@ -5,7 +5,7 @@ import logging
 import myexception
 
 class UsbSerialCmd:
-    def __init__(self, serial_name: ''):
+    def __init__(self, serial_name: str = ''):
         self.__serialName = serial_name
         try:
             self.__serial = serial.Serial(self.__serialName, 9600)
@@ -163,8 +163,8 @@ class UsbSerialCmd:
     ])
 
 if __name__ == "__main__":
-    hub = UsbSerialCmd('COM14')
+    hub = UsbSerialCmd('COM6')
     logging.getLogger().setLevel(logging.DEBUG)
     # hub.control_usb_port(9, False)
     # hub.control_usb_port(5, True)
-    hub.control_usb_port(10, False)
+    hub.control_usb_port(9, True)

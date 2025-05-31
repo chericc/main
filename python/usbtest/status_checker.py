@@ -34,14 +34,11 @@ class PortStateType(Enum):
     WaitVolumeMount = 3
     UpgradePrepare = 4
     Upgrading = 5
-    Upgraded = 6
-    Error = 7
+    CheckVersion = 6
+    Upgraded = 7
+    Error = 8
 
 class PortState:
-    __port_state: PortStateType
-    __state_update_time: float
-    __port_info: str
-
     def __init__(self):
         self.__port_state = PortStateType.Init
         self.__state_update_time: float = time.time()
@@ -69,13 +66,12 @@ class PortDeviceType(Enum):
     Unknown = 3
 
 class PortTypeHelper:
-    type: PortDeviceType
-    version_file_path: str
-    update_file_dst_path: str
-    update_file_src_path: str
     # volume should like: 'E:'
     def __init__(self, port_dev_type: PortDeviceType = PortDeviceType.Unknown, volume: str = None):
         self.type : PortDeviceType = port_dev_type
+        self.version_file_path: str = ''
+        self.update_file_dst_path: str = ''
+        self.update_file_src_path: str = ''
         if self.type == PortDeviceType.Camera:
             self.version_file_path = os.path.join(volume, g_config.camera_version_file_path)
             self.update_file_dst_path = os.path.join(volume, g_config.camera_update_dst_file_path)
@@ -121,6 +117,31 @@ class PortTypeHelper:
                 logging.error('invalid filename')
                 return ''
         else:
+            return ''
+    def get_wifi_version_dst(self) -> str:
+        if self.type == PortDeviceType.Camera:
+            return g_config.wifi_dst_version
+        elif self.type == PortDeviceType.Screen:
+            return 'default'
+        else:
+            return ''
+    def get_wifi_version_now(self) -> str:
+        if self.type == PortDeviceType.Camera:
+            content = None
+            with open(self.version_file_path, 'r') as f:
+                content = f.read()
+            lines = content.split('\n')
+            for line in lines:
+                if g_config.wifi_version_keyword in line:
+                    words = line.split(':')
+                    if len(words) < 2:
+                        logging.error(f'get wifi version failed')
+                        return ''
+                    return words[1].strip()
+            logging.error(f'get wifi version failed')
+            return ''
+        elif self.type == PortDeviceType.Screen:
+            logging.error(f'get wifi version failed')
             return ''
 
 class StatusChecker:
@@ -197,7 +218,7 @@ class StatusChecker:
             state.set_port_state(PortStateType.UpgradePrepare, port_info.volume)
             logging.debug(f'port[{port_info.port_number}] is mounted, into {state.get_port_state()} state')
 
-    def check_port_type(self, volume: str):
+    def gen_port_helper(self, volume: str):
         # check version file
         port_file_helper_camera = PortTypeHelper(PortDeviceType.Camera, volume)
         port_file_helper_screen = PortTypeHelper(PortDeviceType.Screen, volume)
@@ -215,13 +236,14 @@ class StatusChecker:
             return int(version_now) < int(version_dst)
         else:
             return int(version_now) != int(version_dst)
-
-    def do_camera_upgrade(self, helper: PortTypeHelper, state: PortState, port_info: PortsDevInfo):
+        
+    def do_camera_upgrade_prepare(self, helper: PortTypeHelper, state: PortState, port_info: PortsDevInfo):
         # check version
         version_dst = helper.get_version_dst()
         version_now = helper.get_version_src()
         if len(version_dst) == 0 or len(version_now) == 0:
             logging.error(f'port[{port_info.port_number}] get version failed: dst={version_dst}, now={version_now}')
+            state.set_port_state(PortStateType.Error, volume=port_info.volume, info = 'get version failed')
             return
         if self.check_need_update_with_version(version_now, version_dst):
             logging.debug(f'port[{port_info.port_number}] need update: {version_now} --> {version_dst}')
@@ -236,7 +258,7 @@ class StatusChecker:
             state.set_port_state(PortStateType.Upgrading, port_info.volume)
         else:
             logging.debug(f'port[{port_info.port_number}] need not update: {version_now} >= {version_dst}')
-            state.set_port_state(PortStateType.Upgraded, port_info.volume)
+            state.set_port_state(PortStateType.CheckVersion, port_info.volume)
         return
 
     def run_handle_one_port_upgrade_prepare(self, state: PortState, port_info: PortsDevInfo):
@@ -245,12 +267,13 @@ class StatusChecker:
             state.set_port_state(PortStateType.Init)
             logging.debug(f'port[{port_info.port_number}] removed, into {state.get_port_state()} state')
             return
-        port_type_helper = self.check_port_type(port_info.volume)
+        port_type_helper = self.gen_port_helper(port_info.volume)
         if port_type_helper is None:
+            logging.debug(f'port[{port_info.port_number}] not support')
+            state.set_port_state(PortStateType.Error, volume=port_info.volume, info='not support device')
             return
         else:
-            self.do_camera_upgrade(port_type_helper, state, port_info)
-
+            self.do_camera_upgrade_prepare(port_type_helper, state, port_info)
 
     def run_handle_one_port_upgrading(self, state: PortState, port_info: PortsDevInfo):
         logging.debug(f'port[{port_info.port_number}] in upgrading state({port_info.volume})')
@@ -263,10 +286,10 @@ class StatusChecker:
         if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
             logging.debug(f'port[{port_info.port_number}] not start up yet, need wait')
             return
-        port_type_helper = self.check_port_type(port_info.volume)
+        port_helper = self.gen_port_helper(port_info.volume)
 
-        version_dst = port_type_helper.get_version_dst()
-        version_now = port_type_helper.get_version_src()
+        version_dst = port_helper.get_version_dst()
+        version_now = port_helper.get_version_src()
         if len(version_dst) == 0 or len(version_now) == 0:
             logging.debug(f'port[{port_info.port_number}] get version failed upgrading, \
                                 now={version_now}, dst={version_dst}')
@@ -275,7 +298,46 @@ class StatusChecker:
             logging.debug(f'port[{port_info.port_number}] version not equal upgrading, need wait')
             return
         logging.debug(f'port[{port_info.port_number}] upgrade successful')
-        state.set_port_state(PortStateType.Upgraded, port_info.volume)
+        state.set_port_state(PortStateType.CheckVersion, port_info.volume)
+
+    def run_handle_one_port_check_version(self, state: PortState, port_info: PortsDevInfo):
+        logging.debug(f'port[{port_info.port_number}] in check version state({port_info.volume})')
+        if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
+            logging.debug(f'port[{port_info.port_number}] removed, into {state.get_port_state()} state')
+            state.set_port_state(PortStateType.Error, info='check version failed')
+            return
+        port_helper = self.gen_port_helper(port_info.volume)
+        if port_helper is None:
+            logging.debug(f'port[{port_info.port_number}] not support')
+            state.set_port_state(PortStateType.Error, volume=port_info.volume, info='not support device')
+            return
+        # re-check version
+        version_dst = port_helper.get_version_dst()
+        version_now = port_helper.get_version_src()
+        if len(version_dst) == 0 or len(version_now) == 0:
+            logging.error(f'port[{port_info.port_number}] get version failed: dst={version_dst}, now={version_now}')
+            state.set_port_state(PortStateType.Error, volume=port_info.volume, info = 'get version failed')
+            return
+        if int(version_dst) != int(version_now):
+            logging.error(f'port[{port_info.port_number}] upgrade failed')
+            state.set_port_state(PortStateType.Error, volume=port_info.volume, info = 'upgrade failed')
+            return 
+        if port_helper.type == PortDeviceType.Camera:
+            wifi_version_now = port_helper.get_wifi_version_now()
+            wifi_version_dst = port_helper.get_wifi_version_dst()
+            if g_config.wifi_check_version:
+                if len(wifi_version_now) == 0 or len(wifi_version_dst) == 0:
+                    logging.error('port[{port_info.port_number}] version check failed')
+                    state.set_port_state(PortStateType.Error, volume=port_info.volume, info = 'upgrade failed')
+                    return 
+                if wifi_version_now != wifi_version_dst:
+                    logging.error('port[{port_info.port_number}] version not match')
+                    state.set_port_state(PortStateType.Error, volume=port_info.volume, info = 'wifi version not match')
+                    return 
+                logging.debug('port[{port_info.port_number}] wifi version check pass: %s -- %s', wifi_version_now, wifi_version_dst)
+        logging.debug('port[{port_info.port_number}] version check pass')
+        state.set_port_state(PortStateType.Upgraded, volume=port_info.volume)
+        return 
 
     def run_handle_one_port_upgraded(self, state: PortState, port_info: PortsDevInfo):
         logging.debug(f'port[{port_info.port_number}] in upgraded state({port_info.volume}), wait unplugging')
@@ -302,6 +364,8 @@ class StatusChecker:
                 self.run_handle_one_port_upgrade_prepare(state, port_info)
             elif state.get_port_state() == PortStateType.Upgrading:
                 self.run_handle_one_port_upgrading(state, port_info)
+            elif state.get_port_state() == PortStateType.CheckVersion:
+                self.run_handle_one_port_check_version(state, port_info)
             elif state.get_port_state() == PortStateType.Upgraded:
                 self.run_handle_one_port_upgraded(state, port_info)
             elif state.get_port_state() == PortStateType.Error:

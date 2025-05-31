@@ -17,9 +17,12 @@ class MyConfig:
     log_level_file: str = 'DEBUG' # DEBUG INFO WARNING ERROR
     log_level_console: str = 'INFO'
     log_level_all: str = 'DEBUG'
-    update_interval_sec: int = 2
+    update_interval_sec: int = 1
     maximum_upgrade_duration_sec: int = 60
     update_to_bigger_version_only = True
+    wifi_check_version = True
+    wifi_dst_version: str = '1.1.32'
+    wifi_version_keyword: str = 'wifi_version'
 
     _config_file: str = 'config.json'
 
