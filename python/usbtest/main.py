@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
         logging.info("Starting")
         root = tk.Tk()
-        root.geometry("400x600")
+        root.geometry("800x600")
         app = main_win.StatusMonitorApp(root)
         root.protocol("WM_DELETE_WINDOW", app.on_closing)
         root.mainloop()

@@ -351,9 +351,9 @@ class StatusChecker:
             state.set_port_state(PortStateType.ERROR, volume=port_info.volume, info = 'get version failed')
             self.logging_ports_error(state, port_info, 'get version failed: dst=%s, now=%s', version_dst, version_now);
             return
-        if int(version_dst) != int(version_now):
-            state.set_port_state(PortStateType.ERROR, volume=port_info.volume, info = 'upgrade failed')
-            self.logging_ports_error(state, port_info, 'upgrade failed(version still not match)')
+        if self.check_need_update_with_version(version_now, version_dst):
+            state.set_port_state(PortStateType.ERROR, volume=port_info.volume, info = f'version still needs upgrade(now={version_now}, dst={version_dst})')
+            self.logging_ports_error(state, port_info, 'upgrade failed(version still needs upgrade)')
             return 
         # check wifi version
         if port_helper.type == PortDeviceType.Camera:
@@ -369,23 +369,23 @@ class StatusChecker:
                     self.logging_ports_error(state, port_info, 'wifi version not match: now=%s, dst=%s', 
                                              wifi_version_now, wifi_version_dst)
                     return 
-                self.logging_ports_info(state, port_info, 'wifi version matched: now=%s, dst=%s', 
+                self.logging_ports_debug(state, port_info, 'wifi version matched: now=%s, dst=%s', 
                                              wifi_version_now, wifi_version_dst)
-        self.logging_ports_info(state, port_info, 'version check passed')
+        self.logging_ports_debug(state, port_info, 'version check passed')
         state.set_port_state(PortStateType.UPGRADED, volume=port_info.volume)
         return 
 
     def run_handle_one_port_upgraded(self, state: PortState, port_info: PortsDevInfo):
-        self.logging_ports_info(state, port_info, 'in state')
+        self.logging_ports_debug(state, port_info, 'in state')
         if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
             state.set_port_state(PortStateType.INIT)
-            self.logging_ports_info(state, port_info, 'in state')
+            self.logging_ports_debug(state, port_info, 'in state')
             return
     def run_handle_one_port_error(self, state: PortState, port_info: PortsDevInfo):
-        self.logging_ports_info(state, port_info, 'in state')
+        self.logging_ports_debug(state, port_info, 'in state')
         if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
             state.set_port_state(PortStateType.INIT)
-            self.logging_ports_info(state, port_info, 'in state')
+            self.logging_ports_debug(state, port_info, 'in state')
             return
 
     def run_port(self, state: PortState, port_info: PortsDevInfo):

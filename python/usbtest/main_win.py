@@ -231,7 +231,7 @@ class StatusMonitorApp:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("800x600")
+    root.geometry("1280x600")
     app = StatusMonitorApp(root)
     root.protocol("WM_DELETE_WINDOW", app.on_closing)
     root.mainloop()
