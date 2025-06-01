@@ -24,8 +24,7 @@ if __name__ == "__main__":
 
         logging.basicConfig(
             level=LOG_LEVEL_ROOT,
-            format='%(asctime)s - %(levelname)s - %(funcName)s - %(filename)s - %(message)s',
-            # format='%(asctime)s - %(levelname)s - %(message)s',
+            format='%(asctime)s %(levelname)s %(filename)s:%(lineno)s:%(funcName)s %(message)s',
             handlers=[
                 log_file_handle,
                 log_stream_handler

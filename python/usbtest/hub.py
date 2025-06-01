@@ -10,14 +10,14 @@ class UsbSerialCmd:
         try:
             self.__serial = serial.Serial(self.__serialName, 9600)
         except Exception as e:
-            raise myexception.MyException(f'error open serial {serial_name}')
+            raise myexception.MyException(f'error open serial {serial_name}: {e}')
 
     def send_msg(self, msg: bytearray, expected_length: int):
-        logging.debug(f'send raw msg: {msg.hex()}')
+        logging.debug('send raw msg: %s', msg.hex())
         self.__serial.write(msg)
         self.__serial.flush()
         response = self.__serial.read_until(size=expected_length)
-        logging.debug(f'response raw msg: {response.hex()}')
+        logging.debug('response raw msg: %s', response.hex())
         return response
 
     def make_msg(self, msg: bytearray):
@@ -40,7 +40,7 @@ class UsbSerialCmd:
         msg = self.make_msg(msg)
         resp = self.send_msg(msg, 6)
         resp = self.filter_response(resp)
-        logging.debug(f'response:{resp.hex()}')
+        logging.debug('response: %s', resp.hex())
         return resp
 
     def get_usb_open_state(self):
@@ -48,7 +48,7 @@ class UsbSerialCmd:
         msg = self.make_msg(msg)
         resp = self.send_msg(msg, 12)
         resp = self.filter_response(resp)
-        logging.debug(f'response: {resp.hex()}')
+        logging.debug('response: %s', resp.hex())
         return resp
 
     def set_usb_port_state(self, bit_switch: bytearray):
@@ -59,7 +59,7 @@ class UsbSerialCmd:
         msg = self.make_msg(msg)
         resp = self.send_msg(msg, 12)
         resp = self.filter_response(resp)
-        logging.debug(f'response: {resp.hex()}')
+        logging.debug('response: %s', resp.hex())
         return resp
 
     def control_all_port(self, open: bool):

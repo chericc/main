@@ -115,7 +115,7 @@ class StatusMonitorApp:
 
                 self.status_check()
         except Exception as e:
-            logging.error(f'error in programe{e}')
+            logging.error('error in programe: %s', e)
             self.error_in_other_thread = True
             
 
@@ -131,7 +131,7 @@ class StatusMonitorApp:
                 status_list = self.status_queue.get_nowait()
                 self.apply_status(status_list)
         except Exception as e:
-            logging.error(f'exit: {e}')
+            logging.error('exit: %s', e)
             sys.exit(1)
 
         # 继续定期检查
@@ -153,35 +153,35 @@ class StatusMonitorApp:
                 text_port = f'端口{i + 1}'
                 text_state = ''
                 port_info = status.get_port_info()
-                if status.get_port_state() == status_checker.PortStateType.Init:
+                if status.get_port_state() == status_checker.PortStateType.INIT:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
                     text_state = '初始化'
-                elif status.get_port_state() == status_checker.PortStateType.WaitInsert:
+                elif status.get_port_state() == status_checker.PortStateType.WAITINSERT:
                     bg_color = self.color_normal
                     fg_color = self.color_font_normal
                     text_state = '等待启动'
-                elif status.get_port_state() == status_checker.PortStateType.WaitVolumeMount:
+                elif status.get_port_state() == status_checker.PortStateType.WAITVOLUMEMOUNT:
                     bg_color = self.color_inserted
                     fg_color = self.color_font_inserted
                     text_state = '等待挂载'
-                elif status.get_port_state() == status_checker.PortStateType.UpgradePrepare:
+                elif status.get_port_state() == status_checker.PortStateType.UPGRADEPREPARE:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
                     text_state = '升级准备'
-                elif status.get_port_state() == status_checker.PortStateType.Upgrading:
+                elif status.get_port_state() == status_checker.PortStateType.UPGRADING:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
                     text_state = '升级中'
-                elif status.get_port_state() == status_checker.PortStateType.CheckVersion:
+                elif status.get_port_state() == status_checker.PortStateType.CHECKVERSION:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
                     text_state = '版本核对'
-                elif status.get_port_state() == status_checker.PortStateType.Upgraded:
+                elif status.get_port_state() == status_checker.PortStateType.UPGRADED:
                     bg_color = self.color_ok
                     fg_color = self.color_font_ok
                     text_state = '已更新'
-                elif status.get_port_state() == status_checker.PortStateType.Error:
+                elif status.get_port_state() == status_checker.PortStateType.ERROR:
                     bg_color = self.color_error
                     fg_color = self.color_font_error
                     text_state = '错误'
