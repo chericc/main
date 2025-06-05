@@ -51,7 +51,8 @@ void getaddrinfo_cb(int result, struct evutil_addrinfo* res, void* arg) {
 }
 
 int main() {
-    xlog_setoutput({stdout});
+    FILE *fps[] = { stdout };
+    xlog_setoutput(fps, 1);
     xlog_setmask(XLOG_ALLOW_ALL);
 
     struct event_base* event_base = nullptr;
