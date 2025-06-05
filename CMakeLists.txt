@@ -144,14 +144,8 @@ option(USE_BIG_ENDIAN "big endian" OFF)
 option(EXPORT_COMPILE_OPTION "export compile option(compile_commands.json)" ON)
 
 if (USE_ASAN)
-  set(
-    CMAKE_C_FLAGS
-    "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer"
-  )
-  set(
-    CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer"
-  )
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address -fno-omit-frame-pointer" )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
   add_link_options(-fsanitize=address -fno-omit-frame-pointer)
 endif()
 
