@@ -16,6 +16,7 @@ namespace {
 
 constexpr int audio_recv_buf = (100 * 1000);
 constexpr int video_recv_buf = (2000 * 1000);
+constexpr int ivp4_timeout_ms = (1000);
 
 class RtspClientWrapper;
 
@@ -48,6 +49,7 @@ public:
 private:
     int connect();
     int session_setup();
+    int play();
 private:
     static void continueAfterDescribe(RTSPClient *client, int resultCode, char *resultString);
     static void default_live555_callback(RTSPClient *client, int resultCode, char *resultString);
@@ -63,7 +65,7 @@ private:
 
     UsageEnvironment *_env = nullptr;
     BasicTaskScheduler *_scheduler = nullptr;
-    MyRtspClient *_client = nullptr;
+    MyRtspClient *_rtsp = nullptr;
     std::shared_ptr<std::thread> _trd = nullptr;
 
     std::string _sdp; // session description 
@@ -141,12 +143,19 @@ int RtspClientWrapper::wait_live555_response(int timeout_ms)
         
         _loop = 0;
         if (timeout_ms > 0) {
+            xlog_dbg("schedule rtsp interrupt\n");
             task = _scheduler->scheduleDelayedTask((int64_t)timeout_ms * 1000, 
                 TaskInterruptRTSP, this);
         }
-
-
+        _live555_ret = -1;
+        _scheduler->doEventLoop(&_loop);
+        if (timeout_ms > 0) {
+            xlog_dbg("unschedule rtsp interrupt\n");
+            _scheduler->unscheduleDelayedTask(task);
+        }
     } while (0);
+
+    return _live555_ret;
 }
 
 RtspClientWrapper::RtspClientWrapper()
@@ -168,35 +177,52 @@ static void continueAfterDescribe(RTSPClient *client, int resultCode, char *resu
 
 int RtspClientWrapper::connect()
 {
+    int success = 0;
     do {
-        if (_client) {
+        if (_rtsp) {
             xlog_err("inner error, not null\n");
             break;
         }
 
-        _client = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
+        _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
 
         Authenticator auth;
         auth.setUsernameAndPassword(_param.password.c_str(), _param.password.c_str());
-        _client->sendDescribeCommand(MyRtspClient::continueAfterDescribe, &auth);
+        _rtsp->sendDescribeCommand(RtspClientWrapper::continueAfterDescribe, &auth);
 
         // may add some timeout control here
         // eg. wait_Live555_response
         // and check for errors in previous calls
+        int live555_ret = wait_live555_response(ivp4_timeout_ms);
+        if (live555_ret) {
+            if (live555_ret == 401) {
+                xlog_err("authentication failed\n");
+            } else {
+                xlog_err("connect error: %d\n", live555_ret);
+            }
+            break;
+        }
 
+        success = 1;
     } while (0);
 
-    return 0;
+    return success ? 0 : -1;
 }
 
 int RtspClientWrapper::session_setup()
 {
+    int error_flag = false;
+
     MediaSubsessionIterator *iter = nullptr;
     MediaSubsession *sub = nullptr;
+    int track_num = 0;
 
     do {
+        int ret = 0;
+
         if (_ms) {
             xlog_err("inner error, not null\n");
+            error_flag = true;
             break;
         }
 
@@ -204,6 +230,7 @@ int RtspClientWrapper::session_setup()
         if (!this->_ms) {
             xlog_err("create rtsp session failed: %s\n",
                 _env->getResultMsg());
+            error_flag = true;
             break;
         }
 
@@ -231,14 +258,54 @@ int RtspClientWrapper::session_setup()
             int stream_out_going = 0;
             int stream_using_tcp = 1;
             int stream_force_multicast = 0;
-            _client->sendSetupCommand(*sub, MyRtspClient::default_live555_callback, 
+            _rtsp->sendSetupCommand(*sub, RtspClientWrapper::default_live555_callback, 
                 stream_out_going, stream_using_tcp, stream_force_multicast);
 
-            // todo
-            if (_client->wait_Live555_response()) {
-
+            ret = wait_live555_response();
+            if (ret) {
+                xlog_err("ret: %d\n", ret);
+                break;
             }
+
+            if (!sub->readSource()) {
+                xlog_war("sub read failed\n");
+                continue;
+            }
+
+            if (sub->rtcpInstance()) {
+                sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
+            }
+            ++track_num;
         }
+    } while (0);
+
+    if (iter) {
+        delete iter;
+        iter = nullptr;
+    }
+
+    if (track_num <= 0) {
+        xlog_err("no track\n");
+        error_flag = true;
+    }
+
+    // todo: error handling
+    return error_flag ? -1 : 0;
+}
+
+int RtspClientWrapper::play()
+{
+    do {
+        _rtsp->sendPlayCommand(*_ms, default_live555_callback);
+        if (!wait_live555_response()) {
+            xlog_err("rtsp play failed: %s\n", _env->getResultMsg());
+            break;
+        }
+
+        auto start_time =_ms->playStartTime();
+        auto end_time = _ms->playEndTime();
+
+        xlog_inf("play: starttime=%g, endtime=%g\n", start_time, end_time);
     } while (0);
 }
 
@@ -258,7 +325,13 @@ void RtspClientWrapper::trd()
         }
 
         if (session_setup()) {
+            xlog_err("nothing to play: no track\n");
+            break;
+        }
 
+        if (play()) {
+            xlog_err("play failed\n");
+            break;
         }
 
         _env->taskScheduler().doEventLoop(&_loop);
