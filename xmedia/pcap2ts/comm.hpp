@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <cstdint>
 
 std::string str_ipv4(const std::array<uint8_t, 4>& ipv4);
 std::string str_ipv6(const std::array<uint8_t, 16>& ipv6);
