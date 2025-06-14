@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "MediaSession.hh"
 #include "RTSPClient.hh"
 #include "BasicUsageEnvironment.hh"
 
@@ -43,20 +44,39 @@ class RtspClientWrapper
 public:
     RtspClientWrapper();
     ~RtspClientWrapper();
-    int open(string const& url);
+    int open(rtsp_client_param const *param);
     int close();
 
 private:
     int connect();
     int session_setup();
     int play();
+    int demux();
+
+    struct Track {
+        std::vector<uint8_t> buf;
+        MediaSubsession *sub = nullptr;
+        RtspClientWrapper *wrapper = nullptr;
+    };
 private:
     static void continueAfterDescribe(RTSPClient *client, int resultCode, char *resultString);
     static void default_live555_callback(RTSPClient *client, int resultCode, char *resultString);
     static void TaskInterruptRTSP(void *user);
+    static void TaskInterruptData(void *user);
+    static void streamRead(void *p_private, unsigned int i_size,
+                        unsigned int i_truncated_bytes, struct timeval pts,
+                        unsigned int duration);
+    static void streamClose(void *p_private);
+    
+
     void continueAfterDescribe(int resultCode, char *resultString);
     void default_live555_callback(int resultCode, char *resultString);
     void TaskInterruptRTSP();
+    void TaskInterruptData();
+    void streamRead(Track *track, unsigned int i_size,
+                        unsigned int i_truncated_bytes, struct timeval pts,
+                        unsigned int duration);
+    void streamClose(Track *track);
 
     int wait_live555_response(int timeout_ms = 0 /* ms */);
 
@@ -72,6 +92,8 @@ private:
     EventLoopWatchVariable _loop = 0;
     MediaSession *_ms = nullptr;
     int _live555_ret = 0;
+
+    std::vector<Track> _tracks;
 
     struct param {
         std::string url;
@@ -129,6 +151,49 @@ void RtspClientWrapper::TaskInterruptRTSP(void *user)
     return wrapper->TaskInterruptRTSP();
 }
 
+void RtspClientWrapper::TaskInterruptData(void *user)
+{
+    auto wrapper = reinterpret_cast<RtspClientWrapper*>(user);
+    return wrapper->TaskInterruptData();
+}
+
+void RtspClientWrapper::TaskInterruptData()
+{
+    xlog_dbg("TaskInterruptData\n");
+    _loop = static_cast<char>(0xff);
+    return ;
+}
+
+void RtspClientWrapper::streamRead(void *p_private, unsigned int i_size,
+                    unsigned int i_truncated_bytes, struct timeval pts,
+                    unsigned int duration)
+{
+    auto track = reinterpret_cast<Track *>(p_private);
+    auto wrapper = reinterpret_cast<RtspClientWrapper*>(track->wrapper);
+    return wrapper->streamRead(track, i_size, i_truncated_bytes, pts, duration);
+}
+
+void RtspClientWrapper::streamRead(Track *track, unsigned int i_size,
+                        unsigned int i_truncated_bytes, struct timeval pts,
+                        unsigned int duration)
+{
+    xlog_dbg("stream read\n");
+    return ;
+}
+
+void RtspClientWrapper::streamClose(void *p_private)
+{
+    auto track = reinterpret_cast<Track *>(p_private);
+    auto wrapper = reinterpret_cast<RtspClientWrapper*>(track->wrapper);
+    return wrapper->streamClose(track);
+}
+
+void RtspClientWrapper::streamClose(Track *track)
+{
+    xlog_dbg("stream close\n");
+    return ;
+}
+
 void RtspClientWrapper::TaskInterruptRTSP()
 {
     xlog_dbg("interrupt rtsp loop\n");
@@ -170,11 +235,6 @@ RtspClientWrapper::~RtspClientWrapper()
     return ;
 }
 
-static void continueAfterDescribe(RTSPClient *client, int resultCode, char *resultString)
-{
-
-}
-
 int RtspClientWrapper::connect()
 {
     int success = 0;
@@ -186,8 +246,8 @@ int RtspClientWrapper::connect()
 
         _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
 
-        Authenticator auth;
-        auth.setUsernameAndPassword(_param.password.c_str(), _param.password.c_str());
+        Authenticator auth{};
+        auth.setUsernameAndPassword(_param.username.c_str(), _param.password.c_str());
         _rtsp->sendDescribeCommand(RtspClientWrapper::continueAfterDescribe, &auth);
 
         // may add some timeout control here
@@ -215,7 +275,6 @@ int RtspClientWrapper::session_setup()
 
     MediaSubsessionIterator *iter = nullptr;
     MediaSubsession *sub = nullptr;
-    int track_num = 0;
 
     do {
         int ret = 0;
@@ -275,7 +334,12 @@ int RtspClientWrapper::session_setup()
             if (sub->rtcpInstance()) {
                 sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
             }
-            ++track_num;
+
+            Track track = {};
+            track.sub = sub;
+            track.buf.resize(video_recv_buf);
+            track.wrapper = this;
+            _tracks.push_back(track);
         }
     } while (0);
 
@@ -284,21 +348,23 @@ int RtspClientWrapper::session_setup()
         iter = nullptr;
     }
 
-    if (track_num <= 0) {
+    if (_tracks.empty()) {
         xlog_err("no track\n");
         error_flag = true;
     }
 
-    // todo: error handling
     return error_flag ? -1 : 0;
 }
 
 int RtspClientWrapper::play()
 {
+    int error_flag = 0;
+
     do {
         _rtsp->sendPlayCommand(*_ms, default_live555_callback);
         if (!wait_live555_response()) {
             xlog_err("rtsp play failed: %s\n", _env->getResultMsg());
+            error_flag = 1;
             break;
         }
 
@@ -307,6 +373,25 @@ int RtspClientWrapper::play()
 
         xlog_inf("play: starttime=%g, endtime=%g\n", start_time, end_time);
     } while (0);
+
+    return error_flag ? -1 : 0;
+}
+
+int RtspClientWrapper::demux()
+{
+    do {
+        for (size_t i = 0; i < _tracks.size(); ++i) {
+            auto &track = _tracks[i];
+            track.sub->readSource()->getNextFrame(track.buf.data(), track.buf.size(), 
+                streamRead, &track, streamClose, &track);
+        }
+
+        auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
+        _scheduler->doEventLoop(&_loop);
+        _scheduler->unscheduleDelayedTask(task);
+    } while(0);
+
+    return 0;
 }
 
 void RtspClientWrapper::trd()
@@ -324,30 +409,39 @@ void RtspClientWrapper::trd()
             break;
         }
 
+        xlog_dbg("connect ok\n");
+
         if (session_setup()) {
             xlog_err("nothing to play: no track\n");
             break;
         }
+
+        xlog_dbg("session setup ok\n");
 
         if (play()) {
             xlog_err("play failed\n");
             break;
         }
 
-        _env->taskScheduler().doEventLoop(&_loop);
+        xlog_dbg("play ok\n");
+
+        while (!demux());
+
+        xlog_dbg("demux end\n");
     } while (0);
 }
 
-int RtspClientWrapper::open(string const& url)
+int RtspClientWrapper::open(rtsp_client_param const *param)
 {
     auto trd_func = [this](){
         return this->trd();
     };
 
-    _param.url = url;
+    _param.url = param->url;
+    _param.username = param->username;
+    _param.password = param->password;
 
     _trd = std::make_shared<std::thread>(trd_func);
-    
     
     return 0;
 }
@@ -360,6 +454,7 @@ rtsp_client_obj rtsp_client_start(rtsp_client_param const* param)
 
     do {
         ctx = new RtspClientWrapper{};
+        ctx->open(param);
     } while (0);
 
     return reinterpret_cast<rtsp_client_obj>(ctx);
