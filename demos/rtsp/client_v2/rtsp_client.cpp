@@ -142,6 +142,13 @@ void RtspClientWrapper::default_live555_callback(RTSPClient *client, int resultC
 
 void RtspClientWrapper::default_live555_callback(int resultCode, char *resultString)
 {
+    xlog_dbg("cb: code:%d\n", resultCode);
+
+    _live555_ret = resultCode;
+    _loop = 1;
+
+    xlog_dbg("set live555 ret: %d\n", _live555_ret);
+
     return ;
 }
 
@@ -213,6 +220,7 @@ int RtspClientWrapper::wait_live555_response(int timeout_ms)
                 TaskInterruptRTSP, this);
         }
         _live555_ret = -1;
+        xlog_dbg("set live555 ret to %d\n", _live555_ret);
         _scheduler->doEventLoop(&_loop);
         if (timeout_ms > 0) {
             xlog_dbg("unschedule rtsp interrupt\n");
@@ -362,7 +370,7 @@ int RtspClientWrapper::play()
 
     do {
         _rtsp->sendPlayCommand(*_ms, default_live555_callback);
-        if (!wait_live555_response()) {
+        if (wait_live555_response()) {
             xlog_err("rtsp play failed: %s\n", _env->getResultMsg());
             error_flag = 1;
             break;
