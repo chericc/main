@@ -142,7 +142,7 @@ void MySink::afterGettingFrame(void *clientData, unsigned int frameSize,
 void MySink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    xlog_dbg("frame: %d\n", frameSize);
+    xlog_dbg("got frame: %d\n", frameSize);
 
     continuePlaying();
     return ;

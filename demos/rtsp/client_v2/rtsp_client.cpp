@@ -21,6 +21,28 @@ constexpr int ivp4_timeout_ms = (1000);
 
 class RtspClientWrapper;
 
+class MyMediaSink : public MediaSink {
+public:
+    static MyMediaSink *createNew(UsageEnvironment &env, 
+        MediaSubsession &subsession,
+        const char *streamId = nullptr);
+private:
+    MyMediaSink(UsageEnvironment& env, MediaSubsession &subsession, const char *streamId);
+    ~MyMediaSink() override;
+
+    static void afterGettingFrame(void *clientData, unsigned int frameSize,
+        unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs);
+    void afterGettingFrame(unsigned int frameSize,
+        unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs);
+private:
+    Boolean continuePlaying() override;
+
+private:
+    MediaSubsession &_sub_session;
+    std::vector<uint8_t> _recv_buf;
+    std::string _streamid;
+};
+
 class MyRtspClient : public RTSPClient
 {
 public:
@@ -63,20 +85,15 @@ private:
     static void default_live555_callback(RTSPClient *client, int resultCode, char *resultString);
     static void TaskInterruptRTSP(void *user);
     static void TaskInterruptData(void *user);
-    static void streamRead(void *p_private, unsigned int i_size,
-                        unsigned int i_truncated_bytes, struct timeval pts,
-                        unsigned int duration);
-    static void streamClose(void *p_private);
-    
+    static void afterPlaying(void *user);
+    static void byeHandler(void *user, const char *reason);
 
     void continueAfterDescribe(int resultCode, char *resultString);
     void default_live555_callback(int resultCode, char *resultString);
     void TaskInterruptRTSP();
     void TaskInterruptData();
-    void streamRead(Track *track, unsigned int i_size,
-                        unsigned int i_truncated_bytes, struct timeval pts,
-                        unsigned int duration);
-    void streamClose(Track *track);
+    void afterPlaying(Track *track);
+    void byeHandler(Track *track, const char *reason);
 
     int wait_live555_response(int timeout_ms = 0 /* ms */);
 
@@ -102,6 +119,57 @@ private:
     };
     param _param;
 };
+
+
+MyMediaSink *MyMediaSink::createNew(UsageEnvironment& env, MediaSubsession& subsession, char const* streamId)
+{
+    return new MyMediaSink(env, subsession, streamId);
+}
+
+MyMediaSink::MyMediaSink(UsageEnvironment &env, MediaSubsession &subsession, const char *streamId)
+    : MediaSink(env), _sub_session(subsession)
+{
+    _streamid = std::string(streamId);
+    _recv_buf.resize(video_recv_buf);
+}
+
+MyMediaSink::~MyMediaSink() 
+{
+    // 
+}
+
+void MyMediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
+    unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
+{
+    MyMediaSink* sink = (MyMediaSink*)clientData;
+    sink->afterGettingFrame(frameSize, numTruncatedBytes, presentationTime, durationInMs);
+
+    return ;
+}
+
+void MyMediaSink::afterGettingFrame(unsigned int frameSize,
+    unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
+{
+    xlog_dbg("frame: %d\n", frameSize);
+
+    continuePlaying();
+    return ;
+}
+
+Boolean MyMediaSink::continuePlaying()
+{
+    xlog_dbg("continue playing\n");
+
+    if (!fSource) {
+        xlog_err("error\n");
+        return False;
+    }
+
+    fSource->getNextFrame(_recv_buf.data(), _recv_buf.size(), 
+        afterGettingFrame, this, onSourceClosure, this);
+    
+    return True;
+}
 
 void RtspClientWrapper::continueAfterDescribe(RTSPClient *client, int resultCode, char *resultString)
 {
@@ -171,40 +239,39 @@ void RtspClientWrapper::TaskInterruptData()
     return ;
 }
 
-void RtspClientWrapper::streamRead(void *p_private, unsigned int i_size,
-                    unsigned int i_truncated_bytes, struct timeval pts,
-                    unsigned int duration)
-{
-    auto track = reinterpret_cast<Track *>(p_private);
-    auto wrapper = reinterpret_cast<RtspClientWrapper*>(track->wrapper);
-    return wrapper->streamRead(track, i_size, i_truncated_bytes, pts, duration);
-}
-
-void RtspClientWrapper::streamRead(Track *track, unsigned int i_size,
-                        unsigned int i_truncated_bytes, struct timeval pts,
-                        unsigned int duration)
-{
-    xlog_dbg("stream read\n");
-    return ;
-}
-
-void RtspClientWrapper::streamClose(void *p_private)
-{
-    auto track = reinterpret_cast<Track *>(p_private);
-    auto wrapper = reinterpret_cast<RtspClientWrapper*>(track->wrapper);
-    return wrapper->streamClose(track);
-}
-
-void RtspClientWrapper::streamClose(Track *track)
-{
-    xlog_dbg("stream close\n");
-    return ;
-}
-
 void RtspClientWrapper::TaskInterruptRTSP()
 {
     xlog_dbg("interrupt rtsp loop\n");
     _loop = static_cast<char>(0xff);
+    return ;
+}
+
+void RtspClientWrapper::afterPlaying(void *user)
+{
+    auto track = reinterpret_cast<Track*>(user);
+    return track->wrapper->afterPlaying(track);
+}
+
+void RtspClientWrapper::byeHandler(void *user, const char *reason)
+{
+    auto track = reinterpret_cast<Track*>(user);
+    return track->wrapper->byeHandler(track, reason);
+}
+
+void RtspClientWrapper::afterPlaying(Track *track)
+{
+    xlog_err("close subsession stream not implemented yet\n");
+}
+
+void RtspClientWrapper::byeHandler(Track *track, const char *reason)
+{
+    xlog_dbg("bye handler of track\n");
+
+    if (reason) {
+        xlog_dbg("reason: %s\n", reason);
+        delete [] reason;
+    }
+
     return ;
 }
 
@@ -343,11 +410,24 @@ int RtspClientWrapper::session_setup()
                 sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
             }
 
+            auto sink = MyMediaSink::createNew(*_env, *sub, _rtsp->url());
+            if (!sink) {
+                xlog_err("create sink failed\n");
+                break;
+            }
+
+            sub->sink = sink;
+
             Track track = {};
             track.sub = sub;
             track.buf.resize(video_recv_buf);
             track.wrapper = this;
             _tracks.push_back(track);
+
+            if (sub->rtcpInstance()) {
+                sub->rtcpInstance()->setByeWithReasonHandler(byeHandler, &_tracks.back());
+            }
+            sink->startPlaying(*sub->readSource(), afterPlaying, &_tracks.back());
         }
     } while (0);
 
@@ -389,9 +469,7 @@ int RtspClientWrapper::demux()
 {
     do {
         for (size_t i = 0; i < _tracks.size(); ++i) {
-            auto &track = _tracks[i];
-            track.sub->readSource()->getNextFrame(track.buf.data(), track.buf.size(), 
-                streamRead, &track, streamClose, &track);
+            // auto &track = _tracks[i];
         }
 
         auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
