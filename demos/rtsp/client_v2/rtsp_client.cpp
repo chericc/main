@@ -158,7 +158,7 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
 
 Boolean MyMediaSink::continuePlaying()
 {
-    xlog_dbg("continue playing\n");
+    // xlog_dbg("continue playing\n");
 
     if (!fSource) {
         xlog_err("error\n");
@@ -200,6 +200,9 @@ void RtspClientWrapper::continueAfterDescribe(int resultCode, char *resultString
 
         _sdp = result_str;
     } while (0);
+
+    _loop = 1;
+    return ;
 }
 
 void RtspClientWrapper::default_live555_callback(RTSPClient *client, int resultCode, char *resultString)
@@ -320,6 +323,10 @@ int RtspClientWrapper::connect()
         }
 
         _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
+
+        xlog_dbg("connect %s using %s/%s\n", _param.url.c_str(), 
+            _param.username.c_str(), 
+            _param.password.c_str());
 
         Authenticator auth{};
         auth.setUsernameAndPassword(_param.username.c_str(), _param.password.c_str());
@@ -468,13 +475,15 @@ int RtspClientWrapper::play()
 int RtspClientWrapper::demux()
 {
     do {
+        xlog_dbg("demux in\n");
         for (size_t i = 0; i < _tracks.size(); ++i) {
             // auto &track = _tracks[i];
         }
 
-        auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
+        // auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
+        _loop = 0;
         _scheduler->doEventLoop(&_loop);
-        _scheduler->unscheduleDelayedTask(task);
+        // _scheduler->unscheduleDelayedTask(task);
     } while(0);
 
     return 0;
