@@ -277,3 +277,14 @@ ffmpeg -i ..\Left_Right_MIX.mp4 -c copy -f hls 111.m3u8
 
 ```
 
+### x264编码参数
+
+
+```bash
+# simulate IPC encoders
+ffmpeg -i h264_1080p.h264 -c:v libx264 \
+-profile:v high -level 5.1 -pix_fmt yuv420p \
+-r 20 -s 1280x720 \
+-x264-params "ref=1:keyint=40:min-keyint=40:bframes=0" \
+output.h264
+```
