@@ -16,9 +16,9 @@ int main()
 
     auto client = rtsp_client_start(&param);
 
-    // getchar();
-    // getchar();
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    getchar();
+    getchar();
+    // std::this_thread::sleep_for(std::chrono::seconds(2));
 
     rtsp_client_stop(client);
 

@@ -21,13 +21,21 @@ constexpr int ivp4_timeout_ms = (1000);
 
 class RtspClientWrapper;
 
+struct Track {
+    std::vector<uint8_t> buf;
+    MediaSubsession *sub = nullptr;
+    RtspClientWrapper *wrapper = nullptr;
+};
+
+using TrackPtr = std::shared_ptr<Track>;
+
 class MyMediaSink : public MediaSink {
 public:
     static MyMediaSink *createNew(UsageEnvironment &env, 
-        MediaSubsession &subsession,
+        TrackPtr track,
         const char *streamId = nullptr);
 private:
-    MyMediaSink(UsageEnvironment& env, MediaSubsession &subsession, const char *streamId);
+    MyMediaSink(UsageEnvironment& env, TrackPtr track, const char *streamId);
     ~MyMediaSink() override;
 
     static void afterGettingFrame(void *clientData, unsigned int frameSize,
@@ -38,9 +46,11 @@ private:
     Boolean continuePlaying() override;
 
 private:
-    MediaSubsession &_sub_session;
+    TrackPtr _track = nullptr;
     std::vector<uint8_t> _recv_buf;
     std::string _streamid;
+
+    FILE *fp = nullptr;
 };
 
 class MyRtspClient : public RTSPClient
@@ -74,12 +84,6 @@ private:
     int session_setup();
     int play();
     int demux();
-
-    struct Track {
-        std::vector<uint8_t> buf;
-        MediaSubsession *sub = nullptr;
-        RtspClientWrapper *wrapper = nullptr;
-    };
 private:
     static void continueAfterDescribe(RTSPClient *client, int resultCode, char *resultString);
     static void default_live555_callback(RTSPClient *client, int resultCode, char *resultString);
@@ -110,7 +114,7 @@ private:
     MediaSession *_ms = nullptr;
     int _live555_ret = 0;
 
-    std::vector<Track> _tracks;
+    std::vector<std::shared_ptr<Track>> _tracks;
 
     struct param {
         std::string url;
@@ -121,16 +125,17 @@ private:
 };
 
 
-MyMediaSink *MyMediaSink::createNew(UsageEnvironment& env, MediaSubsession& subsession, char const* streamId)
+MyMediaSink *MyMediaSink::createNew(UsageEnvironment& env, TrackPtr track, char const* streamId)
 {
-    return new MyMediaSink(env, subsession, streamId);
+    return new MyMediaSink(env, track, streamId);
 }
 
-MyMediaSink::MyMediaSink(UsageEnvironment &env, MediaSubsession &subsession, const char *streamId)
-    : MediaSink(env), _sub_session(subsession)
+MyMediaSink::MyMediaSink(UsageEnvironment &env, TrackPtr track, const char *streamId)
+    : MediaSink(env)
 {
     _streamid = std::string(streamId);
     _recv_buf.resize(video_recv_buf);
+    _track = track;
 }
 
 MyMediaSink::~MyMediaSink() 
@@ -150,7 +155,21 @@ void MyMediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
 void MyMediaSink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    xlog_dbg("frame: %d\n", frameSize);
+
+    if (strcmp(_track->sub->codecName(), "H264") == 0) {
+        xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
+            _track->sub->codecName(), frameSize);
+        if (!fp) {
+            char filename[64] = {};
+            snprintf(filename, sizeof(filename), "dump_%s_%s", _track->sub->mediumName(),
+                _track->sub->mediumName());
+            fp = fopen(filename, "w");
+        }
+        if (fp) {
+            fwrite(_recv_buf.data(), 1, frameSize, fp);
+            fflush(fp);
+        }
+    }
 
     continuePlaying();
     return ;
@@ -322,7 +341,9 @@ int RtspClientWrapper::connect()
             break;
         }
 
-        _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
+        int verbosityLevel = 0;
+        // _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
+        _rtsp = new MyRtspClient(*_env, _param.url.c_str(), verbosityLevel, "test", 0, this);
 
         xlog_dbg("connect %s using %s/%s\n", _param.url.c_str(), 
             _param.username.c_str(), 
@@ -417,24 +438,23 @@ int RtspClientWrapper::session_setup()
                 sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
             }
 
-            auto sink = MyMediaSink::createNew(*_env, *sub, _rtsp->url());
+            auto track = std::make_shared<Track>();
+            track->sub = sub;
+            track->buf.resize(video_recv_buf);
+            track->wrapper = this;
+            _tracks.push_back(track);
+
+            auto sink = MyMediaSink::createNew(*_env, track, _rtsp->url());
             if (!sink) {
                 xlog_err("create sink failed\n");
                 break;
             }
-
             sub->sink = sink;
 
-            Track track = {};
-            track.sub = sub;
-            track.buf.resize(video_recv_buf);
-            track.wrapper = this;
-            _tracks.push_back(track);
-
             if (sub->rtcpInstance()) {
-                sub->rtcpInstance()->setByeWithReasonHandler(byeHandler, &_tracks.back());
+                sub->rtcpInstance()->setByeWithReasonHandler(byeHandler, track.get());
             }
-            sink->startPlaying(*sub->readSource(), afterPlaying, &_tracks.back());
+            sink->startPlaying(*sub->readSource(), afterPlaying, track.get());
         }
     } while (0);
 
@@ -480,10 +500,11 @@ int RtspClientWrapper::demux()
             // auto &track = _tracks[i];
         }
 
-        // auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
+        auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
         _loop = 0;
         _scheduler->doEventLoop(&_loop);
-        // _scheduler->unscheduleDelayedTask(task);
+        _scheduler->unscheduleDelayedTask(task);
+        xlog_dbg("demux out\n");
     } while(0);
 
     return 0;
