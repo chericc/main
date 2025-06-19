@@ -16,7 +16,7 @@ using std::string;
 namespace {
 
 constexpr int audio_recv_buf = (100 * 1000);
-constexpr int video_recv_buf = (2000 * 1000);
+constexpr int video_recv_buf = (100 * 1000);
 constexpr int ivp4_timeout_ms = (1000);
 
 class RtspClientWrapper;
@@ -218,6 +218,9 @@ void RtspClientWrapper::continueAfterDescribe(int resultCode, char *resultString
         }
 
         _sdp = result_str;
+
+        xlog_dbg("sdp: %s\n", _sdp.c_str());
+
     } while (0);
 
     _loop = 1;
@@ -396,10 +399,16 @@ int RtspClientWrapper::session_setup()
             break;
         }
 
+        if (!_ms->hasSubsessions()) {
+            xlog_err("has no sub session\n");
+            break;
+        }
+
         iter = new MediaSubsessionIterator(*_ms);
         while (1) {
             sub = iter->next();
             if (!sub) {
+                xlog_dbg("no more sub, break\n");
                 break;
             }
 
@@ -416,6 +425,13 @@ int RtspClientWrapper::session_setup()
 
             xlog_dbg("rtp subsesion: %s/%s\n", 
                 sub->mediumName(), sub->codecName());
+
+            if (sub->rtcpIsMuxed()) {
+                xlog_dbg("client port: %d\n", sub->clientPortNum());
+            } else {
+                xlog_dbg("client ports: %d-%d\n", sub->clientPortNum(),
+                    sub->clientPortNum() + 1);
+            }
 
             int stream_out_going = 0;
             int stream_using_tcp = 1;
@@ -444,17 +460,17 @@ int RtspClientWrapper::session_setup()
             track->wrapper = this;
             _tracks.push_back(track);
 
-            auto sink = MyMediaSink::createNew(*_env, track, _rtsp->url());
-            if (!sink) {
+            sub->sink = MyMediaSink::createNew(*_env, track, _rtsp->url());
+            if (!sub->sink) {
                 xlog_err("create sink failed\n");
                 break;
             }
-            sub->sink = sink;
+            sub->miscPtr = _rtsp;
 
+            sub->sink->startPlaying(*sub->readSource(), afterPlaying, track.get());
             if (sub->rtcpInstance()) {
                 sub->rtcpInstance()->setByeWithReasonHandler(byeHandler, track.get());
             }
-            sink->startPlaying(*sub->readSource(), afterPlaying, track.get());
         }
     } while (0);
 
