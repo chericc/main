@@ -97,6 +97,10 @@ export CXX="/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-lin
 export CFLAGS="-rdynamic -mcpu=cortex-a7 -mfpu=neon-vfpv4 -fPIC"
 export LIBS="-pthread"
 ../libunwind-1.8.1/configure --prefix=$(pwd)/output --host=arm-linux-gnueabihf --disable-tests --enable-shared=no --enable-cxx-exceptions
+## cross-mips
+export CC="/opt/mips-gcc720-glibc229/bin/mips-linux-gnu-gcc" 
+export CXX="/opt/mips-gcc720-glibc229/bin/mips-linux-gnu-g++" 
+../libunwind-1.8.1/configure --prefix=$(pwd)/output --host=mips --disable-tests --enable-shared=no --enable-cxx-exceptions
 
 # gperf-tools
 ## without libunwind(works well)
@@ -106,6 +110,8 @@ cmake ../gperftools -DCMAKE_INSTALL_PREFIX=$(pwd)/output -Dgperftools_enable_fra
 CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools-gperftools-2.15 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
 ## cross
 CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build/output/include cmake ../gperftools -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/cross_823c.cmake
+## cross-ad100
+CMAKE_LIBRARY_PATH=/home/test/opensrc/libunwind/build-ad100/output/lib CMAKE_INCLUDE_PATH=/home/test/opensrc/libunwind/build-ad100/output/include cmake ../gperftools -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DGPERFTOOLS_BUILD_STATIC=OFF -Dgperftools_enable_frame_pointers=ON -Dgperftools_enable_libunwind=ON -DCMAKE_TOOLCHAIN_FILE=~/ad100.cmake -DBUILD_TESTING=OFF
 
 ## run uni-test
 make test
