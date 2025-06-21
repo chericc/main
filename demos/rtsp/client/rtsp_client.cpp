@@ -11,7 +11,7 @@
 #include "xlog.h"
 
 #define RTSP_CLIENT_VERVOSITY_LEVEL     0
-#define REQUEST_STREAMING_OVER_TCP False
+#define REQUEST_STREAMING_OVER_TCP 1
 #define DUMMY_SINK_RECEIVE_BUFFER_SIZE 100000
 
 namespace {
