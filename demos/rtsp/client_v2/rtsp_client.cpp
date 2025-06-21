@@ -155,17 +155,19 @@ void MyMediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
 void MyMediaSink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
+    xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
+        _track->sub->codecName(), frameSize);
 
     if (strcmp(_track->sub->codecName(), "H264") == 0) {
-        xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
-            _track->sub->codecName(), frameSize);
         if (!fp) {
             char filename[64] = {};
             snprintf(filename, sizeof(filename), "dump_%s_%s", _track->sub->mediumName(),
-                _track->sub->mediumName());
+                _track->sub->codecName());
             fp = fopen(filename, "w");
         }
         if (fp) {
+            uint8_t header[] = {0x0, 0x0, 0x0, 0x1 };
+            fwrite(header, 1, sizeof(header), fp);
             fwrite(_recv_buf.data(), 1, frameSize, fp);
             fflush(fp);
         }
@@ -184,8 +186,10 @@ Boolean MyMediaSink::continuePlaying()
         return False;
     }
 
+    xlog_dbg("before get frame\n");
     fSource->getNextFrame(_recv_buf.data(), _recv_buf.size(), 
         afterGettingFrame, this, onSourceClosure, this);
+    xlog_dbg("after get frame\n");
     
     return True;
 }
@@ -344,7 +348,7 @@ int RtspClientWrapper::connect()
             break;
         }
 
-        int verbosityLevel = 0;
+        int verbosityLevel = 1;
         // _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
         _rtsp = new MyRtspClient(*_env, _param.url.c_str(), verbosityLevel, "test", 0, this);
 
@@ -445,10 +449,10 @@ int RtspClientWrapper::session_setup()
                 break;
             }
 
-            if (!sub->readSource()) {
-                xlog_war("sub read failed\n");
-                continue;
-            }
+            // if (!sub->readSource()) {
+            //     xlog_war("sub read failed\n");
+            //     continue;
+            // }
 
             if (sub->rtcpInstance()) {
                 sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
@@ -516,10 +520,10 @@ int RtspClientWrapper::demux()
             // auto &track = _tracks[i];
         }
 
-        auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
+        // auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
         _loop = 0;
         _scheduler->doEventLoop(&_loop);
-        _scheduler->unscheduleDelayedTask(task);
+        // _scheduler->unscheduleDelayedTask(task);
         xlog_dbg("demux out\n");
     } while(0);
 
