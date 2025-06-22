@@ -7,3 +7,10 @@ In ubuntu 22.04 eg, `netstat`, `ifconfig` have been marked as deprecated.
 ```bash
 ss -ant
 ```
+
+## ip
+
+```bash
+ip address
+```
+
