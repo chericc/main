@@ -170,6 +170,20 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
             fwrite(header, 1, sizeof(header), fp);
             fwrite(_recv_buf.data(), 1, frameSize, fp);
             fflush(fp);
+            xlog_dbg("write: %d bytes(%s)\n", frameSize, _track->sub->codecName());
+
+            if (frameSize > 8)
+            {
+                char buf[256] = {};
+                size_t off = 0;
+                for (size_t i = 0; i < 8; ++i) {
+                    if (off >= sizeof(buf)) {
+                        break;
+                    }
+                    off += snprintf(buf + off, sizeof(buf) - off, "%02hhx ", _recv_buf[i]);
+                }
+                xlog_dbg("%s: %s, type: %d\n", _track->sub->codecName(), buf, _recv_buf[0] & 0x1f);
+            }
         }
     }
 
