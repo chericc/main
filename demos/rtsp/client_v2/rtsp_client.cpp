@@ -8,6 +8,7 @@
 #include "MediaSession.hh"
 #include "RTSPClient.hh"
 #include "BasicUsageEnvironment.hh"
+#include "H264VideoRTPSource.hh"
 
 #include "xlog.h"
 
@@ -28,6 +29,27 @@ struct Track {
 };
 
 using TrackPtr = std::shared_ptr<Track>;
+
+struct MyPacket 
+{
+public:
+    // MyPacket();
+    int append(uint8_t *data, size_t size);
+
+    std::shared_ptr<std::vector<uint8_t>> _data;
+};
+
+int MyPacket::append(uint8_t *data, size_t size)
+{
+    if (!_data) {
+        _data = std::make_shared<std::vector<uint8_t> >();
+    }
+    auto old_size = _data->size();
+    _data->resize(old_size + size);
+    memcpy(_data->data() + old_size, data, size);
+
+    return size;
+}
 
 class MyMediaSink : public MediaSink {
 public:
@@ -50,6 +72,8 @@ private:
     std::vector<uint8_t> _recv_buf;
     std::string _streamid;
 
+    int _sps_pps_written = false;
+    std::vector<uint8_t> _sps_pps_info;
     FILE *fp = nullptr;
 };
 
@@ -159,6 +183,35 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
         _track->sub->codecName(), frameSize);
 
     if (strcmp(_track->sub->codecName(), "H264") == 0) {
+
+        MyPacket packet = {};
+        std::array<uint8_t, 4> nalu_sep = {0x0,0x0,0x0,0x1};
+
+        if (!_sps_pps_written) {
+            std::vector<uint8_t> buf_sps_pps;
+            const char *prop = _track->sub->fmtp_spropparametersets();
+            if (_sps_pps_info.empty()) {
+                unsigned int numSPropRecords = 0;
+                SPropRecord* sPropRecords = parseSPropParameterSets(prop, numSPropRecords);
+                for (unsigned int i = 0; i < numSPropRecords; ++i) {
+                    if (sPropRecords[i].sPropLength > 0) {
+                        packet.append(nalu_sep.data(), nalu_sep.size());
+                        // xlog_dbg("spspps: %zu\n", sPropRecords)
+                        packet.append(sPropRecords[i].sPropBytes, sPropRecords[i].sPropLength);
+                    }
+                }
+                if (sPropRecords) {
+                    delete [] sPropRecords;
+                    sPropRecords = nullptr;
+                }
+            }
+
+            _sps_pps_written = true;
+        }
+
+        packet.append(nalu_sep.data(), nalu_sep.size());
+        packet.append(_recv_buf.data(), frameSize);
+
         if (!fp) {
             char filename[64] = {};
             snprintf(filename, sizeof(filename), "dump_%s_%s", _track->sub->mediumName(),
@@ -166,24 +219,22 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
             fp = fopen(filename, "w");
         }
         if (fp) {
-            uint8_t header[] = {0x0, 0x0, 0x0, 0x1 };
-            fwrite(header, 1, sizeof(header), fp);
-            fwrite(_recv_buf.data(), 1, frameSize, fp);
+            fwrite(packet._data->data(), 1, packet._data->size(), fp);
             fflush(fp);
-            xlog_dbg("write: %d bytes(%s)\n", frameSize, _track->sub->codecName());
+            xlog_dbg("write: %zu bytes(%s)\n", packet._data->size(), _track->sub->codecName());
 
-            if (frameSize > 8)
-            {
-                char buf[256] = {};
-                size_t off = 0;
-                for (size_t i = 0; i < 8; ++i) {
-                    if (off >= sizeof(buf)) {
-                        break;
-                    }
-                    off += snprintf(buf + off, sizeof(buf) - off, "%02hhx ", _recv_buf[i]);
-                }
-                xlog_dbg("%s: %s, type: %d\n", _track->sub->codecName(), buf, _recv_buf[0] & 0x1f);
-            }
+            // if (frameSize > 8)
+            // {
+            //     char buf[256] = {};
+            //     size_t off = 0;
+            //     for (size_t i = 0; i < 8; ++i) {
+            //         if (off >= sizeof(buf)) {
+            //             break;
+            //         }
+            //         off += snprintf(buf + off, sizeof(buf) - off, "%02hhx ", _recv_buf[i]);
+            //     }
+            //     xlog_dbg("%s: %s, type: %d\n", _track->sub->codecName(), buf, _recv_buf[0] & 0x1f);
+            // }
         }
     }
 
