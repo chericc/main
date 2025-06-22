@@ -108,6 +108,7 @@ private:
     int session_setup();
     int play();
     int demux();
+    int close_imp();
 private:
     static void continueAfterDescribe(RTSPClient *client, int resultCode, char *resultString);
     static void default_live555_callback(RTSPClient *client, int resultCode, char *resultString);
@@ -137,6 +138,8 @@ private:
     EventLoopWatchVariable _loop = 0;
     MediaSession *_ms = nullptr;
     int _live555_ret = 0;
+    int _close_flag = 0;
+    int _close_fin_flag = 0;
 
     std::vector<std::shared_ptr<Track>> _tracks;
 
@@ -196,7 +199,7 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
                 for (unsigned int i = 0; i < numSPropRecords; ++i) {
                     if (sPropRecords[i].sPropLength > 0) {
                         packet.append(nalu_sep.data(), nalu_sep.size());
-                        // xlog_dbg("spspps: %zu\n", sPropRecords)
+                        xlog_dbg("spspps: %u\n", sPropRecords[i].sPropLength);
                         packet.append(sPropRecords[i].sPropBytes, sPropRecords[i].sPropLength);
                     }
                 }
@@ -288,7 +291,7 @@ void RtspClientWrapper::continueAfterDescribe(int resultCode, char *resultString
 
         _sdp = result_str;
 
-        xlog_dbg("sdp: %s\n", _sdp.c_str());
+        // xlog_dbg("sdp: %s\n", _sdp.c_str());
 
     } while (0);
 
@@ -413,7 +416,7 @@ int RtspClientWrapper::connect()
             break;
         }
 
-        int verbosityLevel = 1;
+        int verbosityLevel = 0;
         // _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
         _rtsp = new MyRtspClient(*_env, _param.url.c_str(), verbosityLevel, "test", 0, this);
 
@@ -580,16 +583,10 @@ int RtspClientWrapper::play()
 int RtspClientWrapper::demux()
 {
     do {
-        xlog_dbg("demux in\n");
-        for (size_t i = 0; i < _tracks.size(); ++i) {
-            // auto &track = _tracks[i];
-        }
-
-        // auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
+        auto task = _scheduler->scheduleDelayedTask(300 * 1000, TaskInterruptData, this);
         _loop = 0;
         _scheduler->doEventLoop(&_loop);
-        // _scheduler->unscheduleDelayedTask(task);
-        xlog_dbg("demux out\n");
+        _scheduler->unscheduleDelayedTask(task);
     } while(0);
 
     return 0;
@@ -626,10 +623,21 @@ void RtspClientWrapper::trd()
 
         xlog_dbg("play ok\n");
 
-        while (!demux());
+        while (!_close_flag) {
+            demux();
+        }
 
-        xlog_dbg("demux end\n");
+        xlog_dbg("demux end, closing\n");
+
     } while (0);
+
+    close_imp();
+
+    _close_fin_flag = 1;
+
+    xlog_dbg("close ok\n");
+
+    return ;
 }
 
 int RtspClientWrapper::open(rtsp_client_param const *param)
@@ -644,6 +652,59 @@ int RtspClientWrapper::open(rtsp_client_param const *param)
 
     _trd = std::make_shared<std::thread>(trd_func);
     
+    return 0;
+}
+
+int RtspClientWrapper::close_imp()
+{
+    do {
+        if (_rtsp) {
+            xlog_dbg("sending teardown command\n");
+            _rtsp->sendTeardownCommand(*_ms, nullptr);
+        }
+
+        if (_ms) {
+            Medium::close(_ms);
+            _ms = nullptr;
+        }
+
+        if (_rtsp) {
+            RTSPClient::close(_rtsp);
+            _rtsp = nullptr;
+        }
+
+        if (_env) {
+            _env->reclaim();
+        }
+
+        if (_scheduler) {
+            delete _scheduler;
+            _scheduler = nullptr;
+        }
+
+    } while (0);
+
+    return 0;
+}
+
+int RtspClientWrapper::close()
+{
+    _close_flag = true;
+    xlog_dbg("wait close fin\n");
+    while (1) {
+        if (_close_fin_flag) {
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+    xlog_dbg("wait close fin done\n");
+
+    xlog_dbg("before join\n");
+    if (_trd->joinable()) {
+        _trd->join();
+    }
+    xlog_dbg("join end\n");
+
     return 0;
 }
 
@@ -670,6 +731,8 @@ int rtsp_client_stop(rtsp_client_obj obj)
             break;
         }
 
+        ctx->close();
+        
         delete ctx;
         ctx = nullptr;
     } while (0);
