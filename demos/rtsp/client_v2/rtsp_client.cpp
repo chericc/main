@@ -658,9 +658,31 @@ int RtspClientWrapper::open(rtsp_client_param const *param)
 int RtspClientWrapper::close_imp()
 {
     do {
-        if (_rtsp) {
-            xlog_dbg("sending teardown command\n");
-            _rtsp->sendTeardownCommand(*_ms, nullptr);
+
+        int some_subsessions_active = false;
+
+        for (size_t i = 0; i < _tracks.size(); ++i) {
+            auto & track = _tracks[i];
+            if (track) {
+                if (track->sub) {
+                    if(track->sub->sink) {
+                        Medium::close(track->sub->sink);
+                        track->sub->sink = nullptr;
+                    }
+                    if (track->sub->rtcpInstance()) {
+                        track->sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
+                    }
+                    some_subsessions_active = true;
+                }
+
+            }
+        }
+
+        if (some_subsessions_active) {
+            if (_rtsp) {
+                xlog_dbg("sending teardown command\n");
+                _rtsp->sendTeardownCommand(*_ms, nullptr);
+            }
         }
 
         if (_ms) {
