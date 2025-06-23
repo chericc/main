@@ -546,3 +546,12 @@ fuser -k /mnt/card
 ```bash
 date -s "2025-01-03 14:30:00"
 ```
+
+# busybox
+
+## ps
+
+```bash
+ps -l
+```
+
