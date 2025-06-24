@@ -23,6 +23,7 @@ constexpr int ivp4_timeout_ms = (1000);
 class RtspClientWrapper;
 
 struct Track {
+    int track_id;
     std::vector<uint8_t> buf;
     MediaSubsession *sub = nullptr;
     RtspClientWrapper *wrapper = nullptr;
@@ -54,10 +55,9 @@ int MyPacket::append(uint8_t *data, size_t size)
 class MyMediaSink : public MediaSink {
 public:
     static MyMediaSink *createNew(UsageEnvironment &env, 
-        TrackPtr track,
-        const char *streamId = nullptr);
+        TrackPtr track, rtsp_client_cb cb);
 private:
-    MyMediaSink(UsageEnvironment& env, TrackPtr track, const char *streamId);
+    MyMediaSink(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb);
     ~MyMediaSink() override;
 
     static void afterGettingFrame(void *clientData, unsigned int frameSize,
@@ -70,11 +70,11 @@ private:
 private:
     TrackPtr _track = nullptr;
     std::vector<uint8_t> _recv_buf;
-    std::string _streamid;
 
     int _sps_pps_written = false;
-    std::vector<uint8_t> _sps_pps_info;
-    FILE *fp = nullptr;
+    // std::vector<uint8_t> _sps_pps_info;
+    // FILE *fp = nullptr;
+    rtsp_client_cb _cb = nullptr;
 };
 
 class MyRtspClient : public RTSPClient
@@ -147,22 +147,23 @@ private:
         std::string url;
         std::string username;
         std::string password;
+        rtsp_client_cb cb = nullptr;
     };
     param _param;
 };
 
 
-MyMediaSink *MyMediaSink::createNew(UsageEnvironment& env, TrackPtr track, char const* streamId)
+MyMediaSink *MyMediaSink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb)
 {
-    return new MyMediaSink(env, track, streamId);
+    return new MyMediaSink(env, track, cb);
 }
 
-MyMediaSink::MyMediaSink(UsageEnvironment &env, TrackPtr track, const char *streamId)
+MyMediaSink::MyMediaSink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
     : MediaSink(env)
 {
-    _streamid = std::string(streamId);
     _recv_buf.resize(video_recv_buf);
     _track = track;
+    _cb = cb;
 }
 
 MyMediaSink::~MyMediaSink() 
@@ -185,7 +186,8 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
     xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
         _track->sub->codecName(), frameSize);
 
-    if (strcmp(_track->sub->codecName(), "H264") == 0) {
+    if ( (strcmp(_track->sub->codecName(), "H264") == 0)
+        || (strcmp(_track->sub->codecName(), "H265") == 0)) {
 
         MyPacket packet = {};
         std::array<uint8_t, 4> nalu_sep = {0x0,0x0,0x0,0x1};
@@ -193,20 +195,19 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
         if (!_sps_pps_written) {
             std::vector<uint8_t> buf_sps_pps;
             const char *prop = _track->sub->fmtp_spropparametersets();
-            if (_sps_pps_info.empty()) {
-                unsigned int numSPropRecords = 0;
-                SPropRecord* sPropRecords = parseSPropParameterSets(prop, numSPropRecords);
-                for (unsigned int i = 0; i < numSPropRecords; ++i) {
-                    if (sPropRecords[i].sPropLength > 0) {
-                        packet.append(nalu_sep.data(), nalu_sep.size());
-                        xlog_dbg("spspps: %u\n", sPropRecords[i].sPropLength);
-                        packet.append(sPropRecords[i].sPropBytes, sPropRecords[i].sPropLength);
-                    }
+            
+            unsigned int numSPropRecords = 0;
+            SPropRecord* sPropRecords = parseSPropParameterSets(prop, numSPropRecords);
+            for (unsigned int i = 0; i < numSPropRecords; ++i) {
+                if (sPropRecords[i].sPropLength > 0) {
+                    packet.append(nalu_sep.data(), nalu_sep.size());
+                    xlog_dbg("spspps: %u\n", sPropRecords[i].sPropLength);
+                    packet.append(sPropRecords[i].sPropBytes, sPropRecords[i].sPropLength);
                 }
-                if (sPropRecords) {
-                    delete [] sPropRecords;
-                    sPropRecords = nullptr;
-                }
+            }
+            if (sPropRecords) {
+                delete [] sPropRecords;
+                sPropRecords = nullptr;
             }
 
             _sps_pps_written = true;
@@ -215,29 +216,14 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
         packet.append(nalu_sep.data(), nalu_sep.size());
         packet.append(_recv_buf.data(), frameSize);
 
-        if (!fp) {
-            char filename[64] = {};
-            snprintf(filename, sizeof(filename), "dump_%s_%s", _track->sub->mediumName(),
-                _track->sub->codecName());
-            fp = fopen(filename, "w");
-        }
-        if (fp) {
-            fwrite(packet._data->data(), 1, packet._data->size(), fp);
-            fflush(fp);
-            xlog_dbg("write: %zu bytes(%s)\n", packet._data->size(), _track->sub->codecName());
+        if (_cb) {
+            int channel_id = _track->track_id;
+            uint8_t *data = packet._data->data();
+            size_t size = packet._data->size();
+            const char *medium_name = _track->sub->mediumName();
+            const char *codec_name = _track->sub->codecName();
 
-            // if (frameSize > 8)
-            // {
-            //     char buf[256] = {};
-            //     size_t off = 0;
-            //     for (size_t i = 0; i < 8; ++i) {
-            //         if (off >= sizeof(buf)) {
-            //             break;
-            //         }
-            //         off += snprintf(buf + off, sizeof(buf) - off, "%02hhx ", _recv_buf[i]);
-            //     }
-            //     xlog_dbg("%s: %s, type: %d\n", _track->sub->codecName(), buf, _recv_buf[0] & 0x1f);
-            // }
+            _cb(channel_id, data, size, medium_name, codec_name, presentationTime, durationInMs);
         }
     }
 
@@ -254,10 +240,10 @@ Boolean MyMediaSink::continuePlaying()
         return False;
     }
 
-    xlog_dbg("before get frame\n");
+    // xlog_dbg("before get frame\n");
     fSource->getNextFrame(_recv_buf.data(), _recv_buf.size(), 
         afterGettingFrame, this, onSourceClosure, this);
-    xlog_dbg("after get frame\n");
+    // xlog_dbg("after get frame\n");
     
     return True;
 }
@@ -331,7 +317,7 @@ void RtspClientWrapper::TaskInterruptData(void *user)
 
 void RtspClientWrapper::TaskInterruptData()
 {
-    xlog_dbg("TaskInterruptData\n");
+    // xlog_dbg("TaskInterruptData\n");
     _loop = static_cast<char>(0xff);
     return ;
 }
@@ -417,7 +403,6 @@ int RtspClientWrapper::connect()
         }
 
         int verbosityLevel = 0;
-        // _rtsp = new MyRtspClient(*_env, _param.url.c_str(), 255, "test", 0, this);
         _rtsp = new MyRtspClient(*_env, _param.url.c_str(), verbosityLevel, "test", 0, this);
 
         xlog_dbg("connect %s using %s/%s\n", _param.url.c_str(), 
@@ -517,10 +502,10 @@ int RtspClientWrapper::session_setup()
                 break;
             }
 
-            // if (!sub->readSource()) {
-            //     xlog_war("sub read failed\n");
-            //     continue;
-            // }
+            if (!sub->readSource()) {
+                xlog_war("sub read failed\n");
+                continue;
+            }
 
             if (sub->rtcpInstance()) {
                 sub->rtcpInstance()->setByeHandler(nullptr, nullptr);
@@ -530,9 +515,10 @@ int RtspClientWrapper::session_setup()
             track->sub = sub;
             track->buf.resize(video_recv_buf);
             track->wrapper = this;
+            track->track_id = static_cast<int>(_tracks.size());
             _tracks.push_back(track);
 
-            sub->sink = MyMediaSink::createNew(*_env, track, _rtsp->url());
+            sub->sink = MyMediaSink::createNew(*_env, track, _param.cb);
             if (!sub->sink) {
                 xlog_err("create sink failed\n");
                 break;
@@ -649,6 +635,7 @@ int RtspClientWrapper::open(rtsp_client_param const *param)
     _param.url = param->url;
     _param.username = param->username;
     _param.password = param->password;
+    _param.cb = param->cb;
 
     _trd = std::make_shared<std::thread>(trd_func);
     
