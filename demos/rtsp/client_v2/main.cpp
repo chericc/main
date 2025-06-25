@@ -16,9 +16,21 @@ void my_rtsp_client_cb(int channel_id, uint8_t *data, size_t size,
     xlog_dbg("[%d]%s/%s: frame: %zu\n", channel_id, medium_name, 
         codec_name, size);
 
-    // if (strcmp(codec_name, "H264") == 0) {
-        
-    // }
+    if ( (channel_id < 0) || (channel_id >= static_cast<int>(sizeof(fps) / sizeof(fps[0]))) ) {
+        xlog_err("channel id over\n");
+        return ;
+    }
+
+    char filename[64] = {};
+    snprintf(filename, sizeof(filename), "%d_%s.%s", channel_id, medium_name, codec_name);
+
+    if (!fps[channel_id]) {
+        fps[channel_id] = fopen(filename, "w");
+    }
+
+    if (strcmp(codec_name, "H264") == 0) {
+        fwrite(data, 1, size, fps[channel_id]);
+    }
 }
 
 int main(int argc, char *argv[])
