@@ -461,6 +461,16 @@ done
 
 ```
 
+```bash
+# 遍历所有文件，将aac转换成pcm
+for file in `find . -type f | grep -E "\.aac$"`
+do
+new_name=`echo $file | sed -E "s/(.*)\.aac/\1.pcm/g"`
+echo "Processing: $file --> $new_name"
+ffmpeg -loglevel quiet -i "$file" -f s16le "$new_name"
+done
+```
+
 ## 7z
 
 ```bash
