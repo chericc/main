@@ -1,7 +1,7 @@
 #include <cstring>
 #include <cstdio>
 
-#include <time.h>
+#include <sys/time.h>
 
 #include "rtsp_client.h"
 #include "xlog.h"
