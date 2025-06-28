@@ -79,7 +79,7 @@ find_path(HEADER_LVGL lvgl/lvgl.h)
 
 # nanomsg
 find_library(LIB_NANOMSG libnanomsg.a)
-find_path(HEADER_NANOMSG nn.h PATH_SUFFIXES nanomsg)
+find_path(HEADER_NANOMSG nanomsg PATH_SUFFIXES include)
 
 # test_comm just for test use
 
