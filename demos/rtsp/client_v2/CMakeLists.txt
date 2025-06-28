@@ -6,5 +6,5 @@ link_libraries(${G_XTOOLS})
 
 add_executable(${DEMO_RTSP_WRAP}
     ${src}
-    ${src_live555})
+    $<TARGET_OBJECTS:lib555_objects>)
 

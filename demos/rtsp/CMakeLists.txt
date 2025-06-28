@@ -12,6 +12,11 @@ aux_source_directory(${PATH_LIB_LIVE555}/liveMedia src_live555)
 aux_source_directory(${PATH_LIB_LIVE555}/UsageEnvironment src_live555)
 aux_source_directory(${PATH_LIB_LIVE555}/BasicUsageEnvironment src_live555)
 
+add_library(lib555_objects OBJECT ${src_live555})
+target_compile_options(lib555_objects PRIVATE -Wno-all -Wno-extra -Wno-pedantic
+    -Wno-int-to-pointer-cast -Wno-misleading-indentation -Wno-int-to-pointer-cast
+    -Wno-implicit-fallthrough -Wno-format)
+
 add_subdirectory(server)
 add_subdirectory(client)
 add_subdirectory(client_v2)
