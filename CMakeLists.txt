@@ -77,6 +77,10 @@ find_library(LIB_LVGL liblvgl.a)
 find_library(LIB_LVGL_THORVG liblvgl_thorvg.a)
 find_path(HEADER_LVGL lvgl/lvgl.h)
 
+# nanomsg
+find_library(LIB_NANOMSG libnanomsg.a)
+find_path(HEADER_NANOMSG nn.h PATH_SUFFIXES nanomsg)
+
 # test_comm just for test use
 
 # main
@@ -198,6 +202,10 @@ endif()
 
 if(LIB_LVGL)
 add_subdirectory(demos/lvgl/demo)
+endif()
+
+if(LIB_NANOMSG)
+add_subdirectory(demos/nanomsg)
 endif()
 
 add_subdirectory(demos/packet_stable)

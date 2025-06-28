@@ -235,5 +235,8 @@ env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gn
 # speexdsp
 ../speexdsp-1.2.1/configure --prefix=$(pwd)/output --enable-examples
 --disable-examples
+
+# nanomsg
+cmake ../nanomsg/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF -DNN_STATIC_LIB=ON -DNN_TESTS=OFF
 ```
 
