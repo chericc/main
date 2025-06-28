@@ -285,8 +285,12 @@ conda info --envs
 conda create -n python27 python=2.7
 conda remove -n python27 --all
 
-# conda reverse
+# conda shell
+eval "$(/home/test/miniconda3/bin/conda shell.bash hook)"
+
+# conda shell reverse
 conda init --reverse $SHELL
+
 ```
 
 ### 配置pip源
