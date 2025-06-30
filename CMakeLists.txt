@@ -81,6 +81,10 @@ find_path(HEADER_LVGL lvgl/lvgl.h)
 find_library(LIB_NANOMSG libnanomsg.a)
 find_path(HEADER_NANOMSG nanomsg PATH_SUFFIXES include)
 
+# c-ares
+find_library(LIB_C_ARES libcares.a)
+find_path(HEADER_C_ARES ares.h)
+
 # test_comm just for test use
 
 # main
@@ -185,6 +189,10 @@ if(LIB_CJSON)
 add_subdirectory(demos/cjson)
 endif()
 
+if(LIB_C_ARES)
+add_subdirectory(demos/c-ares)
+endif()
+
 if(LIB_CURL)
 add_subdirectory(demos/curl)
 endif()
@@ -218,18 +226,18 @@ if(${gnu})
 add_subdirectory(demos/tinyframe)
 endif()
 
-add_subdirectory(image)
-
-if(${gnu})
-add_subdirectory(md5dir)
-endif()
-
 if(LIB_WEBSOCKETS)
 add_subdirectory(demos/websockets)
 endif()
 
 if(${msvc})
 add_subdirectory(demos/winusb)
+endif()
+
+add_subdirectory(image)
+
+if(${gnu})
+add_subdirectory(md5dir)
 endif()
 
 add_subdirectory(stl)

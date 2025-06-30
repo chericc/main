@@ -19,5 +19,3 @@ target_compile_options(lib555_objects PRIVATE -Wno-all -Wno-extra -Wno-pedantic
 
 add_subdirectory(server)
 add_subdirectory(client)
-add_subdirectory(client_v2)
-add_subdirectory(client_v3)

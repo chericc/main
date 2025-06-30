@@ -238,5 +238,8 @@ env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gn
 
 # nanomsg
 cmake ../nanomsg/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF -DNN_STATIC_LIB=ON -DNN_TESTS=OFF
+
+# c-ares
+cmake ../c-ares-1.34.5 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DCARES_STATIC=ON -DCARES_SHARED=OFF
 ```
 
