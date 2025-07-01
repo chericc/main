@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] c-ares
+- [ ] sqlite application
 - [ ] logtailer
 - [ ] gpac作为视频格式标准检查工具
 - [ ] valgrind and more (save memory, etc.)
