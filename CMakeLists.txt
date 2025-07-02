@@ -85,6 +85,10 @@ find_path(HEADER_NANOMSG nanomsg PATH_SUFFIXES include)
 find_library(LIB_C_ARES libcares.a)
 find_path(HEADER_C_ARES ares.h)
 
+# sqlite
+find_library(LIB_SQLITE3 sqlite3)
+find_path(HEADER_SQLITE3 sqlite3.h)
+
 # test_comm just for test use
 
 # main
@@ -185,54 +189,7 @@ add_subdirectory(audio/wav/demuxer)
 add_subdirectory(cs/DesignPatterns)
 add_subdirectory(cs/Algorithm)
 
-if(LIB_CJSON)
-add_subdirectory(demos/cjson)
-endif()
-
-if(LIB_C_ARES)
-add_subdirectory(demos/c-ares)
-endif()
-
-if(LIB_CURL)
-add_subdirectory(demos/curl)
-endif()
-
-add_subdirectory(demos/ffmpeg)
-if(${gnu})
-add_subdirectory(demos/h264_sei)
-endif()
-add_subdirectory(demos/json_nlohmann)
-add_subdirectory(demos/mjson)
-
-if(LIB_EVENT)
-add_subdirectory(demos/libevent)
-endif()
-
-if(LIB_LVGL)
-add_subdirectory(demos/lvgl/demo)
-endif()
-
-if(LIB_NANOMSG)
-add_subdirectory(demos/nanomsg)
-endif()
-
-add_subdirectory(demos/packet_stable)
-
-if(PATH_LIB_LIVE555)
-add_subdirectory(demos/rtsp)
-endif()
-
-if(${gnu})
-add_subdirectory(demos/tinyframe)
-endif()
-
-if(LIB_WEBSOCKETS)
-add_subdirectory(demos/websockets)
-endif()
-
-if(${msvc})
-add_subdirectory(demos/winusb)
-endif()
+add_subdirectory(demos)
 
 add_subdirectory(image)
 
