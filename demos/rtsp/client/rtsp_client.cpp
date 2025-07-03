@@ -52,13 +52,34 @@ int MyPacket::append(uint8_t *data, size_t size)
     return size;
 }
 
-class MyMediaSink : public MediaSink {
+class MyNormalMediaSink : public MediaSink {
 public:
-    static MyMediaSink *createNew(UsageEnvironment &env, 
+    static MyNormalMediaSink *createNew(UsageEnvironment &env, 
         TrackPtr track, rtsp_client_cb cb);
 private:
-    MyMediaSink(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb);
-    ~MyMediaSink() override;
+    
+    MyNormalMediaSink(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb);
+    ~MyNormalMediaSink() override = default;
+
+    static void afterGettingFrame(void *clientData, unsigned int frameSize,
+        unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs);
+    void afterGettingFrame(unsigned int frameSize,
+        unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs);
+private:
+    Boolean continuePlaying() override;
+
+    rtsp_client_cb _cb = nullptr;
+    TrackPtr _track = nullptr;
+    std::vector<uint8_t> _recv_buf;
+};
+
+class MyH264or5MediaSink : public MediaSink {
+public:
+    static MyH264or5MediaSink *createNew(UsageEnvironment &env, 
+        TrackPtr track, rtsp_client_cb cb);
+private:
+    MyH264or5MediaSink(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb);
+    ~MyH264or5MediaSink() override = default;
 
     static void afterGettingFrame(void *clientData, unsigned int frameSize,
         unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs);
@@ -153,34 +174,86 @@ private:
 };
 
 
-MyMediaSink *MyMediaSink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb)
+MyNormalMediaSink *MyNormalMediaSink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb)
 {
-    return new MyMediaSink(env, track, cb);
+    return new MyNormalMediaSink(env, track, cb);
 }
 
-MyMediaSink::MyMediaSink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
+MyNormalMediaSink::MyNormalMediaSink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
     : MediaSink(env)
 {
-    _recv_buf.resize(video_recv_buf);
-    _track = track;
+    xlog_dbg("sink created\n");
+    _recv_buf.resize(audio_recv_buf);
+    _track = std::move(track);
     _cb = cb;
 }
 
-MyMediaSink::~MyMediaSink() 
-{
-    // 
-}
-
-void MyMediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
+void MyNormalMediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    MyMediaSink* sink = (MyMediaSink*)clientData;
+    MyNormalMediaSink* sink = (MyNormalMediaSink*)clientData;
     sink->afterGettingFrame(frameSize, numTruncatedBytes, presentationTime, durationInMs);
 
     return ;
 }
 
-void MyMediaSink::afterGettingFrame(unsigned int frameSize,
+void MyNormalMediaSink::afterGettingFrame(unsigned int frameSize,
+    unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
+{
+    // if ( strcmp(_track->sub->codecName(), "") )
+    
+    xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
+        _track->sub->codecName(), frameSize);
+
+    if (_cb) {
+        int channel_id = _track->track_id;
+        const char *medium_name = _track->sub->mediumName();
+        const char *codec_name = _track->sub->codecName();
+        _cb(channel_id, _recv_buf.data(), frameSize, medium_name, codec_name, 
+            presentationTime, durationInMs);
+    }
+    
+    continuePlaying();
+}
+
+Boolean MyNormalMediaSink::continuePlaying()
+{
+    if (!fSource) {
+        xlog_err("error\n");
+        return False;
+    }
+
+    // xlog_dbg("before get frame\n");
+    fSource->getNextFrame(_recv_buf.data(), _recv_buf.size(), 
+        afterGettingFrame, this, onSourceClosure, this);
+    // xlog_dbg("after get frame\n");
+    return True;
+}
+
+MyH264or5MediaSink *MyH264or5MediaSink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb)
+{
+    return new MyH264or5MediaSink(env, track, cb);
+}
+
+MyH264or5MediaSink::MyH264or5MediaSink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
+    : MediaSink(env)
+{
+    xlog_dbg("sink created\n");
+    _recv_buf.resize(video_recv_buf);
+    _track = std::move(track);
+    _cb = cb;
+}
+
+void MyH264or5MediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
+    unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
+{
+    MyH264or5MediaSink* sink = (MyH264or5MediaSink*)clientData;
+    sink->afterGettingFrame(frameSize, numTruncatedBytes, presentationTime, durationInMs);
+
+    return ;
+}
+
+void MyH264or5MediaSink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
     xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
@@ -231,7 +304,7 @@ void MyMediaSink::afterGettingFrame(unsigned int frameSize,
     return ;
 }
 
-Boolean MyMediaSink::continuePlaying()
+Boolean MyH264or5MediaSink::continuePlaying()
 {
     // xlog_dbg("continue playing\n");
 
@@ -277,7 +350,7 @@ void RtspClientWrapper::continueAfterDescribe(int resultCode, char *resultString
 
         _sdp = result_str;
 
-        // xlog_dbg("sdp: %s\n", _sdp.c_str());
+        xlog_dbg("sdp: %s\n", _sdp.c_str());
 
     } while (0);
 
@@ -410,7 +483,9 @@ int RtspClientWrapper::connect()
             _param.password.c_str());
 
         Authenticator auth{};
-        auth.setUsernameAndPassword(_param.username.c_str(), _param.password.c_str());
+        if (!_param.username.empty()) {
+            auth.setUsernameAndPassword(_param.username.c_str(), _param.password.c_str());
+        }
         _rtsp->sendDescribeCommand(RtspClientWrapper::continueAfterDescribe, &auth);
 
         // may add some timeout control here
@@ -516,11 +591,19 @@ int RtspClientWrapper::session_setup()
             track->buf.resize(video_recv_buf);
             track->wrapper = this;
             track->track_id = static_cast<int>(_tracks.size());
-            _tracks.push_back(track);
 
-            sub->sink = MyMediaSink::createNew(*_env, track, _param.cb);
+            if (strcmp(sub->mediumName(), "video") == 0) {
+                if ( (strcmp(sub->codecName(), "H264") == 0)
+                    || (strcmp(sub->codecName(), "H265") == 0) ) {
+                    sub->sink = MyH264or5MediaSink::createNew(*_env, track, _param.cb);
+                }
+            } else if (strcmp(sub->mediumName(), "audio") == 0) {
+                sub->sink = MyNormalMediaSink::createNew(*_env, track, _param.cb);
+            }
+            
             if (!sub->sink) {
-                xlog_err("create sink failed\n");
+                xlog_err("no sutable sink, or create sink failed: %s/%s\n",
+                    sub->mediumName(), sub->codecName());
                 break;
             }
             sub->miscPtr = _rtsp;
@@ -529,6 +612,8 @@ int RtspClientWrapper::session_setup()
             if (sub->rtcpInstance()) {
                 sub->rtcpInstance()->setByeWithReasonHandler(byeHandler, track.get());
             }
+
+            _tracks.push_back(track);
         }
     } while (0);
 
