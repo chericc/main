@@ -9,6 +9,7 @@
 #include "RTSPClient.hh"
 #include "BasicUsageEnvironment.hh"
 #include "H264VideoRTPSource.hh"
+#include "ADTSAudioStreamDiscreteFramer.hh"
 
 #include "xlog.h"
 
@@ -52,14 +53,13 @@ int MyPacket::append(uint8_t *data, size_t size)
     return size;
 }
 
-class MyNormalMediaSink : public MediaSink {
+class MySink : public MediaSink {
 public:
-    static MyNormalMediaSink *createNew(UsageEnvironment &env, 
+    static MySink *createNew(UsageEnvironment &env, 
         TrackPtr track, rtsp_client_cb cb);
 private:
-    
-    MyNormalMediaSink(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb);
-    ~MyNormalMediaSink() override = default;
+    MySink(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb);
+    ~MySink() override = default;
 
     static void afterGettingFrame(void *clientData, unsigned int frameSize,
         unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs);
@@ -174,12 +174,12 @@ private:
 };
 
 
-MyNormalMediaSink *MyNormalMediaSink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb)
+MySink *MySink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb cb)
 {
-    return new MyNormalMediaSink(env, track, cb);
+    return new MySink(env, track, cb);
 }
 
-MyNormalMediaSink::MyNormalMediaSink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
+MySink::MySink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
     : MediaSink(env)
 {
     xlog_dbg("sink created\n");
@@ -188,22 +188,20 @@ MyNormalMediaSink::MyNormalMediaSink(UsageEnvironment &env, TrackPtr track, rtsp
     _cb = cb;
 }
 
-void MyNormalMediaSink::afterGettingFrame(void *clientData, unsigned int frameSize,
+void MySink::afterGettingFrame(void *clientData, unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    MyNormalMediaSink* sink = (MyNormalMediaSink*)clientData;
+    MySink* sink = (MySink*)clientData;
     sink->afterGettingFrame(frameSize, numTruncatedBytes, presentationTime, durationInMs);
 
     return ;
 }
 
-void MyNormalMediaSink::afterGettingFrame(unsigned int frameSize,
+void MySink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    // if ( strcmp(_track->sub->codecName(), "") )
-    
-    xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
-        _track->sub->codecName(), frameSize);
+    // xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
+    //     _track->sub->codecName(), frameSize);
 
     if (_cb) {
         int channel_id = _track->track_id;
@@ -216,7 +214,7 @@ void MyNormalMediaSink::afterGettingFrame(unsigned int frameSize,
     continuePlaying();
 }
 
-Boolean MyNormalMediaSink::continuePlaying()
+Boolean MySink::continuePlaying()
 {
     if (!fSource) {
         xlog_err("error\n");
@@ -256,8 +254,8 @@ void MyH264or5MediaSink::afterGettingFrame(void *clientData, unsigned int frameS
 void MyH264or5MediaSink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
-        _track->sub->codecName(), frameSize);
+    // xlog_dbg("%s/%s: frame: %d\n", _track->sub->mediumName(), 
+    //     _track->sub->codecName(), frameSize);
 
     if ( (strcmp(_track->sub->codecName(), "H264") == 0)
         || (strcmp(_track->sub->codecName(), "H265") == 0)) {
@@ -592,13 +590,22 @@ int RtspClientWrapper::session_setup()
             track->wrapper = this;
             track->track_id = static_cast<int>(_tracks.size());
 
+            // refer to playCommon.cpp for examples.
+            
             if (strcmp(sub->mediumName(), "video") == 0) {
                 if ( (strcmp(sub->codecName(), "H264") == 0)
                     || (strcmp(sub->codecName(), "H265") == 0) ) {
+                    xlog_dbg("create sink for: %s/%s\n", sub->mediumName(), sub->codecName());
                     sub->sink = MyH264or5MediaSink::createNew(*_env, track, _param.cb);
                 }
             } else if (strcmp(sub->mediumName(), "audio") == 0) {
-                sub->sink = MyNormalMediaSink::createNew(*_env, track, _param.cb);
+                if (strcmp(sub->codecName(), "MPEG4-GENERIC") == 0) {
+                    xlog_dbg("create sink for: %s/%s\n", sub->mediumName(), sub->codecName());
+                    FramedFilter *adtsFramer = ADTSAudioStreamDiscreteFramer::createNew(*_env, 
+                        sub->readSource(), sub->fmtp_config());
+                    sub->addFilter(adtsFramer);
+                    sub->sink = MySink::createNew(*_env, track, _param.cb);
+                }
             }
             
             if (!sub->sink) {

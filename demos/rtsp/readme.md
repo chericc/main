@@ -6,6 +6,10 @@ http://www.live555.com/liveMedia/faq.html
 
 ## live555
 
+### refer
+
+playCommon.cpp
+
 ### MediaSink::continuePlaying
 
 ```bash

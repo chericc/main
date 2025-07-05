@@ -36,6 +36,8 @@ void my_rtsp_client_cb(int channel_id, uint8_t *data, size_t size,
     } else {
         fwrite(data, 1, size, fps[channel_id]);
     }
+    
+    fflush(fps[channel_id]);
 }
 
 int main(int argc, char *argv[])
