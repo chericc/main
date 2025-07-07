@@ -117,16 +117,6 @@ set(G_XWAV_DEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/wav/demuxer)
 set(G_FDKAAC_WRAPPER fdkaac_wrapper)
 set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
 
-# image
-set(G_IMAGE ximage)
-set(G_IMAGE_BMP_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/bmp)
-set(G_IMAGE_IMAGEVIEW_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/imageview)
-set(G_IMAGE_FREETYPEWRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/image/freetypewrapper)
-
-# textenc
-set(G_TEXTENC xtextenc)
-set(G_TEXTENC_UTF8_HEADER_PATH ${CMAKE_SOURCE_DIR}/textenc/utf8_enc)
-
 # xplay
 set(G_XPLAY xplay)
 set(G_XPLAY_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/xplay)
@@ -191,15 +181,12 @@ add_subdirectory(cs/Algorithm)
 
 add_subdirectory(demos)
 
-add_subdirectory(image)
-
 if(${gnu})
 add_subdirectory(md5dir)
 endif()
 
 add_subdirectory(stl)
 add_subdirectory(test_comm)
-add_subdirectory(textenc)
 
 if(LIB_FFMPEG_AVFORMAT
   AND LIB_FFMPEG_AVCODEC
