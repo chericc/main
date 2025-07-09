@@ -91,6 +91,12 @@ find_path(HEADER_C_ARES ares.h)
 find_library(LIB_SQLITE3 sqlite3)
 find_path(HEADER_SQLITE3 sqlite3.h)
 
+# tinyframe
+find_path(HEADER_TINYFRAME 
+    NAMES TinyFrame.h
+    PATHS ${CMAKE_CURRENT_SOURCE_DIR}/demos/tinyframe/libsrc
+    NO_DEFAULT_PATH)
+
 # test_comm just for test use
 
 # main

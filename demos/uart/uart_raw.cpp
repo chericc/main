@@ -1,0 +1,216 @@
+#include "uart_raw.h"
+
+#include <thread>
+#include <memory>
+#include <cerrno>
+#include <cstring>
+#include <mutex>
+
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+
+#include <sys/prctl.h>
+
+#include "xlog.h"
+
+struct uart_raw_obj {
+    int uart_fd = -1;
+    int break_flag = 0;
+    std::shared_ptr<std::thread> trd = nullptr;
+    std::mutex mutex_call;
+
+    struct uart_raw_param param = {};
+};
+
+static void uart_raw_trd_worker(uart_raw_obj *obj)
+{
+    prctl(PR_SET_NAME, "uartworker");
+
+    xlog_war("trd in\n");
+
+    while (!obj->break_flag) {
+        
+        char buf[128] = {};
+        ssize_t ret = read(obj->uart_fd, buf, sizeof(buf));
+        if (ret > 0) {
+            if (obj->param.read_cb) {
+                obj->param.read_cb(buf, ret);
+            }
+        } else if (ret == 0) {
+            // xlog_dbg("read nothing\n");
+        } else {
+            xlog_err("read failed\n");
+            break;
+        }
+    }
+
+    xlog_war("trd out\n");
+
+    return ;
+}
+
+static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
+{
+    int serial_port_fd = -1;
+    bool error_flag = false;
+    char buf[64] = {};
+
+    do {
+        serial_port_fd = open(param->uart_dev_path, O_RDWR);
+        if (serial_port_fd < 0) {
+            strerror_r(errno, buf, sizeof(buf));
+            xlog_err("open uart failed: %s\n", buf);
+            error_flag = true;
+            break;
+        }
+
+        struct termios tty = {};
+
+        if (tcgetattr(serial_port_fd, &tty) != 0) {
+            strerror_r(errno, buf, sizeof(buf));
+            xlog_err("tcgetattr failed: %s\n", buf);
+            error_flag = true;
+            break;
+        }
+
+        cfsetospeed(&tty, B115200);
+        cfsetispeed(&tty, B115200);
+
+        tty.c_cflag &= ~PARENB; // No parity bit
+        tty.c_cflag &= ~CSTOPB; // Only one stop bit
+        tty.c_cflag &= ~CSIZE;  // Clear the character size bits
+        tty.c_cflag |= CS8;     // 8 bits per byte
+
+        tty.c_cflag &= ~CRTSCTS; // No hardware flow control
+        tty.c_cflag |= CREAD | CLOCAL; // Turn on the receiver and set local mode
+
+        tty.c_lflag &= ~ICANON;
+        tty.c_lflag &= ~ECHO;
+        tty.c_lflag &= ~ECHOE;
+        tty.c_lflag &= ~ECHONL;
+        tty.c_lflag &= ~ISIG; // Disable interpretation of INTR, QUIT and SUSP
+
+        tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Disable XON/XOFF flow control
+
+        tty.c_iflag &= ~(ICRNL | INLCR | IGNCR); // Disable CR-to-NL, NL-to-CR and ignore CR
+
+        tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
+        tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
+
+        tty.c_cc[VTIME] = 10; // Wait for up to 1s (10 deciseconds) for data
+        tty.c_cc[VMIN] = 0;
+
+        if (tcsetattr(serial_port_fd, TCSANOW, &tty) != 0) {
+            strerror_r(errno, buf, sizeof(buf));
+            xlog_err("tcsetattr failed: %s\n", buf);
+            error_flag = true;
+            break;
+        }
+    } while (0);
+
+    if (error_flag) {
+        xlog_war("cleaning\n");
+        if (serial_port_fd >= 0) {
+            close(serial_port_fd);
+            serial_port_fd = -1;
+        }
+    }
+
+    return serial_port_fd;
+}
+
+static void uart_raw_close_imp(uart_raw_obj *obj)
+{
+    do {
+        if (!obj) {
+            xlog_war("null obj\n");
+            break;
+        }
+
+        if (obj->trd) {
+            obj->break_flag = true;
+            if (obj->trd->joinable()) {
+                xlog_war("before join\n");
+                obj->trd->join();
+                xlog_war("after join\n");
+            }
+        }
+
+        if (obj->uart_fd >= 0) {
+            close(obj->uart_fd);
+            obj->uart_fd = -1;
+        }
+
+        delete obj;
+        obj = nullptr;
+    } while (0);
+
+    return ;
+}
+
+uart_raw_handle uart_raw_open(struct uart_raw_param const* param)
+{
+    uart_raw_obj *obj = nullptr;
+
+    bool error_flag = false;
+
+    do {
+        obj = new uart_raw_obj();
+
+        obj->param = *param;
+        
+        obj->uart_fd = uart_raw_open_uart_fd(param);
+        if (obj->uart_fd < 0) {
+            xlog_err("uart_raw_open_uart_fd failed\n");
+            error_flag = true;
+            break;
+        }
+
+        obj->break_flag = false;
+        obj->trd = std::make_shared<std::thread>(uart_raw_trd_worker, obj);
+
+        // success
+    } while (0);
+
+    if (error_flag) {
+        uart_raw_close_imp(obj);
+        obj = nullptr;
+    }
+
+    return reinterpret_cast<uart_raw_handle>(obj);
+}
+
+int uart_raw_close(uart_raw_handle handle)
+{
+    auto obj = reinterpret_cast<uart_raw_obj*>(handle);
+    uart_raw_close_imp(obj);
+    return 0;
+}
+
+int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
+{
+    bool error_flag = false;
+
+    do {
+        auto obj = reinterpret_cast<uart_raw_obj*>(handle);
+        if (!obj) {
+            xlog_err("null obj\n");
+            error_flag = true;
+            break;
+        }
+
+        ssize_t ret = write(obj->uart_fd, data, size);
+        if (ret < 0) {
+            xlog_err("write failed\n");
+            error_flag = true;
+        } else {
+            if (static_cast<size_t>(ret) != size) {
+                xlog_err("partial write\n");
+            }
+        }
+    } while (0);
+
+    return error_flag ? -1 : 0;
+}
+
