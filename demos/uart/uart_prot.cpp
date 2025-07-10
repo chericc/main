@@ -40,12 +40,10 @@ static void uart_prot_on_data_imp(void const* data, size_t size, void *user)
 
         // feed uart data to prot
         ret = obj->prot->input(data, size);
-        if (!ret) {
-            xlog_dbg("in coming data --> uart prot\n");
+        if (ret < 0) {
+            xlog_err("input failed\n");
             break;
         }
-
-        xlog_err("in coming data deserted\n");
     } while (0);
     
     return ;
@@ -82,6 +80,8 @@ uart_prot_handle uart_prot_init(const struct uart_prot_param *param)
     do {
         obj = new uart_prot_obj();
 
+        obj->param = *param;
+
         uart_raw_param param_raw = {};
         param_raw.uart_dev_path = param->uart_dev_path;
         param_raw.baudrate = param->baudrate;
@@ -116,6 +116,8 @@ int uart_prot_switch_mode(uart_prot_handle handle, uart_prot_mode mode)
 {
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
+    xlog_dbg("switch mode: %s\n", uart_prot_mode_name(mode));
+
     bool error_flag = false;
     do {
         obj->mode = mode;
@@ -131,6 +133,8 @@ int uart_prot_switch_mode(uart_prot_handle handle, uart_prot_mode mode)
         if (!obj->prot) {
             xlog_err("null prot\n");
             error_flag = true;
+        } else {
+            xlog_dbg("mode switch suc\n");
         }
     } while (0);
     
@@ -174,4 +178,27 @@ int uart_prot_send(uart_prot_handle handle,
     } while (0);
 
     return error_flag ? -1 : 0;
+}
+
+const char *uart_prot_mode_name(uart_prot_mode mode)
+{
+    const char *name = "null";
+    switch (mode) {
+        case UART_PROT_MODE_NONE: {
+            name = "none";
+            break;
+        }
+        case UART_PROT_MODE_RAW: {
+            name = "raw";
+            break;
+        }
+        case UART_PROT_MODE_MSG: {
+            name = "msg";
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+    return name;
 }

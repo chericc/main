@@ -19,7 +19,7 @@ typedef void (*uart_prot_on_data_cb)(void const* in_data, size_t in_data_size,
 struct uart_prot_param {
     const char *uart_dev_path;
     int baudrate; // eg, 9600
-    uart_prot_on_data_cb on_data_cb;
+    uart_prot_on_data_cb on_reqeust_cb;
 };
 
 #ifdef __cplusplus

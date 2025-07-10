@@ -44,17 +44,18 @@ protected:
     UartProt() = default;
     ~UartProt() = default;
 
-    void _init(struct uart_prot_param const* param, cb_function_type uart_write) {
-        _param = *param;
-        _cb_write_uart = uart_write;
-        _buf.reserve(buf_max_size);
-    };
+    void _init(struct uart_prot_param const* param, cb_function_type uart_write);
 
     struct uart_prot_param _param = {};
     cb_function_type _cb_write_uart;
 
     std::recursive_mutex _mutex_buf;
     std::vector<uint8_t> _buf;
+
+    // uart can only in requsting or being requested mode.
+    // when requsting, input is treated as response.
+    // when being requested, input is treated as request.
+    bool _requesting = false;
 };
 
 /*
@@ -66,6 +67,9 @@ public:
         void *resp_data, size_t *resp_data_size, Duration timeout) override;
     int input(const void *data, size_t size) override;
     enum uart_prot_mode type() override;
+
+    int handle_request(const void *data, size_t size);
+    int handle_response(const void *data, size_t size);
 protected:
 };
 

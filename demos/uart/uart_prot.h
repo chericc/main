@@ -22,6 +22,8 @@ int uart_prot_send(uart_prot_handle handle,
         void *in_data, size_t *in_data_size,
         int timeout_ms);
 
+const char *uart_prot_mode_name(uart_prot_mode mode);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

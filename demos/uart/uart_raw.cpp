@@ -14,6 +14,8 @@
 
 #include "xlog.h"
 
+using Lock = std::unique_lock<std::mutex>;
+
 struct uart_raw_obj {
     int uart_fd = -1;
     int break_flag = 0;
@@ -184,7 +186,11 @@ uart_raw_handle uart_raw_open(struct uart_raw_param const* param)
 int uart_raw_close(uart_raw_handle handle)
 {
     auto obj = static_cast<uart_raw_obj*>(handle);
-    uart_raw_close_imp(obj);
+
+    if (obj) {
+        Lock lock(obj->mutex_call);
+        uart_raw_close_imp(obj);
+    }
     return 0;
 }
 
@@ -199,6 +205,8 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
             error_flag = true;
             break;
         }
+
+        Lock lock(obj->mutex_call);
 
         ssize_t ret = write(obj->uart_fd, data, size);
         if (ret < 0) {
