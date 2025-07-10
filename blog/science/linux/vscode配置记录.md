@@ -104,6 +104,7 @@ Diagnostics:
         modernize-use-trailing-return-type,
         bugprone-easily-swappable-parameters,
         modernize-use-using,
+        performance-enum-size,
       ]
     CheckOptions:
       WarnOnFloatingPointNarrowingConversion: false
