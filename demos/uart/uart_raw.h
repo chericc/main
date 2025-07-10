@@ -11,12 +11,13 @@ extern "C" {
 #define uart_raw_handle_invalid NULL
 typedef void* uart_raw_handle;
 
-typedef void (*uart_raw_on_data_cb)(void const* data, size_t size);
+typedef void (*uart_raw_on_data_cb)(void const* data, size_t size, void *user);
 
 struct uart_raw_param {
     const char *uart_dev_path;
     int baudrate; // eg, 9600
     uart_raw_on_data_cb read_cb;
+    void *user;
 };
 
 uart_raw_handle uart_raw_open(struct uart_raw_param const* param);

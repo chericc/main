@@ -35,7 +35,7 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
         ssize_t ret = read(obj->uart_fd, buf, sizeof(buf));
         if (ret > 0) {
             if (obj->param.read_cb) {
-                obj->param.read_cb(buf, ret);
+                obj->param.read_cb(buf, ret, obj->param.user);
             }
         } else if (ret == 0) {
             // xlog_dbg("read nothing\n");
@@ -178,12 +178,12 @@ uart_raw_handle uart_raw_open(struct uart_raw_param const* param)
         obj = nullptr;
     }
 
-    return reinterpret_cast<uart_raw_handle>(obj);
+    return static_cast<uart_raw_handle>(obj);
 }
 
 int uart_raw_close(uart_raw_handle handle)
 {
-    auto obj = reinterpret_cast<uart_raw_obj*>(handle);
+    auto obj = static_cast<uart_raw_obj*>(handle);
     uart_raw_close_imp(obj);
     return 0;
 }
@@ -193,7 +193,7 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
     bool error_flag = false;
 
     do {
-        auto obj = reinterpret_cast<uart_raw_obj*>(handle);
+        auto obj = static_cast<uart_raw_obj*>(handle);
         if (!obj) {
             xlog_err("null obj\n");
             error_flag = true;

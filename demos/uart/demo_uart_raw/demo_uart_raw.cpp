@@ -5,9 +5,9 @@
 
 #include "xlog.h"
 
-void uart_raw_read_on_data_imp(void const* data, size_t size)
+static void uart_raw_read_on_data_imp(void const* data, size_t size, void *user)
 {
-    xlog_dbg("on data: <%.*s>\n", (int)size, (const char *)data);
+    xlog_dbg("on data: user=%p, <%.*s>\n", user, (int)size, (const char *)data);
 }
 
 int main(int argc, char *argv[])
@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
     param.uart_dev_path = argv[1];
     param.baudrate = atoi(argv[2]);
     param.read_cb = uart_raw_read_on_data_imp;
+    param.user = (void*)0x12;
 
     uart_raw_handle uart = uart_raw_open(&param);
 

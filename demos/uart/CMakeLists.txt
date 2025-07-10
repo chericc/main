@@ -22,3 +22,13 @@ target_link_libraries(${DEMO}
 target_include_directories(${DEMO} 
     PRIVATE ${G_XTOOLS_XLOG_HEADER_PATH}
 )
+
+aux_source_directory(demo_uart_prot src_demo_uart_prot)
+set(DEMO demo_uart_prot)
+add_executable(${DEMO} ${src_demo_uart_prot})
+target_link_libraries(${DEMO}
+    ${DEMO_LIB} ${G_XTOOLS}
+)
+target_include_directories(${DEMO}
+    PRIVATE ${G_XTOOLS_XLOG_HEADER_PATH}
+)
