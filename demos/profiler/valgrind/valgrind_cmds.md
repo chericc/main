@@ -36,9 +36,9 @@ a heap profiler
 
 a dynamic heap analysis tool
 
-### 其它
+## 其它
 
-## 分析内存使用
+### 分析内存使用
 
 valgrind --tool=massif app
 
@@ -46,3 +46,6 @@ valgrind --tool=massif --time-unit=B --max-snapshots=64  --detailed-freq=1
 
 ms_print 
 
+### 分析文件描述符泄露
+
+valgrind --track-fds=yes
