@@ -9,14 +9,28 @@
 void on_request_cb(void const* in_data, size_t in_data_size,
     void *response_data, size_t *response_data_size)
 {
-    // as example, we reply with reqeust content
-    if (response_data && response_data_size && *response_data_size > 0) {
-        int ret = snprintf((char*)response_data, *response_data_size, "%.*s", (int)in_data_size, (const char *)in_data);
-        *response_data_size = ret;
-    }
+    const char *response_header = "response for";
 
-    xlog_dbg("request: <%.*s>, response: same\n", 
-        (int)in_data_size, (const char *)in_data);
+    // as example, we reply with reqeust content
+    // only response when it's a request
+
+    if ( (in_data_size > 0)
+        && (strncmp((const char *)in_data, response_header, strlen(response_header)) != 0) ) {
+    
+        char buf_response[1024] = {};
+        snprintf(buf_response, sizeof(buf_response), "%s : %.*s", response_header, (int)in_data_size, (const char *)in_data);
+
+        size_t response_data_size_tmp = *response_data_size;
+        int ret = snprintf((char*)response_data, response_data_size_tmp, "%s", buf_response);
+        *response_data_size = ret;
+
+        xlog_dbg("request: <%.*s>(%zu), response: <%.*s>(%d)\n", 
+            (int)in_data_size, (const char *)in_data, in_data_size,
+            ret, (const char *)response_data, ret);
+    } else {
+        xlog_dbg("not respond for response\n");
+        *response_data_size = 0;
+    }
 
     return ;
 }
