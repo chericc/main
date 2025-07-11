@@ -13,6 +13,7 @@
 #include <sys/prctl.h>
 
 #include "xlog.h"
+#include "uart_dump_tool.h"
 
 using Lock = std::unique_lock<std::mutex>;
 
@@ -42,7 +43,7 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
         ssize_t ret = read(obj->uart_fd, buf, sizeof(buf));
         if (ret > 0) {
             if (obj->param.read_cb) {
-                xlog_dbg("read %zu bytes\n", ret);
+                uart_dump("read", (uint8_t*)buf, ret);
                 obj->param.read_cb(buf, ret, obj->param.user);
             }
         } else if (ret == 0) {
@@ -230,6 +231,8 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
                 xlog_err("partial write\n");
                 error_flag = true;
                 break;
+            } else {
+                uart_dump("write", (uint8_t const*)data, size);
             }
         }
         ret = tcdrain(obj->uart_fd);
