@@ -37,9 +37,11 @@ static void uart_prot_on_data_imp(void const* data, size_t size, void *user)
             xlog_err("inner error, null prot\n");
             break;
         }
+        auto prot_copy = obj->prot;
+        lock.unlock();
 
         // feed uart data to prot
-        ret = obj->prot->input(data, size);
+        ret = prot_copy->input(data, size);
         if (ret < 0) {
             xlog_err("input failed\n");
             break;
@@ -57,7 +59,9 @@ static int uart_prot_deinit_imp(struct uart_prot_obj *obj)
             break;
         }
 
+        Lock lock(obj->mutex_prot);
         obj->prot.reset(); // explicit release
+        lock.unlock();
 
         if (obj->uart != uart_raw_handle_invalid) {
             uart_raw_close(obj->uart);
@@ -167,7 +171,10 @@ int uart_prot_send(uart_prot_handle handle,
             break;
         }
 
-        ret = obj->prot->request(out_data, out_data_size, 
+        auto prot_copy = obj->prot;
+        lock.unlock();
+
+        ret = prot_copy->request(out_data, out_data_size, 
             in_data, in_data_size, 
             std::chrono::milliseconds(timeout_ms));
         if (ret < 0) {

@@ -20,7 +20,6 @@ struct uart_raw_obj {
     int uart_fd = -1;
     int break_flag = 0;
     std::shared_ptr<std::thread> trd = nullptr;
-    std::mutex mutex_call;
 
     struct uart_raw_param param = {};
 };
@@ -37,6 +36,7 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
         ssize_t ret = read(obj->uart_fd, buf, sizeof(buf));
         if (ret > 0) {
             if (obj->param.read_cb) {
+                xlog_dbg("read %zu bytes\n", ret);
                 obj->param.read_cb(buf, ret, obj->param.user);
             }
         } else if (ret == 0) {
@@ -188,7 +188,6 @@ int uart_raw_close(uart_raw_handle handle)
     auto obj = static_cast<uart_raw_obj*>(handle);
 
     if (obj) {
-        Lock lock(obj->mutex_call);
         uart_raw_close_imp(obj);
     }
     return 0;
@@ -206,7 +205,7 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
             break;
         }
 
-        Lock lock(obj->mutex_call);
+        xlog_dbg("write: %zu bytes begin\n", size);
 
         ssize_t ret = write(obj->uart_fd, data, size);
         if (ret < 0) {
@@ -217,6 +216,8 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
                 xlog_err("partial write\n");
             }
         }
+
+        xlog_dbg("write: %zu bytes end\n", size);
     } while (0);
 
     return error_flag ? -1 : 0;

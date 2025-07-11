@@ -67,7 +67,7 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
         // wait response
         if (resp_data 
                 && resp_data_size 
-                && (*resp_data_size > 0) ) {    
+                && (*resp_data_size > 0) ) {
             size_t resp_size_tmp = *resp_data_size;
 
             // when we need response, we just wait a fixed time for the response
