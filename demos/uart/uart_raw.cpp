@@ -65,6 +65,34 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
     return ;
 }
 
+static int convert_baudrate(int baudrate, speed_t *speed)
+{
+    bool error_flag = false;
+
+    // just some common convert here
+    switch (baudrate) {
+        case 9600: {
+            *speed = B9600;
+            break;
+        }
+        case 115200: {
+            *speed = B115200;
+            break;
+        }
+        case 921600: {
+            *speed = B921600;
+            break;
+        }
+        default: {
+            xlog_err("not found: baudrate=%d\n", baudrate);
+            error_flag = true;
+            break;
+        }
+    }
+
+    return error_flag ? -1 : 0;
+}
+
 static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
 {
     int serial_port_fd = -1;
@@ -72,6 +100,10 @@ static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
     char buf[64] = {};
 
     do {
+        int ret = 0;
+
+        xlog_dbg("open uart: dev:%s,baudrate:%d\n", param->uart_dev_path, param->baudrate);
+
         serial_port_fd = open(param->uart_dev_path, O_RDWR);
         if (serial_port_fd < 0) {
             strerror_r(errno, buf, sizeof(buf));
@@ -89,8 +121,16 @@ static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
             break;
         }
 
-        cfsetospeed(&tty, B115200);
-        cfsetispeed(&tty, B115200);
+        speed_t baudrate = 0;
+        ret = convert_baudrate(param->baudrate, &baudrate);
+        if (ret < 0) {
+            xlog_err("convert failed\n");
+            error_flag = true;
+            break;
+        }
+
+        cfsetospeed(&tty, baudrate);
+        cfsetispeed(&tty, baudrate);
 
         tty.c_cflag &= ~PARENB; // No parity bit
         tty.c_cflag &= ~CSTOPB; // Only one stop bit

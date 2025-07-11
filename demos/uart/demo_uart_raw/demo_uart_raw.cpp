@@ -25,6 +25,11 @@ int main(int argc, char *argv[])
 
     uart_raw_handle uart = uart_raw_open(&param);
 
+    if (uart == uart_raw_handle_invalid) {
+        xlog_err("open failed\n");
+        return -1;
+    }
+
     while (1) {
         char buf[32] = {};
         fgets(buf, sizeof(buf), stdin);
