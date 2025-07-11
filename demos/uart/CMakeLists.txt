@@ -25,7 +25,10 @@ target_include_directories(${DEMO}
 
 aux_source_directory(demo_uart_prot src_demo_uart_prot)
 set(DEMO demo_uart_prot)
-add_executable(${DEMO} ${src_demo_uart_prot})
+add_executable(${DEMO} 
+    ${src_demo_uart_prot}
+    ${src_tinyframe_lib}
+)
 target_link_libraries(${DEMO}
     ${DEMO_LIB} ${G_XTOOLS}
 )

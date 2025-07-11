@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
             xlog_dbg("\n"
                 "choice: \n"
+                "switch [raw|msg]\n"
                 "send [content: helloworld] [need response: 0|1] [timeout_ms: 1000]\n"
                 "quit\n");
             char input_buf[128] = {};
@@ -63,13 +64,13 @@ int main(int argc, char *argv[])
                 }
             } else if (ret == 2) {
                 if (strstr(c1, "switch")) {
-                    uart_prot_mode mode = UART_PROT_MODE_NONE;
+                    UART_PROT_MODE mode = UART_PROT_MODE_NONE;
                     int ok = 0;
                     if (strstr(c2, "raw")) {
                         mode = UART_PROT_MODE_RAW;
                         ok = 1;
-                    } else if (strstr(c2, "prot")) {
-                        mode = UART_PROT_MODE_RAW;
+                    } else if (strstr(c2, "msg")) {
+                        mode = UART_PROT_MODE_MSG;
                         ok = 1;
                     }
                     if (ok) {

@@ -8,7 +8,9 @@
 #define TF_CONFIG_H
 
 #include <stdint.h>
-#include <stdio.h> // used by the TF_Error() macro defined below
+// #include <stdio.h> // used by the TF_Error() macro defined below
+#include "xlog.h"
+
 //#include <esp8266.h> // when using with esphttpd
 
 //----------------------------- FRAME FORMAT ---------------------------------
@@ -33,12 +35,12 @@
 //   TF_CKSUM_NONE, TF_CKSUM_XOR, TF_CKSUM_CRC8, TF_CKSUM_CRC16, TF_CKSUM_CRC32
 //   TF_CKSUM_CUSTOM8, TF_CKSUM_CUSTOM16, TF_CKSUM_CUSTOM32
 // Custom checksums require you to implement checksum functions (see TinyFrame.h)
-#define TF_CKSUM_TYPE TF_CKSUM_CRC16
+#define TF_CKSUM_TYPE TF_CKSUM_CRC8
 
 // Use a SOF byte to mark the start of a frame
 #define TF_USE_SOF_BYTE 1
 // Value of the SOF byte (if TF_USE_SOF_BYTE == 1)
-#define TF_SOF_BYTE     0x01
+#define TF_SOF_BYTE     0xFF
 
 //----------------------- PLATFORM COMPATIBILITY ----------------------------
 
@@ -71,10 +73,10 @@ typedef uint8_t TF_COUNT;
 #define TF_PARSER_TIMEOUT_TICKS 10
 
 // Whether to use mutex - requires you to implement TF_ClaimTx() and TF_ReleaseTx()
-#define TF_USE_MUTEX  1
+#define TF_USE_MUTEX  0
 
 // Error reporting function. To disable debug, change to empty define
-#define TF_Error(format, ...) printf("[TF] " format "\n", ##__VA_ARGS__)
+#define TF_Error(format, ...) xlog_dbg("[TF] " format "\n", ##__VA_ARGS__)
 
 //------------------------- End of user config ------------------------------
 

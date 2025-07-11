@@ -14,7 +14,7 @@ using Lock = std::unique_lock<std::mutex>;
 struct uart_prot_obj {
     uart_prot_param param = {};
     uart_raw_handle uart = uart_raw_handle_invalid;
-    uart_prot_mode mode = UART_PROT_MODE_NONE;
+    UART_PROT_MODE mode = UART_PROT_MODE_NONE;
 
     std::mutex mutex_prot;
     std::shared_ptr<UartProt> prot = nullptr;
@@ -98,6 +98,8 @@ uart_prot_handle uart_prot_init(const struct uart_prot_param *param)
             xlog_err("uart_raw_open failed\n");
             error_flag = true;
         }
+
+        uart_raw_flush(obj->uart, UART_RAW_FLUSH_IN_OUT);
     } while (0);
 
     if (error_flag) {
@@ -117,7 +119,7 @@ int uart_prot_deinit(uart_prot_handle handle)
     return 0;
 }
 
-int uart_prot_switch_mode(uart_prot_handle handle, uart_prot_mode mode)
+int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
 {
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
@@ -200,7 +202,7 @@ int uart_prot_send(uart_prot_handle handle,
     return error_flag ? -1 : 0;
 }
 
-const char *uart_prot_mode_name(uart_prot_mode mode)
+const char *uart_prot_mode_name(UART_PROT_MODE mode)
 {
     const char *name = "null";
     switch (mode) {

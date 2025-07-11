@@ -7,7 +7,7 @@
 extern "C" {
 #endif // __cplusplus
 
-enum uart_prot_mode {
+enum UART_PROT_MODE {
     UART_PROT_MODE_NONE,
     UART_PROT_MODE_RAW,
     UART_PROT_MODE_MSG,
