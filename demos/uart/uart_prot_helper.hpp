@@ -16,13 +16,13 @@ This file defines protocol-specific implementations.
 
 */
 
-using Clock = std::chrono::steady_clock;
-using Timepoint = Clock::time_point;
-using Duration = Clock::duration;
-using Lock = std::unique_lock<std::recursive_mutex>;
-
 class UartProt {
 public:
+    using Clock = std::chrono::steady_clock;
+    using Timepoint = Clock::time_point;
+    using Duration = Clock::duration;
+    using Lock = std::unique_lock<std::recursive_mutex>;
+
     using cb_function_type = std::function<int(void const*, size_t)>;
     static constexpr size_t buf_max_size = 1024;
     
@@ -63,6 +63,8 @@ Communicate over uart with original data.
 */
 class UartProtRaw : public UartProt {
 public:
+    const Duration min_interval = std::chrono::milliseconds(500);
+
     int request(const void* out_data, size_t out_data_size,
         void *resp_data, size_t *resp_data_size, Duration timeout) override;
     int input(const void *data, size_t size) override;

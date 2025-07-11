@@ -22,6 +22,13 @@ struct uart_raw_param {
 
 uart_raw_handle uart_raw_open(struct uart_raw_param const* param);
 int uart_raw_close(uart_raw_handle handle);
+enum UART_RAW_FLUSH_TARGET {
+    UART_RAW_FLUSH_NONE = 0,
+    UART_RAW_FLUSH_IN = 1,
+    UART_RAW_FLUSH_OUT = 2,
+    UART_RAW_FLUSH_IN_OUT = 3,
+};
+int uart_raw_flush(uart_raw_handle handle, enum UART_RAW_FLUSH_TARGET target);
 int uart_raw_write(uart_raw_handle handle, void const* data, size_t size);
 
 #ifdef __cplusplus

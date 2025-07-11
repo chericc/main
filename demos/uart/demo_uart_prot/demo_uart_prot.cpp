@@ -49,16 +49,17 @@ int main(int argc, char *argv[])
 
             xlog_dbg("\n"
                 "choice: \n"
-                "switch raw|prot\n"
                 "send [content: helloworld] [need response: 0|1] [timeout_ms: 1000]\n"
                 "quit\n");
             char input_buf[128] = {};
             fgets(input_buf, sizeof(input_buf), stdin);
-            char c1[64], c2[64], c3[64], c4[64];
-            int ret = sscanf(input_buf, "%s %s %s %s", c1, c2, c3, c4);
+            char c1[64], c2[64], c3[64], c4[64], c5[64];
+            int ret = sscanf(input_buf, "%s %s %s %s %s", c1, c2, c3, c4, c5);
             if (ret == 1) {
                 if (strstr(c1, "quit")) {
                     break;
+                } else {
+                    xlog_err("unknown\n");
                 }
             } else if (ret == 2) {
                 if (strstr(c1, "switch")) {
@@ -80,16 +81,30 @@ int main(int argc, char *argv[])
                 }
             } else if (ret == 4) {
                 if (strstr(c1, "send")) {
+                    const char *content = c2;
+                    size_t content_len = strlen(content);
+                    int need_response = atoi(c3);
                     int timeout_ms = atoi(c4);
+
                     char res_buf[256] = {};
                     size_t res_size = sizeof(res_buf);
-                    ret = uart_prot_send(prot, c2, strlen(c2), res_buf, &res_size, timeout_ms);
+
+                    if (!need_response) {
+                        res_size = 0;
+                    }
+
+                    ret = uart_prot_send(prot, content, content_len, 
+                        res_buf, &res_size, timeout_ms);
                     if (ret < 0) {
                         xlog_err("uart_prot_send failed\n");
                     } else {
                         xlog_dbg("resp: <%.*s>, size=%zu\n", (int)res_size, res_buf, res_size);
                     }
+                } else {
+                    xlog_err("unknown\n");
                 }
+            } else {
+                xlog_err("unknown\n");
             }
         }
 

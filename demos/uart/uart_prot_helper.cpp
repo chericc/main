@@ -64,26 +64,34 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
             break;
         }
 
+        xlog_dbg("wait response begin\n");
+
         // wait response
+
+        /*
+        When we need response, wait a fixed time for the response
+        because we don't know end flag. To avoid invalid response data treat 
+        as request, we always wait no matter if response is needed.
+        */
+
+        if (timeout < min_interval) {
+            timeout = min_interval;
+        }
+        
+        auto start = Clock::now();
+        auto dead = start + timeout;
+        for (;;) {
+            auto now = Clock::now();
+            if (now >= dead) {
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
         if (resp_data 
                 && resp_data_size 
                 && (*resp_data_size > 0) ) {
             size_t resp_size_tmp = *resp_data_size;
-
-            // when we need response, we just wait a fixed time for the response
-            // because we don't know end flag
-
-            auto start = Clock::now();
-            auto dead = start + timeout;
-
-            xlog_dbg("wait response begin\n");
-            for (;;) {
-                auto now = Clock::now();
-                if (now >= dead) {
-                    break;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            }
             
             lock.lock();
             xlog_dbg("wait response end: size=%zu\n", _buf.size());
@@ -91,6 +99,8 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
             size_t min_resp_size = std::min(resp_size_tmp, _buf.size());
             memcpy(resp_data, _buf.data(), min_resp_size);
             *resp_data_size = min_resp_size;
+        } else {
+            xlog_dbg("no need response\n");
         }
     } while(0);
 

@@ -22,6 +22,9 @@ struct uart_raw_obj {
     std::shared_ptr<std::thread> trd = nullptr;
 
     struct uart_raw_param param = {};
+
+    // 串口只允许逐个通信
+    std::mutex mutex_uart;
 };
 
 static void uart_raw_trd_worker(uart_raw_obj *obj)
@@ -29,6 +32,9 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
     prctl(PR_SET_NAME, "uartworker");
 
     xlog_war("trd in\n");
+
+    using Clock = std::chrono::steady_clock;
+    auto last_tp = Clock::now();
 
     while (!obj->break_flag) {
         
@@ -40,7 +46,13 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
                 obj->param.read_cb(buf, ret, obj->param.user);
             }
         } else if (ret == 0) {
-            // xlog_dbg("read nothing\n");
+            auto now = Clock::now();
+            auto dur_pass = now - last_tp;
+            last_tp = now;
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur_pass).count();
+            if (ms < 500) {
+                xlog_err("inner err: too frequent call(%d)", static_cast<int>(ms));
+            }
         } else {
             xlog_err("read failed\n");
             break;
@@ -204,6 +216,7 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
             error_flag = true;
             break;
         }
+        Lock lock_uart(obj->mutex_uart);
 
         xlog_dbg("write: %zu bytes begin\n", size);
 
@@ -211,10 +224,19 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
         if (ret < 0) {
             xlog_err("write failed\n");
             error_flag = true;
+            break;
         } else {
             if (static_cast<size_t>(ret) != size) {
                 xlog_err("partial write\n");
+                error_flag = true;
+                break;
             }
+        }
+        ret = tcdrain(obj->uart_fd);
+        if (ret < 0) {
+            xlog_err("tcdrain on fd:%d failed\n", obj->uart_fd);
+            error_flag = true;
+            break;
         }
 
         xlog_dbg("write: %zu bytes end\n", size);
@@ -223,3 +245,41 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
     return error_flag ? -1 : 0;
 }
 
+int uart_raw_flush(uart_raw_handle handle, enum UART_RAW_FLUSH_TARGET target)
+{
+    bool error_flag = false;
+    do {
+        int ret = 0;
+
+        auto obj = static_cast<uart_raw_obj*>(handle);
+        if (!obj) {
+            xlog_err("null obj\n");
+            error_flag = true;
+            break;
+        }
+
+        Lock lock_uart(obj->mutex_uart);
+        int queue_sel = -1;
+        if (UART_RAW_FLUSH_IN == target) {
+            queue_sel = TCIFLUSH;
+        } else if (UART_RAW_FLUSH_OUT == target) {
+            queue_sel = TCOFLUSH;
+        } else if (UART_RAW_FLUSH_IN_OUT == target) {
+            queue_sel = TCIOFLUSH;
+        }
+        if (queue_sel < 0) {
+            xlog_err("invalid target: (%d)\n", static_cast<int>(target));
+            error_flag = true;
+            break;
+        }
+
+        ret = tcflush(obj->uart_fd, queue_sel);
+        if (ret < 0) {
+            xlog_err("tcflush failed\n");
+            error_flag = 1;
+            break;
+        }
+    } while (0);
+
+    return error_flag ? -1 : 0;
+}

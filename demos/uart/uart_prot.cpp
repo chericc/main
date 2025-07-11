@@ -9,15 +9,18 @@
 #include "uart_prot_helper.hpp"
 #include "xlog.h"
 
-using Lock = std::unique_lock<std::recursive_mutex>;
+using Lock = std::unique_lock<std::mutex>;
 
 struct uart_prot_obj {
     uart_prot_param param = {};
     uart_raw_handle uart = uart_raw_handle_invalid;
     uart_prot_mode mode = UART_PROT_MODE_NONE;
 
-    std::recursive_mutex mutex_prot;
+    std::mutex mutex_prot;
     std::shared_ptr<UartProt> prot = nullptr;
+
+    // 串行通信，每次只允许一个通信任务
+    std::mutex mutex_call;
 };
 
 static void uart_prot_on_data_imp(void const* data, size_t size, void *user)
@@ -37,11 +40,9 @@ static void uart_prot_on_data_imp(void const* data, size_t size, void *user)
             xlog_err("inner error, null prot\n");
             break;
         }
-        auto prot_copy = obj->prot;
-        lock.unlock();
 
         // feed uart data to prot
-        ret = prot_copy->input(data, size);
+        ret = obj->prot->input(data, size);
         if (ret < 0) {
             xlog_err("input failed\n");
             break;
@@ -126,7 +127,10 @@ int uart_prot_switch_mode(uart_prot_handle handle, uart_prot_mode mode)
     do {
         obj->mode = mode;
 
+        Lock lock_call(obj->mutex_call);
+
         Lock lock(obj->mutex_prot);
+
         if ( (!obj->prot)
             || (obj->prot->type() != obj->mode)) {
             auto write_cb = [obj](void const* data, size_t size) {
@@ -150,6 +154,8 @@ int uart_prot_send(uart_prot_handle handle,
         void *in_data, size_t *in_data_size,
         int timeout_ms)
 {
+    xlog_dbg("send: %zu bytes\n", out_data_size);
+
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
     bool error_flag = false;
@@ -163,7 +169,9 @@ int uart_prot_send(uart_prot_handle handle,
             break;
         }
 
-        Lock lock(obj->mutex_prot);
+        Lock lock_send(obj->mutex_call);
+
+        // obj->prot will not change in this call(lock_send protected)
 
         if (!obj->prot) {
             xlog_err("prot is null\n");
@@ -171,10 +179,15 @@ int uart_prot_send(uart_prot_handle handle,
             break;
         }
 
-        auto prot_copy = obj->prot;
-        lock.unlock();
+        // clear input and output for request
+        ret = uart_raw_flush(obj->uart, UART_RAW_FLUSH_IN_OUT);
+        if (ret < 0) {
+            xlog_err("flush failed\n");
+            error_flag = true;
+            break;
+        }
 
-        ret = prot_copy->request(out_data, out_data_size, 
+        ret = obj->prot->request(out_data, out_data_size, 
             in_data, in_data_size, 
             std::chrono::milliseconds(timeout_ms));
         if (ret < 0) {
