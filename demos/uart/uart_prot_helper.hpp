@@ -109,8 +109,6 @@ public:
 protected:
 private:
     TinyFrame *_tf = nullptr;
-
-    static TF_ID s_frame_id;
 };
 
 

@@ -228,8 +228,6 @@ void TF_WriteImpl(TinyFrame *tf, const uint8_t *buff, uint32_t len)
     return ;
 }
 
-TF_ID UartProtMsg::s_frame_id = 0;
-
 UartProtMsg::UartProtMsg()
 {
     _tf = TF_Init(TF_MASTER);
@@ -273,6 +271,7 @@ TF_Result UartProtMsg::id_listener(TinyFrame *tf, TF_Msg *msg)
             break;
         }
 
+        Lock lock_buf(_mutex_buf);
         _buf.resize(msg->len);
         memcpy(_buf.data(), static_cast<const void*>(msg->data), msg->len);
         _cond_buf_changed.notify_one();
@@ -374,7 +373,6 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
         msg.data = static_cast<const uint8_t *>(out_data);
         msg.len = out_data_size;
         msg.type = MSG_TYPE_REQ;
-        msg.frame_id = gen_frame_id();
 
         bool need_response = false;
 
@@ -387,13 +385,10 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
             xlog_dbg("no need response\n");
         }
 
-        if (need_response) {
-            TF_AddIdListener(_tf, &msg, id_listener_static, 0);
-            _buf.clear();
-            listener_id = msg.frame_id;
-        }
-
-        TF_Send(_tf, &msg);
+        Lock lock_buf(_mutex_buf);
+        _buf.clear();
+        TF_Query(_tf, &msg, id_listener_static, 5);
+        listener_id = msg.frame_id;
             
         if (need_response) {
             if (timeout < min_interval) {
@@ -403,7 +398,6 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
             auto start = Clock::now();
             auto dead = start + timeout;
 
-            Lock lock_buf(_mutex_buf);
             for (;;) {
                 auto now = Clock::now();
                 if (now >= dead) {
@@ -449,7 +443,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
 
 int UartProtMsg::input(const void *data, size_t size)
 {
-    uart_dump("input", (uint8_t const* )data, size);
+    // uart_dump("input", (uint8_t const* )data, size);
     TF_Accept(_tf, static_cast<const uint8_t*>(data), size);
     return 0;
 }
@@ -457,9 +451,4 @@ int UartProtMsg::input(const void *data, size_t size)
 enum UART_PROT_MODE UartProtMsg::type()
 {
     return UART_PROT_MODE_MSG;
-}
-
-int UartProtMsg::gen_frame_id()
-{
-    return s_frame_id++;
 }
