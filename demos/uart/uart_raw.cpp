@@ -259,7 +259,7 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
         }
         Lock lock_uart(obj->mutex_uart);
 
-        xlog_dbg("write: %zu bytes begin\n", size);
+        // xlog_dbg("write: %zu bytes begin\n", size);
 
         ssize_t ret = write(obj->uart_fd, data, size);
         if (ret < 0) {
@@ -282,7 +282,7 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
             break;
         }
 
-        xlog_dbg("write: %zu bytes end\n", size);
+        // xlog_dbg("write: %zu bytes end\n", size);
     } while (0);
 
     return error_flag ? -1 : 0;

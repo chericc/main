@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "xlog.h"
+#include "uart_dump_tool.h"
 
 std::shared_ptr<UartProt> UartProt::produce(enum UART_PROT_MODE mode,
     struct uart_prot_param const* param, std::function<int(void const*, size_t)> uart_write)
@@ -322,13 +323,15 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
             break;
         }
         
-        TF_Msg msg;
-        TF_ClearMsg(&msg);
-        msg.data = response_buf.data();
-        msg.len = response_buf_size;
-        msg.frame_id = msg.frame_id;
+        TF_Msg msg_resp;
+        TF_ClearMsg(&msg_resp);
+        msg_resp.data = response_buf.data();
+        msg_resp.len = response_buf_size;
+        msg_resp.frame_id = msg->frame_id;
 
-        ret = TF_Respond(tf, &msg);
+        xlog_dbg("respond with id: %d\n", (int)msg_resp.frame_id);
+
+        ret = TF_Respond(tf, &msg_resp);
         if (ret < 0) {
             xlog_err("respond failed\n");
             break;
@@ -379,6 +382,9 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
                 && resp_data_size 
                 && (*resp_data_size > 0) ) {
             need_response = true;
+            xlog_dbg("need response\n");
+        } else {
+            xlog_dbg("no need response\n");
         }
 
         if (need_response) {
@@ -425,6 +431,8 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
                 }
                 memcpy(resp_data, _buf.data(), _buf.size());
                 *resp_data_size = _buf.size();
+            } else {
+                xlog_war("got no content\n");
             }
         }
 
@@ -441,6 +449,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
 
 int UartProtMsg::input(const void *data, size_t size)
 {
+    uart_dump("input", (uint8_t const* )data, size);
     TF_Accept(_tf, static_cast<const uint8_t*>(data), size);
     return 0;
 }

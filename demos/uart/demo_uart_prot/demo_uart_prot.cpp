@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        uart_prot_switch_mode(prot, UART_PROT_MODE_RAW);
+        uart_prot_switch_mode(prot, UART_PROT_MODE_MSG);
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
