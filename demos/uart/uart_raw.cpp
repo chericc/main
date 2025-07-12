@@ -65,32 +65,63 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
     return ;
 }
 
+struct baudmap {
+    int speed_number;
+    speed_t speed_type;
+};
+
+#define BAUD_ITEM(speed_number) { speed_number, B##speed_number }
+
 static int convert_baudrate(int baudrate, speed_t *speed)
 {
-    bool error_flag = false;
+    baudmap map[] {
+        BAUD_ITEM(50),
+        BAUD_ITEM(75),
+        BAUD_ITEM(110),
+        BAUD_ITEM(134),
+        BAUD_ITEM(150),
+        BAUD_ITEM(200),
+        BAUD_ITEM(300),
+        BAUD_ITEM(600),
+        BAUD_ITEM(1200),
+        BAUD_ITEM(1800),
+        BAUD_ITEM(2400),
+        BAUD_ITEM(4800),
+        BAUD_ITEM(9600),
+        BAUD_ITEM(4800),
+        BAUD_ITEM(19200),
+        BAUD_ITEM(38400),
+        BAUD_ITEM(57600),
+        BAUD_ITEM(115200),
+        BAUD_ITEM(115200), 
+        BAUD_ITEM(230400), 
+        BAUD_ITEM(460800), 
+        BAUD_ITEM(500000), 
+        BAUD_ITEM(576000), 
+        BAUD_ITEM(921600), 
+        BAUD_ITEM(1000000),
+        BAUD_ITEM(1152000),
+        BAUD_ITEM(1500000),
+        BAUD_ITEM(2000000),
+        BAUD_ITEM(2500000),
+        BAUD_ITEM(3000000),
+        BAUD_ITEM(3500000),
+        BAUD_ITEM(4000000),
+    };
 
-    // just some common convert here
-    switch (baudrate) {
-        case 9600: {
-            *speed = B9600;
-            break;
-        }
-        case 115200: {
-            *speed = B115200;
-            break;
-        }
-        case 921600: {
-            *speed = B921600;
-            break;
-        }
-        default: {
-            xlog_err("not found: baudrate=%d\n", baudrate);
-            error_flag = true;
-            break;
+    bool found_flag = false;
+    for (auto const& ref : map) {
+        if (ref.speed_number == baudrate) {
+            *speed = ref.speed_type;
+            found_flag = true;
         }
     }
 
-    return error_flag ? -1 : 0;
+    if (!found_flag) {
+        xlog_err("not found for baudrate: %d\n", baudrate);
+    }
+
+    return found_flag ? 0 : -1;
 }
 
 static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
