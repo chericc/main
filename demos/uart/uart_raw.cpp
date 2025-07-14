@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
+#include <limits>
 
 #include <sys/prctl.h>
 
@@ -51,7 +52,7 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
             auto dur_pass = now - last_tp;
             last_tp = now;
             auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur_pass).count();
-            if (ms < 500) {
+            if (ms < 5) {
                 xlog_err("inner err: too frequent call(%d)", static_cast<int>(ms));
             }
         } else {
@@ -184,8 +185,8 @@ static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
         tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
         tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage return/line feed
 
-        tty.c_cc[VTIME] = 10; // Wait for up to 1s (10 deciseconds) for data
-        tty.c_cc[VMIN] = 0;
+        tty.c_cc[VTIME] = 1; // Wait for up to 1s (10 deciseconds) for data
+        tty.c_cc[VMIN] = std::numeric_limits<int8_t>().max(); // smallest max value for integer type
 
         if (tcsetattr(serial_port_fd, TCSANOW, &tty) != 0) {
             strerror_r(errno, buf, sizeof(buf));
