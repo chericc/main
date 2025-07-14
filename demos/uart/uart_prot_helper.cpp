@@ -4,7 +4,7 @@
 #include <thread>
 
 #include "xlog.h"
-#include "uart_dump_tool.h"
+#include "uart_tool.h"
 
 std::shared_ptr<UartProt> UartProt::produce(enum UART_PROT_MODE mode,
     struct uart_prot_param const* param, std::function<int(void const*, size_t)> uart_write)

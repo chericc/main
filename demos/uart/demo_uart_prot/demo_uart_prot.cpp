@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "xlog.h"
+#include "uart_tool.h"
 
 void on_request_cb(void const* in_data, size_t in_data_size,
     void *response_data, size_t *response_data_size)
@@ -96,7 +97,9 @@ int main(int argc, char *argv[])
                 }
             } else if (ret == 4) {
                 if (strstr(c1, "send")) {
-                    const char *content = c2;
+                    char c2_unexcape[64] = {};
+                    uart_unescape(c2, c2_unexcape, sizeof(c2_unexcape));
+                    const char *content = c2_unexcape;
                     size_t content_len = strlen(content);
                     int need_response = atoi(c3);
                     int timeout_ms = atoi(c4);

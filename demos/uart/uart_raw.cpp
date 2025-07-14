@@ -13,7 +13,7 @@
 #include <sys/prctl.h>
 
 #include "xlog.h"
-#include "uart_dump_tool.h"
+#include "uart_tool.h"
 
 using Lock = std::unique_lock<std::mutex>;
 
