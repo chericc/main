@@ -187,12 +187,15 @@ int UartProtRaw::input(const void *data, size_t size)
 
         // not requesting: i.e. input is request
         if (!_requesting) {
-            xlog_dbg("handle request\n");
-            ret = handle_request(data, size);
-            if (ret < 0) {
-                xlog_err("handle_request failed\n");
-                error_flag = true;
-            }
+            // xlog_dbg("handle request\n");
+            // ret = handle_request(data, size);
+            // if (ret < 0) {
+            //     xlog_err("handle_request failed\n");
+            //     error_flag = true;
+            // }
+            
+            xlog_dbg("raw mode not answering request\n");
+            // not an error (just ignored)
             break;
         }
 
