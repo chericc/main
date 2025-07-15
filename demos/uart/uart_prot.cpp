@@ -152,11 +152,11 @@ int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
 }
 
 int uart_prot_send(uart_prot_handle handle, 
-        void const* out_data, size_t out_data_size, 
-        void *in_data, size_t *in_data_size,
+        void const* request_data, size_t request_data_size, 
+        void *response_data, size_t *response_data_size,
         int timeout_ms)
 {
-    xlog_dbg("send: %zu bytes\n", out_data_size);
+    xlog_dbg("send: %zu bytes\n", request_data_size);
 
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
@@ -189,8 +189,8 @@ int uart_prot_send(uart_prot_handle handle,
             break;
         }
 
-        ret = obj->prot->request(out_data, out_data_size, 
-            in_data, in_data_size, 
+        ret = obj->prot->request(request_data, request_data_size, 
+            response_data, response_data_size, 
             std::chrono::milliseconds(timeout_ms));
         if (ret < 0) {
             xlog_err("request failed\n");

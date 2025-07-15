@@ -26,7 +26,7 @@ public:
     using Lock = std::unique_lock<std::mutex>;
 
     using cb_function_type = std::function<int(void const*, size_t)>;
-    static constexpr size_t buf_max_size = 1024;
+    static constexpr size_t buf_max_size = (UART_PROT_BUF_MAX_SIZE);
     
     static std::shared_ptr<UartProt> produce(enum UART_PROT_MODE mode, 
         struct uart_prot_param const* param, cb_function_type uart_write);
