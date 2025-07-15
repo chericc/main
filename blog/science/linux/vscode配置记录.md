@@ -98,6 +98,8 @@ Diagnostics:
         bugprone-*,
         portability-*,
         modernize-*,
+        readability-*,
+        cppcoreguidelines-pro-type-member-init,
       ]
     Remove:
       [
@@ -112,9 +114,9 @@ InlayHints:
   BlockEnd: Yes
   Designators: Yes
   Enabled: Yes
-  ParameterNames: No
-  DeducedTypes: No
-  TypeNameLimit: 24
+  ParameterNames: Yes
+  DeducedTypes: Yes
+  TypeNameLimit: 32
 ```
 
 ## width 
