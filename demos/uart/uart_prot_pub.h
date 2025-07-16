@@ -8,8 +8,8 @@ extern "C" {
 #endif // __cplusplus
 
 enum UART_PROT_MODE {
-    UART_PROT_MODE_NONE,
-    UART_PROT_MODE_RAW,
+    UART_PROT_MODE_NONE,        // send to uart with header and tail
+    UART_PROT_MODE_RAW,         // send to uart as it is
     UART_PROT_MODE_MSG,
 };
 

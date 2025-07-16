@@ -8,6 +8,7 @@
 #include "uart_raw.h"
 #include "uart_prot_helper.hpp"
 #include "xlog.h"
+#include "uart_tool.h"
 
 using Lock = std::unique_lock<std::mutex>;
 
@@ -196,6 +197,13 @@ int uart_prot_send(uart_prot_handle handle,
             xlog_err("request failed\n");
             error_flag = true;
             break;
+        }
+
+        uart_dump("request", (const uint8_t*)request_data, request_data_size);
+        if (response_data_size != nullptr) {
+            uart_dump("response", (const uint8_t*)response_data, *response_data_size);
+        } else {
+            APP_LOGW("no need response\n");
         }
     } while (0);
 
