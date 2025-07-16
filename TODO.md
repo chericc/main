@@ -19,6 +19,7 @@
 - [ ] cma内存与linux页迁移：为什么scudo分配器，在分配小内存时，无法使用剩余很多的cma内存，而分配大内存时，可以使用剩余的cma内存？页迁移：https://blog.csdn.net/21cnbao/article/details/108067917
 - [ ] android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md 及其对linux平台开发调试的启发，android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
 - [ ] seperate debug info(objcopy) blog
+- [ ] bloaty --- for file size analysis
 - [x] std::promise with producer and consumer
 - [x] png support (png --> rgba)(python can do this)
 - [x] 二级指针
