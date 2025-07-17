@@ -13,7 +13,7 @@ enum UART_PROT_MODE {
     UART_PROT_MODE_MSG,
 };
 
-typedef void (*uart_prot_on_data_cb)(void const* in_data, size_t in_data_size,
+typedef void (*uart_prot_on_data_cb)(void const* request_data, size_t request_data_size,
     void *response_data, size_t *response_data_size);
 
 struct uart_prot_param {
