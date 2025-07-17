@@ -124,7 +124,7 @@ int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
 {
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
-    xlog_dbg("switch mode: %s\n", uart_prot_mode_name(mode));
+    xlog_dbg("switch mode\n");
 
     bool error_flag = false;
     do {
@@ -140,12 +140,13 @@ int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
                 return uart_raw_write(obj->uart, data, size);
             };
             obj->prot = UartProt::produce(obj->mode, &obj->param, write_cb);
-        }
-        if (!obj->prot) {
-            xlog_err("null prot\n");
-            error_flag = true;
+            if (!obj->prot) {
+                xlog_err("switch failed\n");
+            } else {
+                xlog_dbg("switch to %s ok\n", uart_prot_mode_name(mode));
+            }
         } else {
-            xlog_dbg("mode switch suc\n");
+            xlog_dbg("mode same, no action\n");
         }
     } while (0);
     
@@ -199,12 +200,12 @@ int uart_prot_send(uart_prot_handle handle,
             break;
         }
 
-        uart_dump("request", (const uint8_t*)request_data, request_data_size);
-        if (response_data_size != nullptr) {
-            uart_dump("response", (const uint8_t*)response_data, *response_data_size);
-        } else {
-            APP_LOGW("no need response\n");
-        }
+        // uart_dump("request", (const uint8_t*)request_data, request_data_size);
+        // if (response_data_size != nullptr) {
+        //     uart_dump("response", (const uint8_t*)response_data, *response_data_size);
+        // } else {
+        //     APP_LOGW("no need response\n");
+        // }
     } while (0);
 
     return error_flag ? -1 : 0;

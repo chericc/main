@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
                     int need_response = atoi(c3);
                     int timeout_ms = atoi(c4);
 
-                    char res_buf[256] = {};
+                    char res_buf[UART_PROT_BUF_MAX_SIZE] = {};
                     size_t res_size = sizeof(res_buf);
 
                     if (!need_response) {

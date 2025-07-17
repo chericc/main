@@ -61,7 +61,7 @@ protected:
     // when being requested, input is treated as request.
     bool _requesting = false;
 
-    const Duration min_interval = std::chrono::milliseconds(500);
+    const Duration wake_up_interval = std::chrono::milliseconds(10);
 };
 
 /*

@@ -68,16 +68,6 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
         xlog_dbg("wait response begin\n");
 
         // wait response
-
-        /*
-        When we need response, wait a fixed time for the response
-        because we don't know end flag. To avoid invalid response data treat 
-        as request, we always wait no matter if response is needed.
-        */
-
-        if (timeout < min_interval) {
-            timeout = min_interval;
-        }
         
         auto start = Clock::now();
         auto dead = start + timeout;
@@ -86,7 +76,7 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
             if (now >= dead) {
                 break;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(wake_up_interval);
         }
 
         if (resp_data 
@@ -394,9 +384,6 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
         listener_id = msg.frame_id;
             
         if (need_response) {
-            if (timeout < min_interval) {
-                timeout = min_interval;
-            }
 
             auto start = Clock::now();
             auto dead = start + timeout;
@@ -411,7 +398,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
                 if (!_buf.empty()) {
                     break;
                 }
-                _cond_buf_changed.wait_for(lock_buf, std::chrono::milliseconds(50));
+                _cond_buf_changed.wait_for(lock_buf, wake_up_interval);
             }
 
             if (error_flag) {
