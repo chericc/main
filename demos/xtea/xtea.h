@@ -11,8 +11,8 @@ extern "C" {
 void xtea_encipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key[4]);
 void xtea_decipher(unsigned int num_rounds, uint32_t v[2], uint32_t const key[4]);
 
-void xtea_encipher_simple(const char *string, size_t size, 
-    uint8_t *out, size_t *out_size, const char *key, unsigned int rounds);
+int xtea_encipher_string(const void *string, size_t size, 
+    void *out, size_t *out_size, const char *key, unsigned int rounds, int encipher);
 
 #ifdef __cplusplus
 }

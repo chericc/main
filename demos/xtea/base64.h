@@ -1,8 +1,14 @@
-#ifndef BASE64_H
-#define BASE64_H
+#ifndef __BASE64_H__
+#define __BASE64_H__
 
 #define BASE64_ENCODE_OUT_SIZE(s) ((unsigned int)((((s) + 2) / 3) * 4 + 1))
 #define BASE64_DECODE_OUT_SIZE(s) ((unsigned int)(((s) / 4) * 3))
+
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif 
 
 /*
  * out is null-terminated encode string.
@@ -17,4 +23,8 @@ base64_encode(const unsigned char *in, unsigned int inlen, char *out);
 unsigned int
 base64_decode(const char *in, unsigned int inlen, unsigned char *out);
 
-#endif /* BASE64_H */
+#ifdef __cplusplus
+}
+#endif 
+
+#endif /* __BASE64_H__ */

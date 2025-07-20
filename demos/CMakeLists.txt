@@ -52,3 +52,5 @@ endif()
 if(${msvc})
 add_subdirectory(winusb)
 endif()
+
+add_subdirectory(xtea)
