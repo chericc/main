@@ -39,6 +39,7 @@ endif()
 
 # googletest
 find_library(LIB_GTEST gtest)
+find_path(HEADER_GTEST gtest/gtest.h)
 
 # ffmpeg
 find_library(LIB_FFMPEG_AVFORMAT avformat)
@@ -107,7 +108,6 @@ set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 
 set(G_TEST_COMM test_comm)
 set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
-set(G_TEST_COMM_LIB_PATH ${G_TSET_COMM_LIB_PATH}/lib)
 
 # xtools
 set(G_XTOOLS xtools)

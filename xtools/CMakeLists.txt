@@ -47,7 +47,7 @@ include_directories(
         xutility
         xtimer
         xtest
-        ${G_GOOGLETEST_INC_PATH}
+        ${HEADER_GTEST}
 )
 
 add_library(${G_XTOOLS} SHARED 
@@ -64,8 +64,8 @@ add_library(${G_XTOOLS} SHARED
 
 # tests
 
-if(WITH_GTEST)
-set(TEST_LIB ${G_GOOGLETEST} ${G_TEST_COMM})
+if(LIB_GTEST)
+set(TEST_LIB ${LIB_GTEST} ${G_TEST_COMM})
 endif()
 
 if(${gnu})
@@ -81,7 +81,9 @@ add_executable(${XTOOL_TEST_XLOG_DEMO}
         ${src_xlog_demo})
 target_link_libraries(${XTOOL_TEST_XLOG_DEMO} ${COMMON_LIB})
 
-if(WITH_GTEST)
+if(LIB_GTEST)
+include_directories(${HEADER_GTEST})
+
 # test_xthread
 add_executable(${XTOOL_TEST_XTHREAD} 
         ${src_xthread_test}
