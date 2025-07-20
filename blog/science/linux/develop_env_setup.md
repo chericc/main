@@ -569,3 +569,10 @@ export XMODIFIERS=@im=fcitx
 
 source ~/.bashrc; code
 ```
+
+### server
+
+```bash
+# quicker boot up (sshd, samba)
+sudo apt purge cloud-init
+```
