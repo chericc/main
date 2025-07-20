@@ -317,7 +317,7 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
 
         auto const len_max = std::numeric_limits<decltype(msg->len)>::max();
         if (response_buf_size > len_max) {
-            xlog_err("response too big for msg(%d > %d)\n", response_buf_size, len_max);
+            xlog_err("response too big for msg(%d > %d)\n", (int)response_buf_size, len_max);
             break;
         }
         
