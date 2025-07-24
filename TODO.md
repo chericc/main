@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] 图像的滤波、降噪（比如通过视频测心率）
 - [ ] c-ares
 - [ ] sqlite application
 - [ ] logtailer
