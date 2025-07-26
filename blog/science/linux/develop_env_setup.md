@@ -560,14 +560,12 @@ tmux source-file ~/.tmux.conf
 
 ## ubuntu
 
-### 不能调用输入法的问题
+### ibus-fonts
 
 ```bash
-export GTK_IM_MODULE=xim
-export QT_IM_MODULE=xim
-export XMODIFIERS=@im=fcitx
-
-source ~/.bashrc; code
+sudo apt install chrome-gnome-shell
+https://extensions.gnome.org/
+ibus-tweaker
 ```
 
 ### server
