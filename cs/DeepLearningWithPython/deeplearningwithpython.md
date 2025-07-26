@@ -317,6 +317,25 @@ print(train_images.dtype) # uint8
 我们用Matplotlib库来显示这个3阶张量中的第4个数字。
 
 ```python
-import 
+from keras.datasets import mnist
+import matplotlib.pyplot as plt
+
+(train_images, train_labels), (test_images, test_labels) = mnist.load_data()
+
+print(train_images.ndim) # 3
+print(train_images.shape) # (60000, 28, 28)
+print(train_images.dtype) # uint8
+
+digit = train_images[4]
+plt.imshow(digit, cmap='binary')
+plt.savefig('plot.png')
+
+print('label: ', train_labels[4])
 ```
+
+#### 2.2.6 在NumPy中操作张量
+
+在前面的例子中，我们使用语法`train_images[i]`来沿着第一个轴选择某张数字图像。选择张量的特定元素叫作张量切片。我们来看一下NumPy数组可以做哪些张量切片运算。
+
+
 
