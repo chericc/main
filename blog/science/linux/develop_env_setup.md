@@ -568,6 +568,7 @@ https://extensions.gnome.org/
 ibus-tweaker
 clipboard indicator
 vitals
+text scaler
 window list
 ```
 
