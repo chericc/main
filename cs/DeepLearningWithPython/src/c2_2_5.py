@@ -7,8 +7,8 @@ print(train_images.ndim) # 3
 print(train_images.shape) # (60000, 28, 28)
 print(train_images.dtype) # uint8
 
+print('label: ', train_labels[4])
+
 digit = train_images[4]
 plt.imshow(digit, cmap='binary')
-plt.savefig('plot.png')
-
-print('label: ', train_labels[4])
+plt.show()
