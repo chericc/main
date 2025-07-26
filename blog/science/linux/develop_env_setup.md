@@ -566,6 +566,9 @@ tmux source-file ~/.tmux.conf
 sudo apt install chrome-gnome-shell
 https://extensions.gnome.org/
 ibus-tweaker
+clipboard indicator
+vitals
+window list
 ```
 
 ### server
