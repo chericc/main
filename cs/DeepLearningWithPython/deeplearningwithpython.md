@@ -428,3 +428,58 @@ batch  = train_images[128 * n, 128 * (n + 1)]
 
 ### 2.3 神经网络的“齿轮”：张量运算
 
+所有计算机程序最终都可以简化为对二进制输入的一些二进制运算，与此类似，深度神经网络学到的所有变换也可以简化为对数值数据张量的一些张量运算或张量函数。
+
+下面是一个keras层的实例：
+
+```python
+layers.Dense(512, activation="relu")
+```
+
+可以将这个层理解为一个函数，其输入是一个矩阵，返回的是另一个矩阵，即输入张量的新表示。这个函数具体如下：
+
+```python
+output = relu(dot(input, W) + b)
+```
+
+将该式拆开，这里有3个张量运算。
+
+- 输入张量和张量W之间的点积运算（dot）
+- 由此得到的矩阵与向量b之间的加法运算（+）
+- relu运算。relu(x)就是max(x, 0)，relu代表“修正线性单元”。
+
+#### 2.3.1 逐元素运算
+
+relu运算和加法都是逐元素运算，即该运算分别应用于张量的每一个元素。这些运算非常适合大规模并行实现（向量化实现）。
+
+下列代码是对逐元素relu运算的简单实现。
+
+```python
+def naive_relu(x: np.array):
+    assert len(x.shape) == 2
+    x = x.copy()
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            x[i,j] = max(x[i,j], 0)
+    return x
+```
+
+对于加法，可以使用同样的实现方法：
+
+```python
+def naive_add(x: np.array, y: np.array):
+    assert len(x.shape) == 2
+    assert x.shape == y.shape
+    x = x.copy()
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            x[i, j] += y[i, j]
+    return x
+```
+
+在实践中处理NumPy数组时，这些运算都是优化好的NumPy内置函数。这些函数将大量运算交给基础线性代数程序集（Basic Linear Algebra Subprograms, BLAS）实现。BLAS是低层次、高度并行、高效的张量操作程序，通常用Fortran或C语言来实现。
+
+同样，在GPU上运行TensorFlow代码，逐元素运算都是通过完全向量化的CUDA来完成的，可以最大限度地利用高度并行的GPU芯片架构。
+
+#### 2.3.2 广播
+
