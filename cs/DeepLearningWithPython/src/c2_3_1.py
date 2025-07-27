@@ -19,7 +19,7 @@ def naive_add(x: np.array, y: np.array):
             x[i, j] += y[i, j]
     return x
 
-x = np.random.random((20, 100))
+x = np.random.random((20, 100)) # generating a random tensor with shape (20, 100)
 y = np.random.random((20, 100))
 
 t0 = time.time()
