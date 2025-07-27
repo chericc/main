@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <thread>
+#include <array>
 
 #include "xlog.h"
 #include "uart_tool.h"
