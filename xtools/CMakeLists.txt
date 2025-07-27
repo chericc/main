@@ -47,7 +47,6 @@ include_directories(
         xutility
         xtimer
         xtest
-        ${HEADER_GTEST}
 )
 
 add_library(${G_XTOOLS} SHARED 
