@@ -578,5 +578,68 @@ print(z.shape) # (64, 3, 32, 10)
 
 在NumPy中，使用`np.dot`函数来实现张量积，因为张量积的数学符号通常是一个点(dot)。
 
-从数学角度看，点积的运算过程如下：
+从数学角度看，两个向量x和y的点积计算过程如下：
+
+```python
+def naive_vector_dot(x: np.array, y: np.array):
+    assert len(x.shape) == 1
+    assert len(y.shape) == 1
+    assert x.shape[0] == y.shape[0]
+    z = 0.0
+    for i in range(x.shape[0]):
+        z += x[i] * y[i]
+    return z
+```
+
+还可以对一个矩阵x和一个向量y做点积运算，其返回值是一个向量，其中每个元素是y和x每一行的点积。实现过程如下。
+
+```python
+def naive_matrix_vector_dot(x: np.array, y: np.array):
+    assert len(x.shape) == 2
+    assert len(y.shape) == 1
+    assert x.shape[1] == y.shape[0]
+    z = np.zeros(x.shape[0])
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            z[i] += x[i, j] * y[j]
+    return z
+```
+
+可以复用向量的点积，如下：
+
+```python
+def naive_matrix_vector_dot_v2(x: np.array, y: np.array):
+    z = np.zeros(x.shape[0])
+    for i in range(x.shape[0]):
+        z[i] = naive_vector_dot(x[i, :], y)
+    return z
+```
+
+点击可以推广到具有任意轴的张量。最常见的应用可能是两个矩阵的点积。对于矩阵x和y，当且仅当`x.shape[1] == y.shape[0]`时，你才可以计算它们的点积。点积结果是一个形状为`(x.shape[0], y.shape[1])`的矩阵。简单实现如下：
+
+```python
+def naive_matrix_dot(x: np.array, y: np.array):
+    assert len(x.shape) == 2
+    assert len(y.shape) == 2
+    assert x.shape[1] == y.shape[0]
+    z = np.zeros((x.shape[0], y.shape[1]))
+    for i in range(x.shape[0]):
+        for j in range(y.shape[1]):
+            row_x = x[i, :]
+            column_y = y[:, j]
+            z[i, j] = naive_vector_dot(row_x, column_y)
+    return z
+```
+
+更一般地说，可以对更高阶的张量做点积运算，只要其形状匹配遵循与前面2阶张量相同的原则。
+$$
+(a, b, c, d)\cdot (d,)\rightarrow (a, b, c)\\
+(a, b, c, d)\cdot (d, e)\rightarrow (a, b, c, e)
+$$
+
+> 如何理解张量的点积？
+>
+> 和向量点积将两个向量点积后得到一个标量，实现了维度的收缩一样，张量的点积本质是对两个张量在指定维度上进行收缩，运算是对应的元素求乘积，对应维度求和，然后消除该维度。
+
+#### 2.3.4 张量变形
 
