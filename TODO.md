@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] libstdc++: cond.wait bug(system clock)
+- [ ] libc: res bug(/etc/resolv.conf error leads to getaddrinfo fail forever)
 - [ ] 图像的滤波、降噪（比如通过视频测心率）
 - [ ] c-ares
 - [ ] sqlite application
