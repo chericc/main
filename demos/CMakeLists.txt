@@ -26,6 +26,10 @@ if(LIB_LVGL)
 add_subdirectory(lvgl/demo)
 endif()
 
+if(${gnu})
+add_subdirectory(my_cond)
+endif()
+
 if(LIB_NANOMSG)
 add_subdirectory(nanomsg)
 endif()
