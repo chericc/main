@@ -7,10 +7,11 @@
 #include <vector>
 #include <mutex>
 #include <cstdint>
-#include <condition_variable>
 
 #include "uart_prot_pub.h"
 #include "TinyFrameWrapper.h"
+
+#include "my_cond.hpp"
 
 /*
 
@@ -53,7 +54,7 @@ protected:
     cb_function_type _cb_write_uart;
 
     std::mutex _mutex_buf;
-    std::condition_variable  _cond_buf_changed;
+    cyan::condition_variable  _cond_buf_changed;
     std::vector<uint8_t> _buf;
 
     // uart can only in requsting or being requested mode.

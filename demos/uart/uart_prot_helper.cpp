@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <thread>
-#include <array>
 
 #include "xlog.h"
 #include "uart_tool.h"
@@ -77,7 +76,7 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
             if (now >= dead) {
                 break;
             }
-            std::this_thread::sleep_for(wake_up_interval);
+            std::this_thread::sleep_until(dead);
         }
 
         if (resp_data 

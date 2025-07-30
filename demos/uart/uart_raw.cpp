@@ -40,8 +40,32 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
 
     while (!obj->break_flag) {
         
+        int ret = 0;
+
+        {
+            fd_set set = {};
+            struct timeval stv = {};
+            FD_ZERO(&set);
+            FD_SET(obj->uart_fd, &set);
+            stv.tv_sec = 1;
+            stv.tv_usec = 0;
+            
+            ret = select(obj->uart_fd + 1, &set, nullptr, nullptr, &stv);
+            if (ret < 0) {
+                xlog_err("select failed\n");
+                break;
+            } else if (ret == 0) {
+                // select timeout
+                continue;
+            } else {
+                // got data. read then.
+                xlog_dbg("got data, read\n");
+            }
+        }
+
         char buf[128] = {};
-        ssize_t ret = read(obj->uart_fd, buf, sizeof(buf));
+        ret = read(obj->uart_fd, buf, sizeof(buf));
+        xlog_dbg("ret: %d\n", ret);
         if (ret > 0) {
             if (obj->param.read_cb) {
                 uart_dump("read", (uint8_t*)buf, ret);

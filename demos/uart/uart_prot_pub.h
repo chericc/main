@@ -22,7 +22,7 @@ struct uart_prot_param {
     uart_prot_on_data_cb on_reqeust_cb;
 };
 
-#define UART_PROT_BUF_MAX_SIZE      (16 * 1024)
+#define UART_PROT_BUF_MAX_SIZE      (1 * 1024)
 
 #ifdef __cplusplus
 }
