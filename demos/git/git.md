@@ -1,6 +1,6 @@
 # git
 
-## 分支
+## branch
 
 ```bash
 
@@ -21,6 +21,27 @@ git checkout -b `branchname` origin/`branchname`
 
 # 查看分支信息
 git reflog --date=local --all
+
+# switch branch 
+git checkout <branchname>
+
+# delete branch 
+git branch -d <branchname>
+
+# create branch 
+git branch <branchname>
+
+# connect to remote branch 
+git branch -u origin/<remote-branch> <local-branch>
+
+# info
+git branch -vv
+
+# push local branch to remote
+git push origin <local-branch-name>[:<remote-branch-name>]
+
+# track branch
+git branch --set-upstream-to=origin/<branchname> <branchname>
 
 ```
 
@@ -140,33 +161,6 @@ echo "\`\`\`" >> $logfile
 ```bash
 # print more info
 git log --oneline --graph --decorate --all
-```
-
-## branch 
-
-```bash
-
-# switch branch 
-git checkout <branchname>
-
-# delete branch 
-git branch -d <branchname>
-
-# create branch 
-git branch <branchname>
-
-# connect to remote branch 
-git branch -u origin/<remote-branch> <local-branch>
-
-# info
-git branch -vv
-
-# push local branch to remote
-git push origin <local-branch-name>[:<remote-branch-name>]
-
-# track branch
-git branch --set-upstream-to=origin/<branchname> <branchname>
-
 ```
 
 ## git clone --recursive failed
