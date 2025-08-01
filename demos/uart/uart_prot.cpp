@@ -98,6 +98,7 @@ uart_prot_handle uart_prot_init(const struct uart_prot_param *param)
         if (obj->uart == uart_raw_handle_invalid) {
             xlog_err("uart_raw_open failed\n");
             error_flag = true;
+            break;
         }
 
         uart_raw_flush(obj->uart, UART_RAW_FLUSH_IN_OUT);
