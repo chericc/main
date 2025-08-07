@@ -75,11 +75,11 @@ class PortTypeHelper:
         if self.type == PortDeviceType.Camera:
             self.version_file_path = os.path.join(volume, g_config.camera_version_file_path)
             self.update_file_dst_path = os.path.join(volume, g_config.camera_update_dst_file_path)
-            self.update_file_src_path = os.path.join(volume, g_config.camera_update_file_from_path)
+            self.update_file_src_path = os.path.join(os.getcwd(), g_config.camera_update_file_from_path)
         elif self.type == PortDeviceType.Screen:
             self.version_file_path = os.path.join(volume, g_config.screen_version_file_path)
             self.update_file_dst_path = os.path.join(volume, g_config.screen_update_dst_file_path)
-            self.update_file_src_path = os.path.join(volume, g_config.screen_update_file_from_path)
+            self.update_file_src_path = os.path.join(os.getcwd(), g_config.screen_update_file_from_path)
         else:
             logging.error('unknown port dev type')
     def get_version_src(self) -> str:
