@@ -169,6 +169,10 @@ class StatusMonitorApp:
                     bg_color = self.color_active
                     fg_color = self.color_font_active
                     text_state = '升级准备'
+                elif status.get_port_state() == status_checker.PortStateType.COPYFILE:
+                    bg_color = self.color_active
+                    fg_color = self.color_font_active
+                    text_state = '拷贝文件'
                 elif status.get_port_state() == status_checker.PortStateType.UPGRADING:
                     bg_color = self.color_active
                     fg_color = self.color_font_active

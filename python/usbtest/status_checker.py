@@ -13,6 +13,10 @@ import copy
 import os
 import shutil
 import logging
+from enum import auto
+
+from myfilecp import MyFileCopy
+from myfilecp import CopyStatus
 
 # 直接返回10个端口的状态，上层直接显示
 
@@ -29,14 +33,20 @@ class RunningState(Enum):
     HANDLEPORTS = 2
 
 class PortStateType(Enum):
-    INIT = 1
-    WAITINSERT = 2
-    WAITVOLUMEMOUNT = 3
-    UPGRADEPREPARE = 4
-    UPGRADING = 5
-    CHECKVERSION = 6
-    UPGRADED = 7
-    ERROR = 8
+    INIT = auto()
+    WAITINSERT = auto()
+    WAITVOLUMEMOUNT = auto()
+    UPGRADEPREPARE = auto()
+    COPYFILE = auto()
+    UPGRADING = auto()
+    CHECKVERSION = auto()
+    UPGRADED = auto()
+    ERROR = auto()
+
+class PortContext:
+    def __init__(self):
+        self.filecp : MyFileCopy = None
+        self.porttypehelper: PortTypeHelper = None
 
 class PortState:
     def __init__(self):
@@ -151,10 +161,16 @@ class StatusChecker:
         self.__port_ctl = UsbSerialCmd(self.__serial_name)
         self.__system = MySystem()
         self.__port_states: list[PortState] = []
+        self.__port_context: list[PortContext] = []
         if len(self.__port_states) == 0:
             for i in range(g_config.hub_port_count):
                 port_state = PortState()
                 self.__port_states.append(port_state)
+        
+        if len(self.__port_context) == 0:
+            for i in range(g_config.hub_port_count):
+                port_ctx = PortContext()
+                self.__port_context.append(port_ctx)
 
     def get_port_state(self):
         return copy.deepcopy(self.__port_states)
@@ -208,21 +224,6 @@ class StatusChecker:
             logging.error('port[%s] state[%s]', port_info.port_number, \
                         state.get_port_state(), stacklevel=2)
         return 
-
-    def run_handle_ports(self):
-        all_ports_info = self.__system.get_all_ports_dev_info()
-        for i in range(g_config.hub_port_count):
-            found_flag = False
-            for k in all_ports_info:
-                if k.port_number == (i + 1):
-                    found_flag = True
-                    
-                    self.run_port(self.__port_states[i], k)
-                    break
-            if not found_flag:
-                port_info = PortsDevInfo()
-                port_info.port_number = i + 1
-                self.run_port(self.__port_states[i], port_info)
 
     def run_handle_one_port_init(self, state: PortState, port_info: PortsDevInfo):
         # check if port exist
@@ -280,26 +281,21 @@ class StatusChecker:
         if self.check_need_update_with_version(version_now, version_dst):
             self.logging_ports_debug(state, port_info, 'need update: %s --> %s', version_now, version_dst)
             self.logging_ports_debug(state, port_info, 'cp ota file: %s --> %s', helper.update_file_src_path, helper.update_file_dst_path)
-            shutil.copyfile(helper.update_file_src_path, helper.update_file_dst_path)
-            time.sleep(0.2)
-            self.logging_ports_debug(state, port_info, 'power off')
-            self.__port_ctl.control_usb_port(port_info.port_number, False)
-            time.sleep(0.2)
-            self.logging_ports_debug(state, port_info, 'power on')
-            self.__port_ctl.control_usb_port(port_info.port_number, True)
-            state.set_port_state(PortStateType.UPGRADING, port_info.volume)
+            state.set_port_state(PortStateType.COPYFILE, port_info.volume)
+            return 
         else:
             state.set_port_state(PortStateType.CHECKVERSION, port_info.volume)
             self.logging_ports_debug(state, port_info, 'need not update: dst=%s, now=%s', version_dst, version_now)
         return
 
-    def run_handle_one_port_upgrade_prepare(self, state: PortState, port_info: PortsDevInfo):
+    def run_handle_one_port_upgrade_prepare(self, state: PortState, port_info: PortsDevInfo, port_ctx: PortContext):
         self.logging_ports_debug(state, port_info, 'in state')
         if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
             state.set_port_state(PortStateType.INIT)
             self.logging_ports_debug(state, port_info, 'in state')
             return
         port_type_helper = self.gen_port_helper(port_info.volume)
+        port_ctx.porttypehelper = port_type_helper
         if port_type_helper is None:
             state.set_port_state(PortStateType.ERROR, volume=port_info.volume, info='not support device')
             self.logging_ports_debug(state, port_info, 'not support device')
@@ -307,12 +303,51 @@ class StatusChecker:
         else:
             self.do_camera_upgrade_prepare(port_type_helper, state, port_info)
 
+    
+    def run_handle_one_port_copy_ota_file(self, state: PortState, port_info: PortsDevInfo, port_ctx: PortContext):
+        if port_ctx.porttypehelper is None:
+            self.logging_ports_debug(state, port_info, 'porttypehelper is none')
+            state.set_port_state(PortStateType.ERROR, port_info.volume)
+
+        if port_ctx.filecp is None:
+            port_ctx.filecp = MyFileCopy(src_path=port_ctx.porttypehelper.update_file_src_path, 
+                                         dst_path=port_ctx.porttypehelper.update_file_dst_path)
+
+        copy_stat = port_ctx.filecp.get_status()
+        self.logging_ports_debug(state, port_info, 'file copy state: %s / %s', copy_stat.status, copy_stat.progress)
+        if copy_stat.status != CopyStatus.COPYING:
+            port_ctx.filecp = None
+            if copy_stat.status == CopyStatus.COMPLETED:
+                self.logging_ports_debug(state, port_info, 'copy fin')
+                time.sleep(g_config.copy_over_poweroff_delay)
+                self.logging_ports_debug(state, port_info, 'power off')
+                self.__port_ctl.control_usb_port(port_info.port_number, False)
+                time.sleep(0.2)
+                self.logging_ports_debug(state, port_info, 'power on')
+                self.__port_ctl.control_usb_port(port_info.port_number, True)
+                state.set_port_state(PortStateType.UPGRADING, port_info.volume)
+            elif copy_stat.status == CopyStatus.ERROR:
+                self.logging_ports_debug(state, port_info, 'copy failed')
+                state.set_port_state(PortStateType.ERROR, port_info.volume)
+            else:
+                self.logging_ports_debug(state, port_info, 'unknown state type: %s', copy_stat.status)
+                state.set_port_state(PortStateType.ERROR, port_info.volume)
+        else:
+            # copying
+
+            if state.state_update_duration() > g_config.maximum_upgrade_duration_sec:
+                self.logging_ports_error(state, port_info, 'upgrade timeout')
+                port_ctx.filecp.cancel()
+                port_ctx.filecp = None
+                state.set_port_state(PortStateType.ERROR, 'timeout')
+                return
+            
     def run_handle_one_port_upgrading(self, state: PortState, port_info: PortsDevInfo):
         self.logging_ports_debug(state, port_info, 'in state')
 
         if state.state_update_duration() > g_config.maximum_upgrade_duration_sec:
             self.logging_ports_error(state, port_info, 'upgrade timeout')
-            state.set_port_state(PortStateType.INIT)
+            state.set_port_state(PortStateType.ERROR)
             return
 
         if len(port_info.dev_id) == 0 or len(port_info.volume) == 0:
@@ -388,7 +423,7 @@ class StatusChecker:
             self.logging_ports_debug(state, port_info, 'in state')
             return
 
-    def run_port(self, state: PortState, port_info: PortsDevInfo):
+    def run_port(self, state: PortState, port_info: PortsDevInfo, port_ctx: PortContext):
         try:
             if state.get_port_state() == PortStateType.INIT:
                 self.run_handle_one_port_init(state, port_info)
@@ -397,7 +432,9 @@ class StatusChecker:
             elif state.get_port_state() == PortStateType.WAITVOLUMEMOUNT:
                 self.run_handle_one_port_wait_volume_mount(state, port_info)
             elif state.get_port_state() == PortStateType.UPGRADEPREPARE:
-                self.run_handle_one_port_upgrade_prepare(state, port_info)
+                self.run_handle_one_port_upgrade_prepare(state, port_info, port_ctx)
+            elif state.get_port_state() == PortStateType.COPYFILE:
+                self.run_handle_one_port_copy_ota_file(state, port_info, port_ctx)
             elif state.get_port_state() == PortStateType.UPGRADING:
                 self.run_handle_one_port_upgrading(state, port_info)
             elif state.get_port_state() == PortStateType.CHECKVERSION:
@@ -413,6 +450,20 @@ class StatusChecker:
             state.set_port_state(PortStateType.ERROR, volume=f'{port_info.volume}', info=f'Error{e}')
             self.logging_ports_error(state, port_info, 'into state')
 
+    def run_handle_ports(self):
+        all_ports_info = self.__system.get_all_ports_dev_info()
+        for i in range(g_config.hub_port_count):
+            found_flag = False
+            for k in all_ports_info:
+                if k.port_number == (i + 1):
+                    found_flag = True
+                    
+                    self.run_port(self.__port_states[i], k, self.__port_context[i])
+                    break
+            if not found_flag:
+                port_info = PortsDevInfo()
+                port_info.port_number = i + 1
+                self.run_port(self.__port_states[i], port_info, self.__port_context[i])
 
     def run(self):
         if self.__running_state == RunningState.INIT:

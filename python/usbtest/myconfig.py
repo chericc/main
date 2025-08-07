@@ -23,6 +23,7 @@ class MyConfig:
     wifi_check_version = True
     wifi_dst_version: str = 'v1.1.32'
     wifi_version_keyword: str = 'wifi_version'
+    copy_over_poweroff_delay = 2
 
     _config_file: str = 'config.json'
 
