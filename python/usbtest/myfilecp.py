@@ -53,6 +53,7 @@ class MyFileCopy:
                     if not chunk:
                         break
                     dst.write(chunk)
+                    dst.flush()
                     self.bytes_copied += len(chunk)
                     # logging.info("write %d/%d", self.bytes_copied, self.bytes_total)
             

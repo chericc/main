@@ -274,6 +274,7 @@ class StatusChecker:
             logging.debug('screen version file detected')
             return port_file_helper_screen
         else:
+            logging.error('no version file detected')
             return None
 
     def check_need_update_with_version(self, version_now: str, version_dst: str):
@@ -375,7 +376,8 @@ class StatusChecker:
             self.logging_ports_error(state, port_info, 'get version failed: dst=%s, now=%s', version_dst, version_now)
             return
         if int(version_now) != int(version_dst):
-            self.logging_ports_debug(state, port_info, 'upgrade: version not equal, wait: %s/%s', \
+            self.logging_ports_debug(state, port_info, 'upgrade: version not equal(now:%s, dst:%s), wait: %s/%s', \
+                                    version_now, version_dst,
                                     state.state_update_duration(), g_config.maximum_upgrade_duration_sec)
             return
         self.logging_ports_info(state, port_info, 'upgrade successful')
