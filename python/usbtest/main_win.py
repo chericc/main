@@ -7,9 +7,13 @@ from queue import Queue
 import tkinter as tk
 from tkinter import ttk
 
+import wmi
+import time
+
 import status_checker
 import myexception
 from myconfig import g_config
+import pythoncom
 
 class StatusMonitorApp:
     def __init__(self, root):
@@ -39,6 +43,9 @@ class StatusMonitorApp:
 
         # 创建UI
         self.setup_ui()
+
+        # 监控USB事件
+        self.start_usb_monitoring()
 
         # 启动状态监控线程
         self.start_monitor_thread()
@@ -93,6 +100,40 @@ class StatusMonitorApp:
             daemon=True
         )
         self.monitor_thread.start()
+
+    def on_usb_event(self, message):
+        logging.debug('event: %s', str(message))
+        self.status_checker.update_all_ports_dev_info()
+
+    def start_usb_monitoring(self):
+        # Add a flag to track if we've recently detected a USB event
+        self.last_usb_event_time = 0
+        self.event_debounce_interval = 0.5  # seconds
+        
+        def monitor_usb():
+            pythoncom.CoInitialize()
+            c = wmi.WMI()
+            watcher = c.Win32_DeviceChangeEvent.watch_for(
+                notification_type="Creation",
+                delay_secs=1
+            )
+
+            self.root.after(0, self.on_usb_event, "init")
+
+            while True:
+                try:
+                    watcher()
+                    current_time = time.time()
+                    # Only log if enough time has passed since last event
+                    if current_time - self.last_usb_event_time > self.event_debounce_interval:
+                        self.root.after(0, self.on_usb_event, "USB device change detected")
+                    self.last_usb_event_time = current_time
+                except Exception as e:
+                    self.root.after(0, self.on_usb_event, f"Error: {str(e)}")
+                    break
+        
+        thread = threading.Thread(target=monitor_usb, daemon=True)
+        thread.start()
 
     def status_check(self):
         self.status_checker.run()

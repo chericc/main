@@ -14,6 +14,7 @@ import os
 import shutil
 import logging
 from enum import auto
+import threading
 
 from myfilecp import MyFileCopy
 from myfilecp import CopyStatus
@@ -162,6 +163,8 @@ class StatusChecker:
         self.__system = MySystem()
         self.__port_states: list[PortState] = []
         self.__port_context: list[PortContext] = []
+        self.__all_ports_info_cache: list[PortsDevInfo] = []
+        self.__lock = threading.Lock()
         if len(self.__port_states) == 0:
             for i in range(g_config.hub_port_count):
                 port_state = PortState()
@@ -180,11 +183,20 @@ class StatusChecker:
         self.__port_ctl.control_all_port(open=True)
         logging.debug('into AllPowerUp state')
         self.__running_state = RunningState.ALLPOWERUP
+
+    def update_all_ports_dev_info(self):
+        with self.__lock:
+            self.__all_ports_info_cache = self.__system.get_all_ports_dev_info()
+
+    def get_all_ports_dev_info(self)->list[PortsDevInfo]:
+        with self.__lock:
+            return self.__all_ports_info_cache
+
     def run_all_powerup(self):
         # 所有端口上电后，等待设备开机
         for count in range(g_config.wait_port_seconds):
             time.sleep(1)
-            all_ports_info = self.__system.get_all_ports_dev_info()
+            all_ports_info = self.get_all_ports_dev_info()
             if len(all_ports_info) > 0:
                 logging.debug('some port inserted')
                 break
@@ -335,8 +347,9 @@ class StatusChecker:
         else:
             # copying
 
-            if state.state_update_duration() > g_config.maximum_upgrade_duration_sec:
-                self.logging_ports_error(state, port_info, 'upgrade timeout')
+            in_state_dura = state.state_update_duration()
+            if in_state_dura > g_config.maximum_upgrade_duration_sec:
+                self.logging_ports_error(state, port_info, 'upgrade timeout(%.2f)', in_state_dura)
                 port_ctx.filecp.cancel()
                 port_ctx.filecp = None
                 state.set_port_state(PortStateType.ERROR, 'timeout')
@@ -451,7 +464,7 @@ class StatusChecker:
             self.logging_ports_error(state, port_info, 'into state')
 
     def run_handle_ports(self):
-        all_ports_info = self.__system.get_all_ports_dev_info()
+        all_ports_info = self.get_all_ports_dev_info()
         for i in range(g_config.hub_port_count):
             found_flag = False
             for k in all_ports_info:

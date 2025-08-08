@@ -8,6 +8,7 @@ import pythoncom
 from contextlib import contextmanager
 import logging
 import myresource
+import time
 
 class PortsDevInfo:
     def __init__(self):
@@ -116,9 +117,13 @@ class MySystem:
                     break
 
     def get_all_ports_dev_info(self) -> list[PortsDevInfo]:
+        start_time = time.time()
         self.get_usb_tree_view_as_xml(self.__default_xml_file)
         dev_infos = self.parse_usb_xml(self.__default_xml_file)
         self.complete_volume(dev_infos)
+        end_time = time.time()
+        logging.debug('cost time: %.2f', end_time - start_time)
+
         sorted_infos = sorted(dev_infos, key=lambda x: x.port_number)
         return sorted_infos
 
@@ -139,22 +144,32 @@ class MySystem:
         drive_letters = []
         try:
             disk_index = None
-            disk_drives = c.Win32_DiskDrive()
-            for disk_drive in disk_drives:
-                logging.debug('disk_drive: %s, index: %s', disk_drive.PNPDeviceID, disk_drive.Index)
-                if disk_drive.PNPDeviceID == dev_id:
-                    logging.debug('found disk')
-                    disk_index = disk_drive.Index
+
+            query = fr"SELECT Index FROM Win32_DiskDrive WHERE PNPDeviceID = '{dev_id}'"
+            
+            disk_drive = c.query(query)
+            if len(disk_drive) > 0:
+                logging.debug('found disk')
+                disk_index = disk_drive[0].Index
+
             if disk_index is None:
                 return None
-            disk_partitions = c.Win32_DiskPartition()
-            for disk_partition in disk_partitions:
-                if disk_partition.DiskIndex == disk_index:
-                    logging.debug('found partition')
-                    logical_disks = disk_partition.associators('Win32_LogicalDiskToPartition')
-                    for logical_disk in logical_disks:
-                        logging.debug('ldisk: %s', logical_disk.Name)
-                        drive_letters.append(logical_disk.Name)
+            
+            query = fr"SELECT DeviceID FROM Win32_DiskPartition WHERE DiskIndex = {disk_index}"
+            disk_partitions = c.query(query)
+
+            if len(disk_partitions) == 0:
+                return None
+            
+            deviceid = disk_partitions[0].DeviceID
+
+            query = "SELECT Dependent,Antecedent FROM Win32_LogicalDiskToPartition"
+            disktoparts = c.query(query)
+            for disktopart in disktoparts:
+                if deviceid in str(disktopart.Antecedent):
+                    drive_letters.append(disktopart.Dependent.Name)
+                    break
+
             return drive_letters
         except Exception as e:
             logging.error("An error occurred: %s", e)
@@ -171,6 +186,10 @@ class MySystem:
         return disk_id_str
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s %(levelname)s %(filename)s:%(lineno)s:%(funcName)s %(message)s',
+    )
     logging.info("begin")
     sys = MySystem()
     dev_infos = sys.get_all_ports_dev_info()

@@ -49,7 +49,7 @@ class MyFileCopy:
                             logging.error('remove failed: %s, %s', self.dst_path, str(e))
                         return
                     
-                    chunk = src.read(128 * 1024)  # 128KB chunks
+                    chunk = src.read(1024 * 1024)
                     if not chunk:
                         break
                     dst.write(chunk)
