@@ -18,7 +18,7 @@ import pythoncom
 class StatusMonitorApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("升级程序")
+        self.root.title("升级程序（手动刷新版本）")
         self.buttons = []
         self.status_queue = Queue()
         self.running = True
@@ -34,6 +34,8 @@ class StatusMonitorApp:
         self.color_font_inserted = self.color_font_dark
         self.color_active = 'blue'
         self.color_font_active = self.color_font_bright
+        self.color_upgrading = 'yellow'
+        self.color_font_upgrading = self.color_font_dark
         self.color_ok = 'green'
         self.color_font_ok = self.color_font_bright
         self.color_error = 'darkred'
@@ -45,7 +47,7 @@ class StatusMonitorApp:
         self.setup_ui()
 
         # 监控USB事件
-        self.start_usb_monitoring()
+        # self.start_usb_monitoring()
 
         # 启动状态监控线程
         self.start_monitor_thread()
@@ -87,11 +89,10 @@ class StatusMonitorApp:
         control_frame = ttk.Frame(main_frame)
         control_frame.pack(fill='x', pady=10)
 
-        self.status_label = tk.Label(control_frame, text="状态: 运行中", fg="green")
+        self.status_label = tk.Label(control_frame, text="全部拔出后点击刷新清除状态；设备全部接入点击刷新后开始升级；设备全部进入升级中状态并启动后点击刷新校验版本", fg="black")
         self.status_label.pack(side='left', padx=10)
 
-        tk.Button(control_frame, text="停止监控", command=self.stop_monitoring).pack(side='right', padx=10)
-        tk.Button(control_frame, text="手动刷新", command=self.force_check).pack(side='right', padx=10)
+        tk.Button(control_frame, text="刷新", command=self.on_refresh).pack(side='right', padx=10)
 
     def start_monitor_thread(self):
         """启动状态监控线程"""
@@ -100,40 +101,6 @@ class StatusMonitorApp:
             daemon=True
         )
         self.monitor_thread.start()
-
-    def on_usb_event(self, message):
-        logging.debug('event: %s', str(message))
-        self.status_checker.update_all_ports_dev_info()
-
-    def start_usb_monitoring(self):
-        # Add a flag to track if we've recently detected a USB event
-        self.last_usb_event_time = 0
-        self.event_debounce_interval = 0.5  # seconds
-        
-        def monitor_usb():
-            pythoncom.CoInitialize()
-            c = wmi.WMI()
-            watcher = c.Win32_DeviceChangeEvent.watch_for(
-                notification_type="Creation",
-                delay_secs=1
-            )
-
-            self.root.after(0, self.on_usb_event, "init")
-
-            while True:
-                try:
-                    watcher()
-                    current_time = time.time()
-                    # Only log if enough time has passed since last event
-                    if current_time - self.last_usb_event_time > self.event_debounce_interval:
-                        self.root.after(0, self.on_usb_event, "USB device change detected")
-                    self.last_usb_event_time = current_time
-                except Exception as e:
-                    self.root.after(0, self.on_usb_event, f"Error: {str(e)}")
-                    break
-        
-        thread = threading.Thread(target=monitor_usb, daemon=True)
-        thread.start()
 
     def status_check(self):
         self.status_checker.run()
@@ -215,12 +182,12 @@ class StatusMonitorApp:
                     fg_color = self.color_font_active
                     text_state = '拷贝文件'
                 elif status.get_port_state() == status_checker.PortStateType.UPGRADING:
-                    bg_color = self.color_active
-                    fg_color = self.color_font_active
+                    bg_color = self.color_upgrading
+                    fg_color = self.color_font_upgrading
                     text_state = '升级中'
                 elif status.get_port_state() == status_checker.PortStateType.CHECKVERSION:
-                    bg_color = self.color_active
-                    fg_color = self.color_font_active
+                    bg_color = self.color_upgrading
+                    fg_color = self.color_font_upgrading
                     text_state = '版本核对'
                 elif status.get_port_state() == status_checker.PortStateType.UPGRADED:
                     bg_color = self.color_ok
@@ -246,27 +213,9 @@ class StatusMonitorApp:
                     text=text
                 )
 
-    def force_check(self):
-        """手动触发状态检查"""
-        # 清空队列以避免处理旧数据
-        while not self.status_queue.empty():
-            self.status_queue.get_nowait()
-
-        logging.debug('force check in')
-        self.cond_wait.acquire()
-        self.cond_wait.notify()
-        self.cond_wait.release()
-        logging.debug('force check out')
-
-        g_config.load_config()
-        pass
-
-    def stop_monitoring(self):
-        """停止监控线程"""
-        # self.running = False
-        # self.status_label.config(text="状态: 已停止", fg="red")
-        logging.error('not support')
-        pass
+    def on_refresh(self):
+        logging.debug('on refresh')
+        self.status_checker.update_all_ports_dev_info()
 
     def on_closing(self):
         """窗口关闭时的清理工作"""

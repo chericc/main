@@ -338,6 +338,8 @@ class StatusChecker:
                 time.sleep(0.2)
                 self.logging_ports_debug(state, port_info, 'power on')
                 self.__port_ctl.control_usb_port(port_info.port_number, True)
+                port_info.dev_id = ''
+                port_info.volume = ''
                 state.set_port_state(PortStateType.UPGRADING, port_info.volume)
             elif copy_stat.status == CopyStatus.ERROR:
                 self.logging_ports_debug(state, port_info, 'copy failed')
@@ -479,6 +481,9 @@ class StatusChecker:
                 port_info = PortsDevInfo()
                 port_info.port_number = i + 1
                 self.run_port(self.__port_states[i], port_info, self.__port_context[i])
+
+    def restart(self):
+        self.__running_state = RunningState.INIT
 
     def run(self):
         if self.__running_state == RunningState.INIT:
