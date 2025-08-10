@@ -70,6 +70,8 @@ if [ -f "$TESTFILE" ]; then echo "exist"; fi
 # 文件夹
 if [ -d "$TESTFILE" ]; then echo "exist"; fi
 
+# 文件大小
+filesize=$(stat -c%s $TESTFILE)
 
 ```
 
