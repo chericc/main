@@ -1,102 +1,84 @@
-#include <string>
-#include <vector>
+#include "json.hpp"
 
 #include "xlog.h"
 
-#define JSON_DIAGNOSTICS 1
-#include "json.hpp"
+namespace {
 
-using namespace std;
-using namespace nlohmann;
-
-struct classmate {
-    string name;
-    char address[64];
-    int age;
-};
-
-struct person_attr {
-    std::vector<classmate> classmates;
-    classmate header;
-};
-
-struct person {
-    string name;
-    string address;
-    int age;
-    person_attr attr;
-};
-
-struct interface_person {
-    string name;
-    string address;
-    int age = 20;
-    nlohmann::json attr;
-};
-
-struct interface_person_default {
-    string name;
-    string address;
-    int age;
-    std::string attr;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(classmate, name, address, age)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(person_attr, classmates, header)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(person, name, address, age, attr)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(interface_person, name, address, age, attr)
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(interface_person_default, name, address, age, attr)
-// NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(interface_person_default, age)
-
-int main()
+void test_make_json_str()
 {
-    xlog_dbg("hello\n");
+    nlohmann::json js;
+    js["name"] = "Handsome";
+    js["sex"] = "Male";
+    js["age"] = 32;
+    js["temp"] = 36.51;
+    js["parents"]["father"] = "HFather";
+    js["parents"]["mother"] = "HMother";
 
-    {
-        person pe;
-        pe.name = "Tom";
-        pe.address = "Wuhan,Hubei";
-        pe.age = 17;
-    
-        classmate part;
-        part.name = "Potter";
-        snprintf(part.address, sizeof(part.address), "Tianjin");
-        part.age = 19;
-    
-        pe.attr.classmates.push_back(part);
-        part.name = "Jim";
-        pe.attr.classmates.push_back(part);
-    
-        pe.attr.header = part;
-    
-        json jp = pe;
-    
-        xlog_dbg("dump: \n%s\n",jp.dump(4).c_str());
-    
-        // from arbitrary ends here
-    
-        auto p_de_arbitrary = jp.template get<interface_person>();
-        
-        xlog_dbg("name: %s, address: %s, age: %d, attr: %s\n", 
-            p_de_arbitrary.name.c_str(),
-            p_de_arbitrary.address.c_str(),
-            p_de_arbitrary.age,
-            p_de_arbitrary.attr.dump().c_str());
-    
-    }
+    xlog_dbg("js dump: %s\n", js.dump().c_str());
+}
 
-    {
-        std::string json_str = "{ \"address\": \"Tianjin\" }";
-        json jp = json::parse(json_str);
-        auto p_de = jp.template get<interface_person_default>();
-        xlog_dbg("name: %s, address: %s, age: %d, attr: %s\n", 
-            p_de.name.c_str(),
-            p_de.address.c_str(),
-            p_de.age,
-            p_de.attr.c_str());
-    }
-    
+void test_parse_json_str()
+{
+    auto str_json = R"({"name": "Handsome", "sex": "Male", "age": 32, "temp": 36.51})";
+    auto js_obj = nlohmann::json::parse(str_json);
 
+    xlog_dbg("js dump: %s\n", js_obj.dump().c_str());
+}
+
+struct Parents {
+    std::string father;
+    std::string mother;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Parents, father, mother);
+};
+
+struct Student {
+    std::string name;
+    std::string sex;
+    int age;
+    float temp;
+    Parents parents;
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Student, name, sex, age, temp, parents);
+};
+
+void test_serial()
+{
+    Student student = {};
+    student.name = "Handsome";
+    student.sex = "Male";
+    student.age = 18;
+    student.temp = 36.51;
+    student.parents.father = "HFather";
+    student.parents.mother = "HMother";
+
+    nlohmann::json js = student;
+    xlog_dbg("dump: %s\n", js.dump().c_str());
+}
+
+void test_unserial()
+{
+    auto str_json = R"({"age":18,"name":"Handsome","parents":{"father":"HFather","mother":"HMother"},"sex":"Male","temp":36.50})";
+    auto js = nlohmann::json::parse(str_json);
+    auto stru = js.template get<Student>();
+    xlog_dbg("name: %s, temp: %g\n", stru.name.c_str(), stru.temp);
+
+    // what if some element is lost?
+    auto str_json_incomplete = R"({"age":18,"name":"Handsome","parents":{"father":"HFather","mother":"HMother"},"sex":"Male"})";
+    auto js_incomplete = nlohmann::json::parse(str_json_incomplete);
+    auto stru_incomplete = js_incomplete.template get<Student>();
+    xlog_dbg("name: %s, temp: %g\n", stru_incomplete.name.c_str(), stru_incomplete.temp);
+}
+
+}
+
+int main(int, char *[])
+{
+    xlog_dbg("in\n");
+
+    // test_make_json_str();
+    // test_parse_json_str();
+
+    // test_serial();
+    test_unserial();
 
     return 0;
 }
