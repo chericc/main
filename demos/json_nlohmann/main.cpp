@@ -28,7 +28,7 @@ void test_parse_json_str()
 struct Parents {
     std::string father;
     std::string mother;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Parents, father, mother);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Parents, father, mother)
 };
 
 struct Student {
@@ -37,7 +37,7 @@ struct Student {
     int age;
     float temp;
     Parents parents;
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Student, name, sex, age, temp, parents);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(Student, name, sex, age, temp, parents)
 };
 
 void test_serial()
