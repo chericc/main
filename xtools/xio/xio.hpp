@@ -14,8 +14,8 @@ ref: ffmpeg/libavformat/avio
 #include <vector>
 
 class XIO {
-   public:
-    XIO(const std::string& url, const std::string& mode);
+public:
+    XIO();
     virtual ~XIO() = 0;
 
     virtual int eof() = 0;
@@ -57,11 +57,4 @@ class XIO {
    protected:
     XIO(XIO&) = delete;
     XIO& operator=(XIO&) = delete;
-    class IOContext {
-       public:
-        std::string url;
-        std::string mode;
-    };
-
-    IOContext ioctx_;
 };

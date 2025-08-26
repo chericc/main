@@ -23,7 +23,7 @@ class LogStreamBuf : public std::streambuf {
 class LogStream : public std::ostream {
    public:
     LogStream(char* buf, int len, int64_t ctr)
-        : std::ostream(nullptr), streambuf_(buf, len), ctr_(ctr), self_(this) {
+        : std::ostream(nullptr), streambuf_(buf, len)/*, ctr_(ctr), self_(this)*/ {
         rdbuf(&streambuf_);
     }
 
@@ -37,8 +37,8 @@ class LogStream : public std::ostream {
 
    private:
     LogStreamBuf streambuf_;
-    int64_t ctr_;      // Counter hack (for the LOG_EVERY_X() macro)
-    LogStream* self_;  // Consistency check hack
+    // int64_t ctr_;      // Counter hack (for the LOG_EVERY_X() macro)
+    // LogStream* self_;  // Consistency check hack
 };
 
 struct XLogMessageData {

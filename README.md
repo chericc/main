@@ -55,7 +55,7 @@ CFLAGS="-mcpu=cortex-a7 -mfpu=neon-vfpv4" ../dir/configuire --prefix=$(pwd)/outp
 ```bash
 # GoogleTest
 ## googletest 1.12.x is the last version support c++11
-cmake ../googletest-release-1.12.1/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14
+cmake ../googletest/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=14
 
 # FFMpeg
 ## install pkg-config...

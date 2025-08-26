@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include "xio.hpp"
+#include "xio_file.hpp"
 
 /* Ref: wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
 enum class RiffFmt {

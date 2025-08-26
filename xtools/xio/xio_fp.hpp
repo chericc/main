@@ -8,14 +8,12 @@ ref: ffmpeg/libavformat/avio
 
 #pragma once
 
-#include <memory>
+#include "xio.hpp"
 
-#include "xio_fp.hpp"
-
-class XIOFile : public XIO {
-   public:
-    XIOFile(const std::string& url, const std::string& mode);
-    ~XIOFile() override;
+class XIOFp : public XIO {
+public:
+    XIOFp(FILE *fp);
+    ~XIOFp() override;
 
     int eof() override;
     int error() override;
@@ -32,12 +30,11 @@ class XIOFile : public XIO {
     void w8(uint8_t b) override;
     void write(const std::vector<uint8_t>& buffer) override;
 
-   private:
-    class IOFileContenxt {
-    public:
-        ~IOFileContenxt();
-        FILE *fp = nullptr;
-        std::shared_ptr<XIOFp> xiofp = nullptr;
+private:
+    class Context {
+       public:
+        ~Context();
+        FILE* fp{nullptr};
     };
-    IOFileContenxt iofctx_;
+    Context iofctx_;
 };

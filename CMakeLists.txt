@@ -23,7 +23,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 # cxx standard
-set(CMAKE_CXX_STANDARD 14) # gtest needs c++ version 14+
+set(CMAKE_CXX_STANDARD 17) # gtest needs c++ version 14+
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 # warning
@@ -61,9 +61,11 @@ find_path(HEADER_FREETYPE freetype PATH_SUFFIXES freetype2) # freetype2/freetype
 
 # libevent
 find_library(LIB_EVENT event)
+find_path(HEADER_LIBEVENT event2/event.h)
 
 # cjson
 find_library(LIB_CJSON cjson cjson_utils)
+find_path(HEADER_CJSON cjson/cJSON.h)
 
 # curl
 find_library(LIB_CURL curl)

@@ -7,7 +7,8 @@ aux_source_directory(src/echo_server src_demo_libevent_echoserver)
 aux_source_directory(src/httpserver src_demo_libevent_httpserver)
 
 include_directories(${G_XTOOLS_XLOG_HEADER_PATH}
-                    ${G_XTOOLS_XCROSSPLATFORM_HEADER_PATH})
+                    ${G_XTOOLS_XCROSSPLATFORM_HEADER_PATH}
+                    ${HEADER_LIBEVENT})
 link_libraries(${G_XTOOLS} ${LIB_EVENT})
 
 add_executable(${NETWORK_LIBEVENT_DEMO_GETADDRINFO}

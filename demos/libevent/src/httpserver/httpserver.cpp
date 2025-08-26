@@ -12,6 +12,7 @@
 
 #include <array>
 #include <cstring>
+#include <string>
 
 #include "xlog.h"
 #include "xos_independent.hpp"

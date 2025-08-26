@@ -4,7 +4,7 @@
 
 #include "test_comm.hpp"
 #include "xbswap.hpp"
-#include "xio.hpp"
+#include "xio_file.hpp"
 
 static std::vector<uint8_t> generateData() {
     std::vector<uint8_t> data;

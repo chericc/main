@@ -1,34 +1,32 @@
 #include "xio_file.hpp"
 
+#include <memory>
 #include <stdio.h>
 
 #include "xlog.h"
-#include "xos_independent.hpp"
+#include "xio_fp.hpp"
 
 XIOFile::IOFileContenxt::~IOFileContenxt() {
-    if (fp) {
+    xiofp.reset();
+    if (fp != nullptr) {
         fclose(fp);
         fp = nullptr;
-        xlog_trc("File closed");
     }
 }
 
-XIOFile::XIOFile(const std::string& url, const std::string& mode)
-    : XIO(url, mode) {
+XIOFile::XIOFile(const std::string& url, const std::string& mode) {
     int berror = false;
 
     do {
-        if (ioctx_.url.empty()) {
+
+        iofctx_.fp = fopen(url.c_str(), mode.c_str());
+        if (nullptr == iofctx_.fp) {
+            xlog_err("open file failed(%s)", url.c_str());
             berror = true;
             break;
         }
 
-        iofctx_.fp = fopen(ioctx_.url.c_str(), mode.c_str());
-        if (nullptr == iofctx_.fp) {
-            xlog_err("open file failed(%s)", ioctx_.url.c_str());
-            berror = true;
-            break;
-        }
+        iofctx_.xiofp = std::make_shared<XIOFp>(iofctx_.fp);
 
         xlog_trc("open file successful");
     } while (0);
@@ -38,20 +36,18 @@ XIOFile::XIOFile(const std::string& url, const std::string& mode)
     }
 }
 
-XIOFile::~XIOFile() {}
+XIOFile::~XIOFile() {
+}
 
 int XIOFile::eof() {
     int beof = 0;
     do {
-        if (error()) {
-            beof = true;
+        if (nullptr == iofctx_.xiofp) {
+            xlog_err("null\n");
             break;
         }
 
-        if (feof(iofctx_.fp)) {
-            beof = true;
-            break;
-        }
+        beof = iofctx_.xiofp->eof();
     } while (0);
 
     return (beof ? true : false);
@@ -60,15 +56,13 @@ int XIOFile::eof() {
 int XIOFile::error() {
     int berror = false;
     do {
-        if (!iofctx_.fp) {
+        if (nullptr == iofctx_.xiofp) {
+            xlog_err("null\n");
             berror = true;
             break;
         }
 
-        if (ferror(iofctx_.fp)) {
-            berror = true;
-            break;
-        }
+        berror = iofctx_.xiofp->error();
     } while (0);
 
     return (berror ? true : false);
@@ -83,9 +77,9 @@ int XIOFile::seek(int64_t offset, int whence) {
             break;
         }
 
-        if (x_fseek64(iofctx_.fp, offset, whence) < 0) {
+        int ret = iofctx_.xiofp->seek(offset, whence);
+        if (ret < 0) {
             berror = true;
-            break;
         }
     } while (0);
 
@@ -102,30 +96,7 @@ int64_t XIOFile::size() {
             break;
         }
 
-        long old_offset = x_ftell64(iofctx_.fp);
-
-        if (old_offset < 0) {
-            berror = true;
-            break;
-        }
-
-        if (x_fseek64(iofctx_.fp, 0, SEEK_END) < 0) {
-            berror = true;
-            break;
-        }
-
-        long size = x_ftell64(iofctx_.fp);
-        if (size < 0) {
-            berror = true;
-            break;
-        }
-
-        if (x_fseek64(iofctx_.fp, old_offset, SEEK_SET) < 0) {
-            berror = true;
-            break;
-        }
-
-        file_size = size;
+        file_size = iofctx_.xiofp->size();
     } while (0);
 
     return (berror ? -1 : file_size);
@@ -141,13 +112,7 @@ int64_t XIOFile::tell() {
             break;
         }
 
-        long tell_ret = x_ftell64(iofctx_.fp);
-        if (tell_ret < 0) {
-            berror = true;
-            break;
-        }
-
-        pos = tell_ret;
+        pos = iofctx_.xiofp->tell();
     } while (0);
 
     return (berror ? -1 : pos);
@@ -159,7 +124,7 @@ void XIOFile::flush() {
             break;
         }
 
-        fflush(iofctx_.fp);
+        iofctx_.xiofp->flush();
     } while (0);
 }
 
@@ -173,9 +138,7 @@ uint8_t XIOFile::r8() {
             break;
         }
 
-        if (fread(buf, 1, sizeof(buf), iofctx_.fp) != sizeof(buf)) {
-            return 0;
-        }
+        buf[0] = iofctx_.xiofp->r8();
     } while (0);
 
     if (berror) {
@@ -194,13 +157,8 @@ std::vector<uint8_t> XIOFile::read(std::size_t size) {
             berror = true;
             break;
         }
-
-        buf.resize(size);
-
-        if (fread(buf.data(), 1, size, iofctx_.fp) != size) {
-            berror = true;
-            break;
-        }
+        
+        buf = iofctx_.xiofp->read(size);
     } while (0);
 
     return (berror ? std::vector<uint8_t>() : buf);
@@ -208,7 +166,6 @@ std::vector<uint8_t> XIOFile::read(std::size_t size) {
 
 void XIOFile::w8(uint8_t b) {
     int berror = false;
-    uint8_t buf[1] = {b};
 
     do {
         if (error()) {
@@ -216,9 +173,7 @@ void XIOFile::w8(uint8_t b) {
             break;
         }
 
-        if (fwrite(buf, 1, sizeof(buf), iofctx_.fp) != sizeof(buf)) {
-            break;
-        }
+        iofctx_.xiofp->w8(b);
     } while (0);
 
     if (berror) {
@@ -237,11 +192,7 @@ void XIOFile::write(const std::vector<uint8_t>& buffer) {
             break;
         }
 
-        if (fwrite(buffer.data(), 1, buffer.size(), iofctx_.fp) !=
-            buffer.size()) {
-            berror = true;
-            break;
-        }
+        iofctx_.xiofp->write(buffer);
     } while (0);
 
     if (berror) {

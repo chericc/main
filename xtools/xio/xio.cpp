@@ -1,9 +1,7 @@
 
 #include "xio.hpp"
 
-XIO::XIO(const std::string& url, const std::string& mode) {
-    ioctx_.url = url;
-    ioctx_.mode = mode;
+XIO::XIO() {
 }
 
 XIO::~XIO() {}

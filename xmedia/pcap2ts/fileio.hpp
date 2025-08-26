@@ -1,6 +1,6 @@
 #include <memory>
 
-#include "xio.hpp"
+#include "xio_file.hpp"
 
 /* An xio wrapper with endian state. */
 class FileIO {
