@@ -4,6 +4,8 @@ aux_source_directory(. src)
 
 include_directories(.)
 
+add_definitions(-DUSE_STD_COND)
+
 set(DEMO_LIB my_uart)
 add_library(${DEMO_LIB}
     ${src}

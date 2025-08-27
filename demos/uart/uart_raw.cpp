@@ -12,6 +12,7 @@
 #include <limits>
 
 #include <sys/prctl.h>
+#include <sys/select.h>
 
 #include "xlog.h"
 #include "uart_tool.h"

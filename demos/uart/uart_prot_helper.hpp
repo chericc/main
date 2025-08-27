@@ -11,7 +11,11 @@
 #include "uart_prot_pub.h"
 #include "TinyFrameWrapper.h"
 
+#if defined (USE_STD_COND)
+#include <condition_variable>
+#else
 #include "my_cond.hpp"
+#endif 
 
 /*
 
@@ -54,7 +58,13 @@ protected:
     cb_function_type _cb_write_uart;
 
     std::mutex _mutex_buf;
+
+    #if defined(USE_STD_COND)
+    std::condition_variable  _cond_buf_changed;
+    #else
     cyan::condition_variable  _cond_buf_changed;
+    #endif 
+
     std::vector<uint8_t> _buf;
 
     // uart can only in requsting or being requested mode.

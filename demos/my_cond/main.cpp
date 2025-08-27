@@ -2,7 +2,11 @@
 #include <mutex>
 #include <thread>
 
+#if defined (USE_STD_COND)
+#include <condition_variable>
+#else
 #include "my_cond.hpp"
+#endif 
 
 #include "xlog.h"
 
@@ -11,7 +15,11 @@ using Clock = std::chrono::steady_clock;
 
 namespace {
 std::mutex s_mutex;
+#if defined (USE_STD_COND)
+std::condition_variable s_cond;
+#else 
 cyan::condition_variable s_cond;
+#endif 
 }
 
 void trd()
