@@ -6,7 +6,11 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <memory>
+#include <vector>
+
 #include "xlog.h"
+#include "xio_fp.hpp"
 
 #define MKTAG(a, b, c, d) \
     ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
@@ -44,9 +48,17 @@ struct WAV_SubChunkData {
     WAV_TAG tag;
 };
 
-struct wav_muxer_context {
-    struct wav_muxer_info info_backup;
-    int header_flag;
+class wav_muxer_context {
+public:
+    struct wav_muxer_info info_backup = {};
+    bool header_flag = 0;
+    std::shared_ptr<XIOFp> xio_fp = nullptr;
+    std::vector<uint8_t> buf;
+
+    size_t input_data_size;
+
+    int64_t pos_riff_chunksize = -1;
+    int64_t pos_data_chunksize = -1;
 };
 
 int wav_muxer_destroy_imp(struct wav_muxer_context *ctx)
@@ -71,8 +83,32 @@ int wav_muxer_write_header(wav_muxer_context *ctx)
         }
 
         // riff
-        uint32_t chinkid = MKTAG('R', 'I', 'F', 'F');
-        
+        uint32_t chunkid = MKTAG('R', 'I', 'F', 'F');
+        ctx->xio_fp->wl32(chunkid);
+        ctx->pos_riff_chunksize = ctx->xio_fp->tell();
+        ctx->xio_fp->wl32(-1); // chunksize: file size - 8
+        uint32_t format = MKTAG('W', 'A', 'V', 'E');
+        ctx->xio_fp->wl32(format);
+
+        auto &info = ctx->info_backup;
+
+        // fmt 
+        chunkid = MKTAG('f', 'm', 't', ' ');
+        ctx->xio_fp->wl32(chunkid);
+        uint32_t chunksize = 16; // 8 + others(16)
+        ctx->xio_fp->wl32(chunksize);
+        ctx->xio_fp->wl16(info.audio_type);
+        ctx->xio_fp->wl16(info.channels);
+        ctx->xio_fp->wl32(info.sample_rate);
+        ctx->xio_fp->wl32(info.sample_rate * info.bits_per_sample * info.channels / 8); // byte rate
+        ctx->xio_fp->wl16(info.channels * info.bits_per_sample / 8); // block align
+        ctx->xio_fp->wl16(info.bits_per_sample);
+
+        // data
+        chunkid = MKTAG('d', 'a', 't', 'a');
+        ctx->xio_fp->wl32(chunkid);
+        ctx->pos_data_chunksize = ctx->xio_fp->tell();
+        ctx->xio_fp->wl32(-1);
     } while (0);
 }
 
@@ -84,16 +120,33 @@ wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
     struct wav_muxer_context *ctx = nullptr;
 
     do {
-        ctx = (struct wav_muxer_context*)malloc(sizeof(struct wav_muxer_context));
+        if (nullptr == info) {
+            xlog_err("null info\n");
+            error_flag = true;
+            break;
+        }
+
+        if (nullptr == info->fp) {
+            xlog_err("null fp\n");
+            error_flag = true;
+            break;
+        }
+
+        ctx = new wav_muxer_context();
         if (ctx == nullptr) {
             xlog_err("malloc failed\n");
             error_flag = true;
             break;
         }
 
-        memset(ctx, 0, sizeof(*ctx));
-
         ctx->info_backup = *info;
+        ctx->header_flag = false;
+        ctx->xio_fp = std::make_shared<XIOFp>(ctx->info_backup.fp);
+        if (ctx->xio_fp->error()) {
+            xlog_err("io error\n");
+            error_flag = true;
+            break;
+        }
     } while (0);
 
     if (error_flag) {
@@ -106,12 +159,98 @@ wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
     return reinterpret_cast<struct wav_muxer_context*>(ctx);
 }
 
-int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t count)
+int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize, size_t count)
 {
+    bool error_flag = false;
 
+    do {
+        int ret = 0;
+
+        auto *ctx = reinterpret_cast<wav_muxer_context*>(handle);
+        if (nullptr == ctx) {
+            xlog_err("null obj\n");
+            error_flag = true;
+            break;
+        }
+
+        if (nullptr == ctx->xio_fp) {
+            xlog_err("io null\n");
+            error_flag = true;
+            break;
+        }
+
+        if (!ctx->header_flag) {
+            ret = wav_muxer_write_header(ctx);
+            if (ret < 0) {
+                xlog_err("write header failed\n");
+                error_flag = true;
+                break;
+            }
+        }
+
+        // todo: check chunk size
+
+        for (size_t i = 0; i < count; ++i) {
+            if (ctx->buf.size() != chunksize) {
+                ctx->buf.resize(chunksize);
+            }
+
+            memcpy(ctx->buf.data(), (uint8_t*)chunk + (i * chunksize), chunksize);
+            ctx->xio_fp->write(ctx->buf);
+            ctx->input_data_size += chunksize;
+        }
+
+        if (ctx->xio_fp->error()) {
+            xlog_err("io error\n");
+            error_flag = true;
+            break;
+        }
+    } while (false);
+
+    return error_flag ? -1 : 0;
 }
 
 int wav_muxer_close(wav_muxer_handle handle)
 {
+    bool error_flag = true;
 
+    do {
+        int ret = 0;
+
+        auto *ctx = reinterpret_cast<wav_muxer_context*>(handle);
+        if (nullptr == ctx) {
+            xlog_err("null obj\n");
+            error_flag = true;
+            break;
+        }
+
+        if (ctx->xio_fp == nullptr) {
+            xlog_err("io null\n");
+            error_flag = true;
+            break;
+        }
+
+        if (ctx->pos_data_chunksize < 0
+            || ctx->pos_riff_chunksize < 0) {
+            xlog_err("pos empty\n");
+            error_flag = true;
+            break;
+        }
+
+        ctx->xio_fp->seek(0, SEEK_END);
+        auto filesize = ctx->xio_fp->tell();
+
+        uint32_t chunksize = static_cast<uint32_t>(filesize - 8);
+        ctx->xio_fp->seek(ctx->pos_riff_chunksize, SEEK_SET);
+        ctx->xio_fp->wl32(chunksize);
+
+        chunksize = static_cast<uint32_t>(ctx->input_data_size);
+        ctx->xio_fp->seek(ctx->pos_data_chunksize, SEEK_SET);
+        ctx->xio_fp->wl32(chunksize);
+
+        ctx->xio_fp.reset();
+
+    } while (false);
+
+    return error_flag ? -1 : 0;
 }
