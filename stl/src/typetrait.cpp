@@ -38,7 +38,7 @@ void TestType() {
          << endl;
     cout << "is_standard_layout=" << std::is_standard_layout<_T>() << endl;
     cout << "is_pod=" << std::is_pod<_T>() << endl;
-    cout << "is_literal_type=" << std::is_literal_type<_T>() << endl;
+//     cout << "is_literal_type=" << std::is_literal_type<_T>() << endl;
 }
 
 template <typename _T>
