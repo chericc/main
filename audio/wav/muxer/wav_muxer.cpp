@@ -188,6 +188,7 @@ int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize
                 error_flag = true;
                 break;
             }
+            ctx->header_flag = true;
         }
 
         // todo: check chunk size
@@ -215,9 +216,9 @@ int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize
 int wav_muxer_close(wav_muxer_handle handle)
 {
     bool error_flag = true;
+    auto *ctx = reinterpret_cast<wav_muxer_context*>(handle);
 
     do {
-        auto *ctx = reinterpret_cast<wav_muxer_context*>(handle);
         if (nullptr == ctx) {
             xlog_err("null obj\n");
             error_flag = true;
@@ -251,6 +252,11 @@ int wav_muxer_close(wav_muxer_handle handle)
         ctx->xio_fp.reset();
 
     } while (false);
+
+    if (ctx != nullptr) {
+        delete ctx;
+        ctx = nullptr;
+    }
 
     return error_flag ? -1 : 0;
 }

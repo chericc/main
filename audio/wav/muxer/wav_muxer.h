@@ -9,7 +9,11 @@ extern "C" {
 #endif // __cplusplus
 
 typedef void* wav_muxer_handle;
+#ifdef __cplusplus
+#define wav_muxer_handle_invalid (nullptr)
+#else
 #define wav_muxer_handle_invalid (NULL)
+#endif 
 
 /* Ref: wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
 enum WAV_AUDIO_TYPE {
