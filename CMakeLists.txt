@@ -183,8 +183,9 @@ add_definitions(-D${G_PLATFORM_CLANG})
 endif()
 
 # targets
-add_subdirectory(audio/wav/demuxer)
 # add_subdirectory(audio/aac/fdkaac_wrapper)
+add_subdirectory(audio/wav/demuxer)
+add_subdirectory(audio/wav/muxer)
 
 add_subdirectory(cs/DesignPatterns)
 add_subdirectory(cs/Algorithm)

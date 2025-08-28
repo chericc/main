@@ -110,6 +110,8 @@ int wav_muxer_write_header(wav_muxer_context *ctx)
         ctx->pos_data_chunksize = ctx->xio_fp->tell();
         ctx->xio_fp->wl32(-1);
     } while (0);
+
+    return error_flag ? -1 : 0;
 }
 
 }
@@ -215,8 +217,6 @@ int wav_muxer_close(wav_muxer_handle handle)
     bool error_flag = true;
 
     do {
-        int ret = 0;
-
         auto *ctx = reinterpret_cast<wav_muxer_context*>(handle);
         if (nullptr == ctx) {
             xlog_err("null obj\n");
