@@ -119,10 +119,6 @@ set(G_XTOOLS_XTHREAD_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xthread)
 set(G_XTOOLS_XUTILITY_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xutility)
 set(G_XTOOLS_XCROSSPLATFORM_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xcrossplatform)
 
-# wav
-set(G_XWAV_DEMUXER xwav_demuxer)
-set(G_XWAV_DEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/wav/demuxer)
-
 # fdkaac_wrapper
 set(G_FDKAAC_WRAPPER fdkaac_wrapper)
 set(G_FDKAAC_WRAPPER_HEADER_PATH ${CMAKE_SOURCE_DIR}/audio/aac/fdkaac_wrapper)
@@ -184,8 +180,7 @@ endif()
 
 # targets
 # add_subdirectory(audio/aac/fdkaac_wrapper)
-add_subdirectory(audio/wav/demuxer)
-add_subdirectory(audio/wav/muxer)
+add_subdirectory(audio/wav/wav_op)
 
 add_subdirectory(cs/DesignPatterns)
 add_subdirectory(cs/Algorithm)
