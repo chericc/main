@@ -46,7 +46,7 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
 
         std::vector<uint8_t> buf;
         
-        size_t chunk_size = samplebits * samplerate / 8;
+        size_t chunk_size = samplebits / 8;
         buf.resize(chunk_size);
         for (;;) {
             size_t ret_fread = fread(buf.data(), 1, chunk_size, fp_raw);
