@@ -32,10 +32,10 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
         }
 
         struct wav_muxer_info info = {};
-        info.audio_type = type;
-        info.bits_per_sample = samplebits;
-        info.sample_rate = samplerate;
-        info.channels = channel;
+        info.info.audio_type = type;
+        info.info.bits_per_sample = samplebits;
+        info.info.sample_rate = samplerate;
+        info.info.channels = channel;
         info.fp = fp_wav;
         wav_muxer = wav_muxer_create(&info);
         if (wav_muxer_handle_invalid == wav_muxer) {
