@@ -581,3 +581,30 @@ window list
 # quicker boot up (sshd, samba)
 sudo apt purge cloud-init
 ```
+
+## apache2
+
+### configs
+
+```bash
+# /etc/apache2/apache2.conf
+<Directory />
+        Options FollowSymLinks
+        AllowOverride None
+        Require all denied
+</Directory>
+
+<Directory /usr/share>
+        AllowOverride None
+        Require all granted
+</Directory>
+
+<Directory /var/www/>
+        Options Indexes FollowSymLinks
+        AllowOverride None
+        Require all granted
+</Directory>
+
+# /etc/apache2/ports.conf
+Listen 10086
+```
