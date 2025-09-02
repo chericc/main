@@ -9,11 +9,10 @@
 #include <memory>
 #include <vector>
 
+#include "wav_private.h"
+
 #include "xlog.h"
 #include "xio_fp.hpp"
-
-#define MKTAG(a, b, c, d) \
-    ((a) | ((b) << 8) | ((c) << 16) | ((unsigned)(d) << 24))
 
 namespace {
 
@@ -90,19 +89,21 @@ int wav_muxer_write_header(wav_muxer_context *ctx)
         uint32_t format = MKTAG('W', 'A', 'V', 'E');
         ctx->xio_fp->wl32(format);
 
-        auto &info = ctx->info_backup;
+        auto &wav_info = ctx->info_backup;
 
         // fmt 
         chunkid = MKTAG('f', 'm', 't', ' ');
         ctx->xio_fp->wl32(chunkid);
         uint32_t chunksize = 16; // 8 + others(16)
         ctx->xio_fp->wl32(chunksize);
-        ctx->xio_fp->wl16(info.audio_type);
-        ctx->xio_fp->wl16(info.channels);
-        ctx->xio_fp->wl32(info.sample_rate);
-        ctx->xio_fp->wl32(info.sample_rate * info.bits_per_sample * info.channels / 8); // byte rate
-        ctx->xio_fp->wl16(info.channels * info.bits_per_sample / 8); // block align
-        ctx->xio_fp->wl16(info.bits_per_sample);
+        ctx->xio_fp->wl16(wav_info.info.audio_type);
+        ctx->xio_fp->wl16(wav_info.info.channels);
+        ctx->xio_fp->wl32(wav_info.info.sample_rate);
+        ctx->xio_fp->wl32(wav_info.info.sample_rate * 
+            wav_info.info.bits_per_sample * wav_info.info.channels / 8); // byte rate
+        ctx->xio_fp->wl16(wav_info.info.channels * 
+            wav_info.info.bits_per_sample / 8); // block align
+        ctx->xio_fp->wl16(wav_info.info.bits_per_sample);
 
         // data
         chunkid = MKTAG('d', 'a', 't', 'a');
@@ -135,11 +136,6 @@ wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
         }
 
         ctx = new wav_muxer_context();
-        if (ctx == nullptr) {
-            xlog_err("malloc failed\n");
-            error_flag = true;
-            break;
-        }
 
         ctx->info_backup = *info;
         ctx->header_flag = false;
