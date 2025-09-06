@@ -1,5 +1,6 @@
 #include "wav_demuxer.h"
 
+#include <cstdio>
 #include <memory>
 #include <cstring>
 
@@ -51,8 +52,19 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
                 break;
             }
 
+            if (xio->tell() >= xio->size()) {
+                xlog_dbg("eof(seek)\n");
+                break;
+            }
+
             uint32_t chunkid = xio->rl32();
             uint32_t chunksize = xio->rl32();
+
+            if (0 == chunksize) {
+                xlog_err("invalid chunksize: %d\n", (int)chunksize);
+                error_flag = true;
+                break;
+            }
 
             switch (chunkid) {
                 case MKTAG('R', 'I', 'F', 'F'): {
@@ -164,6 +176,7 @@ wav_demuxer_handle wav_demuxer_create(struct wav_demuxer_info const *info)
     bool error_flag = false;
     struct wav_demuxer_ctx *ctx = nullptr;
     do {
+        int ret = 0;
         if (nullptr == info) {
             xlog_err("null info\n");
             error_flag = true;
@@ -186,6 +199,13 @@ wav_demuxer_handle wav_demuxer_create(struct wav_demuxer_info const *info)
             error_flag = true;
             break;
         }
+
+        ret = load_demuxer_info(ctx, &ctx->wav_info);
+        if (ret < 0) {
+            xlog_err("load_demuxer_info failed\n");
+            error_flag = true;
+            break;
+        }
     } while (false);
 
     if (error_flag) {
@@ -198,15 +218,95 @@ wav_demuxer_handle wav_demuxer_create(struct wav_demuxer_info const *info)
 
 int wav_demuxer_get_info(wav_demuxer_handle handle, struct wav_info *info)
 {
+    bool error_flag = false;
+    do {
+        auto *ctx = reinterpret_cast<wav_demuxer_ctx*>(handle);
+        if (nullptr == ctx) {
+            xlog_err("null\n");
+            error_flag = true;
+            break;
+        }
 
+        if (nullptr == info) {
+            break;
+        }
+
+        *info = ctx->wav_info;
+    } while (0);
+
+    return error_flag ? -1 : 0;
 }
 
-int wav_demuxer_get_data(wav_demuxer_handle handle, size_t offset, size_t size, void *output_data, size_t output_data_size)
+int wav_demuxer_get_data_size(wav_demuxer_handle handle, size_t *size)
 {
+    bool error_flag = false;
+    do {
+        auto *ctx = reinterpret_cast<wav_demuxer_ctx*>(handle);
+        if (nullptr == ctx) {
+            xlog_err("null\n");
+            error_flag = true;
+            break;
+        }
+        
+        if (nullptr == size) {
+            break;
+        }
 
+        *size = ctx->size_data;
+    } while (false);
+    return error_flag ? -1 : 0;
+}
+
+int wav_demuxer_get_data(wav_demuxer_handle handle, size_t offset, void *output_data, size_t *size)
+{
+    bool error_flag = false;
+    do {
+        int ret = 0;
+        auto *ctx = reinterpret_cast<wav_demuxer_ctx*>(handle);
+        if (nullptr == ctx) {
+            xlog_err("null\n");
+            error_flag = true;
+            break;
+        }
+
+        size_t size_bak = 0; 
+        if (nullptr != size) {
+            size_bak = *size;
+            *size = 0;
+        }
+        
+        size_t data_start = ctx->pos_data;
+        size_t pos_get = offset + data_start;
+        ret = ctx->xio->seek(pos_get, SEEK_SET);
+        if (ret < 0) {
+            xlog_err("seek failed\n");
+            error_flag = true;
+            break;
+        }
+
+        auto buf = ctx->xio->read(size_bak);
+        memcpy(output_data, buf.data(), buf.size());
+        *size = buf.size();
+
+    } while (false);
+
+    return error_flag ? -1 : 0;
 }
 
 int wav_demuxer_close(wav_demuxer_handle handle)
 {
+    bool error_flag = false;
+    do {
+        auto *ctx = reinterpret_cast<wav_demuxer_ctx*>(handle);
+        if (nullptr == ctx) {
+            xlog_err("null\n");
+            error_flag = true;
+            break;
+        }
+        
+        wav_demuxer_destroy_imp(ctx);
+        ctx = nullptr;
+    } while (false);
 
+    return error_flag ? -1 : 0;
 }

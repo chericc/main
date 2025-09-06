@@ -16,7 +16,8 @@ typedef void* wav_demuxer_handle;
 
 wav_demuxer_handle wav_demuxer_create(struct wav_demuxer_info const *info);
 int wav_demuxer_get_info(wav_demuxer_handle handle, struct wav_info *info);
-int wav_demuxer_get_data(wav_demuxer_handle handle, size_t offset, size_t size, void *output_data, size_t output_data_size);
+int wav_demuxer_get_data_size(wav_demuxer_handle handle, size_t *size);
+int wav_demuxer_get_data(wav_demuxer_handle handle, size_t offset, void *output_data, size_t *size);
 int wav_demuxer_close(wav_demuxer_handle handle);
 
 #ifndef __cplusplus

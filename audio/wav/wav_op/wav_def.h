@@ -10,6 +10,8 @@ extern "C" {
 /* Ref: wav/fmt: ffmpeg/libavformat/riff.c:ff_codec_wav_tags */
 enum WAV_AUDIO_TYPE {
     WAV_AUDIO_TYPE_PCM = 1,
+    WAV_AUDIO_TYPE_ALAW = 6,
+    WAV_AUDIO_TYPE_MULAW = 7,
 };
 
 struct wav_info {
@@ -18,7 +20,6 @@ struct wav_info {
     int channels; // 1 
     int sample_rate; // 44100, ...
     int bits_per_sample; // 16, ...
-
 };
 
 struct wav_muxer_info {

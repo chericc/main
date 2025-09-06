@@ -173,8 +173,9 @@ std::vector<uint8_t> XIOFp::read(std::size_t size) {
 
         buf.resize(size);
 
-        if (fread(buf.data(), 1, size, iofctx_.fp) != size) {
-            berror = true;
+        size_t ret_read = fread(buf.data(), 1, size, iofctx_.fp);
+        if (ret_read != size) {
+            buf.resize(ret_read);
             break;
         }
     } while (0);
