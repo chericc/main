@@ -193,6 +193,7 @@ static int plen1(const char *s) {
 
 static int plen2(const char *s) {
   int i = 0, n = 0;
+  (void)n;
   while (s[i] != '\0' && s[i] != '.' && s[i] != '[')
     n++, i += s[i] == '\\' ? 2 : 1;
   // printf("PLEN: s: [%s], [%.*s] => %d\n", s, i, s, n);
@@ -740,6 +741,7 @@ static int is_digit(int c) {
 static double mystrtod(const char *str, char **end) {
   double d = 0.0;
   int sign = 1, n = 0;
+  (void)n;
   const char *p = str, *a = str;
 
   /* decimal part */
