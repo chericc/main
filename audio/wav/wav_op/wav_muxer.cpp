@@ -60,7 +60,7 @@ public:
     int64_t pos_data_chunksize = -1;
 };
 
-int wav_muxer_destroy_imp(struct wav_muxer_context *ctx)
+int wav_muxer_destroy_imp(wav_muxer_context *ctx)
 {
     if (ctx != nullptr) {
         free(ctx);
@@ -120,7 +120,7 @@ int wav_muxer_write_header(wav_muxer_context *ctx)
 wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
 {
     bool error_flag = false;
-    struct wav_muxer_context *ctx = nullptr;
+    wav_muxer_context *ctx = nullptr;
 
     do {
         if (nullptr == info) {
@@ -154,7 +154,7 @@ wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
         }
     }
 
-    return reinterpret_cast<struct wav_muxer_context*>(ctx);
+    return reinterpret_cast<wav_muxer_context*>(ctx);
 }
 
 int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize, size_t count)
