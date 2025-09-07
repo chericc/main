@@ -274,9 +274,21 @@ int wav_demuxer_get_data(wav_demuxer_handle handle, size_t offset, void *output_
             size_bak = *size;
             *size = 0;
         }
+
+        size_t total_data_size = ctx->size_data;
+        size_t request_size = offset + size_bak;
+        if (request_size > total_data_size) {
+            xlog_dbg("request size too big, will truncate\n");
+            if (total_data_size > offset) {
+                size_bak = total_data_size - offset;
+            } else {
+                break;
+            }
+        }
         
         size_t data_start = ctx->pos_data;
         size_t pos_get = offset + data_start;
+
         ret = ctx->xio->seek(pos_get, SEEK_SET);
         if (ret < 0) {
             xlog_err("seek failed\n");

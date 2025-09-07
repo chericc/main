@@ -70,7 +70,7 @@ static void testExtractRaw(const std::string& wavFile,
 
         std::vector<uint8_t> data;
         std::vector<uint8_t> buf;
-        buf.resize(503);
+        buf.resize(32);
         data.resize(data_size);
         size_t offset = 0;
         while (true) {
@@ -83,7 +83,7 @@ static void testExtractRaw(const std::string& wavFile,
                     break;
                 }
                 EXPECT_LE(size, buf.size());
-                EXPECT_TRUE(offset + size <= data.size());
+                EXPECT_LE(offset + size, data.size());
                 if (offset + size <= data.size()) {
                     memcpy(data.data() + offset, buf.data(), size);
                     offset += size;
@@ -94,8 +94,8 @@ static void testExtractRaw(const std::string& wavFile,
         auto file_buffer = readFile(rawFile);
         EXPECT_EQ(file_buffer, data);
 
-        saveFile("dump", data);
-        exit(0);
+        // saveFile("dump", data);
+        // exit(0);
 
     } while (false);
 }
