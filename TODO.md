@@ -1,7 +1,6 @@
 # TODO
 
 - [ ] opennfm: block dev layer for nandflash
-- [ ] libstdc++: cond.wait bug(system clock)
 - [ ] libc: res bug(/etc/resolv.conf error leads to getaddrinfo fail forever)
 - [ ] 图像的滤波、降噪（比如通过视频测心率）
 - [ ] c-ares
@@ -24,6 +23,7 @@
 - [ ] android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md 及其对linux平台开发调试的启发，android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
 - [ ] seperate debug info(objcopy) blog
 - [ ] bloaty --- for file size analysis
+- [x] libstdc++: cond.wait bug(system clock)
 - [x] std::promise with producer and consumer
 - [x] png support (png --> rgba)(python can do this)
 - [x] 二级指针
