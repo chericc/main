@@ -65,7 +65,7 @@ static void testExtractRaw(const std::string& wavFile,
         if ((wav_info.channels != 0)
                 && (wav_info.bits_per_sample != 0)) {
             size_t sample_num = data_size / (wav_info.channels * wav_info.bits_per_sample / 8);
-            EXPECT_EQ(sample_num, samples);
+            EXPECT_EQ(sample_num, static_cast<size_t>(samples));
         }
 
         std::vector<uint8_t> data;
