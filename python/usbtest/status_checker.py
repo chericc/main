@@ -15,6 +15,7 @@ import shutil
 import logging
 from enum import auto
 import threading
+from packaging import version
 
 from myfilecp import MyFileCopy
 from myfilecp import CopyStatus
@@ -133,7 +134,7 @@ class PortTypeHelper:
         if self.type == PortDeviceType.Camera:
             return g_config.wifi_dst_version
         elif self.type == PortDeviceType.Screen:
-            return 'default'
+            return '0'
         else:
             return ''
     def get_wifi_version_now(self) -> str:
@@ -152,6 +153,8 @@ class PortTypeHelper:
             logging.error('get wifi version failed: version line not found')
             return ''
         elif self.type == PortDeviceType.Screen:
+            return '0'
+        else:
             logging.error('get wifi version failed: screen not support')
             return ''
 
@@ -278,24 +281,35 @@ class StatusChecker:
             return None
 
     def check_need_update_with_version(self, version_now: str, version_dst: str):
+        vnow = version.parse(version_now)
+        vdst = version.parse(version_dst)
         if g_config.update_to_bigger_version_only:
-            return int(version_now) < int(version_dst)
+            return vnow < vdst
         else:
-            return int(version_now) != int(version_dst)
+            return vnow != vdst
         
     def do_camera_upgrade_prepare(self, helper: PortTypeHelper, state: PortState, port_info: PortsDevInfo):
         # check version
         version_dst = helper.get_version_dst()
         version_now = helper.get_version_src()
-        if len(version_dst) == 0 or len(version_now) == 0:
+        wifi_ver_dst = '0'
+        wifi_ver_now = '0'
+        if g_config.wifi_check_version:
+            wifi_ver_dst = helper.get_wifi_version_dst()
+            wifi_ver_now = helper.get_wifi_version_now()
+        if len(version_dst) == 0 or len(version_now) == 0 or len(wifi_ver_dst) == 0 or len(wifi_ver_now) == 0:
             state.set_port_state(PortStateType.ERROR, volume=port_info.volume, info = 'get version failed')
-            self.logging_ports_debug(state, port_info, 'get version failed: dst=%s, now=%s', version_dst, version_now)
+            self.logging_ports_debug(state, port_info, 'get version failed: dst=%s, now=%s, wdst=%s, wnow=%s', 
+                                     version_dst, version_now, wifi_ver_dst, wifi_ver_now)
             return
-        if self.check_need_update_with_version(version_now, version_dst):
-            self.logging_ports_debug(state, port_info, 'need update: %s --> %s', version_now, version_dst)
+        self.logging_ports_debug(state, port_info, 'dst=%s, now=%s, wdst=%s, wnow=%s', version_dst, version_now, wifi_ver_dst, wifi_ver_now)
+        if self.check_need_update_with_version(version_now, version_dst) or self.check_need_update_with_version(wifi_ver_now, wifi_ver_dst):
+
+            self.logging_ports_debug(state, port_info, 'need update: %s --> %s, %s --> %s',
+                                     version_now, version_dst, wifi_ver_now, wifi_ver_dst)
             self.logging_ports_debug(state, port_info, 'cp ota file: %s --> %s', helper.update_file_src_path, helper.update_file_dst_path)
             state.set_port_state(PortStateType.COPYFILE, port_info.volume)
-            return 
+            return
         else:
             state.set_port_state(PortStateType.CHECKVERSION, port_info.volume)
             self.logging_ports_debug(state, port_info, 'need not update: dst=%s, now=%s', version_dst, version_now)
