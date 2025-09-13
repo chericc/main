@@ -117,6 +117,11 @@ InlayHints:
   ParameterNames: Yes
   DeducedTypes: Yes
   TypeNameLimit: 32
+Completion:
+  AllScopes: Yes
+  ArgumentLists: None
+  HeaderInsertion: Never
+  CodePatterns: All
 ```
 
 ## width 
