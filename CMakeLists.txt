@@ -111,6 +111,10 @@ set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 set(G_TEST_COMM test_comm)
 set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
 
+# xdemuxer
+set(G_XDEMUXER xdemuxer)
+set(G_XDEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/xdemuxer)
+
 # xtools
 set(G_XTOOLS xtools)
 set(G_XTOOLS_XLOG_HEADER_PATH ${CMAKE_SOURCE_DIR}/xtools/xlog)
@@ -194,16 +198,5 @@ endif()
 add_subdirectory(stl)
 add_subdirectory(test_comm)
 
-if(LIB_FFMPEG_AVFORMAT
-  AND LIB_FFMPEG_AVCODEC
-  AND LIB_FFMPEG_AVUTIL
-  AND LIB_FFMPEG_SWRESAMPLE
-  AND LIB_FFMPEG_SWSCALE)
-add_subdirectory(xmedia/xplay)
-if(LIB_SDL2)
-add_subdirectory(xmedia/xdisplay)
-endif() # sdl
-endif() # ffmpeg
-
-add_subdirectory(xmedia/pcap2ts)
+add_subdirectory(xmedia)
 add_subdirectory(xtools)
