@@ -240,5 +240,9 @@ cmake ../nanomsg/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF -DNN_
 
 # c-ares
 cmake ../c-ares-1.34.5 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DCARES_STATIC=ON -DCARES_SHARED=OFF
+
+# boost
+cmake ../boost-1.89.0 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release
+
 ```
 

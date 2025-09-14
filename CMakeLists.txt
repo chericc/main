@@ -100,6 +100,9 @@ find_path(HEADER_TINYFRAME
     PATHS ${CMAKE_CURRENT_SOURCE_DIR}/demos/tinyframe/libsrc
     NO_DEFAULT_PATH)
 
+# boost
+find_path(HEADER_BOOST circular_buffer.hpp PATH_SUFFIXES boost)
+
 # test_comm just for test use
 
 # main
