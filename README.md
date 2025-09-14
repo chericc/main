@@ -59,7 +59,7 @@ cmake ../googletest/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON
 
 # FFMpeg
 ## install pkg-config...
-../ffmpeg/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=0
+../ffmpeg/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3
 
 # SDL2
 cmake ../SDL2-2.26.5/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DSDL_STATIC=OFF -DCMAKE_BUILD_TYPE=Release

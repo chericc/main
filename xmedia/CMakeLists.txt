@@ -1,6 +1,5 @@
 
 add_subdirectory(pcap2ts)
-add_subdirectory(xdemuxer)
 
 if(LIB_FFMPEG_AVFORMAT
   AND LIB_FFMPEG_AVCODEC
@@ -8,6 +7,7 @@ if(LIB_FFMPEG_AVFORMAT
   AND LIB_FFMPEG_SWRESAMPLE
   AND LIB_FFMPEG_SWSCALE)
 add_subdirectory(xplay)
+add_subdirectory(xdemuxer)
 if(LIB_SDL2)
 add_subdirectory(xdisplay)
 endif() # sdl

@@ -5,6 +5,8 @@
 
 extern "C" {
 #include "libavformat/avformat.h"
+#include "libavutil/avutil.h"
+#include "libavcodec/avcodec.h"
 }
 
 #include "xlog.h"
@@ -22,7 +24,10 @@ struct xdemuxer_ctx {
 int read_packet_cb(void *opaque, uint8_t *buf, int buf_size)
 {
     xlog_dbg("read cb: buf_size=%d\n", buf_size);
-    return 0;
+
+    memset(buf, 0, buf_size);
+
+    return buf_size;
 }
 
 int xdemuxer_close_imp(struct xdemuxer_ctx *ctx)
@@ -48,6 +53,8 @@ xdemuxer_handle xdemuxer_open(struct xdemuxer_param const* param)
     void *io_buf = nullptr;
 
     do {
+        int ret = 0;
+
         {
             av_log_set_level(AV_LOG_TRACE);
             av_log_set_flags(AV_LOG_SKIP_REPEATED | AV_LOG_PRINT_LEVEL);
@@ -71,6 +78,13 @@ xdemuxer_handle xdemuxer_open(struct xdemuxer_param const* param)
             0, nullptr, read_packet_cb, nullptr, nullptr);
         if (nullptr == ctx->av_format_ctx->pb) {
             xlog_err("avio_alloc_context failed\n");
+            error_flag = true;
+            break;
+        }
+
+        ret = avformat_open_input(&ctx->av_format_ctx, nullptr, nullptr, nullptr);
+        if (ret < 0) {
+            xlog_err("avformat_open_input failed\n");
             error_flag = true;
             break;
         }
