@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] xdemuxer
 - [ ] opennfm: block dev layer for nandflash
 - [ ] libc: res bug(/etc/resolv.conf error leads to getaddrinfo fail forever)
 - [ ] 图像的滤波、降噪（比如通过视频测心率）

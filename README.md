@@ -244,5 +244,9 @@ cmake ../c-ares-1.34.5 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=R
 # boost
 cmake ../boost-1.89.0 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release
 
+# nginx
+sudo apt install libssl-dev -y
+./configure --prefix=$(pwd)/output --with-http_ssl_module --conf-path=$(pwd)/output/nginx.conf
+
 ```
 
