@@ -273,5 +273,12 @@ PATH=$PATH:/opt/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin ./configur
 --with-cc=$MY_CC --with-cpp=$MY_CPP \
 --with-cc-opt="-I$MY_SSL_INC_DIR -I$MY_PCRE_INC_DIR -I$MY_ZLIB_INC_DIR" \
 --with-ld-opt="-L$MY_SSL_LIB_DIR -L$MY_PCRE_LIB_DIR -L$MY_ZLIB_LIB_DIR"
+
+# libfcgi
+# https://github.com/FastCGI-Archives/fcgi2
+../fcgi2-2.4.6/configure --prefix=$(pwd)/output
+
+
+
 ```
 
