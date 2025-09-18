@@ -1,6 +1,4 @@
 
-daemon off;
-
 #user  nobody;
 worker_processes  1;
 
@@ -15,10 +13,8 @@ events {
     worker_connections  1024;
 }
 
-http {
-    dav_ext_lock_zone zone=foo:10m;
 
-    
+http {
     include       mime.types;
     default_type  application/octet-stream;
 
@@ -47,29 +43,6 @@ http {
         location / {
             root   html;
             index  index.html index.htm;
-        }
-
-        location /dav {
-            root dav;
-            autoindex on;
-
-            dav_access user:rw group:rw all:r;
-            client_body_temp_path client_temp;
-
-            dav_methods PUT DELETE MKCOL COPY MOVE;
-            dav_ext_methods PROPFIND OPTIONS LOCK UNLOCK;
-            dav_ext_lock zone=foo;
-
-            create_full_put_path  on;
-            # dav_access            group:rw  all:r;
-
-            # limit_except GET {
-            #     allow 192.168.1.0/32;
-            #     deny  all;
-            # }
-
-            # auth_basic "WebDAV Server - Authentication Required";
-            # auth_basic_user_file dav.passwd;
         }
 
         #error_page  404              /404.html;
