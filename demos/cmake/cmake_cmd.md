@@ -29,6 +29,8 @@ cmake -LH .
 
 cmake -DCMAKE_TOOLCHAIN_FILE=<crossfile>
 
+cmake -Dpkt_DIR=path # for find_package to work
+
 ## cmake --build
 
 ```bash
