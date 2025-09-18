@@ -342,6 +342,9 @@ export https_proxy="http://127.0.0.1:7897"
 export http_proxy="http://10.0.0.2:7897"
 export https_proxy="http://10.0.0.2:7897"
 
+export http_proxy="http://10.0.0.4:7897"
+export https_proxy="http://10.0.0.4:7897"
+
 export http_proxy="http://192.168.1.235:7897"
 export https_proxy="http://192.168.1.235:7897"
 
