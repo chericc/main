@@ -245,8 +245,33 @@ cmake ../c-ares-1.34.5 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=R
 cmake ../boost-1.89.0 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release
 
 # nginx
-sudo apt install libssl-dev -y
-./configure --prefix=$(pwd)/output --with-http_ssl_module --conf-path=$(pwd)/output/nginx.conf
-
+sudo apt install libssl-dev libpcre2-dev libxml2-dev libxslt-dev -y
+./configure --prefix=$(pwd)/output --with-http_ssl_module --with-http_slice_module --with-http_dav_module --add-module=../ext_module/nginx-dav-ext-module/
+# nginx cross build notes:
+# auto/cc/name: ngx_feature_run=no
+# auto/types/sizeof: ngx_size=`$NGX_AUTOTEST` --> ngx_size=4
+# 
+# echo "#ifndef NGX_HAVE_SYSVSHM
+# define NGX_HAVE_SYSVSHM 1
+# endif" >> objs/ngx_auto_config.h
+#
+export MY_PREBUILT_DIR=../../../prebuilt
+export MY_CC=aarch64-none-linux-gnu-gcc
+export MY_CPP=aarch64-none-linux-gnu-g++
+export MY_SSL_DIR=/home/test/opensrc/openssl/output
+export MY_SSL_INC_DIR=$MY_SSL_DIR/include
+export MY_SSL_LIB_DIR=$MY_SSL_DIR/lib
+export MY_PCRE_DIR=$MY_PREBUILT_DIR/pcre2/output
+export MY_PCRE_INC_DIR=$MY_PCRE_DIR/include
+export MY_PCRE_LIB_DIR=$MY_PCRE_DIR/lib
+export MY_ZLIB_DIR=$MY_PREBUILT_DIR/zlib/output
+export MY_ZLIB_INC_DIR=$MY_ZLIB_DIR/include
+export MY_ZLIB_LIB_DIR=$MY_ZLIB_DIR/lib
+PATH=$PATH:/opt/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin ./configure \
+--prefix=$(pwd)/output --with-http_ssl_module --with-http_slice_module --with-http_dav_module \
+--without-http_upstream_zone_module --without-stream_upstream_zone_module \
+--with-cc=$MY_CC --with-cpp=$MY_CPP \
+--with-cc-opt="-I$MY_SSL_INC_DIR -I$MY_PCRE_INC_DIR -I$MY_ZLIB_INC_DIR" \
+--with-ld-opt="-L$MY_SSL_LIB_DIR -L$MY_PCRE_LIB_DIR -L$MY_ZLIB_LIB_DIR"
 ```
 
