@@ -484,16 +484,23 @@ ctrl+f
 
 ```bash
 # ~/.tmux.conf
+set -g prefix C-b
+unbind C-a
+#unbind C-a
+
+set-option -sg escape-time 500
+set -g focus-events off
 
 # 右下角类似效果：21:58:48 12-12
 set -g status-right "%H:%M:%S %d-%b"
 
 # 设置整个状态栏背景颜色 bg(背景色) fg(前景色)
-set -g status-bg blue
-set -g status-fg white
-# set -g status-style bold
-# set -g window-active-style fg=white,bg=blue,bold
-# set -g window-style fg=gray,bg=black
+set -g status-style "bg=#882244"
+
+# 分别设置状态栏左右颜色
+# set -g status-left "bg=#3a3a3a"
+# set -g status-left "fg=#bcbcbc"
+
 
 set -g base-index 1
 set -g pane-base-index 1
@@ -510,9 +517,11 @@ set -wg window-status-current-format " #I:#W#F " # 状态栏当前窗口名称�
 set -wg window-status-current-style "fg=#d7fcaf,bg=#60875f" # 状态栏当前窗口名称的样式
 set -wg window-status-separator "" # 状态栏窗口名称之间的间隔
 
+
+
 # 命令回滚/历史数量限制
 set -g history-limit 20480
-set -sg escape-time 0
+#set -sg escape-time 0
 set -g display-time 1500
 set -g remain-on-exit off
 ```
