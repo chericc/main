@@ -247,8 +247,8 @@ cmake ../boost-1.89.0 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Re
 
 # nginx
 sudo apt install libssl-dev libpcre2-dev libxml2-dev libxslt-dev -y
-git@github.com:arut/nginx-dav-ext-module.git
 ./configure --prefix=$(pwd)/output \
+--user=test --group=test \
 --with-http_ssl_module --with-http_slice_module --with-http_dav_module --with-http_auth_request_module \
 --add-module=../ext_module/nginx-dav-ext-module/
 # nginx cross build notes:
