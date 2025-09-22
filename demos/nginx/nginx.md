@@ -22,7 +22,6 @@ cadaver
 
 对于部分完全需要cgi处理的请求内容，应该通过location字段过滤。
 
-
 ###
 
 ```conf

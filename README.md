@@ -239,6 +239,7 @@ env CC=/opt/gcc-linaro-7.5.0-2019.12-x86_64_arm-linux-gnueabihf/bin/arm-linux-gn
 cmake ../nanomsg/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DNN_ENABLE_DOC=OFF -DNN_STATIC_LIB=ON -DNN_TESTS=OFF
 
 # c-ares
+
 cmake ../c-ares-1.34.5 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release -DCARES_STATIC=ON -DCARES_SHARED=OFF
 
 # boost
@@ -246,7 +247,10 @@ cmake ../boost-1.89.0 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Re
 
 # nginx
 sudo apt install libssl-dev libpcre2-dev libxml2-dev libxslt-dev -y
-./configure --prefix=$(pwd)/output --with-http_ssl_module --with-http_slice_module --with-http_dav_module --add-module=../ext_module/nginx-dav-ext-module/
+git@github.com:arut/nginx-dav-ext-module.git
+./configure --prefix=$(pwd)/output \
+--with-http_ssl_module --with-http_slice_module --with-http_dav_module --with-http_auth_request_module \
+--add-module=../ext_module/nginx-dav-ext-module/
 # nginx cross build notes:
 # auto/cc/name: ngx_feature_run=no
 # auto/types/sizeof: ngx_size=`$NGX_AUTOTEST` --> ngx_size=4
