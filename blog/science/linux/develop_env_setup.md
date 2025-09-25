@@ -136,14 +136,23 @@ cat /tftp_dir/test.txt
 安装
 
 ```bash
+# server
 sudo apt-get install nfs-kernel-server
+# client
+sudo apt install nfs-common
 ```
 
 配置文件
 
 ```bash
 # /etc/exports
+
+# safe env
 /home/username *(rw,sync,no_subtree_check,no_root_squash)
+
+# not safe env
+# insecure: allow client port > 1024
+/home/username *(rw,async,no_subtree_check,insecure)
 ```
 
 重启服务
@@ -155,7 +164,10 @@ sudo service nfs-kernel-server restart
 测试
 
 ```bash
+# cmd
 sudo mount -t nfs localhost:/home/username /mnt 
+# fstab
+localhost:/home/username /mnt/nfs nfs 
 ```
 
 ## FTP服务
