@@ -59,7 +59,7 @@ cmake ../googletest/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON
 
 # FFMpeg
 ## install pkg-config...
-../ffmpeg/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3
+../ffmpeg-6.1.2/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3
 
 # SDL2
 cmake ../SDL2-2.26.5/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DSDL_STATIC=OFF -DCMAKE_BUILD_TYPE=Release
@@ -282,7 +282,8 @@ PATH=$PATH:/opt/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin ./configur
 # https://github.com/FastCGI-Archives/fcgi2
 ../fcgi2-2.4.6/configure --prefix=$(pwd)/output
 
-
+# nng
+cmake ../nng-1.11/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON 
 
 ```
 

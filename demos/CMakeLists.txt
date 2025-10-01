@@ -34,6 +34,10 @@ if(LIB_NANOMSG)
 add_subdirectory(nanomsg)
 endif()
 
+if(LIB_NNG)
+add_subdirectory(nng)
+endif()
+
 add_subdirectory(packet_stable)
 
 if(PATH_LIB_LIVE555)

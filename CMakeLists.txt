@@ -103,6 +103,11 @@ find_path(HEADER_TINYFRAME
 # boost
 find_path(HEADER_BOOST circular_buffer.hpp PATH_SUFFIXES boost)
 
+# nng
+find_library(LIB_NNG nng)
+# find_path(HEADER_NNG nng.h PATH_SUFFIXES nng)
+find_path(HEADER_NNG nng/nng.h)
+
 # test_comm just for test use
 
 # main
