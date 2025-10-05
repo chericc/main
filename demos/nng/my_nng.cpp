@@ -188,34 +188,43 @@ int server_destroy(my_nm_server *serv)
     return 0;
 }
 
-int opened_servers_destroy()
+int opened_servers_destroy(const char *url)
 {
     Lock lock(s_ctx.mutex_opened_server);
-    auto &target = s_ctx.opened_server;
-    for (auto &ref : target) {
-        server_destroy(ref.second.get());
+    auto result = s_ctx.opened_server.find(url);
+    if (result != s_ctx.opened_server.end()) {
+        xlog_dbg("destroy server: %s\n", result->first.c_str());
+        server_destroy(result->second.get());
+        s_ctx.opened_server.erase(result);
+    } else {
+        xlog_err("url not found: %s\n", url);
     }
-    s_ctx.opened_server.clear();
-    return 0;
+    return (int)s_ctx.opened_server.size();
 }
 
 int client_destroy(my_nm_client &client)
 {
     if (client.sock_valid) {
-        nng_close(client.sock);
+        nng_socket_close(client.sock);
         client.sock_valid = false;
+    } else {
+        xlog_war("sock not valid\n");
     }
     return 0;
 }
 
-int opened_clients_destroy()
+int opened_clients_destroy(const char *url)
 {
     Lock lock(s_ctx.mutex_opened_client);
-    for (auto &ref : s_ctx.opened_client) {
-        client_destroy(ref.second);
+    auto result = s_ctx.opened_client.find(url);
+    if (result != s_ctx.opened_client.end()) {
+        xlog_dbg("destroy client: %s\n", result->first.c_str());
+        client_destroy(result->second);
+        s_ctx.opened_client.erase(result);
+    } else {
+        xlog_err("url not found: %s\n", url);
     }
-    s_ctx.opened_client.clear();
-    return 0;
+    return (int)s_ctx.opened_client.size();
 }
 
 }
@@ -283,6 +292,7 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
         }
 
         s_ctx.opened_server[url] = serv;
+        xlog_dbg("cached server number: %zu\n", s_ctx.opened_server.size());
 
         xlog_dbg("nm start ok: %s\n", url);
     } while (false);
@@ -338,6 +348,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
 
             client_it = s_ctx.opened_client.insert(std::make_pair(url, client)).first;
             client.sock_valid = false;
+            xlog_dbg("cache client number: %zd\n", s_ctx.opened_client.size());
         }
 
         if (client_it == s_ctx.opened_client.end()) {
@@ -410,8 +421,11 @@ int my_nng_stop(const char *url)
     Lock lock(s_ctx.mutex_call);
 
     do {
-        opened_clients_destroy();
-        opened_servers_destroy();
+        int ret_remain = opened_clients_destroy(url);
+        ret_remain += opened_servers_destroy(url);
+        if (ret_remain <= 0) {
+            nng_fini();
+        }
     } while (false);
 
     xlog_dbg("stopping end\n");

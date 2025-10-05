@@ -24,49 +24,65 @@ void cb_on_req(const char *url, void const *req, size_t req_size, void *rsp, siz
     }
 }
 
-void server(const char *url)
+void server(std::vector<std::string> urls)
 {
     struct my_nm_start_param param = {};
     param.cb_on_req = cb_on_req;
-    int ret = my_nng_start(url, &param);
-    xlog_dbg("ret: %d\n", ret);
-    while (!exit_flag) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-    }
-    my_nng_stop(url);
-}
-
-void client(const char *url)
-{
-    while (true) {
-        char buf[128] = {};
-        xlog_dbg("input to send: \n");
-        fgets(buf, sizeof(buf), stdin);
-        
-        my_nm_req_param param = {};
-        param.req = buf;
-        if (strlen(buf) > 2) {
-            param.req_size = strlen(buf) - 1;
-        } else {
-            continue;
-        }
-        
-        char buf_recv[128] = {};
-        size_t buf_recv_size = sizeof(buf_recv);
-        param.rsp = buf_recv;
-        param.rsp_size = &buf_recv_size;
-
-        int ret = my_nng_req(url, &param);
-        xlog_dbg("ret: %d, size=%zd\n", ret, buf_recv_size);
-        xlog_dbg("msg: %.*s\n", (int)buf_recv_size, buf_recv);
-
-        std::string str((const char *)param.req, param.req_size);
-        if (str == "exit") {
+    for (auto const& ref : urls) {
+        int ret = my_nng_start(ref.c_str(), &param);
+        if (ret != 0) {
+            xlog_err("start failed\n");
             break;
         }
     }
+    while (!exit_flag) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    for (auto const& ref : urls) {
+        my_nng_stop(ref.c_str());
+    }
+}
 
-    my_nng_stop(url);
+void client(std::vector<std::string> urls)
+{
+    while (true) {
+        char buf[128] = {};
+        xlog_dbg("input to send, eg: 0 hello\n");
+        for (size_t i = 0; i < urls.size(); ++i) {
+            xlog_dbg("[%zd]: %s\n", i, urls[i].c_str());
+        }
+        fgets(buf, sizeof(buf), stdin);
+
+        int choice = -1;
+        char text[32] = {};
+        sscanf(buf, "%d %[^\n]", &choice, text);
+
+        if (choice >= 0 && choice < (int)urls.size()) {
+            my_nm_req_param param = {};
+            param.req = text;
+            param.req_size = strlen(text);
+
+            char buf_recv[128] = {};
+            size_t buf_recv_size = sizeof(buf_recv);
+            param.rsp = buf_recv;
+            param.rsp_size = &buf_recv_size;
+
+            int ret = my_nng_req(urls[choice].c_str(), &param);
+            xlog_dbg("ret: %d, size=%zd\n", ret, buf_recv_size);
+            xlog_dbg("msg: %.*s\n", (int)buf_recv_size, buf_recv);
+
+            std::string str((const char *)param.req, param.req_size);
+            if (str == "exit") {
+                break;
+            }
+        } else {
+            xlog_err("unknown choice: %d\n", choice);
+        }
+    }
+
+    for (auto const& ref : urls) {
+        my_nng_stop(ref.c_str());
+    }
 }
 
 }
@@ -80,10 +96,15 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    std::vector<std::string> urls = {};
+    for (int i = 0; i < argc - 2; ++i) {
+        urls.push_back(argv[2 + i]);
+    }
+
     if (strcmp(argv[1], "server") == 0) {
-        server(argv[2]);
+        server(urls);
     } else if (strcmp(argv[1], "client") == 0) {
-        client(argv[2]);
+        client(urls);
     } else {
         xlog_err("unknown role\n");
     }
