@@ -9,13 +9,19 @@
 
 namespace {
 
-void cb_on_req(void const *req, size_t req_size, void *rsp, size_t *rsp_size)
+bool exit_flag = false;
+
+void cb_on_req(const char *url, void const *req, size_t req_size, void *rsp, size_t *rsp_size)
 {
-    xlog_dbg("cb on req\n");
-    size_t rsp_size_cache = *rsp_size;
-    size_t min_size = std::min(req_size, rsp_size_cache);
-    memcpy(rsp, req, min_size);
-    *rsp_size = min_size;
+    xlog_dbg("cb on req: url: %s\n", url);
+
+    int ret = snprintf((char*)rsp, *rsp_size, "%s: %.*s", url, (int)req_size, (const char *)req);
+    *rsp_size = ret;
+
+    std::string str((const char *)req, req_size);
+    if (str == "exit") {
+        exit_flag = true;
+    }
 }
 
 void server(const char *url)
@@ -24,14 +30,14 @@ void server(const char *url)
     param.cb_on_req = cb_on_req;
     int ret = my_nng_start(url, &param);
     xlog_dbg("ret: %d\n", ret);
-    while (true) {
+    while (!exit_flag) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    my_nng_stop(url);
 }
 
 void client(const char *url)
 {
-
     while (true) {
         char buf[128] = {};
         xlog_dbg("input to send: \n");
@@ -41,6 +47,8 @@ void client(const char *url)
         param.req = buf;
         if (strlen(buf) > 2) {
             param.req_size = strlen(buf) - 1;
+        } else {
+            continue;
         }
         
         char buf_recv[128] = {};
@@ -51,7 +59,14 @@ void client(const char *url)
         int ret = my_nng_req(url, &param);
         xlog_dbg("ret: %d, size=%zd\n", ret, buf_recv_size);
         xlog_dbg("msg: %.*s\n", (int)buf_recv_size, buf_recv);
+
+        std::string str((const char *)param.req, param.req_size);
+        if (str == "exit") {
+            break;
+        }
     }
+
+    my_nng_stop(url);
 }
 
 }

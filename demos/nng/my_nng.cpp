@@ -30,7 +30,8 @@ enum class WORK_STATE
      INIT, 
      RECV, 
      WAIT, 
-     SEND 
+     SEND,
+     EXIT,
 };
 
 struct work {
@@ -40,6 +41,7 @@ struct work {
 	nng_ctx  ctx;
     bool ctx_valid;
     my_nm_cb_on_req cb;
+    std::string url;
 };
 
 struct my_nm_server {
@@ -69,7 +71,7 @@ struct my_nm_context {
     std::vector<uint8_t> server_rsp_msg_buf;
 };
 
-struct my_nm_context s_ctx;
+struct my_nm_context s_ctx; 
 
 void handle_msg(struct work *worker, nng_msg *msg)
 {
@@ -85,7 +87,7 @@ void handle_msg(struct work *worker, nng_msg *msg)
         }
         
         size_t rsp_msg_buf_size = s_ctx.server_rsp_msg_buf.size();
-        worker->cb(nng_msg_body(msg), recv_msg_len, 
+        worker->cb(worker->url.c_str(), nng_msg_body(msg), recv_msg_len, 
             s_ctx.server_rsp_msg_buf.data(), &rsp_msg_buf_size);
         if (rsp_msg_buf_size > MSG_SIZE_LIMIT) {
             xlog_err("invalid size returned: %zu\n", rsp_msg_buf_size);
@@ -148,6 +150,10 @@ void server_cb(void *arg)
 		nng_ctx_recv(work->ctx, work->aio);
 		break;
     }
+    case WORK_STATE::EXIT: {
+        xlog_err("exit state\n");
+        break;
+    }
 	default: {
         xlog_err("bad state: %d\n", (int)work->state);
 		break;
@@ -155,6 +161,61 @@ void server_cb(void *arg)
 	}
 
     // return 
+}
+
+int server_destroy(my_nm_server *serv)
+{
+    do {
+        for (size_t i = 0; i < serv->workers.size(); ++i) {
+            if (serv->workers[i].aio != nullptr) {
+                serv->workers[i].state = WORK_STATE::EXIT;
+                nng_aio_stop(serv->workers[i].aio);
+                nng_aio_free(serv->workers[i].aio);
+                serv->workers[i].aio = nullptr;
+            }
+            if (serv->workers[i].ctx_valid) {
+                nng_ctx_close(serv->workers[i].ctx);
+                serv->workers[i].ctx_valid = false;
+            }
+        }
+
+        if (serv->sock_valid) {
+            nng_close(serv->sock);
+            serv->sock_valid = false;
+        }
+    } while (false);
+
+    return 0;
+}
+
+int opened_servers_destroy()
+{
+    Lock lock(s_ctx.mutex_opened_server);
+    auto &target = s_ctx.opened_server;
+    for (auto &ref : target) {
+        server_destroy(ref.second.get());
+    }
+    s_ctx.opened_server.clear();
+    return 0;
+}
+
+int client_destroy(my_nm_client &client)
+{
+    if (client.sock_valid) {
+        nng_close(client.sock);
+        client.sock_valid = false;
+    }
+    return 0;
+}
+
+int opened_clients_destroy()
+{
+    Lock lock(s_ctx.mutex_opened_client);
+    for (auto &ref : s_ctx.opened_client) {
+        client_destroy(ref.second);
+    }
+    s_ctx.opened_client.clear();
+    return 0;
 }
 
 }
@@ -196,6 +257,7 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
         
         for (size_t i = 0; i < serv->workers.size(); ++i) {
             serv->workers[i].cb = param->cb_on_req; // pass to workers
+            serv->workers[i].url = url;
 
             ret = nng_aio_alloc(&serv->workers[i].aio, server_cb, &serv->workers[i]);
             if (ret != 0) {
@@ -226,21 +288,8 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
     } while (false);
 
     if (error_flag) {
-        for (size_t i = 0; i < serv->workers.size(); ++i) {
-            if (serv->workers[i].aio != nullptr) {
-                nng_aio_free(serv->workers[i].aio);
-                serv->workers[i].aio = nullptr;
-            }
-            if (serv->workers[i].ctx_valid) {
-                nng_ctx_close(serv->workers[i].ctx);
-                serv->workers[i].ctx_valid = false;
-            }
-        }
-
-        if (serv->sock_valid) {
-            nng_close(serv->sock);
-            serv->sock_valid = false;
-        }
+        server_destroy(serv.get());
+        serv.reset();
     }
 
     return error_flag ? -1 : 0;
@@ -349,10 +398,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
     } while (false);
     
     if (error_flag) {
-        if (client.sock_valid) {
-            nng_close(client.sock);
-            client.sock_valid = false;
-        }
+        client_destroy(client);
     }
 
     return error_flag ? -1 : 0;
@@ -360,8 +406,14 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
 
 int my_nng_stop(const char *url)
 {
+    xlog_dbg("stopping\n");
     Lock lock(s_ctx.mutex_call);
-    
-    xlog_dbg("not implemented yet\n");
+
+    do {
+        opened_clients_destroy();
+        opened_servers_destroy();
+    } while (false);
+
+    xlog_dbg("stopping end\n");
     return 0;
 }
