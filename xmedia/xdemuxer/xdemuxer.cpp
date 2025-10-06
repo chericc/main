@@ -1,13 +1,7 @@
 
-#include "xdemuxer.h"
+#include "xdemuxer.hpp"
 
 #include <vector>
-
-extern "C" {
-#include "libavformat/avformat.h"
-#include "libavutil/avutil.h"
-#include "libavcodec/avcodec.h"
-}
 
 #include "xlog.h"
 
@@ -23,9 +17,11 @@ struct xdemuxer_ctx {
 
 int read_packet_cb(void *opaque, uint8_t *buf, int buf_size)
 {
-    xlog_dbg("read cb: buf_size=%d\n", buf_size);
+    auto *ctx = reinterpret_cast<xdemuxer_ctx*>(opaque);
 
-    memset(buf, 0, buf_size);
+    if (ctx->param.read_cb != nullptr) {
+        buf_size = ctx->param.read_cb(buf, buf_size, ctx->param.userdata);
+    }
 
     return buf_size;
 }
@@ -37,32 +33,23 @@ int xdemuxer_close_imp(struct xdemuxer_ctx *ctx)
             avformat_free_context(ctx->av_format_ctx);
             ctx->av_format_ctx = nullptr;
         }
-        delete ctx;
     }
 
     return 0;
 }
 
-}
-
-xdemuxer_handle xdemuxer_open(struct xdemuxer_param const* param)
+int xdemuxer_open_input(struct xdemuxer_ctx *ctx)
 {
     bool error_flag = false;
-    struct xdemuxer_ctx *ctx = nullptr;
 
     void *io_buf = nullptr;
 
     do {
         int ret = 0;
-
-        {
-            av_log_set_level(AV_LOG_TRACE);
-            av_log_set_flags(AV_LOG_SKIP_REPEATED | AV_LOG_PRINT_LEVEL);
+        if (ctx->av_format_ctx != nullptr) {
+            xlog_dbg("already init\n");
+            break;
         }
-
-        ctx = new xdemuxer_ctx();
-
-        ctx->param = *param;
 
         ctx->av_format_ctx = avformat_alloc_context();
         if (ctx->av_format_ctx == nullptr) {
@@ -75,12 +62,13 @@ xdemuxer_handle xdemuxer_open(struct xdemuxer_param const* param)
 
         io_buf = av_malloc(IO_BUF_SIZE);
         ctx->av_format_ctx->pb = avio_alloc_context((unsigned char*)io_buf, IO_BUF_SIZE, 
-            0, nullptr, read_packet_cb, nullptr, nullptr);
+            0, ctx, read_packet_cb, nullptr, nullptr);
         if (nullptr == ctx->av_format_ctx->pb) {
             xlog_err("avio_alloc_context failed\n");
             error_flag = true;
             break;
         }
+        io_buf = nullptr;
 
         ret = avformat_open_input(&ctx->av_format_ctx, nullptr, nullptr, nullptr);
         if (ret < 0) {
@@ -88,23 +76,54 @@ xdemuxer_handle xdemuxer_open(struct xdemuxer_param const* param)
             error_flag = true;
             break;
         }
-    } while (0);
+    } while (false);
 
     if (error_flag) {
         xdemuxer_close_imp(ctx);
-        ctx = nullptr;
+
+        if (io_buf != nullptr) {
+            av_free(io_buf);
+            io_buf = nullptr;
+        }
     }
+
+    return error_flag ? -1 : 0;
+}
+
+}
+
+xdemuxer_handle xdemuxer_open(struct xdemuxer_param const* param)
+{
+    struct xdemuxer_ctx *ctx = nullptr;
+    do {
+        {
+            av_log_set_level(AV_LOG_TRACE);
+            av_log_set_flags(AV_LOG_SKIP_REPEATED | AV_LOG_PRINT_LEVEL);
+        }
+
+        ctx = new xdemuxer_ctx();
+        ctx->param = *param;
+    } while (false);
 
     return reinterpret_cast<xdemuxer_handle>(ctx);
 }
 
-int xdemuxer_input(xdemuxer_handle handle, const uint8_t *data, size_t size)
+int xdemuxer_read(xdemuxer_handle handle)
 {
     bool error_flag = false;
     auto *obj = reinterpret_cast<xdemuxer_ctx*>(handle);
 
     AVPacket *pkt = nullptr;
     do {
+        int ret = 0;
+        if (obj->av_format_ctx == nullptr) {
+            ret = xdemuxer_open_input(obj);
+            if (ret < 0) {
+                error_flag = true;
+                break;
+            }
+        }
+
         pkt = av_packet_alloc();
         if (pkt == nullptr) {
             error_flag = true;
@@ -112,11 +131,23 @@ int xdemuxer_input(xdemuxer_handle handle, const uint8_t *data, size_t size)
             break;
         }
 
-        av_read_frame(obj->av_format_ctx, pkt);
+        ret = av_read_frame(obj->av_format_ctx, pkt);
+        if (ret < 0) {
+            xlog_err("av_read_frame failed\n");
+            error_flag = true;
+            break;
+        }
+
+        if (obj->param.on_packet_cb != nullptr) {
+            obj->param.on_packet_cb(pkt, obj->param.userdata);
+        }
 
         av_packet_unref(pkt);
-        av_packet_free(&pkt);
     } while (false);
+
+    if (pkt != nullptr) {
+        av_packet_free(&pkt);
+    }
 
     return error_flag ? -1 : 0;
 }
@@ -126,5 +157,9 @@ int xdemuxer_close(xdemuxer_handle handle)
     auto *obj = reinterpret_cast<xdemuxer_ctx*>(handle);
 
     xdemuxer_close_imp(obj);
+
+    delete obj;
+    obj = nullptr;
+
     return 0;
 }

@@ -2,15 +2,6 @@
 
 ( 0_0 )
 
-## Compile cmds
-
-```bash
-export OPENSRC_LIB_PATH=~/opensrc
-export CMAKE_INCLUDE_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/include:$OPENSRC_LIB_PATH/libwebsockets/build/output/include:$OPENSRC_LIB_PATH/live555/live/output/include
-export CMAKE_LIBRARY_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output/lib:$OPENSRC_LIB_PATH/libwebsockets/build/output/lib:$OPENSRC_LIB_PATH/live555/live/output/lib
-cmake .. -DCMAKE_BUILD_TYPE=Debug
-```
-
 ## or
 
 ```bash
@@ -59,7 +50,11 @@ cmake ../googletest/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON
 
 # FFMpeg
 ## install pkg-config...
-../ffmpeg-6.1.2/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3
+../ffmpeg-6.1.2/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3 --enable-doc --enable-htmlpages
+## doxygen
+sudo apt install texi2html
+cd ffmpeg-6.1.2/
+doxygen doc/Doxyfile
 
 # SDL2
 cmake ../SDL2-2.26.5/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DSDL_STATIC=OFF -DCMAKE_BUILD_TYPE=Release
