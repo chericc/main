@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <array>
 
 #include "MediaSession.hh"
 #include "RTSPClient.hh"
