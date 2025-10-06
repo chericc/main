@@ -49,7 +49,7 @@ include_directories(
         xtest
 )
 
-add_library(${G_XTOOLS} SHARED 
+add_library(${G_XTOOLS} STATIC 
         ${src_xlog} 
         ${src_xconfig} 
         ${src_xcrossplatform}
@@ -60,6 +60,8 @@ add_library(${G_XTOOLS} SHARED
         ${src_xtimer}
         ${src_xtest}
         ${src_xutility})
+
+set_target_properties(${G_XTOOLS} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # tests
 
