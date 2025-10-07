@@ -1,21 +1,25 @@
+
+#include <cstdlib>
+
+#include "rtsp_server.hpp"
 #include "xlog.h"
 
-#include "rtsp_server.h"
-
-int main()
+int main(int argc, char *argv[])
 {
+    if ((argc != 2) && (argc != 4)) {
+        xlog_err("usage: [port: 8080] [username] [password]\n");
+        return -1;
+    }
+    
     struct rtsp_server_param param = {};
-    param.port = 8888;
+    param.port = atoi(argv[1]);
+    if (argc == 4) {
+        snprintf(param.username, sizeof(param.username), "%s", argv[2]);
+        snprintf(param.password, sizeof(param.password), "%s", argv[3]);
+    }
 
-    snprintf(param.username, sizeof(param.username), "%s", "admin");
-    snprintf(param.password, sizeof(param.password), "%s", "123456");
-
-    auto server = rtsp_server_new(&param);
-
+    auto server = rtsp_server_start(&param);
     getchar();
     getchar();
-
-    rtsp_server_delete(server);
-
     return 0;
 }
