@@ -40,9 +40,20 @@ void onOggDemuxCreation(OggFileServerDemux* newDemux, void* clientData)
         sms = ServerMediaSession::createNew(env, streamname, filename, descStr);\
     } while(0)
 
-ServerMediaSession* createLiveSms(UsageEnvironment& env)
+ServerMediaSession* createLiveSms(UsageEnvironment& env, const char *filename, const char *streamname)
 {
+    ServerMediaSession *sms = nullptr;
 
+    do {
+        OutPacketBuffer::maxSize = 512 * 1024;
+        RTPSink *sink = nullptr;
+
+        // sink = H264VideoRTPSink::createNew(env, );
+
+        sms = ServerMediaSession::createNew(env, streamname, streamname, 
+            "live stream", True);
+        // sms->addSubsession(PassiveServerMediaSubsession::createNew())
+    } while (false);
 }
 
 ServerMediaSession* createNewFileSms(UsageEnvironment& env, const char *filename, const char *streamname)

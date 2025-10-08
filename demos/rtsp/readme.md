@@ -6,6 +6,14 @@ http://www.live555.com/liveMedia/faq.html
 
 ## live555
 
+### live-server
+
+```
+参考file-server的实现，需要继承OnDemandServerMediaSubsession实现一个live sub session。
+
+其中，createNewStreamSource需要实现一个FramedSource。参考已有的ByteStreamFileSource实现。
+```
+
 ### refer
 
 playCommon.cpp

@@ -3,6 +3,7 @@
 #include <BasicUsageEnvironment.hh>
 #include <GroupsockHelper.hh>
 #include <liveMedia.hh>
+#include <MediaSink.hh>
 
 class MyRTSPServer : public RTSPServer {
 public:
