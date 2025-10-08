@@ -1,3 +1,4 @@
+#include <string>
 
 #include "my_rtsp_server.hpp"
 
@@ -36,10 +37,15 @@ void onOggDemuxCreation(OggFileServerDemux* newDemux, void* clientData)
     do {\
         char const* descStr = description\
             ", streamed by the LIVE555 Media Server";\
-        sms = ServerMediaSession::createNew(env, filename, filename, descStr);\
+        sms = ServerMediaSession::createNew(env, streamname, filename, descStr);\
     } while(0)
 
-ServerMediaSession* createNewSms(UsageEnvironment& env, const char *filename, FILE *fp)
+ServerMediaSession* createLiveSms(UsageEnvironment& env)
+{
+
+}
+
+ServerMediaSession* createNewFileSms(UsageEnvironment& env, const char *filename, const char *streamname)
 {
     // Use the file name extension to determine the type of "ServerMediaSession":
     char const* extension = strrchr(filename, '.');
@@ -197,21 +203,22 @@ MyRTSPServer::~MyRTSPServer()
 {
 }
 
-void MyRTSPServer::lookupServerMediaSession(const char *streamName,
-        lookupServerMediaSessionCompletionFunc *completionFunc,
-        void *completionClientData,
-        Boolean isFirstLoopupInSession)
+
+void MyRTSPServer::onVod(const char *filepath, const char *streamname, 
+    lookupServerMediaSessionCompletionFunc *completionFunc,
+    void *completionClientData,
+    Boolean isFirstLoopupInSession)
 {
+    xlog_dbg("path/streamname: [%s]/[%s]\n", filepath, streamname);
+
     bool error_flag = false;
     FILE *fp = nullptr;
-    ServerMediaSession *sms = getServerMediaSession(streamName);
+    ServerMediaSession *sms = getServerMediaSession(streamname);
 
     do {
-        xlog_dbg("opening file %s\n", streamName);
-
-        fp = fopen(streamName, "rb");
+        fp = fopen(filepath, "r");
         if (!fp) {
-            xlog_dbg("failed to open file: <%s>\n", streamName);
+            xlog_dbg("failed to open file: <%s>\n", filepath);
             if (sms) {
                 xlog_dbg("sms exist while file not exist, remove sms\n");
                 removeServerMediaSession(sms);
@@ -227,7 +234,7 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
         }
 
         if (!sms) {
-            sms = createNewSms(envir(), streamName, fp);
+            sms = createNewFileSms(envir(), filepath, streamname);
             addServerMediaSession(sms);
         }
 
@@ -236,7 +243,7 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
         }
     } while (false);
 
-    if (fp) {
+    if (fp != nullptr) {
         fclose(fp);
         fp = nullptr;
     }
@@ -245,5 +252,50 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
         xlog_err("error\n");
     }
 
-    return ;
+}
+void MyRTSPServer::onLive(const char *path, const char *streamname, 
+    lookupServerMediaSessionCompletionFunc *completionFunc,
+    void *completionClientData,
+    Boolean isFirstLoopupInSession)
+{
+
+}
+
+void MyRTSPServer::lookupServerMediaSession(const char *streamName,
+        lookupServerMediaSessionCompletionFunc *completionFunc,
+        void *completionClientData,
+        Boolean isFirstLoopupInSession)
+{
+    // rtsp://ip/vod/test.mkv
+    // rtsp://ip/live/0
+    // -->
+    // vod/test.mkv
+    // live/0
+
+    do {
+        xlog_dbg("opening stream %s\n", streamName);
+
+        std::string stream(streamName);
+        size_t index_slash = stream.find("/");
+        if (index_slash == std::string::npos) {
+            xlog_err("stream not support\n");
+            break;
+        }
+
+        std::string type = std::string(stream, 0, index_slash);
+        std::string path = std::string(stream, index_slash + 1);
+        if (type == "vod") {
+            xlog_dbg("vod\n");
+            onVod(path.c_str(), streamName, completionFunc, completionClientData, isFirstLoopupInSession);
+        } else if (type == "live") {
+            // ignore vod path
+            xlog_dbg("live\n");
+            onLive(path.c_str(), streamName, completionFunc, completionClientData, isFirstLoopupInSession);
+        } else {
+            xlog_err("type not support: %s\n", type.c_str());
+            break;
+        }
+    } while (false);
+
+    // return
 }

@@ -19,4 +19,13 @@ protected:
         lookupServerMediaSessionCompletionFunc *completionFunc,
         void *completionClientData,
         Boolean isFirstLoopupInSession) override;
+
+    void onVod(const char *path, const char *streamname, 
+        lookupServerMediaSessionCompletionFunc *completionFunc,
+        void *completionClientData,
+        Boolean isFirstLoopupInSession);
+    void onLive(const char *path, const char *streamname,
+        lookupServerMediaSessionCompletionFunc *completionFunc,
+        void *completionClientData,
+        Boolean isFirstLoopupInSession);
 };
