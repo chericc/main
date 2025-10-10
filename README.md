@@ -50,10 +50,10 @@ cmake ../googletest/ -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON
 
 # FFMpeg
 ## install pkg-config...
-../ffmpeg-6.1.2/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3 --enable-doc --enable-htmlpages
+../ffmpeg-6.1.3/configure --prefix=$(pwd)/output --enable-shared --disable-static --disable-autodetect --disable-asm --disable-optimizations --disable-stripping --enable-debug=3 --enable-doc --enable-htmlpages
 ## doxygen
 sudo apt install texi2html
-cd ffmpeg-6.1.2/
+cd ffmpeg-6.1.3/
 doxygen doc/Doxyfile
 
 # SDL2
