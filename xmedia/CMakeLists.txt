@@ -7,7 +7,7 @@ if(LIB_FFMPEG_AVFORMAT
   AND LIB_FFMPEG_SWRESAMPLE
   AND LIB_FFMPEG_SWSCALE)
 add_subdirectory(xplay)
-add_subdirectory(xdemuxer)
+add_subdirectory(myffmpeg)
 if(LIB_SDL2)
 add_subdirectory(xdisplay)
 endif() # sdl
