@@ -22,6 +22,10 @@ if(LIB_EVENT)
 add_subdirectory(libevent)
 endif()
 
+if(LIB_JPEG)
+add_subdirectory(jpeg)
+endif()
+
 if(LIB_LVGL)
 add_subdirectory(lvgl/demo)
 endif()

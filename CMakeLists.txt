@@ -108,6 +108,9 @@ find_library(LIB_NNG nng)
 # find_path(HEADER_NNG nng.h PATH_SUFFIXES nng)
 find_path(HEADER_NNG nng/nng.h)
 
+find_library(LIB_JPEG jpeg)
+find_path(HEADER_JPEG jpeglib.h)
+
 # test_comm just for test use
 
 # main
