@@ -24,7 +24,7 @@
 - [ ] android-native-memleak https://blog.csdn.net/u012759483/article/details/122965775 https://github.com/bytedance/memory-leak-detector/blob/master/README_cn.md 及其对linux平台开发调试的启发，android平台的调试手段，比如 debuggerd 的原理及其对linux平台开发调试的启发
 - [ ] seperate debug info(objcopy) blog
 - [ ] bloaty --- for file size analysis
-- [x] libstdc++: cond.wait bug(system clock)
+- [x] libstdc++: cond.wait bug(system clock) -- gcc < 10 have this bug(2019). libc needs pthread_cond_clockwait. it's like c++'s standard can't implement with pthread's interface.
 - [x] std::promise with producer and consumer
 - [x] png support (png --> rgba)(python can do this)
 - [x] 二级指针
