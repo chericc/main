@@ -1,6 +1,10 @@
 #pragma once
 
+#include <string>
+#include <memory>
 #include "OnDemandServerMediaSubsession.hh"
+
+// refer to H264VideoFileServerMediaSubsession.hpp
 
 class LiveMediaSubsession : public OnDemandServerMediaSubsession
 {
@@ -17,4 +21,15 @@ protected:
     RTPSink* createNewRTPSink(Groupsock* rtpGroupsock,
                                         unsigned char rtpPayloadTypeIfDynamic,
                         FramedSource* inputSource) override;
+
+    static void afterPlaying(void *clientData);
+    void afterPlaying();
+    static void checkForAuxSDPLine(void *clientData);
+    void checkForAuxSDPLine();
+
+    void setDoneFlag() { _fDoneFlag = ~0; }
+private:
+    RTPSink *_sink = nullptr;
+    std::shared_ptr<std::string> _sdp = nullptr;
+    EventLoopWatchVariable _fDoneFlag; // used when setting up "fAuxSDPLine"
 };
