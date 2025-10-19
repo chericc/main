@@ -269,7 +269,7 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
     void *completionClientData,
     Boolean isFirstLoopupInSession)
 {
-
+    
 }
 
 void MyRTSPServer::lookupServerMediaSession(const char *streamName,

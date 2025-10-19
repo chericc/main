@@ -8,6 +8,9 @@ class LiveFramedSource : public FramedSource
 {
 public:
     static LiveFramedSource *createNew(UsageEnvironment& env);
+
+    LiveFramedSource(UsageEnvironment &env);
+
     void doGetNextFrame() override;
     void doStopGettingFrames() override;
 };
