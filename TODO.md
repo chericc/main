@@ -1,5 +1,6 @@
 # TODO
 
+- [ ] std::promise实现会调函数的同步实现
 - [ ] xdemuxer
 - [ ] opennfm: block dev layer for nandflash
 - [ ] libc: res bug(/etc/resolv.conf error leads to getaddrinfo fail forever)
