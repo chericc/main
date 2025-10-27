@@ -1,6 +1,7 @@
 #include <string>
 
 #include "my_rtsp_server.hpp"
+#include "live_media_subsession.hpp"
 
 #include "xlog.h"
 
@@ -269,7 +270,25 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
     void *completionClientData,
     Boolean isFirstLoopupInSession)
 {
-    
+    xlog_dbg("path/streamname: [%s]/[%s]\n", path, streamname);
+
+    ServerMediaSession *sms = getServerMediaSession(streamname);
+    do {
+        if (sms && isFirstLoopupInSession) {
+            removeServerMediaSession(sms);
+            sms = nullptr;
+        }
+
+        if (sms == nullptr) {
+            sms = ServerMediaSession::createNew(envir(), streamname, path, "live");
+            sms->addSubsession(LiveMediaSubsession::createNew(envir()));
+            addServerMediaSession(sms);
+        }
+
+        if (nullptr != completionFunc) {
+            (*completionFunc)(completionClientData, sms);
+        }
+    } while (false);
 }
 
 void MyRTSPServer::lookupServerMediaSession(const char *streamName,
