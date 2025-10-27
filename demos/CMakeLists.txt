@@ -11,6 +11,10 @@ if(LIB_CURL)
 add_subdirectory(curl)
 endif()
 
+if(gnu OR clang)
+add_subdirectory(exiftool)
+endif()
+
 add_subdirectory(ffmpeg)
 if(${gnu})
 add_subdirectory(h264_sei)
