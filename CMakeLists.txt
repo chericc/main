@@ -75,7 +75,9 @@ find_library(LIB_WEBSOCKETS websockets)
 find_path(HEADER_LIBWEBSOCKETS libwebsockets.h)
 
 # live555
-find_path(PATH_LIB_LIVE555 liveMedia)
+find_path(HEADER_LIVE555 liveMedia PATH_SUFFIXES include)
+find_path(LIB_LIVE555_PATH libliveMedia.a PATH_SUFFIXES lib)
+set(LIB_LIVE555 liveMedia BasicUsageEnvironment groupsock UsageEnvironment)
 
 # lvgl
 find_library(LIB_LVGL liblvgl.a)

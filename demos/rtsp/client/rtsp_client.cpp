@@ -6,11 +6,11 @@
 #include <vector>
 #include <array>
 
-#include "MediaSession.hh"
-#include "RTSPClient.hh"
-#include "BasicUsageEnvironment.hh"
-#include "H264VideoRTPSource.hh"
-#include "ADTSAudioStreamDiscreteFramer.hh"
+#include "liveMedia/MediaSession.hh"
+#include "liveMedia/RTSPClient.hh"
+#include "BasicUsageEnvironment/BasicUsageEnvironment.hh"
+#include "liveMedia/H264VideoRTPSource.hh"
+#include "liveMedia/ADTSAudioStreamDiscreteFramer.hh"
 
 #include "xlog.h"
 

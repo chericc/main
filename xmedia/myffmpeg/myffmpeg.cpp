@@ -1,11 +1,12 @@
-#include "xdemuxer.hpp"
+#include "myffmpeg.hpp"
 
 #include "xlog.h"
 
 MyFFmpeg::MyFFmpeg(std::string const&file)
     : file_(file)
 {
-    av_log_set_level(AV_LOG_ERROR);
+    // av_log_set_level(AV_LOG_ERROR);
+    av_log_set_level(AV_LOG_TRACE);
 }
 
 MyFFmpeg::~MyFFmpeg()
@@ -17,7 +18,7 @@ MyFFmpeg::~MyFFmpeg()
     // end
 }
 
-int MyFFmpeg::open()
+bool MyFFmpeg::open()
 {
     bool error_flag = false;
     do {
@@ -28,7 +29,7 @@ int MyFFmpeg::open()
         }
     } while (false);
 
-    return error_flag ? -1 : 0;
+    return !error_flag;
 }
 
 std::shared_ptr<MyFFmpegInfo> MyFFmpeg::getInfo()
@@ -37,12 +38,13 @@ std::shared_ptr<MyFFmpegInfo> MyFFmpeg::getInfo()
     auto info = std::make_shared<MyFFmpegInfo>();
 
     do {
+        int ret = 0;
         if (nullptr == ffctx_) {
             error_flag = true;
             break;
         }
 
-        if (ffctx_->index_video < 0 || ffctx_->index_video >= static_cast<int>(ffctx_->context->nb_streams)) {
+        if (ffctx_->index_video < 0 || ffctx_->index_video >= ffctx_->context->nb_streams) {
             xlog_err("invalid index: %d(%d)\n", ffctx_->index_video, ffctx_->context->nb_streams);
             error_flag = true;
             break;
@@ -59,6 +61,25 @@ std::shared_ptr<MyFFmpegInfo> MyFFmpeg::getInfo()
         info->codec = stream->codecpar->codec_id;
         info->width = stream->codecpar->width;
         info->height = stream->codecpar->height;
+
+        if (ffctx_->context->metadata != nullptr) {
+            const AVDictionaryEntry *tag = nullptr;
+            while (true) {
+                tag = av_dict_iterate(ffctx_->context->metadata, tag);
+                if (tag == nullptr) {
+                    break;
+                }
+                if (strcmp(tag->key, "major_brand") == 0) {
+                    info->majorBrand = tag->value;
+                }
+            }
+        }
+        
+        if (ffctx_->context->iformat != nullptr) {
+            if (ffctx_->context->iformat->name != nullptr) {
+                info->format = ffctx_->context->iformat->name;
+            }
+        }
     } while (false);
 
     if (error_flag) {
@@ -68,9 +89,11 @@ std::shared_ptr<MyFFmpegInfo> MyFFmpeg::getInfo()
     return info;
 }
 
-int MyFFmpeg::popPacket(std::vector<uint8_t> &buf)
+bool MyFFmpeg::popPacket(std::vector<uint8_t> &buf)
 {
     bool error_flag = false;
+
+    AVPacket *pkt = nullptr;
     bool eof = false;
 
     do {
@@ -102,9 +125,9 @@ int MyFFmpeg::popPacket(std::vector<uint8_t> &buf)
     } while (false);
 
     if (error_flag) {
-        return -1;
+        return false;
     }
-    return eof ? 0 : 1;
+    return !eof;
 }
 
 MyFFmpeg::FFmpegCtxPtr MyFFmpeg::openImp(const char *file)
@@ -356,4 +379,76 @@ int MyFFmpeg::popPacketOnce(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf)
         ret = popPacketOnceWithNoBSF(ffctx, buf);
     }
     return ret;
+}
+
+std::string MyFFmpeg::fourcc2str(fourcc fourCC)
+{
+    char buf[AV_FOURCC_MAX_STRING_SIZE] = {};
+    av_fourcc_make_string(buf, fourCC);
+    return std::string(buf);
+}
+
+MyFFmpeg::fourcc MyFFmpeg::str2fourcc(std::string fourcc)
+{
+    if (fourcc.size() >= 4) {
+        return MKTAG(fourcc.at(0), fourcc.at(1), fourcc.at(2), fourcc.at(3));
+    } else {
+        return 0;
+    }
+}
+
+AVCodecID MyFFmpeg::fourcc2codecid(fourcc fourcc)
+{
+    AVCodecID codecid = AV_CODEC_ID_NONE;
+    const struct AVCodecTag *table[] = { 
+        avformat_get_riff_video_tags(), 
+        avformat_get_mov_video_tags(),
+        0 
+    };
+    codecid = av_codec_get_id(table, fourcc);
+    return codecid;
+}
+
+MyFFmpeg::fourcc MyFFmpeg::codecid2fourcc(AVCodecID codecid)
+{
+    fourcc result = 0;
+    do {
+            const struct AVCodecTag *table[] = { 
+                avformat_get_riff_video_tags(), 
+                avformat_get_mov_video_tags(),
+                0 
+            };
+            if (0 != av_codec_get_tag2(table, codecid, &result)) {
+                break;
+            }
+    } while (false);
+    return result;
+}
+
+std::string MyFFmpeg::dumpInfo(std::shared_ptr<MyFFmpegInfo> info)
+{
+    char buf[256] = {};
+    FILE *fp = nullptr;
+
+    std::string result;
+    do {
+        fp = fmemopen(buf, sizeof(buf), "w");
+        if (nullptr == fp) {
+            xlog_err("fmemopen failed\n");
+            break;
+        }
+        fprintf(fp, "[%d/%d | %s | %s | %s]", 
+            info->width, info->height,
+            avcodec_get_name(info->codec),
+            info->majorBrand.c_str(),
+            info->format.c_str());
+        fflush(fp);
+        result = buf;
+    } while (false);
+
+    if (fp != nullptr) {
+        fclose(fp);
+    }
+    
+    return result;
 }

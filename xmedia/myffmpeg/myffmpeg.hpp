@@ -11,6 +11,7 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 #include "libavcodec/bsf.h"
 #include "libavutil/log.h"
+#include "libavutil/common.h"
 }
 
 /*
@@ -20,11 +21,16 @@ extern "C" {
 
 */
 
+// 对应best视频流
+// 对于heic，只能反映其中一个块的信息
 struct MyFFmpegInfo {
-    int width;
+    int width;  
     int height;
     AVCodecID codec;
+    std::string majorBrand; // heic
+    std::string format; // mp4,...
 };
+using MyFFmpegInfoPtr = std::shared_ptr<MyFFmpegInfo>;
 
 class MyFFmpeg {
 public:
@@ -35,9 +41,17 @@ public:
     explicit MyFFmpeg(std::string const&file);
     ~MyFFmpeg();
 
-    int open();
-    std::shared_ptr<MyFFmpegInfo> getInfo();
-    int popPacket(std::vector<uint8_t> &buf);
+    bool open();
+    MyFFmpegInfoPtr getInfo();
+    bool popPacket(std::vector<uint8_t> &buf);
+
+    using fourcc = uint32_t;
+    static std::string fourcc2str(fourcc);
+    static fourcc str2fourcc(std::string);
+    static AVCodecID fourcc2codecid(fourcc);
+    static fourcc codecid2fourcc(AVCodecID);
+
+    static std::string dumpInfo(MyFFmpegInfoPtr info);
 private:
     struct FFmpegCtx {
         AVFormatContext *context = nullptr;

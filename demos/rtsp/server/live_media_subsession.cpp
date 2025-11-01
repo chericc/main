@@ -45,13 +45,10 @@ void LiveMediaSubsession::checkForAuxSDPLine()
     const char *dasl = nullptr;
     if (_sdp != nullptr) {
         setDoneFlag();
-    } else if (_sink != nullptr) {
-        const char *dasl = _sink->auxSDPLine();
-        if (dasl != nullptr) {
-            _sdp = std::make_shared<std::string>(dasl);
-            _sink = nullptr;
-            setDoneFlag();
-        }
+    } else if ((_sink != nullptr) && ((dasl = _sink->auxSDPLine()) != nullptr)) {
+        _sdp = std::make_shared<std::string>(dasl);
+        _sink = nullptr;
+        setDoneFlag();
     } else if (0 == _fDoneFlag) {
         int usecs_delay = 100000; // 100 ms
         nextTask() = envir().taskScheduler().scheduleDelayedTask(usecs_delay, checkForAuxSDPLine, this);
@@ -65,6 +62,7 @@ const char *LiveMediaSubsession::getAuxSDPLine(RTPSink *sink, FramedSource *sour
     }
 
     if (_sink == nullptr) {
+        OutPacketBuffer::maxSize = 500 * 1024;
         _sink = sink;
         _sink->startPlaying(*source, afterPlaying, this);
         

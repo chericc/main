@@ -1,6 +1,7 @@
 #pragma once
 
-#include "FramedSource.hh"
+#include <memory>
+#include "liveMedia/FramedSource.hh"
 
 // refer to ByteStreamFileSource.hh
 
@@ -13,4 +14,8 @@ public:
 
     void doGetNextFrame() override;
     void doStopGettingFrames() override;
+
+private:
+    struct Ctx;
+    std::shared_ptr<Ctx> _ctx = nullptr;
 };

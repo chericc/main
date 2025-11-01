@@ -48,7 +48,7 @@ endif()
 
 add_subdirectory(packet_stable)
 
-if(PATH_LIB_LIVE555)
+if(HEADER_LIVE555)
 add_subdirectory(rtsp)
 endif()
 

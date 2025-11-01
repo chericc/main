@@ -3,7 +3,7 @@ cd build
 
 OPENSRC_LIB_PATH=~/opensrc
 FFMPEG_PATH=$OPENSRC_LIB_PATH/ffmpeg/build/output
-LIVE555_PATH=$OPENSRC_LIB_PATH/live555/live
+LIVE555_PATH=$OPENSRC_LIB_PATH/live555/live/output
 NANOMSG_PATH=$OPENSRC_LIB_PATH/nanomsg/build/output
 CARES_PATH=$OPENSRC_LIB_PATH/cares/build/output
 GTEST_PATH=$OPENSRC_LIB_PATH/googletest/build/output

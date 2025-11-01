@@ -31,5 +31,5 @@ protected:
 private:
     RTPSink *_sink = nullptr;
     std::shared_ptr<std::string> _sdp = nullptr;
-    EventLoopWatchVariable _fDoneFlag; // used when setting up "fAuxSDPLine"
+    EventLoopWatchVariable _fDoneFlag = 0; // used when setting up "fAuxSDPLine"
 };
