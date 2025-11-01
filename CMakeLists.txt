@@ -124,9 +124,9 @@ set(G_RESOURCE_PATH ${CMAKE_SOURCE_DIR}/resources)
 set(G_TEST_COMM test_comm)
 set(G_TSET_COMM_HEADER_PATH ${CMAKE_SOURCE_DIR}/test_comm)
 
-# myffmpeg
-set(G_XDEMUXER myffmpeg)
-set(G_XDEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/myffmpeg)
+# xdemuxer
+set(G_XDEMUXER xdemuxer)
+set(G_XDEMUXER_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/xdemuxer)
 
 # xtools
 set(G_XTOOLS xtools)

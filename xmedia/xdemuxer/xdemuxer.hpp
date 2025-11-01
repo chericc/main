@@ -23,27 +23,33 @@ extern "C" {
 
 // 对应best视频流
 // 对于heic，只能反映其中一个块的信息
-struct MyFFmpegInfo {
+struct XDemuxerInfo {
     int width;  
     int height;
     AVCodecID codec;
     std::string majorBrand; // heic
     std::string format; // mp4,...
 };
-using MyFFmpegInfoPtr = std::shared_ptr<MyFFmpegInfo>;
+using MyFFmpegInfoPtr = std::shared_ptr<XDemuxerInfo>;
 
-class MyFFmpeg {
+struct XDemuxerFrame {
+    std::vector<uint8_t> buf;
+    uint64_t pts;
+};
+using XDemuxerFramePtr = std::shared_ptr<XDemuxerFrame>;
+
+class XDemuxer {
 public:
     enum {
         MAX_PKT_SIZE = 1024 * 1024,
     };
 
-    explicit MyFFmpeg(std::string const&file);
-    ~MyFFmpeg();
+    explicit XDemuxer(std::string const&file);
+    ~XDemuxer();
 
     bool open();
     MyFFmpegInfoPtr getInfo();
-    bool popPacket(std::vector<uint8_t> &buf);
+    bool popPacket(XDemuxerFramePtr &framePtr);
 
     using fourcc = uint32_t;
     static std::string fourcc2str(fourcc);
@@ -63,9 +69,9 @@ private:
 
     static FFmpegCtxPtr openImp(const char *file);
     static void closeImp(FFmpegCtxPtr ctx);
-    static int popPacketOnce(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf);
-    static int popPacketOnceWithBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf);
-    static int popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf);
+    static int popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr);
+    static int popPacketOnceWithBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr);
+    static int popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr);
 
     std::string file_;
     FFmpegCtxPtr ffctx_;

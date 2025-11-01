@@ -1,15 +1,15 @@
-#include "myffmpeg.hpp"
+#include "xdemuxer.hpp"
 
 #include "xlog.h"
 
-MyFFmpeg::MyFFmpeg(std::string const&file)
+XDemuxer::XDemuxer(std::string const&file)
     : file_(file)
 {
-    // av_log_set_level(AV_LOG_ERROR);
-    av_log_set_level(AV_LOG_TRACE);
+    av_log_set_level(AV_LOG_ERROR);
+    // av_log_set_level(AV_LOG_TRACE);
 }
 
-MyFFmpeg::~MyFFmpeg()
+XDemuxer::~XDemuxer()
 {
     if (ffctx_ != nullptr) {
         closeImp(ffctx_);
@@ -18,7 +18,7 @@ MyFFmpeg::~MyFFmpeg()
     // end
 }
 
-bool MyFFmpeg::open()
+bool XDemuxer::open()
 {
     bool error_flag = false;
     do {
@@ -32,10 +32,10 @@ bool MyFFmpeg::open()
     return !error_flag;
 }
 
-std::shared_ptr<MyFFmpegInfo> MyFFmpeg::getInfo()
+std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
 {
     bool error_flag = false;
-    auto info = std::make_shared<MyFFmpegInfo>();
+    auto info = std::make_shared<XDemuxerInfo>();
 
     do {
         int ret = 0;
@@ -89,7 +89,7 @@ std::shared_ptr<MyFFmpegInfo> MyFFmpeg::getInfo()
     return info;
 }
 
-bool MyFFmpeg::popPacket(std::vector<uint8_t> &buf)
+bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
 {
     bool error_flag = false;
 
@@ -104,8 +104,9 @@ bool MyFFmpeg::popPacket(std::vector<uint8_t> &buf)
         }
 
         while (true) {
-            int ret = popPacketOnce(ffctx_, buf);
+            int ret = popPacketOnce(ffctx_, framePtr);
             if (ret >= 0) {
+                xlog_dbg("pop frame: size=%zu\n", framePtr->buf.size());
                 break;
             } 
             if (ret == AVERROR(EAGAIN)) {
@@ -130,7 +131,7 @@ bool MyFFmpeg::popPacket(std::vector<uint8_t> &buf)
     return !eof;
 }
 
-MyFFmpeg::FFmpegCtxPtr MyFFmpeg::openImp(const char *file)
+XDemuxer::FFmpegCtxPtr XDemuxer::openImp(const char *file)
 {
     auto fftmp = std::make_shared<FFmpegCtx>();
 
@@ -217,7 +218,7 @@ MyFFmpeg::FFmpegCtxPtr MyFFmpeg::openImp(const char *file)
     return fftmp;
 }
 
-void MyFFmpeg::closeImp(FFmpegCtxPtr ffctx)
+void XDemuxer::closeImp(FFmpegCtxPtr ffctx)
 {
     do {
         if (nullptr == ffctx) {
@@ -238,14 +239,15 @@ void MyFFmpeg::closeImp(FFmpegCtxPtr ffctx)
     // return 
 }
 
-int MyFFmpeg::popPacketOnceWithBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf)
+int XDemuxer::popPacketOnceWithBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
 {
     AVPacket *pkt = nullptr;
 
-    buf.resize(0);
+    framePtr->buf.resize(0);
 
     int ret = 0;
     do {
+        AVStream *stream = ffctx->context->streams[ffctx->index_video];
 
         pkt = av_packet_alloc();
         if (pkt == nullptr) {
@@ -267,8 +269,13 @@ int MyFFmpeg::popPacketOnceWithBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf
             }
         } else {
             if (pkt->size <= MAX_PKT_SIZE) {
-                buf.resize(pkt->size);
-                memcpy(buf.data(), pkt->data, pkt->size);
+                framePtr->buf.resize(pkt->size);
+                memcpy(framePtr->buf.data(), pkt->data, pkt->size);
+                if (pkt->pts != AV_NOPTS_VALUE) {
+                    framePtr->pts = av_rescale_q(pkt->pts, stream->time_base, AVRational{1, 1000}); // ms
+                } else {
+                    framePtr->pts = AV_NOPTS_VALUE;
+                }
                 ret = pkt->size;
             } else {
                 xlog_err("pkt too big: %d\n", pkt->size);
@@ -322,13 +329,15 @@ int MyFFmpeg::popPacketOnceWithBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf
     return ret;
 }
 
-int MyFFmpeg::popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf)
+int XDemuxer::popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
 {
     AVPacket *pkt = nullptr;
-    buf.resize(0);
+    framePtr->buf.resize(0);
     int ret = 0;
 
     do {
+        AVStream *stream = ffctx->context->streams[ffctx->index_video];
+
         pkt = av_packet_alloc();
         if (pkt == nullptr) {
             xlog_err("av_packet_alloc failed\n");
@@ -357,8 +366,14 @@ int MyFFmpeg::popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &b
             break;
         }
 
-        buf.resize(pkt->size);
-        memcpy(buf.data(), pkt->data, pkt->size);
+        framePtr->buf.resize(pkt->size);
+        memcpy(framePtr->buf.data(), pkt->data, pkt->size);
+        if (pkt->pts != AV_NOPTS_VALUE) {
+            framePtr->pts = av_rescale_q(pkt->pts, stream->time_base, AVRational{1, 1000}); // ms
+        } else {
+            framePtr->pts = AV_NOPTS_VALUE;
+        }
+        
         ret = pkt->size;
     } while (false);
     
@@ -370,25 +385,25 @@ int MyFFmpeg::popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, std::vector<uint8_t> &b
     return ret;
 }
 
-int MyFFmpeg::popPacketOnce(FFmpegCtxPtr ffctx, std::vector<uint8_t> &buf)
+int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
 {
     int ret = 0;
     if (ffctx->bsf_context != nullptr) {
-        ret = popPacketOnceWithBSF(ffctx, buf);
+        ret = popPacketOnceWithBSF(ffctx, framePtr);
     } else {
-        ret = popPacketOnceWithNoBSF(ffctx, buf);
+        ret = popPacketOnceWithNoBSF(ffctx, framePtr);
     }
     return ret;
 }
 
-std::string MyFFmpeg::fourcc2str(fourcc fourCC)
+std::string XDemuxer::fourcc2str(fourcc fourCC)
 {
     char buf[AV_FOURCC_MAX_STRING_SIZE] = {};
     av_fourcc_make_string(buf, fourCC);
     return std::string(buf);
 }
 
-MyFFmpeg::fourcc MyFFmpeg::str2fourcc(std::string fourcc)
+XDemuxer::fourcc XDemuxer::str2fourcc(std::string fourcc)
 {
     if (fourcc.size() >= 4) {
         return MKTAG(fourcc.at(0), fourcc.at(1), fourcc.at(2), fourcc.at(3));
@@ -397,7 +412,7 @@ MyFFmpeg::fourcc MyFFmpeg::str2fourcc(std::string fourcc)
     }
 }
 
-AVCodecID MyFFmpeg::fourcc2codecid(fourcc fourcc)
+AVCodecID XDemuxer::fourcc2codecid(fourcc fourcc)
 {
     AVCodecID codecid = AV_CODEC_ID_NONE;
     const struct AVCodecTag *table[] = { 
@@ -409,7 +424,7 @@ AVCodecID MyFFmpeg::fourcc2codecid(fourcc fourcc)
     return codecid;
 }
 
-MyFFmpeg::fourcc MyFFmpeg::codecid2fourcc(AVCodecID codecid)
+XDemuxer::fourcc XDemuxer::codecid2fourcc(AVCodecID codecid)
 {
     fourcc result = 0;
     do {
@@ -425,7 +440,7 @@ MyFFmpeg::fourcc MyFFmpeg::codecid2fourcc(AVCodecID codecid)
     return result;
 }
 
-std::string MyFFmpeg::dumpInfo(std::shared_ptr<MyFFmpegInfo> info)
+std::string XDemuxer::dumpInfo(std::shared_ptr<XDemuxerInfo> info)
 {
     char buf[256] = {};
     FILE *fp = nullptr;

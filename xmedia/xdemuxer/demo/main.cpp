@@ -1,4 +1,6 @@
-#include "myffmpeg.hpp"
+#include "xdemuxer.hpp"
+
+#include <inttypes.h>
 
 #include "xlog.h"
 
@@ -9,7 +11,7 @@ extern "C" {
 void test_info(const char *file)
 {
     do {
-        MyFFmpeg myff(file);
+        XDemuxer myff(file);
 
         if (myff.open() < 0) {
             xlog_err("open failed\n");
@@ -37,17 +39,16 @@ void test_dump(const char *file, const char *outputfile)
 {
     FILE *fp = nullptr;
     do {
-        MyFFmpeg myff(file);
+        XDemuxer myff(file);
         if (myff.open() < 0) {
             xlog_err("open failed\n");
             break;
         }
 
-        std::vector<uint8_t> buf;
-        buf.reserve(MyFFmpeg::MAX_PKT_SIZE);
+        auto frame = std::make_shared<XDemuxerFrame>();
 
         while (true) {
-            int ret = myff.popPacket(buf);
+            int ret = myff.popPacket(frame);
             if (ret < 0) {
                 xlog_err("pop failed\n");
                 break;
@@ -61,11 +62,11 @@ void test_dump(const char *file, const char *outputfile)
                 fp = fopen(outputfile, "w");
             }
             if (fp != nullptr) {
-                fwrite(buf.data(), 1, buf.size(), fp);
+                fwrite(frame->buf.data(), 1, frame->buf.size(), fp);
                 fflush(fp);
             }
 
-            xlog_dbg("pop size: %zd\n", buf.size());
+            xlog_dbg("pop size: %zd, pts: %" PRIu64 "\n", frame->buf.size(), frame->pts);
         }
     } while (false);
 

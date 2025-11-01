@@ -62,7 +62,6 @@ const char *LiveMediaSubsession::getAuxSDPLine(RTPSink *sink, FramedSource *sour
     }
 
     if (_sink == nullptr) {
-        OutPacketBuffer::maxSize = 500 * 1024;
         _sink = sink;
         _sink->startPlaying(*source, afterPlaying, this);
         

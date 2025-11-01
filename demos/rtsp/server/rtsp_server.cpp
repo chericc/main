@@ -83,6 +83,8 @@ rtsp_server_handle rtsp_server_start(struct rtsp_server_param const* param)
     struct rtsp_server_ctx *ctx = nullptr;
     do {
 
+        OutPacketBuffer::maxSize = 500 * 1024;
+
         ctx = new rtsp_server_ctx{};
         ctx->param = *param;
         ctx->loopVariable = 0;

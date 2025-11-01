@@ -2,7 +2,7 @@
 
 #include <sys/time.h>
 
-#include "myffmpeg.hpp"
+#include "xdemuxer.hpp"
 #include "xlog.h"
 
 // namespace {
@@ -10,7 +10,7 @@
 // };
 
 struct LiveFramedSource::Ctx {
-    std::shared_ptr<MyFFmpeg> myff = nullptr;
+    std::shared_ptr<XDemuxer> myff = nullptr;
 };
 
 LiveFramedSource *LiveFramedSource::createNew(UsageEnvironment& env)
@@ -21,7 +21,7 @@ LiveFramedSource *LiveFramedSource::createNew(UsageEnvironment& env)
 LiveFramedSource::LiveFramedSource(UsageEnvironment &env) : FramedSource(env)
 {
     _ctx = std::make_shared<Ctx>();
-    _ctx->myff = std::make_shared<MyFFmpeg>("/home/test/test.mkv");
+    _ctx->myff = std::make_shared<XDemuxer>("/home/test/test.mkv");
     _ctx->myff->open();
 }
 
@@ -29,17 +29,20 @@ void LiveFramedSource::doGetNextFrame()
 {
     xlog_dbg("get next frame\n");
 
-    std::vector<uint8_t> buf;
-    if (_ctx->myff->popPacket(buf)) {
-        if (buf.size() <= fMaxSize) {
-            memcpy(fTo, buf.data(), buf.size());
-
-            gettimeofday(&fPresentationTime, nullptr);
-
-            LiveFramedSource::afterGetting(this);
+    auto frame = std::make_shared<XDemuxerFrame>();
+    if (_ctx->myff->popPacket(frame)) {
+        fFrameSize = frame->buf.size();
+        if (frame->buf.size() <= fMaxSize) {
+            fNumTruncatedBytes = 0;
         } else {
-            xlog_err("packet size over(%zu > %zu)\n", buf.size(), (size_t)fMaxSize);
+            fNumTruncatedBytes = fFrameSize - fMaxSize;
         }
+
+        fPresentationTime.tv_sec = frame->pts / 1000;
+        fPresentationTime.tv_usec = (frame->pts % 1000) * 1000;
+        memcpy(fTo, frame->buf.data(), frame->buf.size());
+
+        LiveFramedSource::afterGetting(this);
     } else {
         xlog_err("pop failed\n");
     }
