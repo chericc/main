@@ -48,7 +48,7 @@ endif()
 
 add_subdirectory(packet_stable)
 
-if(HEADER_LIVE555)
+if(HEADER_LIVE555 AND HEADER_FFMPEG)
 add_subdirectory(rtsp)
 endif()
 
