@@ -32,36 +32,44 @@ void LiveFramedSource::doGetNextFrame()
     xlog_dbg("get next frame\n");
 
     if (!_ctx->buf.empty()) {
-        if (_ctx->buf.size() < fMaxSize) {
+        xlog_dbg("user buf: %zu\n", _ctx->buf.size());
+        if (_ctx->buf.size() <= fMaxSize) {
             memcpy(fTo, _ctx->buf.data(), _ctx->buf.size());
+            fFrameSize = _ctx->buf.size();
             _ctx->buf.clear();
-        }
-    }
-
-    auto frame = std::make_shared<XDemuxerFrame>();
-    if (_ctx->myff->popPacket(frame)) {
-        fFrameSize = frame->buf.size();
-        auto maxTransfer = fFrameSize;
-        if (fFrameSize <= fMaxSize) {
-            fNumTruncatedBytes = 0;
-            maxTransfer = fFrameSize;
         } else {
-            xlog_err("truncate\n");
-            fNumTruncatedBytes = fFrameSize - fMaxSize;
-            maxTransfer = fMaxSize;
+            memcpy(fTo, _ctx->buf.data(), fMaxSize);
+            memcpy(_ctx->buf.data(), _ctx->buf.data() + fMaxSize, _ctx->buf.size() - fMaxSize);
+            _ctx->buf.resize(_ctx->buf.size() - fMaxSize);
+            fFrameSize = fMaxSize;
         }
-
-        fPresentationTime.tv_sec = frame->pts / 1000;
-        fPresentationTime.tv_usec = (frame->pts % 1000) * 1000;
-        memcpy(fTo, frame->buf.data(), maxTransfer);
-
-        LiveFramedSource::afterGetting(this);
+        fNumTruncatedBytes = 0;
+        xlog_dbg("frameSize=%d\n", fFrameSize);
+        // To avoid possible infinite recursion, we need to return to the event loop to do this:
+        nextTask() = envir().taskScheduler().scheduleDelayedTask(0,
+                        (TaskFunc*)FramedSource::afterGetting, this);
     } else {
-        xlog_err("pop failed\n");
+        auto frame = std::make_shared<XDemuxerFrame>();
+        if (_ctx->myff->popPacket(frame)) {
+            xlog_dbg("pop packet: %zu\n", frame->buf.size());
+            if (frame->buf.size() <= fMaxSize) {
+                memcpy(fTo, frame->buf.data(), frame->buf.size());
+                fFrameSize = frame->buf.size();
+            } else {
+                memcpy(fTo, frame->buf.data(), fMaxSize);
+                _ctx->buf.resize(frame->buf.size() - fMaxSize);
+                memcpy(_ctx->buf.data(), frame->buf.data() + fMaxSize, frame->buf.size() - fMaxSize);
+                fFrameSize = fMaxSize;
+            }
+            fNumTruncatedBytes = 0;
+            // To avoid possible infinite recursion, we need to return to the event loop to do this:
+            nextTask() = envir().taskScheduler().scheduleDelayedTask(0,
+                            (TaskFunc*)FramedSource::afterGetting, this);
+        } else {
+            xlog_dbg("pop eof\n");
+            handleClosure();
+        }
     }
-    
-
-    // fPresentationTime.tv_sec
 }
 
 void LiveFramedSource::doStopGettingFrames()

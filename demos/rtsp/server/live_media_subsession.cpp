@@ -77,9 +77,7 @@ FramedSource *LiveMediaSubsession::createNewStreamSource(unsigned clientSessionI
 {
     estBitrate = 500;
     LiveFramedSource *liveSource = LiveFramedSource::createNew(envir());
-    return liveSource;
-
-    // return H264VideoStreamFramer::createNew(envir(), liveSource);
+    return H264VideoStreamFramer::createNew(envir(), liveSource);
 }
 
 RTPSink* LiveMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock,
