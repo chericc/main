@@ -1,6 +1,12 @@
 aux_source_directory(. src_lib)
 
 add_library(${G_XDEMUXER} STATIC ${src_lib})
+install(
+    TARGETS ${G_XDEMUXER}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
 aux_source_directory(./demo src_demo)
 
@@ -19,4 +25,10 @@ target_link_libraries(
     ${G_XDEMUXER}
     ${G_XTOOLS}
     ${COMMON_LIBS}
+)
+install(
+    TARGETS ${DEMO}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )

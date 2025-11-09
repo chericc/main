@@ -2,18 +2,37 @@
 
 #include "xlog.h"
 
-XDemuxer::XDemuxer(std::string const&file)
-    : file_(file)
+struct XDemuxer::FFmpegCtx {
+    AVFormatContext *context = nullptr;
+    int index_video = 0;
+    int index_audio = 0;
+
+    AVBSFContext *bsf_context_v = nullptr;
+};
+
+struct XDemuxer::Ctx {
+    
+    std::string file;
+    FFmpegCtxPtr ffctx;
+};
+
+XDemuxer::XDemuxer(std::string file)
 {
     av_log_set_level(AV_LOG_ERROR);
     // av_log_set_level(AV_LOG_TRACE);
+
+    _ctx = std::make_shared<Ctx>();
+    _ctx->file = std::move(file);
+    _ctx->ffctx = nullptr;
 }
 
 XDemuxer::~XDemuxer()
 {
-    if (ffctx_ != nullptr) {
-        closeImp(ffctx_);
-        ffctx_ = nullptr;
+    if (_ctx != nullptr) {
+        if (_ctx->ffctx != nullptr) {
+            closeImp(_ctx->ffctx);
+            _ctx->ffctx = nullptr;
+        }
     }
     // end
 }
@@ -22,9 +41,16 @@ bool XDemuxer::open()
 {
     bool error_flag = false;
     do {
-        ffctx_ = openImp(file_.c_str());
-        if (nullptr == ffctx_) {
+        if (_ctx->ffctx) {
+            xlog_err("not null\n");
+            break;
+        }
+
+
+        _ctx->ffctx = openImp(_ctx->file);;
+        if (!_ctx->ffctx) {
             error_flag = true;
+            xlog_err("open failed\n");
             break;
         }
     } while (false);
@@ -39,47 +65,68 @@ std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
 
     do {
         int ret = 0;
-        if (nullptr == ffctx_) {
+        if (!_ctx->ffctx) {
             error_flag = true;
+            xlog_err("null\n");
             break;
         }
 
-        if (ffctx_->index_video < 0 || ffctx_->index_video >= ffctx_->context->nb_streams) {
-            xlog_err("invalid index: %d(%d)\n", ffctx_->index_video, ffctx_->context->nb_streams);
-            error_flag = true;
-            break;
-        }
+        if (_ctx->ffctx->index_video >= 0) {
+            if (static_cast<unsigned int>(_ctx->ffctx->index_video) >= _ctx->ffctx->context->nb_streams) {
+                xlog_err("invalid index: %d(%d)\n", _ctx->ffctx->index_video, _ctx->ffctx->context->nb_streams);
+                error_flag = true;
+                break;
+            }
 
-        AVStream *stream = ffctx_->context->streams[ffctx_->index_video];
+            AVStream *streamV = _ctx->ffctx->context->streams[_ctx->ffctx->index_video];
 
-        if (nullptr == stream->codecpar) {
-            xlog_err("inner error: codecpar is null\n");
-            error_flag = true;
-            break;
-        }
+            if (nullptr == streamV->codecpar) {
+                xlog_err("inner error: codecpar is null\n");
+                error_flag = true;
+                break;
+            }
 
-        info->codec = stream->codecpar->codec_id;
-        info->width = stream->codecpar->width;
-        info->height = stream->codecpar->height;
+            info->codecV = streamV->codecpar->codec_id;
+            info->widthV = streamV->codecpar->width;
+            info->heightV = streamV->codecpar->height;
 
-        if (ffctx_->context->metadata != nullptr) {
-            const AVDictionaryEntry *tag = nullptr;
-            while (true) {
-                tag = av_dict_iterate(ffctx_->context->metadata, tag);
-                if (tag == nullptr) {
-                    break;
+            if (_ctx->ffctx->context->metadata != nullptr) {
+                const AVDictionaryEntry *tag = nullptr;
+                while (true) {
+                    tag = av_dict_iterate(_ctx->ffctx->context->metadata, tag);
+                    if (tag == nullptr) {
+                        break;
+                    }
+                    if (strcmp(tag->key, "major_brand") == 0) {
+                        info->majorBrandV = tag->value;
+                    }
                 }
-                if (strcmp(tag->key, "major_brand") == 0) {
-                    info->majorBrand = tag->value;
+            }
+            
+            if (_ctx->ffctx->context->iformat != nullptr) {
+                if (_ctx->ffctx->context->iformat->name != nullptr) {
+                    info->formatV = _ctx->ffctx->context->iformat->name;
                 }
             }
         }
-        
-        if (ffctx_->context->iformat != nullptr) {
-            if (ffctx_->context->iformat->name != nullptr) {
-                info->format = ffctx_->context->iformat->name;
+
+        if (_ctx->ffctx->index_audio >= 0) {
+            if (static_cast<unsigned int>(_ctx->ffctx->index_audio) >= _ctx->ffctx->context->nb_streams) {
+                xlog_err("invalid index: %d(%d)\n", _ctx->ffctx->index_audio, _ctx->ffctx->context->nb_streams);
+                error_flag = true;
+                break;
             }
+
+            AVStream *streamA = _ctx->ffctx->context->streams[_ctx->ffctx->index_audio];
+            if (nullptr == streamA->codecpar) {
+                xlog_err("codecpar is null\n");
+                error_flag = true;
+                break;
+            }
+
+            info->codecA = streamA->codecpar->codec_id;
         }
+
     } while (false);
 
     if (error_flag) {
@@ -97,14 +144,14 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
     bool eof = false;
 
     do {
-        if (nullptr == ffctx_) {
+        if (nullptr == _ctx->ffctx) {
             xlog_err("not opened yet\n");
             error_flag = true;
             break;
         }
 
         while (true) {
-            int ret = popPacketOnce(ffctx_, framePtr);
+            int ret = popPacketOnce(_ctx->ffctx, framePtr);
             if (ret >= 0) {
                 xlog_dbg("pop frame: size=%zu\n", framePtr->buf.size());
                 break;
@@ -131,7 +178,7 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
     return !eof;
 }
 
-XDemuxer::FFmpegCtxPtr XDemuxer::openImp(const char *file)
+XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
 {
     auto fftmp = std::make_shared<FFmpegCtx>();
 
@@ -139,7 +186,7 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(const char *file)
     do {
         int ret = 0;
 
-        ret = avformat_open_input(&fftmp->context, file, nullptr, nullptr);
+        ret = avformat_open_input(&fftmp->context, file.c_str(), nullptr, nullptr);
         if (ret < 0) {
             xlog_err("avformat_open_input failed\n");
             error_flag = true;
@@ -160,18 +207,20 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(const char *file)
             break;
         }
 
-        AVStream *stream = fftmp->context->streams[fftmp->index_video];
+        fftmp->index_audio = av_find_best_stream(fftmp->context, AVMEDIA_TYPE_AUDIO, -1, fftmp->index_video, nullptr, 0);
 
-        if (nullptr == stream->codecpar) {
+        AVStream *streamV = fftmp->context->streams[fftmp->index_video];
+
+        if (nullptr == streamV->codecpar) {
             xlog_err("inner error: codecpar is null\n");
             error_flag = true;
             break;
         }
 
         // 两种需要硬件解码的流格式需要考虑包格式兼容性
-        if ((stream->codecpar->codec_id == AV_CODEC_ID_H264)
-            || (stream->codecpar->codec_id == AV_CODEC_ID_HEVC)) {
-            auto const* name = ((stream->codecpar->codec_id == AV_CODEC_ID_H264)
+        if ((streamV->codecpar->codec_id == AV_CODEC_ID_H264)
+            || (streamV->codecpar->codec_id == AV_CODEC_ID_HEVC)) {
+            auto const* name = ((streamV->codecpar->codec_id == AV_CODEC_ID_H264)
                  ? "h264_mp4toannexb" : "hevc_mp4toannexb");
             auto const* bsf_filter = av_bsf_get_by_name(name);
             if (nullptr == bsf_filter) {
@@ -180,22 +229,22 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(const char *file)
                 break;
             }
 
-            ret = av_bsf_alloc(bsf_filter, &fftmp->bsf_context);
+            ret = av_bsf_alloc(bsf_filter, &fftmp->bsf_context_v);
             if (ret < 0) {
                 xlog_err("av_bsf_alloc failed\n");
                 error_flag = true;
                 break;
             }
 
-            ret = avcodec_parameters_copy(fftmp->bsf_context->par_in, stream->codecpar);
+            ret = avcodec_parameters_copy(fftmp->bsf_context_v->par_in, streamV->codecpar);
             if (ret < 0) {
                 xlog_err("avcodec_parameters_copy failed\n");
                 error_flag = true;
                 break;
             }
 
-            fftmp->bsf_context->time_base_in = stream->time_base;
-            ret = av_bsf_init(fftmp->bsf_context);
+            fftmp->bsf_context_v->time_base_in = streamV->time_base;
+            ret = av_bsf_init(fftmp->bsf_context_v);
             if (ret < 0) {
                 xlog_err("av_bsf_init failed\n");
                 error_flag = true;
@@ -230,142 +279,24 @@ void XDemuxer::closeImp(FFmpegCtxPtr ffctx)
             ffctx->context = nullptr;
         }
 
-        if (ffctx->bsf_context != nullptr) {
-            av_bsf_free(&ffctx->bsf_context);
-            ffctx->bsf_context = nullptr;
+        if (ffctx->bsf_context_v != nullptr) {
+            av_bsf_free(&ffctx->bsf_context_v);
+            ffctx->bsf_context_v = nullptr;
         }
     } while (false);
 
     // return 
 }
 
-int XDemuxer::popPacketOnceWithBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
+bool XDemuxer::handlePacket(AVPacket *pkt, AVStream *stream, XDemuxerFramePtr &framePtr)
 {
-    AVPacket *pkt = nullptr;
-
-    framePtr->buf.resize(0);
-
-    int ret = 0;
+    bool okFlag = false;
     do {
-        AVStream *stream = ffctx->context->streams[ffctx->index_video];
-
-        pkt = av_packet_alloc();
-        if (pkt == nullptr) {
-            xlog_err("av_packet_alloc failed\n");
-            ret = AVERROR(ENOMEM);
+        if (pkt->size > MAX_PKT_SIZE) {
+            xlog_err("pkt too big: %d\n", pkt->size);
             break;
         }
-
-        // 先尝试从bsf中取（av_bsf_send_packet要求必须先取完再塞）
-        ret = av_bsf_receive_packet(ffctx->bsf_context, pkt);
-        if (ret < 0) {
-            if (ret == AVERROR(EAGAIN)) {
-                // 
-            } else if (ret == AVERROR_EOF) {
-                ret = AVERROR(EAGAIN); // 第一次调用会报eof
-            } else {
-                xlog_err("av_bsf_receive_packet failed: %#x\n", ret);
-                break;
-            }
-        } else {
-            if (pkt->size <= MAX_PKT_SIZE) {
-                framePtr->buf.resize(pkt->size);
-                memcpy(framePtr->buf.data(), pkt->data, pkt->size);
-                if (pkt->pts != AV_NOPTS_VALUE) {
-                    framePtr->pts = av_rescale_q(pkt->pts, stream->time_base, AVRational{1, 1000}); // ms
-                } else {
-                    framePtr->pts = AV_NOPTS_VALUE;
-                }
-                ret = pkt->size;
-            } else {
-                xlog_err("pkt too big: %d\n", pkt->size);
-                ret = AVERROR(E2BIG);
-            }
-            break;
-        }
-
-        // 没取到，则尝试塞流
-
-        bool got_frame = false;
-        ret = av_read_frame(ffctx->context, pkt);
-        if (ret < 0) {
-            if (AVERROR_EOF == ret) {
-                xlog_dbg("got eof\n"); 
-                break; // bsf取不到，且文件为空，则停止
-            } else {
-                xlog_err("av_read_frame failed: %#x\n", ret);
-                break;
-            }
-        } else {
-            if (pkt->stream_index == ffctx->index_video) {
-                got_frame = true;
-            }
-        }
-
-        if (!got_frame) {
-            ret = AVERROR(EAGAIN);
-            break;
-        }
-
-        ret = av_bsf_send_packet(ffctx->bsf_context, pkt);
-        if (ret < 0) {
-            if (ret == AVERROR(EAGAIN)) {
-                xlog_dbg("inner error: bsf is full\n");
-            } else {
-                xlog_err("av_bsf_send_packet failed: %#x\n", ret);
-                break;
-            }
-        } else {
-            // suc
-            ret = AVERROR(EAGAIN);
-        }
-    } while (false);
-
-    if (pkt != nullptr) {
-        av_packet_free(&pkt);
-        pkt = nullptr;
-    }
-
-    return ret;
-}
-
-int XDemuxer::popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
-{
-    AVPacket *pkt = nullptr;
-    framePtr->buf.resize(0);
-    int ret = 0;
-
-    do {
-        AVStream *stream = ffctx->context->streams[ffctx->index_video];
-
-        pkt = av_packet_alloc();
-        if (pkt == nullptr) {
-            xlog_err("av_packet_alloc failed\n");
-            ret = AVERROR(ENOMEM);
-            break;
-        }
-
-        bool got_frame = false;
-        ret = av_read_frame(ffctx->context, pkt);
-        if (ret < 0) {
-            if (AVERROR_EOF == ret) {
-                xlog_dbg("got eof\n"); 
-                break; 
-            }
-            
-            xlog_err("av_read_frame failed: %#x\n", ret);
-            break;
-        }
-
-        if (pkt->stream_index == ffctx->index_video) {
-            got_frame = true;
-        }
-
-        if (!got_frame) {
-            ret = AVERROR(EAGAIN);
-            break;
-        }
-
+        
         framePtr->buf.resize(pkt->size);
         memcpy(framePtr->buf.data(), pkt->data, pkt->size);
         if (pkt->pts != AV_NOPTS_VALUE) {
@@ -373,26 +304,114 @@ int XDemuxer::popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &frame
         } else {
             framePtr->pts = AV_NOPTS_VALUE;
         }
-        
-        ret = pkt->size;
+        okFlag = true;
     } while (false);
-    
-    if (pkt != nullptr) {
-        av_packet_free(&pkt);
-        pkt = nullptr;
-    }
-
-    return ret;
+    return okFlag;
 }
 
 int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
 {
     int ret = 0;
-    if (ffctx->bsf_context != nullptr) {
-        ret = popPacketOnceWithBSF(ffctx, framePtr);
-    } else {
-        ret = popPacketOnceWithNoBSF(ffctx, framePtr);
+
+    AVPacket *pktFilter = nullptr;
+    AVPacket *pktRead = nullptr;
+
+    do {
+        pktFilter = av_packet_alloc();
+        pktRead = av_packet_alloc();
+        
+        if ((nullptr == pktFilter)
+            || (nullptr == pktRead)) {
+            xlog_err("alloc packet failed\n");
+            ret = AVERROR(ENOMEM);
+            break;
+        }
+
+        while (true) {
+
+            // filter processing
+            if (ffctx->bsf_context_v != nullptr) {
+
+                ret = av_bsf_receive_packet(ffctx->bsf_context_v, pktFilter);
+                if (ret < 0) {
+                    if (ret == AVERROR(EAGAIN)) {
+                        //
+                    } else if (ret == AVERROR_EOF) {
+                        ret = AVERROR(EAGAIN); // 认为没有取到帧
+                    } else {
+                        xlog_err("av_bsf_receive_packet failed\n");
+                        break;
+                    }
+                } else {
+                    // got pkt from bsf
+                
+                    AVStream *stream = ffctx->context->streams[ffctx->index_video];
+                    if (!handlePacket(pktFilter, stream, framePtr)) {
+                        xlog_err("handlePacket failed\n");
+                        ret = AVERROR(E2BIG);
+                    }
+                    framePtr->isVideo = true;
+                    ret = 0;
+                    break;
+                }
+            }
+
+            // not got pkt from fiter
+
+            ret = av_read_frame(ffctx->context, pktRead);
+            if (ret < 0) {
+                if (AVERROR_EOF == ret) {
+                    xlog_dbg("got eof\n"); 
+                } else {
+                    xlog_err("av_read_frame failed: %#x\n", ret);
+                }
+                break; // 读不到，并且bsf也取不到，则认为结束了
+            }
+
+            // got pkt here
+
+            if (pktRead->stream_index == ffctx->index_video) {
+                ret = av_bsf_send_packet(ffctx->bsf_context_v, pktRead);
+                if(ret < 0) {
+                    if (ret == AVERROR(EAGAIN)) {
+                        xlog_err("bsf if full (should not happen)\n");
+                    } else {
+                        xlog_err("av_bsf_send_packet failed\n");
+                    }
+                    break;
+                }
+                ret = AVERROR(EAGAIN); // pkt sent to the filter. we need call again to get it.
+                break;
+            }
+
+            // not video pkt here
+
+            if (pktRead->stream_index == ffctx->index_audio) {
+                AVStream *stream = ffctx->context->streams[pktRead->stream_index];
+                if (!handlePacket(pktRead, stream, framePtr)) {
+                    xlog_err("handlePacket failed\n");
+                    ret = AVERROR(E2BIG);
+                }
+                framePtr->isVideo = false;
+                ret = 0;
+                break;
+            }
+
+            // if other pkts, need try again.
+
+            ret = AVERROR(EAGAIN);
+        }
+    } while (false);
+
+    if (nullptr != pktFilter) {
+        av_packet_free(&pktFilter);
+        pktFilter = nullptr;
     }
+    if (nullptr != pktRead) {
+        av_packet_free(&pktRead);
+        pktRead = nullptr;
+    }
+
     return ret;
 }
 
@@ -452,11 +471,12 @@ std::string XDemuxer::dumpInfo(std::shared_ptr<XDemuxerInfo> info)
             xlog_err("fmemopen failed\n");
             break;
         }
-        fprintf(fp, "[%d/%d | %s | %s | %s]", 
-            info->width, info->height,
-            avcodec_get_name(info->codec),
-            info->majorBrand.c_str(),
-            info->format.c_str());
+        fprintf(fp, "[%d/%d | %s | %s | %s | %s]", 
+            info->widthV, info->heightV,
+            avcodec_get_name(info->codecV),
+            avcodec_get_name(info->codecA),
+            info->majorBrandV.c_str(),
+            info->formatV.c_str());
         fflush(fp);
         result = buf;
     } while (false);

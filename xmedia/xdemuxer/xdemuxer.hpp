@@ -24,17 +24,19 @@ extern "C" {
 // 对应best视频流
 // 对于heic，只能反映其中一个块的信息
 struct XDemuxerInfo {
-    int width;  
-    int height;
-    AVCodecID codec;
-    std::string majorBrand; // heic
-    std::string format; // mp4,...
+    int widthV = 0;
+    int heightV = 0;
+    AVCodecID codecV = AV_CODEC_ID_NONE;
+    AVCodecID codecA = AV_CODEC_ID_NONE;
+    std::string majorBrandV; // heic
+    std::string formatV; // mp4,...
 };
 using MyFFmpegInfoPtr = std::shared_ptr<XDemuxerInfo>;
 
 struct XDemuxerFrame {
     std::vector<uint8_t> buf;
-    uint64_t pts;
+    bool isVideo = false;
+    uint64_t pts = 0;
 };
 using XDemuxerFramePtr = std::shared_ptr<XDemuxerFrame>;
 
@@ -44,7 +46,7 @@ public:
         MAX_PKT_SIZE = 1024 * 1024,
     };
 
-    explicit XDemuxer(std::string const&file);
+    explicit XDemuxer(std::string file);
     ~XDemuxer();
 
     bool open();
@@ -59,20 +61,14 @@ public:
 
     static std::string dumpInfo(MyFFmpegInfoPtr info);
 private:
-    struct FFmpegCtx {
-        AVFormatContext *context = nullptr;
-        int index_video = 0;
-
-        AVBSFContext *bsf_context = nullptr;
-    };
+    struct FFmpegCtx;
     using FFmpegCtxPtr = std::shared_ptr<FFmpegCtx>;
 
-    static FFmpegCtxPtr openImp(const char *file);
+    struct Ctx;
+    std::shared_ptr<Ctx> _ctx = nullptr;
+
+    static FFmpegCtxPtr openImp(std::string const& file);
     static void closeImp(FFmpegCtxPtr ctx);
     static int popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr);
-    static int popPacketOnceWithBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr);
-    static int popPacketOnceWithNoBSF(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr);
-
-    std::string file_;
-    FFmpegCtxPtr ffctx_;
+    static bool handlePacket(AVPacket *pkt, AVStream *stream, XDemuxerFramePtr &framePtr);
 };

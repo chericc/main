@@ -37,31 +37,39 @@ aux_source_directory(xutility/test_bswap src_xutility_test_bswap)
 aux_source_directory(xutility/test_xperftest src_xutility_test_xperftest)
 
 include_directories(
-        xconfig
-        xcrossplatform
-        xlog
-        xstring
-        xio
-        xthread
-        xthreadpool
-        xutility
-        xtimer
-        xtest
+    xconfig
+    xcrossplatform
+    xlog
+    xstring
+    xio
+    xthread
+    xthreadpool
+    xutility
+    xtimer
+    xtest
 )
 
-add_library(${G_XTOOLS} STATIC 
-        ${src_xlog} 
-        ${src_xconfig} 
-        ${src_xcrossplatform}
-        ${src_xstring} 
-        ${src_xio} 
-        ${src_xthread} 
-        ${src_xthreadpool}
-        ${src_xtimer}
-        ${src_xtest}
-        ${src_xutility})
-
+add_library(
+    ${G_XTOOLS} STATIC 
+    ${src_xlog} 
+    ${src_xconfig} 
+    ${src_xcrossplatform}
+    ${src_xstring} 
+    ${src_xio} 
+    ${src_xthread} 
+    ${src_xthreadpool}
+    ${src_xtimer}
+    ${src_xtest}
+    ${src_xutility}
+)
 set_target_properties(${G_XTOOLS} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+install(
+    TARGETS ${G_XTOOLS}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
 # tests
 

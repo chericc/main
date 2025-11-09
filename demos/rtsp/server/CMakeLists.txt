@@ -7,6 +7,7 @@ include_directories(
     ${HEADER_FFMPEG}
     ${G_XDEMUXER_HEADER_PATH}
     ${G_XTOOLS_XLOG_HEADER_PATH}
+    ${HEADER_BOOST}
 )
 link_libraries(
     ${G_XDEMUXER}

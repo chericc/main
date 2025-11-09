@@ -13,7 +13,7 @@ void test_info(const char *file)
     do {
         XDemuxer myff(file);
 
-        if (myff.open() < 0) {
+        if (!myff.open()) {
             xlog_err("open failed\n");
             break;
         }
@@ -24,55 +24,62 @@ void test_info(const char *file)
             break;
         }
 
-        xlog_dbg("file: %s\n"
-            "width: %d\n"
-            "height: %d\n"
-            "codec: %s\n", 
-            file, 
-            info->width, 
-            info->height, 
-            avcodec_get_name(info->codec));
+        auto dump = XDemuxer::dumpInfo(info);
+        xlog_dbg("dump: %s\n", dump.c_str());
     } while (false);
 }
 
 void test_dump(const char *file, const char *outputfile)
 {
-    FILE *fp = nullptr;
+    FILE *fpV = nullptr;
+    FILE *fpA = nullptr;
     do {
         XDemuxer myff(file);
-        if (myff.open() < 0) {
+        if (!myff.open()) {
             xlog_err("open failed\n");
             break;
         }
 
         auto frame = std::make_shared<XDemuxerFrame>();
 
+        std::string vfile = std::string(outputfile) + "_v";
+        std::string afile = std::string(outputfile) + "_a";
+
         while (true) {
-            int ret = myff.popPacket(frame);
-            if (ret < 0) {
-                xlog_err("pop failed\n");
-                break;
-            }
-            if (ret == 0) {
-                xlog_dbg("pop end\n");
+            if (!myff.popPacket(frame)) {
+                xlog_dbg("pop end or fail\n");
                 break;
             }
 
-            if (fp == nullptr) {
-                fp = fopen(outputfile, "w");
-            }
-            if (fp != nullptr) {
-                fwrite(frame->buf.data(), 1, frame->buf.size(), fp);
-                fflush(fp);
+            if (frame->isVideo) {
+                if (fpV == nullptr) {
+                    fpV = fopen(vfile.c_str(), "w");
+                }
+                if (fpV != nullptr) {
+                    fwrite(frame->buf.data(), 1, frame->buf.size(), fpV);
+                    fflush(fpV);
+                }
+            } else {
+                if (fpA == nullptr) {
+                    fpA = fopen(afile.c_str(), "w");
+                }
+                if (fpA != nullptr) {
+                    fwrite(frame->buf.data(), 1, frame->buf.size(), fpA);
+                    fflush(fpA);
+                }
             }
 
-            xlog_dbg("pop size: %zd, pts: %" PRIu64 "\n", frame->buf.size(), frame->pts);
+            xlog_dbg("pop size: %zd, pts: %" PRIu64 ", isVideo=%d\n", frame->buf.size(), frame->pts, frame->isVideo);
         }
     } while (false);
 
-    if (fp != nullptr) {
-        fclose(fp);
-        fp = nullptr;
+    if (fpV != nullptr) {
+        fclose(fpV);
+        fpV = nullptr;
+    }
+    if (fpA != nullptr) {
+        fclose(fpA);
+        fpA = nullptr;
     }
 }
 
