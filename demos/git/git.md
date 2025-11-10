@@ -209,3 +209,11 @@ git checkout <commit|tag> --recurse-submodules
 # 重新回到某个分支
 git checkout branch-name
 ```
+
+## git clone size
+
+```bash
+git clone -b branch --single-branch --depth 1
+# sub modules
+--shallow-submodules
+```
