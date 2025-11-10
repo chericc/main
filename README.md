@@ -280,5 +280,8 @@ PATH=$PATH:/opt/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin ./configur
 # nng
 cmake ../nng-1.11/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DBUILD_SHARED_LIBS=ON 
 
+# sqlite
+../sqlite-src-3510000/configure --prefix=$(pwd)/output --all
+
 ```
 
