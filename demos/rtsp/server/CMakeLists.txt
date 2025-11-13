@@ -19,3 +19,9 @@ add_executable(
     ${BIN}
     ${src}
 )
+install(
+    TARGETS ${BIN}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
