@@ -18,6 +18,11 @@ LiveStreamProviderFile::~LiveStreamProviderFile()
 
 }
 
+LiveStreamProviderFile::Info LiveStreamProviderFile::info()
+{
+    // return 
+}
+
 bool LiveStreamProviderFile::popVBuf(size_t size, std::vector<uint8_t> &buf)
 {
     return false;
