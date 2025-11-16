@@ -5,6 +5,9 @@
 #include <liveMedia.hh>
 #include <MediaSink.hh>
 
+#include <memory>
+#include "live_stream_provider.hpp"
+
 class MyRTSPServer : public RTSPServer {
 public:
     static MyRTSPServer* createNew(UsageEnvironment &env, Port port,
@@ -29,4 +32,7 @@ protected:
         lookupServerMediaSessionCompletionFunc *completionFunc,
         void *completionClientData,
         Boolean isFirstLoopupInSession);
+    
+private:
+    std::shared_ptr<LiveStreamProvider> _provider = nullptr;
 };

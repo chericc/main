@@ -21,6 +21,8 @@ XDemuxer::XDemuxer(std::string file)
     av_log_set_level(AV_LOG_ERROR);
     // av_log_set_level(AV_LOG_TRACE);
 
+    xlog_dbg("file: %s\n", file.c_str());
+
     _ctx = std::make_shared<Ctx>();
     _ctx->file = std::move(file);
     _ctx->ffctx = nullptr;
@@ -64,7 +66,6 @@ std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
     auto info = std::make_shared<XDemuxerInfo>();
 
     do {
-        int ret = 0;
         if (!_ctx->ffctx) {
             error_flag = true;
             xlog_err("null\n");
@@ -139,8 +140,6 @@ std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
 bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
 {
     bool error_flag = false;
-
-    AVPacket *pkt = nullptr;
     bool eof = false;
 
     do {

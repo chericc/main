@@ -3,16 +3,20 @@
 #include "H264VideoRTPSink.hh"
 #include "live_framed_source.hpp"
 #include "H264VideoStreamFramer.hh"
+#include "H265VideoStreamFramer.hh"
 
-LiveMediaSubsession *LiveMediaSubsession::createNew(UsageEnvironment &env)
+#include "xlog.h"
+
+LiveMediaSubsession *LiveMediaSubsession::createNew(UsageEnvironment &env, LiveMediaSubsessionProfile const &profile)
 {
-    return new LiveMediaSubsession(env);
+    return new LiveMediaSubsession(env, profile);
 }
 
-LiveMediaSubsession::LiveMediaSubsession(UsageEnvironment &env)
+LiveMediaSubsession::LiveMediaSubsession(UsageEnvironment &env, LiveMediaSubsessionProfile const &profile)
     : OnDemandServerMediaSubsession(env, True)
 {
-
+    _profile = std::make_shared<LiveMediaSubsessionProfile>();
+    *_profile = profile;
 }
 
 LiveMediaSubsession::~LiveMediaSubsession()
@@ -75,14 +79,14 @@ const char *LiveMediaSubsession::getAuxSDPLine(RTPSink *sink, FramedSource *sour
 FramedSource *LiveMediaSubsession::createNewStreamSource(unsigned clientSessionId, 
     unsigned &estBitrate)
 {
-    estBitrate = 500;
-    LiveFramedSource *liveSource = LiveFramedSource::createNew(envir());
-    return H264VideoStreamFramer::createNew(envir(), liveSource);
+        estBitrate = 500;
+
+        return  _profile->genSource();
 }
 
 RTPSink* LiveMediaSubsession::createNewRTPSink(Groupsock* rtpGroupsock,
                                     unsigned char rtpPayloadTypeIfDynamic,
                     FramedSource* inputSource)
 {
-    return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
-}
+    return _profile->genRTPSink(rtpGroupsock, rtpPayloadTypeIfDynamic);
+};

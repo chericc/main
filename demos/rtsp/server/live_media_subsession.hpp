@@ -2,16 +2,22 @@
 
 #include <string>
 #include <memory>
+#include <functional>
 #include "OnDemandServerMediaSubsession.hh"
 
 // refer to H264VideoFileServerMediaSubsession.hpp
 
+struct LiveMediaSubsessionProfile {
+    std::function<FramedSource*()> genSource;
+    std::function<RTPSink*(Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic)> genRTPSink;
+};
+
 class LiveMediaSubsession : public OnDemandServerMediaSubsession
 {
 public:
-    static LiveMediaSubsession* createNew(UsageEnvironment& env);
+    static LiveMediaSubsession* createNew(UsageEnvironment& env, LiveMediaSubsessionProfile const &profile);
 protected:
-    LiveMediaSubsession(UsageEnvironment& env);
+    LiveMediaSubsession(UsageEnvironment& env, LiveMediaSubsessionProfile const &profile);
     ~LiveMediaSubsession() override;
 
     // redefined virtual funcs
@@ -32,4 +38,6 @@ private:
     RTPSink *_sink = nullptr;
     std::shared_ptr<std::string> _sdp = nullptr;
     EventLoopWatchVariable _fDoneFlag = 0; // used when setting up "fAuxSDPLine"
+
+    std::shared_ptr<LiveMediaSubsessionProfile> _profile;
 };

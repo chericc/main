@@ -2,6 +2,7 @@
 
 #include "my_rtsp_server.hpp"
 #include "live_media_subsession.hpp"
+#include "live_framed_source.hpp"
 
 #include "xlog.h"
 
@@ -40,22 +41,6 @@ void onOggDemuxCreation(OggFileServerDemux* newDemux, void* clientData)
             ", streamed by the LIVE555 Media Server";\
         sms = ServerMediaSession::createNew(env, streamname, filename, descStr);\
     } while(0)
-
-ServerMediaSession* createLiveSms(UsageEnvironment& env, const char *filename, const char *streamname)
-{
-    ServerMediaSession *sms = nullptr;
-
-    do {
-        OutPacketBuffer::maxSize = 512 * 1024;
-        RTPSink *sink = nullptr;
-
-        // sink = H264VideoRTPSink::createNew(env, );
-
-        sms = ServerMediaSession::createNew(env, streamname, streamname, 
-            "live stream", True);
-        // sms->addSubsession(PassiveServerMediaSubsession::createNew())
-    } while (false);
-}
 
 ServerMediaSession* createNewFileSms(UsageEnvironment& env, const char *filename, const char *streamname)
 {
@@ -281,8 +266,61 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
 
         if (sms == nullptr) {
             sms = ServerMediaSession::createNew(envir(), streamname, path, "live");
-            sms->addSubsession(LiveMediaSubsession::createNew(envir()));
-            addServerMediaSession(sms);
+
+            if (!_provider) {
+
+                std::array<char, PATH_MAX> curPath = {};
+                getcwd(curPath.data(), curPath.size());
+                std::array<char, PATH_MAX> absPath = {};
+                snprintf(absPath.data(), absPath.size(), "%s/%s", curPath.data(), path);
+
+                xlog_dbg("path: %s\n", absPath.data());
+
+                _provider = std::make_shared<LiveStreamProviderFile>(absPath.data());
+            }
+
+            LiveStreamProvider::Info info = {};
+            if (!_provider->info(info)) {
+                xlog_err("get info failed\n");
+                _provider = nullptr;
+            }
+
+            if (info.hasVStream) {
+                auto genSource = [=]()->FramedSource*{
+                    auto popBufCb = [&](size_t size, std::vector<uint8_t> &buf)->bool{
+                        return _provider->popVBuf(size, buf);
+                    };
+                    if (info.codecV == LiveStreamProvider::HEVC) {
+                        FramedSource *liveSource = LiveFramedSource::createNew(envir(), popBufCb);
+                        if (liveSource != nullptr) {
+                            return H265VideoStreamFramer::createNew(envir(), liveSource);
+                        }
+                    } else if (info.codecV == LiveStreamProvider::H264) {
+                        FramedSource *liveSource = LiveFramedSource::createNew(envir(), popBufCb);
+                        if (liveSource != nullptr) {
+                            return H264VideoStreamFramer::createNew(envir(), liveSource);
+                        }
+                    }
+                    return nullptr;
+                };
+                auto genSink = [=](Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic)->RTPSink* {
+                    if (info.codecV == LiveStreamProvider::HEVC) {
+                        return H265VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
+                    }
+                    if (info.codecV == LiveStreamProvider::H264) {
+                        return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
+                    }
+
+                    xlog_err("codec not found\n");
+                    return nullptr;
+                };
+                LiveMediaSubsessionProfile profile = {};
+                profile.genSource = genSource;
+                profile.genRTPSink = genSink;
+
+                sms->addSubsession(LiveMediaSubsession::createNew(envir(), profile));
+                addServerMediaSession(sms);
+            }
         }
 
         if (nullptr != completionFunc) {

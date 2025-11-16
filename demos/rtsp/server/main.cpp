@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
     }
 
     auto server = rtsp_server_start(&param);
+    (void)server;
     getchar();
     getchar();
     return 0;

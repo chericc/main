@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <memory>
+#include <list>
 
 class LiveStreamProvider {
 public:
@@ -40,6 +41,14 @@ public:
     bool popVBuf(size_t size, std::vector<uint8_t> &buf) override;
     bool popABuf(size_t size, std::vector<uint8_t> &buf) override;
 private:
+
+    enum {
+        MAX_BUF_CACHE_NUM = 40,
+    };
+
+    bool popBuf(size_t size, std::vector<uint8_t> &buf, std::list<std::vector<uint8_t>> &pktList);
+    bool tryPopBuf();
+
     struct Ctx;
     std::shared_ptr<Ctx> _ctx = nullptr;
 };
