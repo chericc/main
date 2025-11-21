@@ -99,6 +99,9 @@ bool LiveStreamProviderFile::popBuf(size_t size, std::vector<uint8_t> &buf, std:
                     memcpy(buf.data(), ref.data(), ref.size());
                     _ctx->pktListVideo.pop_front();
                 }
+
+                xlog_dbg("size=%zu, pop=%zu\n", size, buf.size());
+
                 okFlag = true;
                 break;
             }
@@ -122,13 +125,13 @@ bool LiveStreamProviderFile::tryPopBuf()
 
         if (frame->isVideo) {
             if (_ctx->pktListVideo.size() > MAX_BUF_CACHE_NUM) {
-                break;
+                // break;
             }
 
             _ctx->pktListVideo.push_back(std::move(frame->buf));
         } else {
             if (_ctx->pktListAudio.size() > MAX_BUF_CACHE_NUM) {
-                break;
+                // break;
             }
 
             _ctx->pktListAudio.push_back(std::move(frame->buf));

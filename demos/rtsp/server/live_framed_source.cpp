@@ -10,18 +10,21 @@
 // };
 
 struct LiveFramedSource::Ctx {
-    popBufCb getPacketCb = nullptr;
+    Profile profile;
 };
 
-LiveFramedSource *LiveFramedSource::createNew(UsageEnvironment& env, popBufCb cb)
+LiveFramedSource *LiveFramedSource::createNew(UsageEnvironment& env, Profile profile)
 {
-    return new LiveFramedSource(env, cb);
+    return new LiveFramedSource(env, std::move(profile));
 }
 
-LiveFramedSource::LiveFramedSource(UsageEnvironment &env, popBufCb cb) : FramedSource(env)
+LiveFramedSource::LiveFramedSource(UsageEnvironment &env, Profile profile) : FramedSource(env)
 {
     _ctx = std::make_shared<Ctx>();
-    _ctx->getPacketCb = cb;
+    _ctx->profile = std::move(profile);
+
+    xlog_dbg("force I frame");
+    _ctx->profile.forceIFrame();
 }
 
 void LiveFramedSource::doGetNextFrame()
@@ -29,10 +32,12 @@ void LiveFramedSource::doGetNextFrame()
     xlog_dbg("get next frame\n");
 
     std::vector<uint8_t> buf;
-    if (!_ctx->getPacketCb(fMaxSize, buf)) {
+    if (!_ctx->profile.popBufCb(fMaxSize, buf)) {
         xlog_err("pop end\n");
         handleClosure();
     }
+
+    xlog_dbg("pkt: size=%zu\n", buf.size());
 
     memcpy(fTo, buf.data(), buf.size());
     fFrameSize = buf.size();

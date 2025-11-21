@@ -288,16 +288,19 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
             if (info.hasVStream) {
                 auto genSource = [=]()->FramedSource*{
                     auto popBufCb = [&](size_t size, std::vector<uint8_t> &buf)->bool{
-                        return _provider->popVBuf(size, buf);
+                        bool ret = _provider->popVBuf(size, buf);
+                        return ret;
                     };
                     if (info.codecV == LiveStreamProvider::HEVC) {
                         FramedSource *liveSource = LiveFramedSource::createNew(envir(), popBufCb);
                         if (liveSource != nullptr) {
+                            xlog_dbg("create h265 stream framer\n");
                             return H265VideoStreamFramer::createNew(envir(), liveSource);
                         }
                     } else if (info.codecV == LiveStreamProvider::H264) {
                         FramedSource *liveSource = LiveFramedSource::createNew(envir(), popBufCb);
                         if (liveSource != nullptr) {
+                            xlog_dbg("create h264 stream framer\n");
                             return H264VideoStreamFramer::createNew(envir(), liveSource);
                         }
                     }
@@ -305,9 +308,11 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
                 };
                 auto genSink = [=](Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic)->RTPSink* {
                     if (info.codecV == LiveStreamProvider::HEVC) {
+                        xlog_dbg("create h265 rtp sink\n");
                         return H265VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
                     }
                     if (info.codecV == LiveStreamProvider::H264) {
+                        xlog_dbg("create h264 rtp sink\n");
                         return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
                     }
 

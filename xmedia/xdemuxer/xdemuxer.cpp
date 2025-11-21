@@ -152,7 +152,10 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
         while (true) {
             int ret = popPacketOnce(_ctx->ffctx, framePtr);
             if (ret >= 0) {
-                xlog_dbg("pop frame: size=%zu\n", framePtr->buf.size());
+                if (framePtr->isVideo) {
+                    xlog_dbg("pop frame: size=%zu, video=%d\n", framePtr->buf.size(), framePtr->isVideo);
+                }
+                
                 break;
             } 
             if (ret == AVERROR(EAGAIN)) {

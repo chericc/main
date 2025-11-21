@@ -8,14 +8,21 @@
 
 // refer to ByteStreamFileSource.hh
 
-using popBufCb = std::function<bool(size_t size, std::vector<uint8_t> &buf)>;
+
 
 class LiveFramedSource : public FramedSource
 {
 public:
-    static LiveFramedSource *createNew(UsageEnvironment& env, popBufCb cb);
+    using PopBufCb = std::function<bool(size_t size, std::vector<uint8_t> &buf)>;
+    using ForceIFrame = std::function<bool()>;
+    struct Profile {
+        PopBufCb popBufCb;
+        ForceIFrame forceIFrame;
+    };
 
-    LiveFramedSource(UsageEnvironment &env, popBufCb cb);
+    static LiveFramedSource *createNew(UsageEnvironment& env, Profile profile);
+
+    LiveFramedSource(UsageEnvironment &env, Profile profile);
 
     void doGetNextFrame() override;
     void doStopGettingFrames() override;
