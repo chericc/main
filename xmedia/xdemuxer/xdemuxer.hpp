@@ -52,6 +52,7 @@ public:
     bool open();
     MyFFmpegInfoPtr getInfo();
     bool popPacket(XDemuxerFramePtr &framePtr);
+    bool forceIFrame();
 
     using fourcc = uint32_t;
     static std::string fourcc2str(fourcc);

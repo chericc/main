@@ -28,6 +28,7 @@ public:
     };
 
     virtual bool info(Info&) = 0;
+    virtual bool 
     virtual bool popVBuf(size_t size, std::vector<uint8_t> &buf) = 0;
     virtual bool popABuf(size_t size, std::vector<uint8_t> &buf) = 0;
 };

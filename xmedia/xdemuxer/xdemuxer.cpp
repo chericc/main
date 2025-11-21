@@ -180,6 +180,13 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
     return !eof;
 }
 
+bool XDemuxer::forceIFrame()
+{
+    do {
+        // av_get_output_timestamp()
+    } while (false);
+}
+
 XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
 {
     auto fftmp = std::make_shared<FFmpegCtx>();
