@@ -28,7 +28,7 @@ public:
     };
 
     virtual bool info(Info&) = 0;
-    virtual bool 
+    virtual bool forceIFrame() = 0;
     virtual bool popVBuf(size_t size, std::vector<uint8_t> &buf) = 0;
     virtual bool popABuf(size_t size, std::vector<uint8_t> &buf) = 0;
 };
@@ -39,6 +39,7 @@ public:
     virtual ~LiveStreamProviderFile();
     
     bool info(Info& info) override;
+    bool forceIFrame() override;
     bool popVBuf(size_t size, std::vector<uint8_t> &buf) override;
     bool popABuf(size_t size, std::vector<uint8_t> &buf) override;
 private:

@@ -66,6 +66,20 @@ bool LiveStreamProviderFile::info(Info &info)
     return okFlag;
 }
 
+bool LiveStreamProviderFile::forceIFrame()
+{
+    bool okFlag = false;
+    do {
+        if (nullptr == _ctx->demuxer) {
+            xlog_err("not opened");
+            break;
+        }
+
+        okFlag = _ctx->demuxer->forceIFrame();
+    } while (false);
+    return okFlag;
+}
+
 bool LiveStreamProviderFile::popVBuf(size_t size, std::vector<uint8_t> &buf)
 {
     auto ret = popBuf(size, buf, _ctx->pktListVideo);

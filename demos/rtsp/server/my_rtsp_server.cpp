@@ -291,14 +291,21 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
                         bool ret = _provider->popVBuf(size, buf);
                         return ret;
                     };
+                    auto forceIFrameCb = [&]() {
+                        bool ret = _provider->forceIFrame();
+                        return ret;
+                    };
+                    LiveFramedSource::Profile profile = {};
+                    profile.popBufCb = popBufCb;
+                    profile.forceIFrame = forceIFrameCb;
                     if (info.codecV == LiveStreamProvider::HEVC) {
-                        FramedSource *liveSource = LiveFramedSource::createNew(envir(), popBufCb);
+                        FramedSource *liveSource = LiveFramedSource::createNew(envir(), profile);
                         if (liveSource != nullptr) {
                             xlog_dbg("create h265 stream framer\n");
                             return H265VideoStreamFramer::createNew(envir(), liveSource);
                         }
                     } else if (info.codecV == LiveStreamProvider::H264) {
-                        FramedSource *liveSource = LiveFramedSource::createNew(envir(), popBufCb);
+                        FramedSource *liveSource = LiveFramedSource::createNew(envir(), profile);
                         if (liveSource != nullptr) {
                             xlog_dbg("create h264 stream framer\n");
                             return H264VideoStreamFramer::createNew(envir(), liveSource);

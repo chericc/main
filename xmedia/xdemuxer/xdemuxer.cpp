@@ -182,9 +182,29 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
 
 bool XDemuxer::forceIFrame()
 {
+    bool okFlag = false;
+
+    xlog_dbg("force I Frame");
+
     do {
-        // av_get_output_timestamp()
+        int ret = 0;
+        int64_t dts = 0;
+
+        if (!_ctx->ffctx) {
+            xlog_err("null");
+            break;
+        }
+
+        ret = av_seek_frame(_ctx->ffctx->context, _ctx->ffctx->index_video, dts, 0);
+        if (ret < 0) {
+            xlog_err("av_seek_frame failed");
+            break;
+        }
+
+        xlog_dbg("seek ok\n");
+        okFlag = true;
     } while (false);
+    return okFlag;
 }
 
 XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
