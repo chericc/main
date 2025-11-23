@@ -9,7 +9,7 @@
 #include "sdp.h"
 #include "rtp-profile.h"
 #include "rtp-demuxer.h"
-#include "xlog.hpp"
+#include "xlog.h"
 #include "packet_stable.hpp"
 
 #define GENERAL_NET_TIMEOUT_MS  2000

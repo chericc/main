@@ -1,4 +1,4 @@
-set(BIN demo_rtsp_client)
+set(BIN demo_rtsp_client_live555)
 aux_source_directory(. src)
 
 include_directories(${G_XTOOLS_XLOG_HEADER_PATH})

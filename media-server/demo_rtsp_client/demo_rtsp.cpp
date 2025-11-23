@@ -14,7 +14,7 @@
 
 #include "rtsp-multicast.h"
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 //#define UDP_MULTICAST_ADDR "239.0.0.2"
 

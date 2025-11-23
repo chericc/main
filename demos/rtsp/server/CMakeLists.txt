@@ -1,4 +1,4 @@
-set(BIN demo_rtsp_server)
+set(BIN demo_rtsp_server_live555)
 aux_source_directory(. src)
 
 set(COMMON_LIBS ${LIB_FFMPEG_AVFORMAT} ${LIB_FFMPEG_AVUTIL} ${LIB_FFMPEG_AVCODEC})

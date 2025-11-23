@@ -14,7 +14,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 #if defined(OS_WINDOWS)
 #define strcasecmp _stricmp

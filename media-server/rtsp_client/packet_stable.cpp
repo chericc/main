@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "xlog.hpp"
+#include "xlog.h"
 
 PacketStable::PacketStable(packet_stable_data_cb cb, void *user_data)
 {
