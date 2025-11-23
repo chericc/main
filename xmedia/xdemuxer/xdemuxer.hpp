@@ -54,6 +54,8 @@ public:
     bool popPacket(XDemuxerFramePtr &framePtr);
     bool forceIFrame();
 
+    bool getInfo(AVCodecParameters &param, bool isVideo);
+
     using fourcc = uint32_t;
     static std::string fourcc2str(fourcc);
     static fourcc str2fourcc(std::string);
