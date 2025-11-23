@@ -203,6 +203,7 @@ add_subdirectory(demos)
 
 if(${gnu})
 add_subdirectory(md5dir)
+add_subdirectory(media-server)
 endif()
 
 add_subdirectory(stl)
