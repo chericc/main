@@ -75,19 +75,33 @@ include_directories(libaio/include)
 include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
 
 aux_source_directory(demo_rtsp_client src_demo_rtsp_client)
-add_executable(${DEMO_RTSP_CLIENT_INNER}
+set(BIN ${DEMO_RTSP_CLIENT_INNER})
+add_executable(${BIN}
     ${src_demo_rtsp_client})
 target_link_libraries(
-    ${DEMO_RTSP_CLIENT_INNER}
+    ${BIN}
     ${LIB_MEDIA_SERVER}
     ${G_XTOOLS}
 )
+install(
+    TARGETS ${BIN}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
 
 aux_source_directory(rtsp_client src_rtsp_client)
-add_executable(${DEMO_RTSP_CLIENT}
+set(BIN DEMO_RTSP_CLIENT)
+add_executable(${BIN}
     ${src_rtsp_client})
 target_link_libraries(
-    ${DEMO_RTSP_CLIENT}
+    ${BIN}
     ${LIB_MEDIA_SERVER}
     ${G_XTOOLS}
+)
+install(
+    TARGETS ${BIN}
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
 )
