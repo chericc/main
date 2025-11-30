@@ -780,3 +780,12 @@ loss_value = loss(y_pred, y_true)
 loss_value = f(W)
 ```
 
+f描述的是，当W变化时，损失值所形成的曲线（高维表面）。
+
+假设W当前值为W0，f在W0点的导数是一个张量grad(loss_value, W0)，其形状与W相同，每个元素grad(loss_value, W0)[i,j]表示当W0[i,j]发生变化时，loss_value变化的大小和方向。张量grad(loss_value, W0)是函数f(W)=loss_value在W0处的梯度，也叫做loss_value相对于W在W0附近的梯度。
+
+张量运算grad(f(W), W)以矩阵W为输入，它可以表示为标量函数grad_ij(f(W), w_ij)的组合，每个标量函数返回的是loss_value = f(W)相对于W[i,j]的导数（假设W的其他所有元素不变）。grad_ij叫做f相对于W[i,j]的偏导数。
+
+grad(loss_value, W0)具体代表什么呢？我们前面看到，单变量函数f(x)的导数可以看作函数f曲线的斜率。同样，grad(loss_value, W0)可以看作表示loss_value = f(W)在W0附近最陡上升方向的张量，也表示这一上升方向的斜率。每个偏导数表示f在某个方向上的斜率。
+
+对于一个函数f(x)，你可以通过
