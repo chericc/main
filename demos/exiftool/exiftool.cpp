@@ -9,7 +9,6 @@
 
 #include <unistd.h>
 #include <csignal>
-#include <sys/prctl.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -86,7 +85,7 @@ bool ExifTool::init()
 {
     bool suc_flag = false;
 
-    prctl(PR_SET_NAME, "exifmain");
+    pthread_setname_np("exifmain");
 
     do {
         std::array<int, 2> pipe_to = {};
@@ -108,7 +107,7 @@ bool ExifTool::init()
         }
 
         if (childPID == 0) {
-            prctl(PR_SET_NAME, "exifchild");
+            pthread_setname_np("exifchild");
 
             // child process
             close(pipe_to.at(1)); // not write
@@ -147,7 +146,7 @@ bool ExifTool::init()
             int pidThis = getpid();
             _ctx->childWatchdog = fork();
             if (0 == _ctx->childWatchdog) {
-                prctl(PR_SET_NAME, "exifwatchdog");
+                pthread_setname_np("exifwatchdog");
                 while (true) {
                     sleep(1);
                     if (getppid() == pidThis) continue;
