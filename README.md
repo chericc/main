@@ -283,5 +283,9 @@ cmake ../nng-1.11/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/outp
 # sqlite
 ../sqlite-src-3510000/configure --prefix=$(pwd)/output --all
 
+# sqlpp11
+cmake ../sqlpp11 -DBUILD_POSTGRESQL_CONNECTOR=ON -DBUILD_SQLITE3_CONNECTOR=ON -DDEPENDENCY_CHECK=OFF -DBUILD_TESTING=OFF \
+-DCMAKE_INSTALL_PREFIX=$(pwd)/output
+
 ```
 
