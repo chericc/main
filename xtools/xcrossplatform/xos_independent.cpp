@@ -53,3 +53,14 @@ int x_strerror(int errnum, char* buf, size_t buflen) {
 #endif
     return ret;
 }
+
+int x_setthreadname(const char *name)
+{
+#if defined(G_PLATFORM_GNU)
+    return pthread_setname_np(pthread_self(), name);
+#elif defined(G_PLATFORM_CLANG)
+    return pthread_setname_np(name);
+#else 
+    #pragma error("not support")
+#endif 
+}

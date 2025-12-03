@@ -111,8 +111,7 @@ find_library(LIB_JPEG jpeg)
 find_path(HEADER_JPEG jpeglib.h)
 
 # sqlpp11
-find_package(sqlpp11::sqlpp11 REQUIRED)
-find_package(sqlpp11::sqlite3 REQUIRED)
+find_package(Sqlpp11 REQUIRED)
 
 # test_comm just for test use
 

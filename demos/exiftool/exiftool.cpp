@@ -14,6 +14,7 @@
 #include <sys/wait.h>
 
 #include "xlog.h"
+#include "xos_independent.hpp"
 #include "json.hpp"
 
 #define OK_OR_BREAK(call) \
@@ -85,7 +86,7 @@ bool ExifTool::init()
 {
     bool suc_flag = false;
 
-    pthread_setname_np("exifmain");
+    x_setthreadname("exifmain");
 
     do {
         std::array<int, 2> pipe_to = {};
@@ -107,7 +108,7 @@ bool ExifTool::init()
         }
 
         if (childPID == 0) {
-            pthread_setname_np("exifchild");
+            x_setthreadname("exifchild");
 
             // child process
             close(pipe_to.at(1)); // not write
@@ -146,7 +147,7 @@ bool ExifTool::init()
             int pidThis = getpid();
             _ctx->childWatchdog = fork();
             if (0 == _ctx->childWatchdog) {
-                pthread_setname_np("exifwatchdog");
+                x_setthreadname("exifwatchdog");
                 while (true) {
                     sleep(1);
                     if (getppid() == pidThis) continue;
