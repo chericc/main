@@ -56,6 +56,10 @@ if(LIB_SQLITE3)
 add_subdirectory(sqlite)
 endif()
 
+if(Sqlpp11_FOUND)
+add_subdirectory(sqlpp11)
+endif()
+
 if(${gnu} AND HEADER_TINYFRAME)
 add_subdirectory(tinyframe)
 add_subdirectory(uart)
