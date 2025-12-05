@@ -3,8 +3,12 @@ aux_source_directory(. src)
 link_libraries(
     ${G_XTOOLS}
     sqlpp11::sqlpp11
+    ${LIB_SQLITE3}
 )
-include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
+include_directories(
+    ${G_XTOOLS_XLOG_HEADER_PATH}
+    ${HEADER_SQLITE3}
+)
 
 set(BIN demo_sqlpp11)
 add_executable(
