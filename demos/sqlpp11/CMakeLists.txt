@@ -4,9 +4,11 @@ link_libraries(
     ${G_XTOOLS}
     sqlpp11::sqlpp11
     ${LIB_SQLITE3}
+    m
 )
 include_directories(
     ${G_XTOOLS_XLOG_HEADER_PATH}
+    ${G_XTOOLS_XIO_HEADER_PATH}
     ${HEADER_SQLITE3}
 )
 
