@@ -74,13 +74,30 @@ namespace student
       };
       using _traits = sqlpp::make_traits<sqlpp::text, sqlpp::tag::require_insert>;
     };
+    struct Age
+    {
+      struct _alias_t
+      {
+        static constexpr const char _literal[] =  "age";
+        using _name_t = sqlpp::make_char_sequence<sizeof(_literal), _literal>;
+        template<typename T>
+        struct _member_t
+          {
+            T age;
+            T& operator()() { return age; }
+            const T& operator()() const { return age; }
+          };
+      };
+      using _traits = sqlpp::make_traits<sqlpp::text, sqlpp::tag::can_be_null>;
+    };
   } // namespace TableStudent_
 
   struct TableStudent: sqlpp::table_t<TableStudent,
                TableStudent_::Id,
                TableStudent_::Number,
                TableStudent_::Name,
-               TableStudent_::Gender>
+               TableStudent_::Gender,
+               TableStudent_::Age>
   {
     struct _alias_t
     {

@@ -3,7 +3,8 @@ CREATE TABLE table_student (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     number TEXT UNIQUE NOT NULL, -- 学号
     name TEXT NOT NULL,
-    gender TEXT NOT NULL CHECK(gender in('boy','girl'))
+    gender TEXT NOT NULL CHECK(gender in('boy','girl')),
+    age TEXT
 ) STRICT;
 
 CREATE TABLE table_class (
