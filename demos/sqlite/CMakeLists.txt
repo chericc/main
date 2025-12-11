@@ -7,5 +7,7 @@ target_include_directories(${DEMO}
 target_link_libraries(
     ${DEMO}
     ${LIB_SQLITE3}
+    pthread
+    dl
     m
 )
