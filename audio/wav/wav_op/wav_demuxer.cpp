@@ -132,7 +132,7 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
                     xlog_dbg("chunk ignored: %s\n", (char*)chunkname);
 
                     if (xio->seek(chunksize, SEEK_CUR) < 0) {
-                        xlog_err("seek omit chunk failed(%s)\n", chunkname);
+                        xlog_err("seek omit chunk failed(%s)\n", (char*)chunkname);
                         error_flag = true;
                         break;
                     }

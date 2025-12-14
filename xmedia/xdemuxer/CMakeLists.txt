@@ -1,5 +1,9 @@
 aux_source_directory(. src_lib)
 
+link_libraries(
+    ${G_XTOOLS}
+)
+
 add_library(${G_XDEMUXER} STATIC ${src_lib})
 install(
     TARGETS ${G_XDEMUXER}
@@ -23,7 +27,6 @@ add_executable(${DEMO} ${src_demo})
 target_link_libraries(
     ${DEMO} 
     ${G_XDEMUXER}
-    ${G_XTOOLS}
     ${COMMON_LIBS}
 )
 install(

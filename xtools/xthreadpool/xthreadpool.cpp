@@ -2,7 +2,7 @@
 
 #include <iomanip>
 
-#include "xlog_cxx.hpp"
+#include "xlog.h"
 
 XThreadPool::ThreadContainer::ThreadContainer(Notify notify) {
     notify_ = notify;
@@ -172,7 +172,9 @@ void XThreadPool::onNotify(const NotifyInfo& info) {
     std::unique_lock<std::mutex> lock_pool(mutex_pool_);
 
     do {
-        XLOG(DBG) << "notify: " << info.job_finished_thread_id;
+        std::stringstream ss;
+        ss << info.job_finished_thread_id;
+        xlog_dbg("notify: {}", ss.str());
 
         auto finished_iterator =
             pool_working_.find(info.job_finished_thread_id);

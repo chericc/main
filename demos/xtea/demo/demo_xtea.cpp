@@ -15,7 +15,7 @@ int main()
     unsigned char hello[] = "hello\n";
     char out[sizeof(hello) * 2] = {};
 
-    xlog_dbg("input: %s\n", hello);
+    xlog_dbg("input: %s\n", (char*)hello);
 
     base64_encode(hello, sizeof(hello), out);
     xlog_dbg("base64: %s\n", out);
@@ -32,7 +32,7 @@ int main()
     }
     xtea_encipher_string(enc, enc_size, dec, &dec_size, password, round, 0);
 
-    xlog_dbg("after: %.*s, size: %d\n", (int)dec_size, dec, (int)dec_size);
+    xlog_dbg("after: {:.{}}, size: {}\n", (char*)dec, dec_size, dec_size);
 
     return 0;
 }

@@ -10,7 +10,6 @@ set(XTOOL_DEMO_XTIMER demo_xtools_xtimer)
 set(XTOOL_DEMO_XTEST_CLOCK demo_xtools_xtest_clock)
 set(XTOOL_TEST_XTEST_CLOCK test_xtools_xtest_clock)
 set(XTOOL_TEST_XUTILITY_XBSWAP test_xtools_xutility_xbswap)
-set(XTOOL_TEST_XUTILITY_XPERFTEST test_xtools_xutility_xperftest)
 
 aux_source_directory(xconfig src_xconfig)
 aux_source_directory(xcrossplatform src_xcrossplatform)
@@ -34,7 +33,6 @@ aux_source_directory(xtimer/demo src_xtimer_demo)
 aux_source_directory(xtest/demo_xtest_clock src_xtest_clock_demo)
 aux_source_directory(xtest/test_xtest_clock src_xtest_clock_test)
 aux_source_directory(xutility/test_bswap src_xutility_test_bswap)
-aux_source_directory(xutility/test_xperftest src_xutility_test_xperftest)
 
 include_directories(
     xconfig
@@ -63,6 +61,9 @@ add_library(
     ${src_xutility}
 )
 set_target_properties(${G_XTOOLS} PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_link_libraries(
+    ${G_XTOOLS} spdlog::spdlog
+)
 
 install(
     TARGETS ${G_XTOOLS}
@@ -160,14 +161,6 @@ add_executable(${XTOOL_TEST_XUTILITY_XBSWAP}
 target_link_libraries(${XTOOL_TEST_XUTILITY_XBSWAP} ${COMMON_LIB})
 add_test(NAME ${XTOOL_TEST_XUTILITY_XBSWAP}
         COMMAND ${XTOOL_TEST_XUTILITY_XBSWAP})
-
-# test_xtools_xutility_xperftest
-add_executable(${XTOOL_TEST_XUTILITY_XPERFTEST} 
-        ${src_xutility_test_xperftest}
-        ${G_GOOGLETEST_MAIN_SRCFILE})
-target_link_libraries(${XTOOL_TEST_XUTILITY_XPERFTEST} ${COMMON_LIB})
-add_test(NAME ${XTOOL_TEST_XUTILITY_XPERFTEST}
-        COMMAND ${XTOOL_TEST_XUTILITY_XPERFTEST})
 endif()
 
 # demo_xtimer

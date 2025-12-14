@@ -287,5 +287,7 @@ cmake ../nng-1.11/ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$(pwd)/outp
 cmake ../sqlpp11-0.65 -DBUILD_SQLITE3_CONNECTOR=ON -DDEPENDENCY_CHECK=OFF -DBUILD_TESTING=OFF \
 -DCMAKE_INSTALL_PREFIX=$(pwd)/output
 
+# spdlog
+cmake ../spdlog-1.16.0 -DCMAKE_INSTALL_PREFIX=$(pwd)/output -DCMAKE_BUILD_TYPE=Release
 ```
 

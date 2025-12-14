@@ -37,6 +37,9 @@ else()
 add_compile_options(-Wall -Wextra)
 endif()
 
+# spdlog
+find_package(spdlog REQUIRED)
+
 # googletest
 find_library(LIB_GTEST gtest)
 find_path(HEADER_GTEST gtest/gtest.h)

@@ -1,5 +1,10 @@
 #include "xlog.h"
 
+namespace {
+int unused;
+}
+
+#if false
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -132,3 +137,6 @@ void xlog(XLOG_LEVEL level, const char* file, int line, const char* func,
 
     return;
 }
+
+
+#endif 
