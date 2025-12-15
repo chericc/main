@@ -100,11 +100,11 @@ PacketType IPv4PacketInfo::convertProtocol(uint8_t ipv4_protocol) {
         }
         case 2:
         case 103: {
-            xlog_dbg("Protocol(%d) ignored", (int)ipv4_protocol);
+            xlog_dbg("Protocol({}) ignored", (int)ipv4_protocol);
             break;
         }
         default: {
-            xlog_err("Unknown protocol(%d)", (int)ipv4_protocol);
+            xlog_err("Unknown protocol({})", (int)ipv4_protocol);
             break;
         }
     }

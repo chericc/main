@@ -20,8 +20,8 @@ void QuickSort::register_test() {
         QuickSort qs(v.data(), v.size());
         qs.sort();
         std::string str_b = output_elements(v);
-        xlog_dbg("before: %s", str_a.c_str());
-        xlog_dbg("after: %s", str_b.c_str());
+        xlog_dbg("before: {}", str_a.c_str());
+        xlog_dbg("after: {}", str_b.c_str());
     };
 
     MainAlgManager::Funcs funcs;

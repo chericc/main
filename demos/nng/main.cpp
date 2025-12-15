@@ -13,7 +13,7 @@ bool exit_flag = false;
 
 void cb_on_req(const char *url, void const *req, size_t req_size, void *rsp, size_t *rsp_size)
 {
-    xlog_dbg("cb on req: url: %s\n", url);
+    xlog_dbg("cb on req: url: {}\n", url);
 
     int ret = snprintf((char*)rsp, *rsp_size, "%s: %.*s", url, (int)req_size, (const char *)req);
     *rsp_size = ret;
@@ -49,7 +49,7 @@ void client(std::vector<std::string> urls)
         char buf[128] = {};
         xlog_dbg("input to send, eg: 0 hello\n");
         for (size_t i = 0; i < urls.size(); ++i) {
-            xlog_dbg("[%zd]: %s\n", i, urls[i].c_str());
+            xlog_dbg("[{}]: {}\n", i, urls[i].c_str());
         }
         fgets(buf, sizeof(buf), stdin);
 
@@ -68,7 +68,7 @@ void client(std::vector<std::string> urls)
             param.rsp_size = &buf_recv_size;
 
             int ret = my_nng_req(urls[choice].c_str(), &param);
-            xlog_dbg("ret: %d, size=%zd\n", ret, buf_recv_size);
+            xlog_dbg("ret: {}, size={}\n", ret, buf_recv_size);
             xlog_dbg("msg: %.*s\n", (int)buf_recv_size, buf_recv);
 
             std::string str((const char *)param.req, param.req_size);
@@ -76,7 +76,7 @@ void client(std::vector<std::string> urls)
                 break;
             }
         } else {
-            xlog_err("unknown choice: %d\n", choice);
+            xlog_err("unknown choice: {}\n", choice);
         }
     }
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
     xlog_dbg("in\n");
 
     if (argc < 3) {
-        xlog_err("usage: %s [server|client] [url: ipc:///tmp/test]\n", argv[0]);
+        xlog_err("usage: {} [server|client] [url: ipc:///tmp/test]\n", argv[0]);
         return 1;
     }
 

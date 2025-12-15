@@ -52,7 +52,7 @@ int xtea_encipher_string(const void *string, size_t size,
     size_t total_blocks = size_align_up_8 / 8;
 
     if (*out_size < size_align_up_8) {
-        xlog_dbg("buf too small(%d, %d)\n", (int)*out_size, (int)size_align_up_8);
+        xlog_dbg("buf too small({}, {})\n", (int)*out_size, (int)size_align_up_8);
         return -1;
     }
 

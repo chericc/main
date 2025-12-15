@@ -43,7 +43,7 @@ int FileParser::parseFile(const std::string& file) {
         { xlog_dbg("Try pcap: not support yet"); }
 
         if (!parse_success_flag) {
-            xlog_err("Parse file failed(%s)", file.c_str());
+            xlog_err("Parse file failed({})", file.c_str());
             error = true;
         }
     } while (0);

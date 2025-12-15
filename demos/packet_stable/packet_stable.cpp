@@ -84,7 +84,7 @@ void trd_worker(struct packet_stable_ctx *ctx)
             } else {
                 packet_stable_timestamp_ms dts_diff = front->dts - ctx->last_packet_ts;
 
-                // xlog_dbg("dts_diff: %d\n", (int)dts_diff);
+                // xlog_dbg("dts_diff: {}\n", (int)dts_diff);
                 if (dts_diff > ctx->param_back.max_jitter_ms) {
                     xlog_dbg("over jitter, reset\n");
                     break;
@@ -169,7 +169,7 @@ int packet_stable_push(packet_stable_handle obj, struct packet_stable_packet con
         pkt_inner->other_data.resize(packet->other_data_size);
         memcpy(pkt_inner->other_data.data(), packet->other_data, packet->other_data_size);
 
-        // xlog_dbg("dts: %d\n", (int)pkt_inner->dts);
+        // xlog_dbg("dts: {}\n", (int)pkt_inner->dts);
 
         ctx->queue.push_back(pkt_inner);
         if (ctx->queue.size() > ctx->param_back.queue_low_level) {

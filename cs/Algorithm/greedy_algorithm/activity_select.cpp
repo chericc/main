@@ -71,7 +71,7 @@ void ActivitySelect::registerTest()
 
         auto dump_job = [](std::vector<Job> const& jobs) {
             for (size_t i = 0; i < jobs.size(); ++i) {
-                xlog_dbg("job[%zu]:[%d,%d]\n", i, jobs[i].start_time, jobs[i].fini_time);
+                xlog_dbg("job[{}]:[{},{}]\n", i, jobs[i].start_time, jobs[i].fini_time);
             }
         };
 

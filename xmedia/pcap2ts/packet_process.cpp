@@ -7,8 +7,8 @@
 #include "xlog.h"
 
 static void debug_packet(std::shared_ptr<SharedPacket> packet) {
-    xlog_dbg("PacketType: %s", PacketInfo::typeName(packet->cur_type));
-    xlog_dbg("PacketData: [%zu,%zu] in [%zu]", packet->data.offset,
+    xlog_dbg("PacketType: {}", PacketInfo::typeName(packet->cur_type));
+    xlog_dbg("PacketData: [{},{}] in [{}]", packet->data.offset,
              packet->data.size, packet->data.data->size());
     xlog_dbg("PacketInfo: ");
     for (auto it : packet->parsed_info) {
@@ -16,11 +16,11 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet) {
             case PacketType::Ethernet: {
                 std::shared_ptr<EthernetPacketInfo> ep =
                     std::static_pointer_cast<EthernetPacketInfo>(it.second);
-                xlog_dbg("Ethernet.dst_mac: %s",
+                xlog_dbg("Ethernet.dst_mac: {}",
                          str_macaddr(ep->mac_dst).c_str());
-                xlog_dbg("Ethernet.src_mac: %s",
+                xlog_dbg("Ethernet.src_mac: {}",
                          str_macaddr(ep->mac_src).c_str());
-                xlog_dbg("Ethernet.sub_type: %s",
+                xlog_dbg("Ethernet.sub_type: {}",
                          PacketInfo::typeName(ep->convertEthType(ep->type)));
                 break;
             }
@@ -38,16 +38,16 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet) {
                 xlog_dbg("ipv4->fragment_offset: %" PRIu16,
                          ipv4p->fragment_offset);
                 xlog_dbg("ipv4->time_to_live: %" PRIu8, ipv4p->time_to_live);
-                xlog_dbg("ipv4->protocol: %s",
+                xlog_dbg("ipv4->protocol: {}",
                          it.second->typeName(
                              ipv4p->convertProtocol(ipv4p->protocol)));
                 xlog_dbg("ipv4->header_checksum: %#" PRIx16,
                          ipv4p->header_checksum);
-                xlog_dbg("ipv4->ip_src: %s",
+                xlog_dbg("ipv4->ip_src: {}",
                          str_ipv4(ipv4p->ip_addr_src).c_str());
-                xlog_dbg("ipv4->ip_dst: %s",
+                xlog_dbg("ipv4->ip_dst: {}",
                          str_ipv4(ipv4p->ip_addr_dst).c_str());
-                xlog_dbg("ipv4->padding_size: %zu", ipv4p->padding_size);
+                xlog_dbg("ipv4->padding_size: {}", ipv4p->padding_size);
                 break;
             }
             case PacketType::UDP: {
@@ -73,7 +73,7 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet) {
                          rtp->sequence_number);
                 xlog_dbg("rtp->time_stamp: %" PRIu32, rtp->time_stamp);
                 xlog_dbg("rtp->ssrc_id: %" PRIu32, rtp->ssrc_id);
-                xlog_dbg("rtp->csrc_id_list: %zu", rtp->csrc_id_list.size());
+                xlog_dbg("rtp->csrc_id_list: {}", rtp->csrc_id_list.size());
                 for (auto const& it : rtp->csrc_id_list) {
                     xlog_dbg("rtp->csrc_id_list number: %" PRIu32, it);
                 }
@@ -104,7 +104,7 @@ int PacketProcess::processEthernetData(
             break;
         }
 
-        xlog_dbg("packet.size(%zu)", data->size());
+        xlog_dbg("packet.size({})", data->size());
 
         std::shared_ptr<SharedPacket> shared_packet =
             std::make_shared<SharedPacket>(PacketType::Ethernet,
@@ -249,7 +249,7 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet) {
             ipv4->ip_addr_dst.size();
 
         if (size < head_size_without_options) {
-            xlog_err("Size check failed(%zu < %zu)", size,
+            xlog_err("Size check failed({} < {})", size,
                      head_size_without_options);
             error = true;
             break;
@@ -278,7 +278,7 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet) {
         }
 
         if (size < ipv4->len) {
-            xlog_err("Size check failed(%zu < %" PRIu8 ")", size, ipv4->len);
+            xlog_err("Size check failed({} < %" PRIu8 ")", size, ipv4->len);
             error = true;
             break;
         }
@@ -404,7 +404,7 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet) {
             sizeof(udp->total_length) + sizeof(udp->checksum);
 
         if (size < udp_head_size) {
-            xlog_err("Size check failed(%zu < %zu)", size, udp_head_size);
+            xlog_err("Size check failed({} < {})", size, udp_head_size);
             error = true;
             break;
         }
@@ -488,7 +488,7 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet) {
         const std::size_t fixed_header_size = 12;
 
         if (size < fixed_header_size) {
-            xlog_err("Size too small(%zd,%zd)", size, fixed_header_size);
+            xlog_err("Size too small({},{})", size, fixed_header_size);
             error = true;
             break;
         }
@@ -530,7 +530,7 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet) {
         const std::size_t scrc_id_list_size =
             csrc_id_list_num * sizeof(rtp->csrc_id_list.front());
         if (size < scrc_id_list_size) {
-            xlog_err("csrc_id size check failed(%zu, %zu)", size,
+            xlog_err("csrc_id size check failed({}, {})", size,
                      scrc_id_list_size);
             error = true;
             break;
@@ -549,7 +549,7 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet) {
             const std::size_t fixed_extended_header_size =
                 sizeof(rtp->defined_by_profile) + sizeof(rtp->length);
             if (size < fixed_extended_header_size) {
-                xlog_err("Extention size check failed(%zu)", size);
+                xlog_err("Extention size check failed({})", size);
                 error = true;
                 break;
             }
@@ -568,7 +568,7 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet) {
                 const std::size_t head_extension_size =
                     rtp->length * sizeof(uint32_t);
                 if (size < head_extension_size) {
-                    xlog_err("Extension length check failed(%zu, %zu)", size,
+                    xlog_err("Extension length check failed({}, {})", size,
                              head_extension_size);
                     error = true;
                     break;

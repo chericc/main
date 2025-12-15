@@ -36,7 +36,7 @@ static int rtsp_client_send(void* param, const char* uri, const void* req, size_
 	//2. multi-uri if media_count > 1
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("send to uri: %s\n<%s>\n", uri, (const char *)req);
+	xlog_dbg("send to uri: {}\n<{}>\n", uri, (const char *)req);
 
 	return socket_send_all_by_time(ctx->socket, req, bytes, 0, 2000);
 }
@@ -45,7 +45,7 @@ static int rtpport(void* param, int media, const char* source, unsigned short rt
 {
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("rtp port: source: %s, ip: %s\n", source, ip);
+	xlog_dbg("rtp port: source: {}, ip: {}\n", source, ip);
 
 	int m = rtsp_client_get_media_type(ctx->rtsp, media);
 	if (SDP_M_MEDIA_AUDIO != m && SDP_M_MEDIA_VIDEO != m)
@@ -93,7 +93,7 @@ static void onrtp(void* param, uint8_t channel, const void* data, uint16_t bytes
 	static int keepalive = 0;
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("onrtp: %d bytes\n", bytes);
+	xlog_dbg("onrtp: {} bytes\n", bytes);
 
 	rtp_receiver_tcp_input(channel, data, bytes);
 	if (++keepalive % 1000 == 0)
@@ -106,7 +106,7 @@ static int ondescribe(void* param, const char* sdp, int len)
 {
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("on describe: %s\n", sdp);
+	xlog_dbg("on describe: {}\n", sdp);
 
 	return rtsp_client_setup(ctx->rtsp, sdp, len);
 }
@@ -121,7 +121,7 @@ static int onsetup(void* param, int timeout, int64_t duration)
 	u_short rtspport;
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 	assert(0 == rtsp_client_play(ctx->rtsp, &npt, NULL));
-	xlog_dbg("client media count: %d\n", rtsp_client_media_count(ctx->rtsp));
+	xlog_dbg("client media count: {}\n", rtsp_client_media_count(ctx->rtsp));
 	for (i = 0; i < rtsp_client_media_count(ctx->rtsp); i++)
 	{
 		int payload, port[2];
@@ -131,7 +131,7 @@ static int onsetup(void* param, int timeout, int64_t duration)
 		encoding = rtsp_client_get_media_encoding(ctx->rtsp, i);
 		payload = rtsp_client_get_media_payload(ctx->rtsp, i);
 
-		xlog_dbg("transport[%d]=%d(1 udp,2 tcp,3 raw)\n", i, transport->transport);
+		xlog_dbg("transport[{}]={}(1 udp,2 tcp,3 raw)\n", i, transport->transport);
 
 		if (RTSP_TRANSPORT_RTP_UDP == transport->transport)
 		{
@@ -205,7 +205,7 @@ void rtsp_client_test(const char* host, const char* file)
 	ctx.transport = RTSP_TRANSPORT_RTP_TCP; // RTSP_TRANSPORT_RTP_UDP
 	snprintf(packet, sizeof(packet), "rtsp://%s/%s", host, file); // url
 
-	xlog_dbg("host:%s, packet:%s\n", host, packet);
+	xlog_dbg("host:{}, packet:{}\n", host, packet);
 
 	socket_init();
 	ctx.socket = socket_connect_host(host, 554, 2000);

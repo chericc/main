@@ -12,9 +12,9 @@
 
 static void event_log(int is_warning, const char* msg) {
     if (is_warning) {
-        xlog_war("libevent: %s", msg);
+        xlog_war("libevent: {}", msg);
     } else {
-        // xlog_dbg("libevent: %s", msg);
+        // xlog_dbg("libevent: {}", msg);
     }
 }
 
@@ -24,11 +24,11 @@ void getaddrinfo_cb(int result, struct evutil_addrinfo* res, void* arg) {
     struct evutil_addrinfo* first_ai = res;
 
     if (result) {
-        xlog_dbg("%s: %s", name, evutil_gai_strerror(result));
+        xlog_dbg("{}: {}", name, evutil_gai_strerror(result));
     }
 
     if (res && res->ai_canonname) {
-        xlog_dbg("    %s ==> %s", name, res->ai_canonname);
+        xlog_dbg("    {} ==> {}", name, res->ai_canonname);
     }
 
     for (i = 0; res; res = res->ai_next, ++i) {
@@ -36,12 +36,12 @@ void getaddrinfo_cb(int result, struct evutil_addrinfo* res, void* arg) {
         if (res->ai_family == PF_INET) {
             auto* sin = (struct sockaddr_in*)res->ai_addr;
             evutil_inet_ntop(AF_INET, &sin->sin_addr, buf.data(), buf.size());
-            xlog_dbg("IPv4 [%d] %s: %s", i, name, buf.data());
+            xlog_dbg("IPv4 [{}] {}: {}", i, name, buf.data());
         } else if (res->ai_family == PF_INET6) {
             auto* sin6 = (struct sockaddr_in6*)res->ai_addr;
             evutil_inet_ntop(AF_INET6, &sin6->sin6_addr, buf.data(),
                              buf.size());
-            xlog_dbg("IPv6 [%d] %s: %s", i, name, buf.data());
+            xlog_dbg("IPv6 [{}] {}: {}", i, name, buf.data());
         } else {
             xlog_dbg("family not support");
         }

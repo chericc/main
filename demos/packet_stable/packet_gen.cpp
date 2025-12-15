@@ -218,9 +218,9 @@ int packet_gen_destroy(packet_gen_handle obj)
                 } else {
                     ctx->trds[i]->state = DEAD;
                 }
-                xlog_dbg("join trd begin: %d\n", i);
+                xlog_dbg("join trd begin: {}\n", i);
                 ctx->trds[i]->trd->join();
-                xlog_dbg("join trd end: %d\n", i);
+                xlog_dbg("join trd end: {}\n", i);
             }
         }
 
@@ -275,9 +275,9 @@ int packet_gen_stop(packet_gen_handle obj)
                 } else if (ctx->trds[i]->state == RUN) {
                     UniClock lock(ctx->trds[i]->mutex_state);
                     ctx->trds[i]->state = SLEEP;
-                    xlog_dbg("wait stop begin: %d\n", i);
+                    xlog_dbg("wait stop begin: {}\n", i);
                     ctx->trds[i]->cond_state_activated.wait(lock);
-                    xlog_dbg("wait stop end: %d\n", i);
+                    xlog_dbg("wait stop end: {}\n", i);
                 } else if (ctx->trds[i]->state == DEAD) {
                     xlog_err("already dead\n");
                 } else {

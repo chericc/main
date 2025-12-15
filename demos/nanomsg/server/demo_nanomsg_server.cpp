@@ -16,13 +16,13 @@ int start_server(const char *url)
 
         fd = nn_socket(AF_SP, NN_PUB);
         if (fd < 0) {
-            xlog_err("nn_socket failed: %s\n", nn_strerror(nn_errno()));
+            xlog_err("nn_socket failed: {}\n", nn_strerror(nn_errno()));
             break;
         }
 
         ret = nn_bind(fd, url);
         if (ret < 0) {
-            xlog_err("nn_bind failed: %s\n", nn_strerror(nn_errno()));
+            xlog_err("nn_bind failed: {}\n", nn_strerror(nn_errno()));
             break;
         }
 
@@ -39,7 +39,7 @@ int start_server(const char *url)
 
             ret = nn_send(fd, buf, sizeof(buf), 0);
             if (ret < 0) {
-                xlog_err("nn_send failed: %s\n", nn_strerror(nn_errno()));
+                xlog_err("nn_send failed: {}\n", nn_strerror(nn_errno()));
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     xlog_dbg("server in\n");
 
     if (argc < 2) {
-        xlog_err("Usage: %s [url]\n", argv[0]);
+        xlog_err("Usage: {} [url]\n", argv[0]);
         return -1;
     }
 

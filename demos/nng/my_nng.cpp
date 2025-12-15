@@ -76,7 +76,7 @@ struct my_nm_context s_ctx;
 void handle_msg(struct work *worker, nng_msg *msg)
 {
     do {
-        xlog_dbg("handle msg, len=%zd\n", nng_msg_len(msg));
+        xlog_dbg("handle msg, len={}\n", nng_msg_len(msg));
 
         s_ctx.server_rsp_msg_buf.resize(MSG_SIZE_LIMIT);
 
@@ -90,7 +90,7 @@ void handle_msg(struct work *worker, nng_msg *msg)
         worker->cb(worker->url.c_str(), nng_msg_body(msg), recv_msg_len, 
             s_ctx.server_rsp_msg_buf.data(), &rsp_msg_buf_size);
         if (rsp_msg_buf_size > MSG_SIZE_LIMIT) {
-            xlog_err("invalid size returned: %zu\n", rsp_msg_buf_size);
+            xlog_err("invalid size returned: {}\n", rsp_msg_buf_size);
             break;
         }
 
@@ -155,7 +155,7 @@ void server_cb(void *arg)
         break;
     }
 	default: {
-        xlog_err("bad state: %d\n", (int)work->state);
+        xlog_err("bad state: {}\n", (int)work->state);
 		break;
     }
 	}
@@ -193,11 +193,11 @@ int opened_servers_destroy(const char *url)
     Lock lock(s_ctx.mutex_opened_server);
     auto result = s_ctx.opened_server.find(url);
     if (result != s_ctx.opened_server.end()) {
-        xlog_dbg("destroy server: %s\n", result->first.c_str());
+        xlog_dbg("destroy server: {}\n", result->first.c_str());
         server_destroy(result->second.get());
         s_ctx.opened_server.erase(result);
     } else {
-        xlog_err("url not found: %s\n", url);
+        xlog_err("url not found: {}\n", url);
     }
     return (int)s_ctx.opened_server.size();
 }
@@ -218,11 +218,11 @@ int opened_clients_destroy(const char *url)
     Lock lock(s_ctx.mutex_opened_client);
     auto result = s_ctx.opened_client.find(url);
     if (result != s_ctx.opened_client.end()) {
-        xlog_dbg("destroy client: %s\n", result->first.c_str());
+        xlog_dbg("destroy client: {}\n", result->first.c_str());
         client_destroy(result->second);
         s_ctx.opened_client.erase(result);
     } else {
-        xlog_err("url not found: %s\n", url);
+        xlog_err("url not found: {}\n", url);
     }
     return (int)s_ctx.opened_client.size();
 }
@@ -251,7 +251,7 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
             }
 
             if (s_ctx.opened_server.size() > 4) {
-                xlog_err("server number over limit: %zd\n", s_ctx.opened_server.size());
+                xlog_err("server number over limit: {}\n", s_ctx.opened_server.size());
             }
         }
         
@@ -292,9 +292,9 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
         }
 
         s_ctx.opened_server[url] = serv;
-        xlog_dbg("cached server number: %zu\n", s_ctx.opened_server.size());
+        xlog_dbg("cached server number: {}\n", s_ctx.opened_server.size());
 
-        xlog_dbg("nm start ok: %s\n", url);
+        xlog_dbg("nm start ok: {}\n", url);
     } while (false);
 
     if (error_flag) {
@@ -318,7 +318,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         int ret = 0;
 
         if (req_param->req_size > MSG_SIZE_LIMIT) {
-            xlog_err("req size over limit: %zd > %d\n", req_param->req_size, (int)MSG_SIZE_LIMIT);
+            xlog_err("req size over limit: {} > %d\n", req_param->req_size, (int)MSG_SIZE_LIMIT);
             error_flag = true;
             break;
         }
@@ -326,7 +326,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         client_it = s_ctx.opened_client.find(url);
         if (client_it == s_ctx.opened_client.end()) {
             if (s_ctx.opened_client.size() >= MAX_CACHED_SOCK_NUMBER) {
-                xlog_err("over max cached client number: %zu\n", s_ctx.opened_client.size());
+                xlog_err("over max cached client number: {}\n", s_ctx.opened_client.size());
                 error_flag = true;
                 break;
             }
@@ -348,7 +348,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
 
             client_it = s_ctx.opened_client.insert(std::make_pair(url, client)).first;
             client.sock_valid = false;
-            xlog_dbg("cache client number: %zd\n", s_ctx.opened_client.size());
+            xlog_dbg("cache client number: {}\n", s_ctx.opened_client.size());
         }
 
         if (client_it == s_ctx.opened_client.end()) {

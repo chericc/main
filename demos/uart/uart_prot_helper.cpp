@@ -85,7 +85,7 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
             size_t resp_size_tmp = *resp_data_size;
             
             lock.lock();
-            xlog_dbg("wait response end: size=%zu\n", _buf.size());
+            xlog_dbg("wait response end: size={}\n", _buf.size());
 
             size_t min_resp_size = std::min(resp_size_tmp, _buf.size());
             memcpy(resp_data, _buf.data(), min_resp_size);
@@ -151,7 +151,7 @@ int UartProtRaw::handle_response(const void *data, size_t size)
 
         size_t left_size = buf_max_size - now_size;
         if (left_size < size) {
-            xlog_err("buf full(input: %zu, now: %zu)\n", size, now_size);
+            xlog_err("buf full(input: {}, now: {})\n", size, now_size);
             error_flag = true;
             break;
         }
@@ -160,7 +160,7 @@ int UartProtRaw::handle_response(const void *data, size_t size)
         _buf.resize(new_size);
         memcpy(_buf.data() + now_size, data, size);
 
-        xlog_dbg("new size: %zu\n", new_size);
+        xlog_dbg("new size: {}\n", new_size);
     } while (0);
 
     return error_flag ? -1 : 0;
@@ -317,7 +317,7 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
 
         auto const len_max = std::numeric_limits<decltype(msg->len)>::max();
         if (response_buf_size > len_max) {
-            xlog_err("response too big for msg(%d > %d)\n", (int)response_buf_size, len_max);
+            xlog_err("response too big for msg({} > {})\n", (int)response_buf_size, len_max);
             break;
         }
         
@@ -327,7 +327,7 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
         msg_resp.len = response_buf_size;
         msg_resp.frame_id = msg->frame_id;
 
-        xlog_dbg("respond with id: %d\n", (int)msg_resp.frame_id);
+        xlog_dbg("respond with id: {}\n", (int)msg_resp.frame_id);
 
         ret = TF_Respond(tf, &msg_resp);
         if (ret < 0) {
@@ -414,7 +414,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
             if (!_buf.empty()) {
                 size_t resp_data_size_tmp = *resp_data_size;
                 if (resp_data_size_tmp < _buf.size()) {
-                    xlog_err("resp buf small: %zu < %zu)\n", 
+                    xlog_err("resp buf small: {} < {})\n", 
                         resp_data_size_tmp, _buf.size());
                     error_flag = true;
                     break;

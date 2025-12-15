@@ -247,14 +247,14 @@ int XConfigImp::DataGet__(const std::string& section, const std::string& key,
                           std::string& value) {
     auto it_section = m_map_data__.find(section);
     if (it_section == m_map_data__.cend()) {
-        xlog_err("Get [%s.%s]: section not exist\n", section.c_str(),
+        xlog_err("Get [{}.{}]: section not exist\n", section.c_str(),
                  key.c_str());
         return -1;
     }
 
     auto it_item = it_section->second.find(key);
     if (it_item == it_section->second.cend()) {
-        xlog_err("Get [%s.%s]: key not exist\n", section.c_str(), key.c_str());
+        xlog_err("Get [{}.{}]: key not exist\n", section.c_str(), key.c_str());
         return -1;
     }
 

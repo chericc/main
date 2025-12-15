@@ -24,10 +24,10 @@ void MainAlgManager::listDemos() {
 
     for (auto it = alg_demos_.begin(); it != alg_demos_.end();
          ++it, ++module_index) {
-        xlog_dbg("module: %s(%d)", it->first.c_str(), module_index);
+        xlog_dbg("module: {}({})", it->first.c_str(), module_index);
         for (auto func_it = it->second.begin(); func_it != it->second.end();
              ++func_it, ++func_index) {
-            xlog_dbg("|--func: %s(%d)", func_it->first.c_str(), func_index);
+            xlog_dbg("|--func: {}({})", func_it->first.c_str(), func_index);
         }
     }
 }
@@ -38,10 +38,10 @@ void MainAlgManager::runAllDemo() {
 
     for (auto it = alg_demos_.begin(); it != alg_demos_.end();
          ++it, ++module_index) {
-        xlog_dbg("module: %s(%d)", it->first.c_str(), module_index);
+        xlog_dbg("module: {}({})", it->first.c_str(), module_index);
         for (auto func_it = it->second.begin(); func_it != it->second.end();
              ++func_it, ++func_index) {
-            xlog_dbg("|--func: %s(%d)", func_it->first.c_str(), func_index);
+            xlog_dbg("|--func: {}({})", func_it->first.c_str(), func_index);
 
             func_it->second();
         }

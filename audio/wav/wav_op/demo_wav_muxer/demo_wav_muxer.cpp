@@ -19,14 +19,14 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
         int ret = 0;
         fp_raw = fopen(rawfile, "r");
         if (nullptr == fp_raw) {
-            xlog_err("error open %s\n", rawfile);
+            xlog_err("error open {}\n", rawfile);
             error_flag = true;
             break;
         }
 
         fp_wav = fopen(wavfile, "w");
         if (nullptr == wavfile) {
-            xlog_err("error open %s\n", wavfile);
+            xlog_err("error open {}\n", wavfile);
             error_flag = true;
             break;
         }
@@ -87,7 +87,7 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
 int main(int argc, char *argv[])
 {
     if (argc != 7) {
-        xlog_err("Usage: %s [rawfile] [wavfile] [channel] [format] [samplerate] [samplebits]\n"
+        xlog_err("Usage: {} [rawfile] [wavfile] [channel] [format] [samplerate] [samplebits]\n"
             "eg: %s input.pcm output.wav 1 1 16000 16\n", 
             argv[0], argv[0]);
         return 1;

@@ -21,7 +21,7 @@
     if (true) { \
         int ret = ((call)); \
         if (ret < 0) { \
-            xlog_err(#call "failed: %#x\n", ret); \
+            xlog_err(#call "failed: {}\n", ret); \
             break; \
         } \
     }
@@ -186,7 +186,7 @@ bool ExifTool::parse(const char *filename, int timeoutMs)
                     break;
                 }
 
-                xlog_dbg("output: size=%d, %s\n", 
+                xlog_dbg("output: size={}, {}\n", 
                     (int)output.size(),
                     output.c_str());
 
@@ -202,12 +202,12 @@ bool ExifTool::parse(const char *filename, int timeoutMs)
                     break;
                 }
 
-                xlog_dbg("json: size=%d\n", (int)json.size());
+                xlog_dbg("json: size={}\n", (int)json.size());
             } while (false);
 
             auto passMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - startTime).count();
-            xlog_dbg("pass: %d ms\n", (int)passMs);
+            xlog_dbg("pass: {} ms\n", (int)passMs);
 
             if (passMs > timeoutMs) {
                 xlog_err("timeout\n");
@@ -273,7 +273,7 @@ bool ExifTool::readOutput(std::string &result, int timeoutMs)
                     break;
                 }
 
-                xlog_err("error in read: ret=%d, %s\n", (int)nret, strerror(errno));
+                xlog_err("error in read: ret={}, {}\n", (int)nret, strerror(errno));
                 error_flag = true;
                 break;
             } while (false);

@@ -13,7 +13,7 @@ static void uart_raw_read_on_data_imp(void const* data, size_t size, void *user)
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        xlog_dbg("usage: %s [uart_dev_path] [boudrate]\n", argv[0]);
+        xlog_dbg("usage: {} [uart_dev_path] [boudrate]\n", argv[0]);
         return 1;
     }
 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
             break;
         }
 
-        xlog_dbg("input: <%s>\n", buf);
+        xlog_dbg("input: <{}>\n", buf);
         char buf_with_tail[64] = {};
         // snprintf(buf_with_tail, sizeof(buf_with_tail), "%s\n", buf);
         snprintf(buf_with_tail, sizeof(buf_with_tail), "%s", buf);

@@ -29,7 +29,7 @@ static void testExtractRaw(const std::string& wavFile,
         fp = fopen(wavFile.c_str(), "r");
         EXPECT_NE(fp, nullptr);
         if (nullptr == fp) {
-            xlog_err("open file failed: %s\n", wavFile.c_str());
+            xlog_err("open file failed: {}\n", wavFile.c_str());
             break;
         }
         struct wav_demuxer_info demuxer_info = {};

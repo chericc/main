@@ -15,10 +15,10 @@ int main()
     unsigned char hello[] = "hello\n";
     char out[sizeof(hello) * 2] = {};
 
-    xlog_dbg("input: %s\n", (char*)hello);
+    xlog_dbg("input: {}\n", (char*)hello);
 
     base64_encode(hello, sizeof(hello), out);
-    xlog_dbg("base64: %s\n", out);
+    xlog_dbg("base64: {}\n", out);
 
     uint8_t enc[sizeof(out) + 8];
     size_t enc_size = sizeof(enc);

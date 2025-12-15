@@ -47,7 +47,7 @@ void printtreedemo_registertest() {
         nodes[2]->set_left(nodes[4]);
 
         std::string str = print_tree(nodes[0], nullptr);
-        xlog_dbg("tree is: \n%s\n", str.c_str());
+        xlog_dbg("tree is: \n{}\n", str.c_str());
         for (auto &ref : nodes) {
             delete ref;
         }

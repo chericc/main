@@ -12,7 +12,7 @@ void funA() {
 
     for (int i = 0; i < 3; ++i) {
         int seconds = 1;
-        xlog_dbg("wait for begin: (%d seconds)", seconds);
+        xlog_dbg("wait for begin: ({} seconds)", seconds);
         s_clock.waitFor(std::chrono::seconds(seconds));
         xlog_dbg("wait end");
     }

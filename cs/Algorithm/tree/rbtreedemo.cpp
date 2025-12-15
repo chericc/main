@@ -13,7 +13,7 @@ void rbtreedemo_registertest()
         for (int i = 10; i > 0; --i) {
             tree.insert(i);
         }
-        xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+        xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
     };
 
     auto test_remove = [](){
@@ -21,17 +21,17 @@ void rbtreedemo_registertest()
         for (int i = 1; i < 11; ++i) {
             tree.insert(i);
         }
-        xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+        xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
         // for (int i = 1; i < 11; ++i) {
-        //     xlog_dbg("remove value %d\n", i);
+        //     xlog_dbg("remove value {}\n", i);
         //     tree.remove(i);
-        //     xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+        //     xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
         //     // break;
         // }
         for (int i = 10; i >= 1; --i) {
-            xlog_dbg("remove value %d\n", i);
+            xlog_dbg("remove value {}\n", i);
             tree.remove(i);
-            xlog_dbg("dump: \n\n%s\n\n", tree.dump().c_str());
+            xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
             // break;
         }
     };

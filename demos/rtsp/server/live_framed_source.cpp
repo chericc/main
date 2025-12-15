@@ -37,7 +37,7 @@ void LiveFramedSource::doGetNextFrame()
         handleClosure();
     }
 
-    xlog_dbg("pkt: size=%zu\n", buf.size());
+    xlog_dbg("pkt: size={}\n", buf.size());
 
     memcpy(fTo, buf.data(), buf.size());
     fFrameSize = buf.size();

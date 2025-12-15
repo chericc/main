@@ -14,11 +14,11 @@ void House::setPainted(bool b) { painted = b; }
 
 void House::print() {
     xlog_dbg("House:");
-    xlog_dbg("Foundation: %s", foundation.c_str());
-    xlog_dbg("Structure: %s", structure.c_str());
-    xlog_dbg("Roof: %s", roof.c_str());
-    xlog_dbg("Furnished: %s", furnished ? "true" : "false");
-    xlog_dbg("Painted: %s", painted ? "true" : "false");
+    xlog_dbg("Foundation: {}", foundation.c_str());
+    xlog_dbg("Structure: {}", structure.c_str());
+    xlog_dbg("Roof: {}", roof.c_str());
+    xlog_dbg("Furnished: {}", furnished ? "true" : "false");
+    xlog_dbg("Painted: {}", painted ? "true" : "false");
 }
 
 HouseBuilder::HouseBuilder() { house = std::make_shared<House>(); }

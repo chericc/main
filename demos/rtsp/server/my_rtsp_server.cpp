@@ -167,7 +167,7 @@ ServerMediaSession* createNewFileSms(UsageEnvironment& env, const char *filename
         sms->addSubsession(smss);
         }
     } else {
-        xlog_err("file not support: %s\n", filename);
+        xlog_err("file not support: {}\n", filename);
     }
 
     return sms;
@@ -206,7 +206,7 @@ void MyRTSPServer::onVod(const char *filepath, const char *streamname,
     void *completionClientData,
     Boolean isFirstLoopupInSession)
 {
-    xlog_dbg("path/streamname: [%s]/[%s]\n", filepath, streamname);
+    xlog_dbg("path/streamname: [{}]/[{}]\n", filepath, streamname);
 
     bool error_flag = false;
     FILE *fp = nullptr;
@@ -215,7 +215,7 @@ void MyRTSPServer::onVod(const char *filepath, const char *streamname,
     do {
         fp = fopen(filepath, "r");
         if (!fp) {
-            xlog_dbg("failed to open file: <%s>\n", filepath);
+            xlog_dbg("failed to open file: <{}>\n", filepath);
             if (sms) {
                 xlog_dbg("sms exist while file not exist, remove sms\n");
                 removeServerMediaSession(sms);
@@ -255,7 +255,7 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
     void *completionClientData,
     Boolean isFirstLoopupInSession)
 {
-    xlog_dbg("path/streamname: [%s]/[%s]\n", path, streamname);
+    xlog_dbg("path/streamname: [{}]/[{}]\n", path, streamname);
 
     ServerMediaSession *sms = getServerMediaSession(streamname);
     do {
@@ -274,7 +274,7 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
                 std::array<char, PATH_MAX> absPath = {};
                 snprintf(absPath.data(), absPath.size(), "%s/%s", curPath.data(), path);
 
-                xlog_dbg("path: %s\n", absPath.data());
+                xlog_dbg("path: {}\n", absPath.data());
 
                 _provider = std::make_shared<LiveStreamProviderFile>(absPath.data());
             }
@@ -353,7 +353,7 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
     // live/0
 
     do {
-        xlog_dbg("opening stream %s\n", streamName);
+        xlog_dbg("opening stream {}\n", streamName);
 
         std::string stream(streamName);
         size_t index_slash = stream.find("/");
@@ -372,7 +372,7 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
             xlog_dbg("live\n");
             onLive(path.c_str(), streamName, completionFunc, completionClientData, isFirstLoopupInSession);
         } else {
-            xlog_err("type not support: %s\n", type.c_str());
+            xlog_err("type not support: {}\n", type.c_str());
             break;
         }
     } while (false);

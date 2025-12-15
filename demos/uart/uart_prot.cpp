@@ -144,7 +144,7 @@ int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
             if (!obj->prot) {
                 xlog_err("switch failed\n");
             } else {
-                xlog_dbg("switch to %s ok\n", uart_prot_mode_name(mode));
+                xlog_dbg("switch to {} ok\n", uart_prot_mode_name(mode));
             }
         } else {
             xlog_dbg("mode same, no action\n");
@@ -159,7 +159,7 @@ int uart_prot_send(uart_prot_handle handle,
         void *response_data, size_t *response_data_size,
         int timeout_ms)
 {
-    xlog_dbg("send: %zu bytes\n", request_data_size);
+    xlog_dbg("send: {} bytes\n", request_data_size);
 
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 

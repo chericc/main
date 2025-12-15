@@ -21,10 +21,10 @@ namespace {
 class FuncScopeLog {
 public:
     FuncScopeLog(std::string func) : _func(func) {
-        xlog_dbg("%s in\n", _func.c_str());
+        xlog_dbg("{} in\n", _func.c_str());
     }
     ~FuncScopeLog() {
-        xlog_dbg("%s leave\n", _func.c_str());
+        xlog_dbg("{} leave\n", _func.c_str());
     }
     std::string _func;
 };
@@ -40,7 +40,7 @@ struct HttpClientCtx {
 
 void my_lws_log_emit_t(int level, const char *line)
 {
-    xlog_dbg("lws log: %s", line);
+    xlog_dbg("lws log: {}", line);
 }
 
 int callback_websocket(struct lws *wsi, enum lws_callback_reasons reason,
@@ -170,7 +170,7 @@ int LwsServerClient::onWritable(struct lws *wsi, WriteCb cb)
 int LwsServerClient::onReceive(const void *data, size_t size)
 {
     UniRecuLock lock(_mutex);
-    // xlog_dbg("on receive: %s(size:%zu)\n", (const char *)data, size);
+    // xlog_dbg("on receive: {}(size:{})\n", (const char *)data, size);
     if (_notify_cbs.cbOnData) {
         _notify_cbs.cbOnData(this, data, size);
     } else {
@@ -298,7 +298,7 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
                 char client_info[256] = {};
                 snprintf(client_info, sizeof(client_info), "name:%s,path:%s", name, uri);
 
-                xlog_dbg("name: %s, uri: %s\n", name, uri);
+                xlog_dbg("name: {}, uri: {}\n", name, uri);
 
                 per_conn_cctx->client->withUri(uri);
                 per_conn_cctx->client->withInfo(client_info);
@@ -323,7 +323,7 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_RECEIVE: {
-            // xlog_dbg("receive msg: <%s>\n", (const char*)in);
+            // xlog_dbg("receive msg: <{}>\n", (const char*)in);
             // xlog_dbg("receive msg\n");
             if (per_conn_cctx->client) {
                 per_conn_cctx->client->onReceive(in, len);
@@ -363,7 +363,7 @@ int LwsServer::cbOnHttp(struct lws *wsi, enum lws_callback_reasons reason,
 
     switch (reason) {
         case LWS_CALLBACK_HTTP: {
-            xlog_dbg("LWS_CALLBACK_HTTP, in: %s\n", (const char *)in);
+            xlog_dbg("LWS_CALLBACK_HTTP, in: {}\n", (const char *)in);
 
             per_conn_cctx->path = (const char *)in;
             break;
@@ -492,7 +492,7 @@ int LwsServer::_deinit()
         if (!_allocated_client_trace_pool.empty()) {
             xlog_err("deinit while pool not empty\n");
             for (size_t i = 0; i < _allocated_client_trace_pool.size(); ++i) {
-                xlog_err("delete client: %zu\n", i);
+                xlog_err("delete client: {}\n", i);
                 delete _allocated_client_trace_pool[i];
                 _allocated_client_trace_pool[i] = nullptr;
             }
@@ -541,7 +541,7 @@ LwsServerClient *LwsServer::_produceClient()
     LwsServerClient *client_ret = nullptr;
     do {
         if (_allocated_client_trace_pool.size() > LWS_SERVER_MAX_CLIENT_NUM) {
-            xlog_err("client num over(num=%zu)\n", _allocated_client_trace_pool.size());
+            xlog_err("client num over(num={})\n", _allocated_client_trace_pool.size());
             break;
         }
 
@@ -550,7 +550,7 @@ LwsServerClient *LwsServer::_produceClient()
         client_ret = client;
     } while (0);
 
-    xlog_dbg("pool size:%zu\n", _allocated_client_trace_pool.size());
+    xlog_dbg("pool size:{}\n", _allocated_client_trace_pool.size());
     return client_ret;
 }
 
@@ -564,7 +564,7 @@ int LwsServer::_restoreClient(LwsServerClient* client)
 
         for (auto it = _allocated_client_trace_pool.begin(); it != _allocated_client_trace_pool.end(); ) {
             if (*it == client) {
-                xlog_dbg("deleting client: %s\n", (*it)->info().c_str());
+                xlog_dbg("deleting client: {}\n", (*it)->info().c_str());
                 delete *it;
                 it = _allocated_client_trace_pool.erase(it); // delete this client
                 find_flag = true;
@@ -579,7 +579,7 @@ int LwsServer::_restoreClient(LwsServerClient* client)
         }
     } while (0);
 
-    xlog_dbg("pool size:%zu\n", _allocated_client_trace_pool.size());
+    xlog_dbg("pool size:{}\n", _allocated_client_trace_pool.size());
     return error_flag ? -1 : 0;
 }
 
@@ -602,7 +602,7 @@ void LwsServer::_onClientConnected(LwsServerClient *client)
         _client_connected.push_back(client);
         _cond_client_connected_changed.notify_one();
         
-        xlog_dbg("connected client num:%zu\n", _client_connected.size());
+        xlog_dbg("connected client num:{}\n", _client_connected.size());
     } while (0);
     return ;
 }
@@ -620,7 +620,7 @@ void LwsServer::_onClientDisconnected(LwsServerClient *client)
         client->onDisconnected();
     } while (0);
 
-    xlog_dbg("connected client num:%zu\n", _client_connected.size());
+    xlog_dbg("connected client num:{}\n", _client_connected.size());
     return ;
 }
 
@@ -650,7 +650,7 @@ int LwsServer::_writeData(struct lws *wsi, const void *data, size_t size, lws_wr
             break;
         }
 
-        // xlog_dbg("sent: %d bytes\n", ret);
+        // xlog_dbg("sent: {} bytes\n", ret);
     } while (0);
 
     return error_flag ? -1 : 0;

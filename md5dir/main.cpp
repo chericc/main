@@ -36,7 +36,7 @@ int test(const char* path, int jobs) {
         snprintf(output_file, sizeof(output_file), "md5.log");
         fp_output = fopen(output_file, "a");
         if (nullptr == fp_output) {
-            xlog_err("open failed: %s\n", output_file);
+            xlog_err("open failed: {}\n", output_file);
             return -1;
         }
     }

@@ -52,7 +52,7 @@ void PacketStable::push(const void *data, size_t bytes, uint32_t timestamp_ms)
         if (!_queue.empty()) {
             if (_queue.back()->ts_ms == timestamp_ms) {
                 _queue.back()->append(data, bytes);
-                // xlog_dbg("append: final size=%d\n", (int)_queue.back()->data.size());
+                // xlog_dbg("append: final size={}\n", (int)_queue.back()->data.size());
                 break;
             }
         }
@@ -98,17 +98,17 @@ void PacketStable::_trd_worker()
                 auto ms_dts_diff = front->ts_ms - _last_ts_ms;
                 Timepoint tp_dts = _last_dts + Ms(ms_dts_diff);
                 auto wait_ms = std::chrono::duration_cast<std::chrono::milliseconds>(tp_dts - now).count();
-                // xlog_dbg("wait %d ms(%d)\n", (int)wait_ms, front->ts_ms);
+                // xlog_dbg("wait {} ms({})\n", (int)wait_ms, front->ts_ms);
                 _cond_need_wait.wait_until(lock, tp_dts);
                 _send_packet(front);
                 _last_dts = tp_dts;
                 _last_ts_ms = front->ts_ms;
             }
 
-            // xlog_dbg("queue.size=%u\n", (int)_queue.size());
+            // xlog_dbg("queue.size={}\n", (int)_queue.size());
         }
 
-        xlog_dbg("not enough packets(%d packets sent)\n", count);
+        xlog_dbg("not enough packets({} packets sent)\n", count);
     }
     
 }

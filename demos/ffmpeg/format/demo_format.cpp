@@ -39,7 +39,7 @@ static int open(const char* file) {
             AVMediaType type = fc->streams[i]->codecpar->codec_type;
             if (type >= 0) {
                 const char* type_name = av_get_media_type_string(type);
-                xlog_dbg("stream[%d]: %s", i, type_name);
+                xlog_dbg("stream[{}]: {}", i, type_name);
             }
         }
     } while (0);
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
     xlog_setoutput({stdout});
 
     if (argc != 2) {
-        xlog_err("Usage: %s filename", argv[0]);
+        xlog_err("Usage: {} filename", argv[0]);
         return -1;
     }
 

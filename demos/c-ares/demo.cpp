@@ -11,7 +11,7 @@ static void addrinfo_cb(void *arg, int status, int timeouts,
                         struct ares_addrinfo *result)
 {
   (void)arg; /* Example does not use user context */
-  xlog_dbg("Result: %s, timeouts: %d\n", ares_strerror(status), timeouts);
+  xlog_dbg("Result: {}, timeouts: {}\n", ares_strerror(status), timeouts);
 
   if (result) {
     struct ares_addrinfo_node *node;
@@ -30,7 +30,7 @@ static void addrinfo_cb(void *arg, int status, int timeouts,
         continue;
       }
       ares_inet_ntop(node->ai_family, ptr, addr_buf, sizeof(addr_buf));
-      xlog_dbg("Addr: %s\n", addr_buf);
+      xlog_dbg("Addr: {}\n", addr_buf);
     }
   }
   ares_freeaddrinfo(result);
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
   struct ares_addrinfo_hints hints;
 
   if (argc != 2) {
-    xlog_dbg("Usage: %s domain\n", argv[0]);
+    xlog_dbg("Usage: {} domain\n", argv[0]);
     return 1;
   }
 

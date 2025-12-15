@@ -6,7 +6,7 @@ namespace {
 
 void printUsage(int argc, char *argv[])
 {
-    xlog_dbg("usage: %s [file1] [file2] ...\n", argv[0]);
+    xlog_dbg("usage: {} [file1] [file2] ...\n", argv[0]);
 }
 
 }

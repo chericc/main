@@ -86,7 +86,7 @@ TEST(xtea, xtea_encipher_string)
             break;
         }
 
-        // xlog_err("orig_base64: \n%s\ndec: \n%s\n\n", 
+        // xlog_err("orig_base64: \n{}\ndec: \n{}\n\n", 
         //     base64_not_enc_buf.data(), dec_buf.data());
 
         ret = strcmp(dec_buf.data(), base64_not_enc_buf.data());

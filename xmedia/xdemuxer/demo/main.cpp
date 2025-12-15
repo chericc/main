@@ -25,7 +25,7 @@ void test_info(const char *file)
         }
 
         auto dump = XDemuxer::dumpInfo(info);
-        xlog_dbg("dump: %s\n", dump.c_str());
+        xlog_dbg("dump: {}\n", dump.c_str());
     } while (false);
 }
 
@@ -69,7 +69,7 @@ void test_dump(const char *file, const char *outputfile)
                 }
             }
 
-            xlog_dbg("pop size: %zd, pts: %" PRIu64 ", isVideo=%d\n", frame->buf.size(), frame->pts, frame->isVideo);
+            xlog_dbg("pop size: {}, pts: %" PRIu64 ", isVideo=%d\n", frame->buf.size(), frame->pts, frame->isVideo);
         }
     } while (false);
 
@@ -85,7 +85,7 @@ void test_dump(const char *file, const char *outputfile)
 
 void print_usage(int argc, char *argv[])
 {
-    xlog_err("usage: %s [info|dump] [file] [outputfile]\n", argv[0]);
+    xlog_err("usage: {} [info|dump] [file] [outputfile]\n", argv[0]);
 }
 
 int main(int argc, char *argv[])

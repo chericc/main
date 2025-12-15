@@ -44,7 +44,7 @@ LWS_SERVER_WRAPPER_CLIENT_TYPE get_client_type(LwsServerClient *client)
     } else if (client_uri.find(s_ctx.param_copy.app_lws_uri) != client_uri.npos) {
         client_type = LWS_SERVER_WRAPPER_CLIENT_TYPE_APP;
     } else {
-        xlog_dbg("client type not recognized(uri:%s)\n", client_uri.c_str());
+        xlog_dbg("client type not recognized(uri:{})\n", client_uri.c_str());
     }
     return client_type;
 }
@@ -148,7 +148,7 @@ void lws_serv_wrap_trd_worker()
             {
                 UniRecuLock lock(s_ctx.mutex_client_connected);
                 if (s_ctx.vec_client_connected.size() > LWS_SERVER_MAX_CLIENT_NUM) {
-                    xlog_err("vec num over(%zu)\n", s_ctx.vec_client_connected.size());
+                    xlog_err("vec num over({})\n", s_ctx.vec_client_connected.size());
                     continue;
                 }
                 s_ctx.vec_client_connected.push_back(cli_info);
@@ -170,7 +170,7 @@ void lws_serv_wrap_trd_worker()
             // 可能在配置回调的时候直接触发回调
             // 因此必须先把client放到缓存中
             client->setNotifyCb(cbs);
-            xlog_dbg("got connected client(%s): num=%zu\n", client->info().c_str(), s_ctx.vec_client_connected.size());
+            xlog_dbg("got connected client({}): num={}\n", client->info().c_str(), s_ctx.vec_client_connected.size());
         } else {
             // xlog_dbg("no client\n");
         }
@@ -241,7 +241,7 @@ int lws_server_wrapper_send_msg(unsigned int clientID, const void *data, size_t 
 {
     bool error_flag = false;
 
-    // xlog_dbg("send msg: %s\n", (const char *)data);
+    // xlog_dbg("send msg: {}\n", (const char *)data);
 
     do {
         bool found_flag = false;
@@ -259,7 +259,7 @@ int lws_server_wrapper_send_msg(unsigned int clientID, const void *data, size_t 
         }
 
         if (!found_flag) {
-            xlog_err("client not found for id[%d]\n", clientID);
+            xlog_err("client not found for id[{}]\n", clientID);
             error_flag = true;
         }
     } while (0);

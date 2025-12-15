@@ -508,7 +508,7 @@ std::shared_ptr<PcapngParser::Options> PcapngParser::doParserOptions(
                 break;
             }
 
-            xlog_dbg("Option(%d): type=%" PRIu16 ", len=%" PRIu16, i,
+            xlog_dbg("Option({}): type=%" PRIu16 ", len=%" PRIu16, i,
                      option.type, option.option_len);
 
             option.data = info->fio->read(option.option_len);
@@ -539,7 +539,7 @@ std::shared_ptr<PcapngParser::Options> PcapngParser::doParserOptions(
         xlog_err("Parsing options failed");
         return nullptr;
     }
-    xlog_dbg("Parsing options successful(options num=%zu)",
+    xlog_dbg("Parsing options successful(options num={})",
              options->options.size());
 
     return options;

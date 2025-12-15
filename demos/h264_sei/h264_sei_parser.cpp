@@ -114,8 +114,8 @@ int parse_file(const char *filename)
 			break;
 		}
 
-		xlog_dbg("size: %d", output_len);
-		xlog_dbg("output: <%s>", output);
+		xlog_dbg("size: {}", output_len);
+		xlog_dbg("output: <{}>", (char*)output);
 
 	} while (0);
 
@@ -137,7 +137,7 @@ int parse_file(const char *filename)
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
-		xlog_err("Usage: %s <h264_file>\n", argv[0]);
+		xlog_err("Usage: {} <h264_file>\n", argv[0]);
 	} else {
 		parse_file(argv[1]);
 	}

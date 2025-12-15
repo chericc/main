@@ -32,7 +32,7 @@ void rtsp_server_trd(struct rtsp_server_ctx *ctx)
         scheduler = BasicTaskScheduler::createNew();
         env = BasicUsageEnvironment::createNew(*scheduler);
 
-        xlog_dbg("server: [%s/%s], port=%d\n", 
+        xlog_dbg("server: [{}/{}], port=%d\n", 
             ctx->param.username, ctx->param.password,
             ctx->param.port);
 

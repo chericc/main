@@ -39,7 +39,7 @@ void on_request_cb(void const* in_data, size_t in_data_size,
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        xlog_dbg("usage: %s [uart_dev_path] [boudrate]\n", argv[0]);
+        xlog_dbg("usage: {} [uart_dev_path] [boudrate]\n", argv[0]);
         return 1;
     }
 

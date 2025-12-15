@@ -56,7 +56,7 @@ static struct options parse_opts(int argc, char** argv) {
                 sopt.port = atoi(optarg);
                 break;
             default:
-                xlog_err("Unknown option %c", opt);
+                xlog_err("Unknown option {}", (char)opt);
                 break;
         }
     }
@@ -78,7 +78,7 @@ static bool signal_ignore() {
 }
 
 static void on_term(int sig, short events, void* arg) {
-    xlog_dbg("interrupted(sig=%d, events=%#hx), terminating", sig, events);
+    xlog_dbg("interrupted(sig={}, events=%#hx), terminating", sig, events);
     auto base = reinterpret_cast<event_base*>(arg);
     event_base_loopbreak(base);
     return;
@@ -211,7 +211,7 @@ static void dump_request_cb(struct evhttp_request* req, void*) {
 
     auto content = dump_req_content(req);
 
-    xlog_dbg("received a %s request for %s\n%s", req_type_str,
+    xlog_dbg("received a {} request for {}\n{}", req_type_str,
              evhttp_request_get_uri(req), content.c_str());
 
     evhttp_send_reply(req, 200, "OK", nullptr);
@@ -229,7 +229,7 @@ static int generate_html_of_path(evbuffer* evbuf, const char* root_path,
             break;
         }
 
-        xlog_dbg("path:<%s, %s>", root_path, relative_path);
+        xlog_dbg("path:<{}, {}>", root_path, relative_path);
 
         std::string path_real = std::string() + root_path + "/" + relative_path;
 
@@ -238,7 +238,7 @@ static int generate_html_of_path(evbuffer* evbuf, const char* root_path,
             int errno_local = errno;
             std::array<char, 64> buf_str = {};
             x_strerror(errno_local, buf_str.data(), buf_str.size());
-            xlog_err("stat failed, path(%s): %s", path_real.c_str(),
+            xlog_err("stat failed, path({}): {}", path_real.c_str(),
                      buf_str.data());
             *error_code = HTTP_NOTFOUND;
             break;
@@ -346,7 +346,7 @@ static void send_document_cb(struct evhttp_request* req, void* arg) {
             http_error_code = HTTP_NOTFOUND;
             break;
         }
-        xlog_dbg("uri: %s", uri);
+        xlog_dbg("uri: {}", uri);
 
         parsesd_uri =
             evhttp_uri_parse_with_flags(uri, EVHTTP_URI_NONCONFORMANT);
@@ -360,7 +360,7 @@ static void send_document_cb(struct evhttp_request* req, void* arg) {
         if (!uri_path) {
             uri_path = "/";
         }
-        xlog_dbg("uri_path: %s", uri_path);
+        xlog_dbg("uri_path: {}", uri_path);
 
         decoded_uri_path = evhttp_uridecode(uri_path, 0, nullptr);
         if (!decoded_uri_path) {
@@ -368,7 +368,7 @@ static void send_document_cb(struct evhttp_request* req, void* arg) {
             xlog_err("evhttp_uridecode failed");
             break;
         }
-        xlog_dbg("decoded_uri_path: %s", decoded_uri_path);
+        xlog_dbg("decoded_uri_path: {}", decoded_uri_path);
 
         if (strstr(decoded_uri_path, "..")) {
             xlog_dbg("path contains \"..\", ignored");

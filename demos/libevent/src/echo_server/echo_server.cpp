@@ -158,12 +158,12 @@ void read_cb(struct bufferevent* bev, void*) {
     do {
         bytes_read = bufferevent_read(bev, buf.data(), buf.size());
 
-        xlog_dbg("read: %zu/%zu bytes", bytes_read, buf.size());
+        xlog_dbg("read: {}/{} bytes", bytes_read, buf.size());
 
         if (bytes_read > 0) {
-            xlog_dbg("msg: <%s>", hexstr(buf.data(), bytes_read).c_str());
+            xlog_dbg("msg: <{}>", hexstr(buf.data(), bytes_read).c_str());
 
-            xlog_dbg("write %zu bytes", bytes_read);
+            xlog_dbg("write {} bytes", bytes_read);
             bufferevent_write(bev, buf.data(), bytes_read);
         }
     } while (bytes_read == buf.size());
@@ -184,7 +184,7 @@ void event_cb(struct bufferevent* bev, short event, void*) {
     if (event & BEV_EVENT_ERROR) {
         std::array<char, 128> errstr;
         x_strerror(errno, errstr.data(), errstr.size());
-        xlog_dbg("Got an error on the connection: %s", errstr.data());
+        xlog_dbg("Got an error on the connection: {}", errstr.data());
     }
 
     xlog_dbg("Closing connection");
@@ -196,7 +196,7 @@ void listener_cb(struct evconnlistener*, evutil_socket_t fd,
     auto base = reinterpret_cast<struct event_base*>(user);
     struct bufferevent* bev = nullptr;
 
-    xlog_dbg("got a connection: %s", sockaddr_str(addr, socklen).c_str());
+    xlog_dbg("got a connection: {}", sockaddr_str(addr, socklen).c_str());
 
     do {
         int options = BEV_OPT_CLOSE_ON_FREE;
@@ -260,7 +260,7 @@ int main() {
 
         for (auto rp = result; rp != nullptr; rp = rp->ai_next) {
             if (rp->ai_family == PF_INET || rp->ai_family == PF_INET6) {
-                xlog_dbg("bind: %s", addrinfo_str(rp).c_str());
+                xlog_dbg("bind: {}", addrinfo_str(rp).c_str());
 
                 unsigned int flags = LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE;
 

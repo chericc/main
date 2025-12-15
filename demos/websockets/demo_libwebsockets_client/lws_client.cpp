@@ -15,7 +15,7 @@ static int callback_example(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_CLIENT_RECEIVE: {
-            xlog_dbg("Received data: %s\n", (char *)in);
+            xlog_dbg("Received data: {}\n", (char *)in);
             lws_callback_on_writable(wsi);
             break;
         }
@@ -37,7 +37,7 @@ static int callback_example(struct lws *wsi, enum lws_callback_reasons reason,
 
 static void my_lws_log_emit_t(int level, const char *line)
 {
-    xlog_dbg("lws log: %s", line);
+    xlog_dbg("lws log: {}", line);
 }
 
 int main(void) {

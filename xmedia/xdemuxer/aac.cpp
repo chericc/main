@@ -45,21 +45,21 @@ bool aac_avpacket_to_adts(const AVCodecParameters *par,
     } else if (profile == FF_PROFILE_AAC_LTP) {
         adts_profile = 3;
     } else {
-        xlog_err("profile not support: %d", profile);
+        xlog_err("profile not support: {}", profile);
         return false;
     }
 
-    xlog_dbg("sample rate: %d", par->sample_rate);
+    xlog_dbg("sample rate: {}", par->sample_rate);
 
     int sr_index = get_sample_rate_index(par->sample_rate);
     if (sr_index < 0) {
-        xlog_err("sample rate not supported: %d", par->sample_rate);
+        xlog_err("sample rate not supported: {}", par->sample_rate);
         return false;
     }
 
     int channels = par->ch_layout.nb_channels;
     if (channels < 1 || channels > 7) {
-        xlog_err("channel count not supported: %d", channels);
+        xlog_err("channel count not supported: {}", channels);
         return false;
     }
 

@@ -23,7 +23,7 @@ sqlpp::value_or_null_t<Type> to_sql(std::string name)
 int main(int argc, char *argv[])
 {
     if (argc < 2) {
-        xlog_err("usage: %s [dbfile]", argv[0]);
+        xlog_err("usage: {} [dbfile]", argv[0]);
         return 1;
     }
     std::string dbfile = argv[1];
@@ -49,17 +49,17 @@ int main(int argc, char *argv[])
     ));
     auto id = db.last_insert_id();
     for (auto const& ref : db(select(stu.number, stu.name).from(stu).where(stu.id == id))) {
-        xlog_dbg("name=%s, number=%s", ref.name.text, ref.number.text);
+        xlog_dbg("name={}, number={}", ref.name.text, ref.number.text);
     }
 
     sqlpp::sqlite3::context_t ctx(db);
     auto sqlStr = sqlpp::serialize(select(stu.number), ctx).str();
-    xlog_dbg("se: %s", sqlStr.c_str());
+    xlog_dbg("se: {}", sqlStr.c_str());
 
     // join
     for (auto const& row : db(select(stu.name, stu_cla_rel.studentId).
         unconditionally().from(stu.left_outer_join(stu_cla_rel).on(stu_cla_rel.studentId == stu.id)))) {
-        xlog_dbg("name=%s,studentid.null=%d", row.name.text, (int)row.studentId.is_null());
+        xlog_dbg("name={},studentid.null={}", row.name.text, (int)row.studentId.is_null());
     }
 
     return 0;

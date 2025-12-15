@@ -21,7 +21,7 @@ XIOFile::XIOFile(const std::string& url, const std::string& mode) {
 
         iofctx_.fp = fopen(url.c_str(), mode.c_str());
         if (nullptr == iofctx_.fp) {
-            xlog_err("open file failed(%s)", url.c_str());
+            xlog_err("open file failed({})", url.c_str());
             berror = true;
             break;
         }

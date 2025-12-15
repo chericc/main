@@ -66,7 +66,7 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
 
         char buf[128] = {};
         ret = read(obj->uart_fd, buf, sizeof(buf));
-        xlog_dbg("ret: %d\n", ret);
+        xlog_dbg("ret: {}\n", ret);
         if (ret > 0) {
             if (obj->param.read_cb) {
                 uart_dump("read", (uint8_t*)buf, ret);
@@ -78,7 +78,7 @@ static void uart_raw_trd_worker(uart_raw_obj *obj)
             last_tp = now;
             auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dur_pass).count();
             if (ms < 5) {
-                xlog_err("inner err: too frequent call(%d)", static_cast<int>(ms));
+                xlog_err("inner err: too frequent call({})", static_cast<int>(ms));
             }
         } else {
             xlog_err("read failed\n");
@@ -144,7 +144,7 @@ static int convert_baudrate(int baudrate, speed_t *speed)
     }
 
     if (!found_flag) {
-        xlog_err("not found for baudrate: %d\n", baudrate);
+        xlog_err("not found for baudrate: {}\n", baudrate);
     }
 
     return found_flag ? 0 : -1;
@@ -159,12 +159,12 @@ static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
     do {
         int ret = 0;
 
-        xlog_dbg("open uart: dev:%s,baudrate:%d\n", param->uart_dev_path, param->baudrate);
+        xlog_dbg("open uart: dev:{},baudrate:{}\n", param->uart_dev_path, param->baudrate);
 
         serial_port_fd = open(param->uart_dev_path, O_RDWR);
         if (serial_port_fd < 0) {
             strerror_r(errno, buf, sizeof(buf));
-            xlog_err("open uart failed: %s\n", buf);
+            xlog_err("open uart failed: {}\n", buf);
             error_flag = true;
             break;
         }
@@ -173,7 +173,7 @@ static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
 
         if (tcgetattr(serial_port_fd, &tty) != 0) {
             strerror_r(errno, buf, sizeof(buf));
-            xlog_err("tcgetattr failed: %s\n", buf);
+            xlog_err("tcgetattr failed: {}\n", buf);
             error_flag = true;
             break;
         }
@@ -215,7 +215,7 @@ static int uart_raw_open_uart_fd(struct uart_raw_param const* param)
 
         if (tcsetattr(serial_port_fd, TCSANOW, &tty) != 0) {
             strerror_r(errno, buf, sizeof(buf));
-            xlog_err("tcsetattr failed: %s\n", buf);
+            xlog_err("tcsetattr failed: {}\n", buf);
             error_flag = true;
             break;
         }
@@ -316,7 +316,7 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
         }
         Lock lock_uart(obj->mutex_uart);
 
-        // xlog_dbg("write: %zu bytes begin\n", size);
+        // xlog_dbg("write: {} bytes begin\n", size);
 
         ssize_t ret = write(obj->uart_fd, data, size);
         if (ret < 0) {
@@ -334,12 +334,12 @@ int uart_raw_write(uart_raw_handle handle, void const* data, size_t size)
         }
         ret = tcdrain(obj->uart_fd);
         if (ret < 0) {
-            xlog_err("tcdrain on fd:%d failed\n", obj->uart_fd);
+            xlog_err("tcdrain on fd:{} failed\n", obj->uart_fd);
             error_flag = true;
             break;
         }
 
-        // xlog_dbg("write: %zu bytes end\n", size);
+        // xlog_dbg("write: {} bytes end\n", size);
     } while (0);
 
     return error_flag ? -1 : 0;
@@ -368,7 +368,7 @@ int uart_raw_flush(uart_raw_handle handle, enum UART_RAW_FLUSH_TARGET target)
             queue_sel = TCIOFLUSH;
         }
         if (queue_sel < 0) {
-            xlog_err("invalid target: (%d)\n", static_cast<int>(target));
+            xlog_err("invalid target: ({})\n", static_cast<int>(target));
             error_flag = true;
             break;
         }

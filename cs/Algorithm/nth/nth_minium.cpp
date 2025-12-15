@@ -21,8 +21,8 @@ void NthMinium::register_test() {
         NthMinium nth(v.data(), v.size(), nth_index);
         int nth_val = nth.nth();
 
-        xlog_dbg("array: %s", str_a.c_str());
-        xlog_dbg("%zuth largest number is: %d", nth_index, nth_val);
+        xlog_dbg("array: {}", str_a.c_str());
+        xlog_dbg("{}th largest number is: {}", nth_index, nth_val);
     };
 
     MainAlgManager::Funcs funcs;
@@ -56,14 +56,14 @@ int NthMinium::nth(index begin, index last, index n) {
         return data_[begin];
     }
 
-    xlog_dbg("n: %lu", n);
-    xlog_dbg("1arr: %s", output_elements(data_, begin, last + 1).c_str());
+    xlog_dbg("n: {}", n);
+    xlog_dbg("1arr: {}", output_elements(data_, begin, last + 1).c_str());
 
     index mid = group(begin, last, begin);
     index left_num = mid - begin;
 
-    xlog_dbg("2arr: %s", output_elements(data_, begin, last + 1).c_str());
-    xlog_dbg("begin: %lu, last: %lu, mid: %lu", begin, last, mid);
+    xlog_dbg("2arr: {}", output_elements(data_, begin, last + 1).c_str());
+    xlog_dbg("begin: {}, last: {}, mid: {}", begin, last, mid);
 
     if (n == left_num) {
         return data_[mid];

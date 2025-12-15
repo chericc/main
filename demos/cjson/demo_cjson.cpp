@@ -10,7 +10,7 @@ void demo1()
     // char *json = cJSON_Print(root);
     char *json = cJSON_Print(root);
     cJSON_Delete(root);
-    xlog_dbg("json: \n%s\n", json);
+    xlog_dbg("json: \n{}\n", json);
     cJSON_free(json);
 }
 
@@ -20,7 +20,7 @@ void demo2()
     cJSON_AddItemToObject(root, "deviceId", cJSON_CreateString("mzzzzzzz"));
     char *json = cJSON_Print(root);
     cJSON_Delete(root);
-    xlog_dbg("json: \n%s\n", json);
+    xlog_dbg("json: \n{}\n", json);
     cJSON_free(json);
 }
 
@@ -39,7 +39,7 @@ void demo3()
 
     char *json = cJSON_Print(root);
     cJSON_Delete(root);
-    xlog_dbg("json: \n%s\n", json);
+    xlog_dbg("json: \n{}\n", json);
     cJSON_free(json);
 }
 

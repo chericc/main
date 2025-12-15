@@ -61,7 +61,7 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
             uint32_t chunksize = xio->rl32();
 
             if (0 == chunksize) {
-                xlog_err("invalid chunksize: %d\n", (int)chunksize);
+                xlog_err("invalid chunksize: {}\n", (int)chunksize);
                 error_flag = true;
                 break;
             }
@@ -70,7 +70,7 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
                 case MKTAG('R', 'I', 'F', 'F'): {
                     auto format = xio->rl32();
                     if (format != MKTAG('W', 'A', 'V', 'E')) {
-                        xlog_err("format not match: %#x\n", (unsigned int)format);
+                        xlog_err("format not match: {}\n", (unsigned int)format);
                         error_flag = true;
                         break;
                     }
@@ -99,13 +99,13 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
                         ctx->wav_info.bits_per_sample * ctx->wav_info.channels / bitsperbyte;
                     uint32_t cal_align = ctx->wav_info.bits_per_sample * ctx->wav_info.channels / bitsperbyte;
                     if (byte_rate != cal_byte_rate) {
-                        xlog_err("bytes rate check failed(%u != %u)\n", 
+                        xlog_err("bytes rate check failed({} != {})\n", 
                             (unsigned int)byte_rate, (unsigned int)cal_byte_rate);
                         error_flag = true;
                         break;
                     }
                     if (align != cal_align) {
-                        xlog_err("align check failed(%u != %u)\n",
+                        xlog_err("align check failed({} != {})\n",
                             (unsigned int)align, (unsigned int)cal_align);
                         error_flag = true;
                         break;
@@ -129,10 +129,10 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
                     uint8_t chunkname[5] = {};
                     static_assert(sizeof(chunkid) < sizeof(chunkname), "chunkid check failed");
                     memcpy(chunkname, &chunkid, sizeof(chunkname) - 1);
-                    xlog_dbg("chunk ignored: %s\n", (char*)chunkname);
+                    xlog_dbg("chunk ignored: {}\n", (char*)chunkname);
 
                     if (xio->seek(chunksize, SEEK_CUR) < 0) {
-                        xlog_err("seek omit chunk failed(%s)\n", (char*)chunkname);
+                        xlog_err("seek omit chunk failed({})\n", (char*)chunkname);
                         error_flag = true;
                         break;
                     }
@@ -145,7 +145,7 @@ int load_demuxer_info(struct wav_demuxer_ctx *ctx, struct wav_info *info)
             break;
         }
         if (!has_data_flag || !has_fmt_flag || !has_riff_flag) {
-            xlog_err("chunk incomplete(riff=%d,fmt=%d,data=%d)\n", 
+            xlog_err("chunk incomplete(riff={},fmt={},data={})\n", 
                 has_riff_flag, has_fmt_flag, has_data_flag);
             error_flag = true;
             break;

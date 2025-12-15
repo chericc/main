@@ -21,8 +21,8 @@ void MaxHeap::registerTest() {
         std::string str_b = output_elements(v);
 
         xlog_dbg("maxheap sort");
-        xlog_dbg("before: %s", str_a.c_str());
-        xlog_dbg("after: %s", str_b.c_str());
+        xlog_dbg("before: {}", str_a.c_str());
+        xlog_dbg("after: {}", str_b.c_str());
     };
 
     MainAlgManager::Funcs funcs;
@@ -39,7 +39,7 @@ MaxHeap::MaxHeap(int* data, index size) : data_(data), size_(size) {}
  */
 void MaxHeap::MaxHeapify(index index_root, index index_last) {
     if (index_root >= size_) {
-        xlog_err("invalid index_root: %zu", index_root);
+        xlog_err("invalid index_root: {}", index_root);
         return;
     }
 

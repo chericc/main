@@ -114,7 +114,7 @@ bool LiveStreamProviderFile::popBuf(size_t size, std::vector<uint8_t> &buf, std:
                     _ctx->pktListVideo.pop_front();
                 }
 
-                xlog_dbg("size=%zu, pop=%zu\n", size, buf.size());
+                xlog_dbg("size={}, pop={}\n", size, buf.size());
 
                 okFlag = true;
                 break;

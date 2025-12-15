@@ -111,14 +111,14 @@ int Md5Worker::workerThd(int id) {
         item_ptr = getJob();
 
         if (!item_ptr) {
-            xlog_dbg("no task, thread [%d] fin\n", id);
+            xlog_dbg("no task, thread [{}] fin\n", id);
             break;
         }
 
         if (nullptr == fp) {
             fp = fopen(item_ptr->file_path.c_str(), "r");
             if (nullptr == fp) {
-                xlog_err("open file <%s> failed\n",
+                xlog_err("open file <{}> failed\n",
                          item_ptr->file_path.c_str());
                 error_flag = true;
                 continue;
