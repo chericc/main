@@ -34,7 +34,7 @@ int FileParser::parseFile(const std::string& file) {
             }
 
             xlog_inf("ctx: ");
-            xlog_inf("packet_count: %" PRIu64, _pcapng_ctx->packet_count);
+            xlog_inf("packet_count: {}", _pcapng_ctx->packet_count);
 
             parse_success_flag = true;
         } while (0);
@@ -66,33 +66,33 @@ int FileParser::dealPcapngContent(const PcapngContent& content) {
         if (PcapngContentType::Info == content.type) {
             auto const& info = content.info;
 
-            xlog_inf("hardware: %s", info.shb_hardware.c_str());
-            xlog_inf("os: %s", info.shb_os.c_str());
-            xlog_inf("userappl: %s", info.shb_userappl.c_str());
+            xlog_inf("hardware: {}", info.shb_hardware.c_str());
+            xlog_inf("os: {}", info.shb_os.c_str());
+            xlog_inf("userappl: {}", info.shb_userappl.c_str());
 
             _pcapng_ctx->content_stack.push(content);
         } else if (PcapngContentType::Interface == content.type) {
             auto const& intf = content.interface;
-            xlog_inf("if_name: %s", intf.if_name.c_str());
-            xlog_inf("if_description: %s", intf.if_description.c_str());
+            xlog_inf("if_name: {}", intf.if_name.c_str());
+            xlog_inf("if_description: {}", intf.if_description.c_str());
             xlog_inf("ipv4: ");
             for (auto const& it : intf.if_IPv4addrs) {
                 auto pair_ipv4 = str_ipv4addr(it);
-                xlog_inf("ipv4/mask: %s/%s", pair_ipv4.first.c_str(),
+                xlog_inf("ipv4/mask: {}/{}", pair_ipv4.first.c_str(),
                          pair_ipv4.second.c_str());
             }
             xlog_inf("ipv6: ");
             for (auto const& it : intf.if_IPV6addrs) {
                 auto ipv6str = str_ipv6addr(it);
-                xlog_inf("ipv6/prefix: %s", ipv6str.c_str());
+                xlog_inf("ipv6/prefix: {}", ipv6str.c_str());
             }
-            xlog_inf("mac: %s", str_macaddr(intf.if_MACaddr).c_str());
-            xlog_inf("eui: %s", str_euiaddr(intf.if_EUIaddr).c_str());
-            xlog_inf("speed: %s", str_bps(intf.if_speed).c_str());
-            xlog_inf("os: %s", intf.if_os.c_str());
-            xlog_inf("hardware: %s", intf.if_hardware.c_str());
-            xlog_inf("tx: %s", str_bps(intf.if_txspeed).c_str());
-            xlog_inf("rx: %s", str_bps(intf.if_rxspeed).c_str());
+            xlog_inf("mac: {}", str_macaddr(intf.if_MACaddr).c_str());
+            xlog_inf("eui: {}", str_euiaddr(intf.if_EUIaddr).c_str());
+            xlog_inf("speed: {}", str_bps(intf.if_speed).c_str());
+            xlog_inf("os: {}", intf.if_os.c_str());
+            xlog_inf("hardware: {}", intf.if_hardware.c_str());
+            xlog_inf("tx: {}", str_bps(intf.if_txspeed).c_str());
+            xlog_inf("rx: {}", str_bps(intf.if_rxspeed).c_str());
 
             _pcapng_ctx->content_stack.push(content);
         } else if (PcapngContentType::Data == content.type) {
@@ -100,7 +100,7 @@ int FileParser::dealPcapngContent(const PcapngContent& content) {
 
             if (data.packet_data) {
                 _pcapng_ctx->packet_count += 1;
-                xlog_dbg("Processing packet(%" PRIu64 ")",
+                xlog_dbg("Processing packet({})",
                          _pcapng_ctx->packet_count);
                 if (_pcapng_ctx->pp->processEthernetData(data.packet_data) <
                     0) {

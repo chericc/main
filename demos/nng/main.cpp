@@ -69,7 +69,7 @@ void client(std::vector<std::string> urls)
 
             int ret = my_nng_req(urls[choice].c_str(), &param);
             xlog_dbg("ret: {}, size={}\n", ret, buf_recv_size);
-            xlog_dbg("msg: %.*s\n", (int)buf_recv_size, buf_recv);
+            xlog_dbg("msg: {:.{}}\n", buf_recv, buf_recv_size);
 
             std::string str((const char *)param.req, param.req_size);
             if (str == "exit") {

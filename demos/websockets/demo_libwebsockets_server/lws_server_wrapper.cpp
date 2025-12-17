@@ -80,7 +80,7 @@ void on_client_disconnect(LwsServerClient *client)
         }
 
         // note: client is already freed 
-        xlog_dbg("client disconnected: %p(%s), num:%zu\n", 
+        xlog_dbg("client disconnected: {}({}), num:{}\n", 
             (void*)client, client_info.c_str(), s_ctx.vec_client_connected.size());
 
         if (!found_flag) {
@@ -100,7 +100,7 @@ void on_client_recv_data(LwsServerClient *client, const void *data, size_t size)
             break;
         }
 
-        // xlog_dbg("client recv data: %p(%s)\n", client, client->info().c_str());
+        // xlog_dbg("client recv data: {}({})\n", client, client->info().c_str());
 
         UniRecuLock lock(s_ctx.mutex_client_connected);
         bool found_flag = false;

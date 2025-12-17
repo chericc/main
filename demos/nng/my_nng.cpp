@@ -318,7 +318,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         int ret = 0;
 
         if (req_param->req_size > MSG_SIZE_LIMIT) {
-            xlog_err("req size over limit: {} > %d\n", req_param->req_size, (int)MSG_SIZE_LIMIT);
+            xlog_err("req size over limit: {} > {}\n", req_param->req_size, (int)MSG_SIZE_LIMIT);
             error_flag = true;
             break;
         }

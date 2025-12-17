@@ -45,7 +45,7 @@ int test(const char* path, int jobs) {
 
     size = (int)file_items.size();
 
-    xlog_inf("%u items found\n", size);
+    xlog_inf("{} items found\n", size);
 
     md5_worker.addPaths(std::move(file_items));
     md5_worker.start((std::size_t)jobs);
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
     dir_path = argv[1];
     jobs = atoi(argv[2]);
 
-    xlog_inf("searching paths: %s\n", dir_path);
+    xlog_inf("searching paths: {}\n", dir_path);
 
     test(dir_path, jobs);
 

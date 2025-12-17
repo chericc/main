@@ -217,7 +217,7 @@ int XTimerSimple::destroyTimerOfQueue(XTimerID id,
         ctx->queue_task = newq;
 
         if (newq->size() == size_queue_old) {
-            xlog_err("id(%p) not found", id);
+            xlog_err("id({}) not found", id);
             berror_flag = true;
         }
 

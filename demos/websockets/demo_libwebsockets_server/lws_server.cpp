@@ -84,7 +84,7 @@ int LwsServerClient::setNotifyCb(ClientCallbacks cbs)
         
         if (!_msgs_received.empty()) {
             for (size_t i = 0; i < _msgs_received.size(); ++i) {
-                xlog_dbg("already have received data for client(%p,%s)\n", (void*)this, _info.c_str());
+                xlog_dbg("already have received data for client({},{})\n", (void*)this, _info.c_str());
                 cbs.cbOnData(this, _msgs_received[i].data(), _msgs_received[i].size());
             }
             _msgs_received.clear();
@@ -333,7 +333,7 @@ int LwsServer::cbOnWebSocket(struct lws *wsi, enum lws_callback_reasons reason,
             break;
         }
         case LWS_CALLBACK_CLOSED: {
-            xlog_dbg("close, client is: %p(%s)\n", (void*)per_conn_cctx->client, 
+            xlog_dbg("close, client is: {}({})\n", (void*)per_conn_cctx->client, 
                 per_conn_cctx->client->info().c_str());
 
             if (per_conn_cctx->client) {
@@ -430,7 +430,7 @@ void LwsServer::_trdWorkder()
         //      | LWS_SERVER_OPTION_VALIDATE_UTF8 | LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
         info.options = 0;
         info.user = this;
-        xlog_dbg("this: %p\n", (void*)this);
+        xlog_dbg("this: {}\n", (void*)this);
         context = lws_create_context(&info);
         if (!context) {
             xlog_err("lws_create_context failed\n");

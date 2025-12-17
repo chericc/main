@@ -6,7 +6,7 @@
 
 void on_msg_cb(unsigned int clientID, LWS_SERVER_WRAPPER_CLIENT_TYPE type, const void *data, size_t size)
 {
-    xlog_dbg("client:{},type:{},msg:%.*s,size:%zu\n", 
+    xlog_dbg("client:{},type:{},msg:{2:.{1}},size:{}\n", 
         clientID, type, (int)size, (const char*)data, size);
 }
 

@@ -120,7 +120,7 @@ PacketType RTPPacketInfo::rtpPayloadConvert(uint8_t pt) {
             break;
         }
         default: {
-            xlog_err("Payload type not support(%" PRIu8 ")", pt);
+            xlog_err("Payload type not support({})", pt);
             break;
         }
     }

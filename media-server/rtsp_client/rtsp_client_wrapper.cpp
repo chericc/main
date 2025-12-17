@@ -85,7 +85,7 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
     rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(param);
 
     // if (demux_ctx->idx == 0) {
-    //     xlog_dbg("idx:{}, encoding: {}, ts: %d, bytes: %d, flags: %d\n", 
+    //     xlog_dbg("idx:{}, encoding: {}, ts: {}, bytes: {}, flags: {}\n", 
     //         demux_ctx->idx, demux_ctx->encoding, timestamp / 90, bytes, flags);
     // }
     do {

@@ -208,7 +208,7 @@ int PcapngParser::parse(const std::string& file,
                         break;
                     }
                     default: {
-                        xlog_dbg("Unknown options(%" PRIu16 ")", it->type);
+                        xlog_dbg("Unknown options({})", it->type);
                         break;
                     }
                 }
@@ -393,7 +393,7 @@ int PcapngParser::parse(const std::string& file,
                                 break;
                             }
                             default: {
-                                xlog_err("Option not support(%" PRIu16 ")",
+                                xlog_err("Option not support({})",
                                          it->type);
                                 break;
                             }
@@ -477,7 +477,7 @@ std::shared_ptr<PcapngParser::Options> PcapngParser::doParserOptions(
                 sizeof(option.type) + sizeof(option.option_len);
             int64_t pos_now = info->fio->tell();
 
-            xlog_dbg("option: (posnow:%" PRId64 ", end:%" PRId64 ")", pos_now,
+            xlog_dbg("option: (posnow:{}, end:{})", pos_now,
                      pos_initial + options_size);
 
             if (pos_initial + (int64_t)options_size == pos_now) {
@@ -508,7 +508,7 @@ std::shared_ptr<PcapngParser::Options> PcapngParser::doParserOptions(
                 break;
             }
 
-            xlog_dbg("Option({}): type=%" PRIu16 ", len=%" PRIu16, i,
+            xlog_dbg("Option({}): type={}, len={}", i,
                      option.type, option.option_len);
 
             option.data = info->fio->read(option.option_len);
@@ -527,7 +527,7 @@ std::shared_ptr<PcapngParser::Options> PcapngParser::doParserOptions(
                 break;
             }
             if (option_padding_size > 0) {
-                xlog_dbg("Skip padding size(%" PRId32 ")", option_padding_size);
+                xlog_dbg("Skip padding size({})", option_padding_size);
                 info->fio->seek(option_padding_size, SEEK_CUR);
             }
 
@@ -604,7 +604,7 @@ int PcapngParser::doSkipBlock(std::shared_ptr<PcapngInfo> info) {
 
         uint32_t extra_head_len = block.block_length - head_len;
         if (extra_head_len > 0) {
-            xlog_dbg("Skipping block(forward size %" PRIu32 ")",
+            xlog_dbg("Skipping block(forward size {})",
                      extra_head_len);
             info->fio->seek(extra_head_len, SEEK_CUR);
         }
@@ -656,7 +656,7 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(
 
         if (shb->block_length < other_option_len ||
             shb->block_length > BT_SHB_INSANE_MAX) {
-            xlog_err("SHB.block_length invalid: %" PRIu32, shb->block_length);
+            xlog_err("SHB.block_length invalid: {}", shb->block_length);
             error = true;
             break;
         }
@@ -667,7 +667,7 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(
         if (!(shb->major_version == PCAP_NG_VERSION_MAJOR &&
               (shb->minor_version == PCAP_NG_VERSION_MINOR ||
                shb->minor_version == 2))) {
-            xlog_err("Version not support: %" PRIu16 ".%" PRIu16,
+            xlog_err("Version not support: {}.{}",
                      shb->major_version, shb->minor_version);
             error = true;
             break;
@@ -698,7 +698,7 @@ std::shared_ptr<PcapngParser::SectionHeaderBlock> PcapngParser::doParseSHB(
         return nullptr;
     }
 
-    xlog_dbg("Parsing SHB successful(block_len=%" PRIu32 ")",
+    xlog_dbg("Parsing SHB successful(block_len={})",
              shb->block_length);
 
     return shb;
@@ -798,12 +798,12 @@ std::shared_ptr<PcapngParser::EnhancedPacketBlock> PcapngParser::doParseEPB(
         epb->original_packet_length = info->fio->r32();
 
         if (epb->captured_packet_length != epb->original_packet_length) {
-            xlog_err("Packet truncated: (%" PRIu32 " != %" PRIu32 ")",
+            xlog_err("Packet truncated: ({} != {})",
                      epb->captured_packet_length, epb->original_packet_length);
         }
 
         if (epb->captured_packet_length > PACKET_INSACE_MAX) {
-            xlog_err("Packet too big(%" PRIu32 ")",
+            xlog_err("Packet too big({})",
                      epb->captured_packet_length);
             error = true;
             break;
@@ -834,7 +834,7 @@ std::shared_ptr<PcapngParser::EnhancedPacketBlock> PcapngParser::doParseEPB(
         uint32_t padding_size =
             data_with_padding_4_size - epb->captured_packet_length;
         if (padding_size > 0) {
-            xlog_dbg("Skipping data padding(%" PRIu32 ")", padding_size);
+            xlog_dbg("Skipping data padding({})", padding_size);
             info->fio->seek(padding_size, SEEK_CUR);
         }
 
@@ -861,7 +861,7 @@ std::shared_ptr<PcapngParser::EnhancedPacketBlock> PcapngParser::doParseEPB(
 
         epb->block_total_length_trailing = info->fio->r32();
         if (epb->block_total_length != epb->block_total_length_trailing) {
-            xlog_err("Total length trailing error(%" PRIu32 ", %" PRIu32 ")",
+            xlog_err("Total length trailing error({}, {})",
                      epb->block_total_length, epb->block_total_length_trailing);
             error = true;
             break;
@@ -892,7 +892,7 @@ std::shared_ptr<PcapngParser::SimplePacketBlock> PcapngParser::doParseSPB(
         spb->original_packet_length = info->fio->r32();
 
         if (spb->block_total_length > PACKET_INSACE_MAX) {
-            xlog_err("Total length check failed: too big(%" PRIu32 ")",
+            xlog_err("Total length check failed: too big({})",
                      spb->block_total_length);
             error = true;
             break;
@@ -904,7 +904,7 @@ std::shared_ptr<PcapngParser::SimplePacketBlock> PcapngParser::doParseSPB(
                                    sizeof(spb->block_total_length_trailing);
 
         if (spb->block_total_length < other_data_size) {
-            xlog_err("Total length check failed: too small(%" PRIu32 ")",
+            xlog_err("Total length check failed: too small({})",
                      spb->block_total_length);
             error = true;
             break;

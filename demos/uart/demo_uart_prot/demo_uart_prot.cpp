@@ -25,7 +25,7 @@ void on_request_cb(void const* in_data, size_t in_data_size,
         int ret = snprintf((char*)response_data, response_data_size_tmp, "%s", buf_response);
         *response_data_size = ret;
 
-        xlog_dbg("request: <%.*s>(%zu), response: <%.*s>(%d)\n", 
+        xlog_dbg("request: <{2:.{1}}>({}), response: <{2:.{1}}>({})\n", 
             (int)in_data_size, (const char *)in_data, in_data_size,
             ret, (const char *)response_data, ret);
     } else {
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
                     if (ret < 0) {
                         xlog_err("uart_prot_send failed\n");
                     } else {
-                        xlog_dbg("resp: <%.*s>, size=%zu\n", (int)res_size, res_buf, res_size);
+                        xlog_dbg("resp: <{2:.{1}}>, size={}\n", (int)res_size, res_buf, res_size);
                     }
                 } else {
                     xlog_err("unknown\n");

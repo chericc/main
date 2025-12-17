@@ -27,21 +27,21 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet) {
             case PacketType::IPv4: {
                 std::shared_ptr<IPv4PacketInfo> ipv4p =
                     std::static_pointer_cast<IPv4PacketInfo>(it.second);
-                xlog_dbg("ipv4->version: %" PRIu8, ipv4p->version);
-                xlog_dbg("ipv4->len: %" PRIu8, ipv4p->len);
-                xlog_dbg("ipv4->differentialted_service_field: %" PRIu8,
+                xlog_dbg("ipv4->version: {}", ipv4p->version);
+                xlog_dbg("ipv4->len: {}", ipv4p->len);
+                xlog_dbg("ipv4->differentialted_service_field: {}",
                          ipv4p->differentialted_services_field);
-                xlog_dbg("ipv4->total_length: %" PRIu16, ipv4p->total_length);
-                xlog_dbg("ipv4->identification: %#" PRIx16,
+                xlog_dbg("ipv4->total_length: {}", ipv4p->total_length);
+                xlog_dbg("ipv4->identification: {}",
                          ipv4p->identification);
-                xlog_dbg("ipv4->flag: %" PRIu16, ipv4p->flag);
-                xlog_dbg("ipv4->fragment_offset: %" PRIu16,
+                xlog_dbg("ipv4->flag: {}", ipv4p->flag);
+                xlog_dbg("ipv4->fragment_offset: {}",
                          ipv4p->fragment_offset);
-                xlog_dbg("ipv4->time_to_live: %" PRIu8, ipv4p->time_to_live);
+                xlog_dbg("ipv4->time_to_live: {}", ipv4p->time_to_live);
                 xlog_dbg("ipv4->protocol: {}",
                          it.second->typeName(
                              ipv4p->convertProtocol(ipv4p->protocol)));
-                xlog_dbg("ipv4->header_checksum: %#" PRIx16,
+                xlog_dbg("ipv4->header_checksum: {}",
                          ipv4p->header_checksum);
                 xlog_dbg("ipv4->ip_src: {}",
                          str_ipv4(ipv4p->ip_addr_src).c_str());
@@ -53,34 +53,34 @@ static void debug_packet(std::shared_ptr<SharedPacket> packet) {
             case PacketType::UDP: {
                 std::shared_ptr<UDPPacketInfo> udp =
                     std::static_pointer_cast<UDPPacketInfo>(it.second);
-                xlog_dbg("udp->port_src: %" PRIu16, udp->port_src);
-                xlog_dbg("udp->port_dst: %" PRIu16, udp->port_dst);
-                xlog_dbg("udp->total_length: %" PRIu16, udp->total_length);
-                xlog_dbg("udp->checksum: %" PRIx16, udp->checksum);
+                xlog_dbg("udp->port_src: {}", udp->port_src);
+                xlog_dbg("udp->port_dst: {}", udp->port_dst);
+                xlog_dbg("udp->total_length: {}", udp->total_length);
+                xlog_dbg("udp->checksum: {}", udp->checksum);
                 break;
             }
             case PacketType::RTP: {
                 std::shared_ptr<RTPPacketInfo> rtp =
                     std::static_pointer_cast<RTPPacketInfo>(it.second);
-                xlog_dbg("rtp->v: %" PRIu8, rtp->v);
-                xlog_dbg("rtp->p: %" PRIu8, rtp->p);
-                xlog_dbg("rtp->x: %" PRIu8, rtp->x);
-                xlog_dbg("rtp->cc: %" PRIu8, rtp->cc);
-                xlog_dbg("rtp->m: %" PRIu8, rtp->m);
-                xlog_dbg("rtp->pt: %" PRIu8 "(%s)", rtp->pt,
+                xlog_dbg("rtp->v: {}", rtp->v);
+                xlog_dbg("rtp->p: {}", rtp->p);
+                xlog_dbg("rtp->x: {}", rtp->x);
+                xlog_dbg("rtp->cc: {}", rtp->cc);
+                xlog_dbg("rtp->m: {}", rtp->m);
+                xlog_dbg("rtp->pt: {}({})", rtp->pt,
                          rtp->typeName(rtp->rtpPayloadConvert(rtp->pt)));
-                xlog_dbg("rtp->sequence_number: %" PRIu16,
+                xlog_dbg("rtp->sequence_number: {}",
                          rtp->sequence_number);
-                xlog_dbg("rtp->time_stamp: %" PRIu32, rtp->time_stamp);
-                xlog_dbg("rtp->ssrc_id: %" PRIu32, rtp->ssrc_id);
+                xlog_dbg("rtp->time_stamp: {}", rtp->time_stamp);
+                xlog_dbg("rtp->ssrc_id: {}", rtp->ssrc_id);
                 xlog_dbg("rtp->csrc_id_list: {}", rtp->csrc_id_list.size());
                 for (auto const& it : rtp->csrc_id_list) {
-                    xlog_dbg("rtp->csrc_id_list number: %" PRIu32, it);
+                    xlog_dbg("rtp->csrc_id_list number: {}", it);
                 }
                 if (rtp->has_extended_header) {
-                    xlog_dbg("rtp->ext_defined_by_profile: %" PRIu32,
+                    xlog_dbg("rtp->ext_defined_by_profile: {}",
                              rtp->defined_by_profile);
-                    xlog_dbg("rtp->ext_length: %" PRIu32, rtp->length);
+                    xlog_dbg("rtp->ext_length: {}", rtp->length);
                 }
                 break;
             }
@@ -265,20 +265,20 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet) {
 
         if (ipv4->version != 4)  // version = 4 --> IPv4
         {
-            xlog_err("Verson check failed(%" PRIu8 ")", ipv4->version);
+            xlog_err("Verson check failed({})", ipv4->version);
             error = true;
             break;
         }
 
         if (ipv4->len < head_size_without_options) {
-            xlog_err("Length check failed(%" PRIu8 ", %zu)", ipv4->len,
+            xlog_err("Length check failed({}, {})", ipv4->len,
                      head_size_without_options);
             error = true;
             break;
         }
 
         if (size < ipv4->len) {
-            xlog_err("Size check failed({} < %" PRIu8 ")", size, ipv4->len);
+            xlog_err("Size check failed({} < {})", size, ipv4->len);
             error = true;
             break;
         }
@@ -296,7 +296,7 @@ int PacketProcess::processIPv4Packet(std::shared_ptr<SharedPacket> packet) {
         size -= sizeof(ipv4->total_length);
 
         if (ipv4->total_length > data.offsetSize()) {
-            xlog_err("Total length check failed(%" PRIu16 "> %zu)",
+            xlog_err("Total length check failed({}> {})",
                      ipv4->total_length, data.offsetSize());
             error = true;
             break;
@@ -423,7 +423,7 @@ int PacketProcess::processUDPPacket(std::shared_ptr<SharedPacket> packet) {
 
         if (udp->total_length < udp_head_size ||
             udp->total_length > data.offsetSize()) {
-            xlog_err("Total length check failed(%" PRIu16 ", %zu, %zu)",
+            xlog_err("Total length check failed({}, {}, {})",
                      udp->total_length, udp_head_size, data.offsetSize());
             error = true;
             break;
@@ -594,12 +594,12 @@ int PacketProcess::processRTPPacket(std::shared_ptr<SharedPacket> packet) {
                     break;
                 }
                 if (padding_total_size > size) {
-                    xlog_err("Padding size check failed(%" PRIu8 " > %zu)",
+                    xlog_err("Padding size check failed({} > {})",
                              padding_total_size, size);
                     error = true;
                     break;
                 }
-                xlog_dbg("Skipping padding size %" PRIu8, padding_total_size);
+                xlog_dbg("Skipping padding size {}", padding_total_size);
                 size -= padding_total_size;
             }
         }

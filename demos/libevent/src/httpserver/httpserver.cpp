@@ -78,7 +78,7 @@ static bool signal_ignore() {
 }
 
 static void on_term(int sig, short events, void* arg) {
-    xlog_dbg("interrupted(sig={}, events=%#hx), terminating", sig, events);
+    xlog_dbg("interrupted(sig={}, events={:#x}), terminating", sig, events);
     auto base = reinterpret_cast<event_base*>(arg);
     event_base_loopbreak(base);
     return;

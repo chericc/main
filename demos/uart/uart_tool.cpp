@@ -66,7 +66,7 @@ void uart_dump__(const char *desc, uint8_t const*buf, int len,
 
         fflush(fp);
         
-        xlog_dbg("\n{} bytes in {}/%d: dump(%s): \n%s\n", 
+        xlog_dbg("\n{} bytes in {}/{}: dump({}): \n{}\n", 
             len,
             func, line, 
             desc,

@@ -17,7 +17,7 @@ static void gen_cb(int ch, uint64_t time_ms, uint64_t packet_id, void *user)
         auto dur = now - last_tp;
         last_tp = now;
 
-        xlog_dbg("duration: %4d ms\n", (int)std::chrono::duration_cast
+        xlog_dbg("duration: {:4d} ms\n", (int)std::chrono::duration_cast
             <std::chrono::milliseconds>(dur).count());
     }
 
@@ -36,7 +36,7 @@ int main()
     gen_conf.enable_out_order = 0;
     gen_conf.packet_cb = gen_cb;
     packet_gen_handle packet_gen = packet_gen_create(&gen_conf);
-    xlog_dbg("packet_gen_create: %p\n", packet_gen);
+    xlog_dbg("packet_gen_create: {}\n", packet_gen);
 
     xlog_dbg("packet_gen_start\n");
     packet_gen_start(packet_gen);

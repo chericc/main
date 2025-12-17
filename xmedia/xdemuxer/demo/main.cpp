@@ -69,7 +69,7 @@ void test_dump(const char *file, const char *outputfile)
                 }
             }
 
-            xlog_dbg("pop size: {}, pts: %" PRIu64 ", isVideo=%d\n", frame->buf.size(), frame->pts, frame->isVideo);
+            xlog_dbg("pop size: {}, pts: {}, isVideo={}\n", frame->buf.size(), frame->pts, frame->isVideo);
         }
     } while (false);
 

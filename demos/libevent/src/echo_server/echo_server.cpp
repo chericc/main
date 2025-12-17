@@ -172,7 +172,7 @@ void read_cb(struct bufferevent* bev, void*) {
 }
 
 void event_cb(struct bufferevent* bev, short event, void*) {
-    xlog_dbg("event cb(%#hx)", event);
+    xlog_dbg("event cb({:#x})", event);
     if (event & BEV_EVENT_CONNECTED) {
         xlog_dbg("Connection established");
     }

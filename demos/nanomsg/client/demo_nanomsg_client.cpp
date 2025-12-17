@@ -36,8 +36,8 @@ int start_client(const char *url)
                 break;
             }
 
-            xlog_dbg("msg: [%.*s]\n", 
-                static_cast<int>(sizeof(buf)), buf);
+            xlog_dbg("msg: [{:.{}}]\n", 
+                buf, static_cast<int>(sizeof(buf)));
         }
         
     } while(0);

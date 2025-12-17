@@ -201,7 +201,7 @@ void MySink::afterGettingFrame(void *clientData, unsigned int frameSize,
 void MySink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    // xlog_dbg("{}/{}: frame: %d\n", _track->sub->mediumName(), 
+    // xlog_dbg("{}/{}: frame: {}\n", _track->sub->mediumName(), 
     //     _track->sub->codecName(), frameSize);
 
     if (_cb) {
@@ -255,7 +255,7 @@ void MyH264or5MediaSink::afterGettingFrame(void *clientData, unsigned int frameS
 void MyH264or5MediaSink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    // xlog_dbg("{}/{}: frame: %d\n", _track->sub->mediumName(), 
+    // xlog_dbg("{}/{}: frame: {}\n", _track->sub->mediumName(), 
     //     _track->sub->codecName(), frameSize);
 
     if ( (strcmp(_track->sub->codecName(), "H264") == 0)
@@ -653,7 +653,7 @@ int RtspClientWrapper::play()
         auto start_time =_ms->playStartTime();
         auto end_time = _ms->playEndTime();
 
-        xlog_inf("play: starttime=%g, endtime=%g\n", start_time, end_time);
+        xlog_inf("play: starttime={}, endtime={}\n", start_time, end_time);
     } while (0);
 
     return error_flag ? -1 : 0;

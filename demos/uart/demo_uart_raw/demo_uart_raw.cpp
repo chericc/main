@@ -7,7 +7,7 @@
 
 static void uart_raw_read_on_data_imp(void const* data, size_t size, void *user)
 {
-    xlog_dbg("on data: user=%p, <%.*s>\n", user, (int)size, (const char *)data);
+    xlog_dbg("on data: user={}, <{2:.{1}}>\n", user, (int)size, (const char *)data);
 }
 
 int main(int argc, char *argv[])

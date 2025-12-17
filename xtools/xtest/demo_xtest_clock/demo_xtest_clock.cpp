@@ -26,7 +26,7 @@ void funB() {
     auto now = XTestClock::Clock::now();
     for (int i = 0; i < 3; ++i) {
         XTestClock::Timepoint tp = now + std::chrono::seconds(i + 1);
-        xlog_dbg("wait until begin: (%" PRId64 ")",
+        xlog_dbg("wait until begin: ({})",
                  (int64_t)std::chrono::time_point_cast<std::chrono::seconds>(tp)
                      .time_since_epoch()
                      .count());
