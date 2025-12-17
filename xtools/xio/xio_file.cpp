@@ -43,7 +43,7 @@ int XIOFile::eof() {
     int beof = 0;
     do {
         if (nullptr == iofctx_.xiofp) {
-            xlog_err("null\n");
+            xlog_err("null");
             break;
         }
 
@@ -57,7 +57,7 @@ int XIOFile::error() {
     int berror = false;
     do {
         if (nullptr == iofctx_.xiofp) {
-            xlog_err("null\n");
+            xlog_err("null");
             berror = true;
             break;
         }

@@ -21,7 +21,7 @@
     if (true) { \
         int ret = ((call)); \
         if (ret < 0) { \
-            xlog_err(#call "failed: {}\n", ret); \
+            xlog_err(#call "failed: {}", ret); \
             break; \
         } \
     }
@@ -44,7 +44,7 @@ ExifTool::ExifTool()
     _ctx = std::make_shared<Ctx>();
 
     if (!init()) {
-        xlog_err("init failed\n");
+        xlog_err("init failed");
     }
 }
 
@@ -57,13 +57,13 @@ ExifTool::~ExifTool()
 
         if (_ctx->childPID > 0) {
             kill(_ctx->childPID, SIGINT);
-            xlog_dbg("wait child\n");
+            xlog_dbg("wait child");
             waitpid(_ctx->childPID, nullptr, 0);
         }
 
         if (_ctx->childWatchdog > 0) {
             kill(_ctx->childWatchdog, SIGINT);
-            xlog_dbg("wait watchdog\n");
+            xlog_dbg("wait watchdog");
             waitpid(_ctx->childWatchdog, nullptr, 0);
         }
 
@@ -103,7 +103,7 @@ bool ExifTool::init()
 
         int childPID = fork();
         if (childPID < 0) {
-            xlog_err("fork failed\n");
+            xlog_err("fork failed");
             break;
         }
 
@@ -173,7 +173,7 @@ bool ExifTool::parse(const char *filename, int timeoutMs)
         filename = path.data();
 
         if (!sendCommand(filename)) {
-            xlog_err("send command failed\n");
+            xlog_err("send command failed");
             break;
         }
 
@@ -186,31 +186,31 @@ bool ExifTool::parse(const char *filename, int timeoutMs)
                     break;
                 }
 
-                xlog_dbg("output: size={}, {}\n", 
+                xlog_dbg("output: size={}, {}", 
                     (int)output.size(),
                     output.c_str());
 
                 // parse json result
                 auto json = nlohmann::json::parse(output, nullptr, false);
                 if (json.is_discarded()) {
-                    xlog_err("parse failed\n");
+                    xlog_err("parse failed");
                     break;
                 }
 
                 if (json.empty()) {
-                    xlog_err("json empty\n");
+                    xlog_err("json empty");
                     break;
                 }
 
-                xlog_dbg("json: size={}\n", (int)json.size());
+                xlog_dbg("json: size={}", (int)json.size());
             } while (false);
 
             auto passMs = std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now() - startTime).count();
-            xlog_dbg("pass: {} ms\n", (int)passMs);
+            xlog_dbg("pass: {} ms", (int)passMs);
 
             if (passMs > timeoutMs) {
-                xlog_err("timeout\n");
+                xlog_err("timeout");
                 break;
             }
         }
@@ -218,7 +218,7 @@ bool ExifTool::parse(const char *filename, int timeoutMs)
         suc_flag = true;
     } while (false);
 
-    xlog_dbg("parse end\n");
+    xlog_dbg("parse end");
 
     return suc_flag;
 }
@@ -252,7 +252,7 @@ bool ExifTool::readOutput(std::string &result, int timeoutMs)
         auto startTime = std::chrono::steady_clock::now();
 
         while (true) {
-            xlog_dbg("read\n");
+            xlog_dbg("read");
 
             do {
                 errno = 0;
@@ -273,7 +273,7 @@ bool ExifTool::readOutput(std::string &result, int timeoutMs)
                     break;
                 }
 
-                xlog_err("error in read: ret={}, {}\n", (int)nret, strerror(errno));
+                xlog_err("error in read: ret={}, {}", (int)nret, strerror(errno));
                 error_flag = true;
                 break;
             } while (false);

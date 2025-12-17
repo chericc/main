@@ -25,7 +25,7 @@ LiveStreamProviderFile::LiveStreamProviderFile(std::string file)
     if (demuxer->open()) {
         _ctx->demuxer = demuxer;
     } else {
-        xlog_err("open failed\n");
+        xlog_err("open failed");
     }
 }
 
@@ -39,13 +39,13 @@ bool LiveStreamProviderFile::info(Info &info)
     bool okFlag = false;
     do {
         if (nullptr == _ctx->demuxer) {
-            xlog_err("not opened\n");
+            xlog_err("not opened");
             break;
         }
 
         auto infoPtr = _ctx->demuxer->getInfo();
         if (!infoPtr) {
-            xlog_err("get info failed\n");
+            xlog_err("get info failed");
             break;
         }
 
@@ -97,7 +97,7 @@ bool LiveStreamProviderFile::popBuf(size_t size, std::vector<uint8_t> &buf, std:
     bool okFlag = false;
     do {
         if (nullptr == _ctx->demuxer) {
-            xlog_err("not opened\n");
+            xlog_err("not opened");
             break;
         }
 
@@ -114,14 +114,14 @@ bool LiveStreamProviderFile::popBuf(size_t size, std::vector<uint8_t> &buf, std:
                     _ctx->pktListVideo.pop_front();
                 }
 
-                xlog_dbg("size={}, pop={}\n", size, buf.size());
+                xlog_dbg("size={}, pop={}", size, buf.size());
 
                 okFlag = true;
                 break;
             }
 
             if (!tryPopBuf()) {
-                xlog_err("pop buf failed\n");
+                xlog_err("pop buf failed");
                 break;
             }
         }

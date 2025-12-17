@@ -63,13 +63,13 @@ void trd_worker(struct packet_stable_ctx *ctx)
     while (ctx->trd_state == packet_stable_thread_state::RUN) {
         Unilock lock(ctx->mutex_queue);
 
-        xlog_dbg("wait low level...\n");
+        xlog_dbg("wait low level...");
         while ( (ctx->trd_state == packet_stable_thread_state::RUN) 
                     && (ctx->queue.size() < ctx->param_back.queue_low_level)) {
             ctx->cond_queue_over_low.wait(lock);
         }
 
-        xlog_dbg("start poping...\n");
+        xlog_dbg("start poping...");
         ctx->last_dts = tp_invalid; // re-start
         while ( (ctx->trd_state == packet_stable_thread_state::RUN) 
                     && !ctx->queue.empty()) {
@@ -84,9 +84,9 @@ void trd_worker(struct packet_stable_ctx *ctx)
             } else {
                 packet_stable_timestamp_ms dts_diff = front->dts - ctx->last_packet_ts;
 
-                // xlog_dbg("dts_diff: {}\n", (int)dts_diff);
+                // xlog_dbg("dts_diff: {}", (int)dts_diff);
                 if (dts_diff > ctx->param_back.max_jitter_ms) {
-                    xlog_dbg("over jitter, reset\n");
+                    xlog_dbg("over jitter, reset");
                     break;
                 }
 
@@ -100,7 +100,7 @@ void trd_worker(struct packet_stable_ctx *ctx)
         }
     }
 
-    xlog_dbg("end\n");
+    xlog_dbg("end");
 }
 
 }
@@ -123,7 +123,7 @@ packet_stable_handle packet_stable_new(struct packet_stable_param *param)
 int packet_stable_destroy(packet_stable_handle obj)
 {
     if (obj == packet_stable_handle_invalid) {
-        xlog_err("null obj\n");
+        xlog_err("null obj");
         return 0;
     }
     
@@ -134,11 +134,11 @@ int packet_stable_destroy(packet_stable_handle obj)
     ctx->mutex_queue.unlock();
     ctx->cond_queue_over_low.notify_one();
     ctx->cond_need_wait.notify_one();
-    xlog_dbg("join begin\n");
+    xlog_dbg("join begin");
     ctx->trd->join();
-    xlog_dbg("join end\n");
+    xlog_dbg("join end");
 
-    xlog_dbg("deleting ctx\n");
+    xlog_dbg("deleting ctx");
     delete ctx;
     ctx = nullptr;
 
@@ -152,13 +152,13 @@ int packet_stable_push(packet_stable_handle obj, struct packet_stable_packet con
 
     do {
         if (!ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
 
         Unilock lock(ctx->mutex_queue);
         if (ctx->queue.size() > ctx->param_back.queue_max) {
-            xlog_err("queue full, reset!!!\n");
+            xlog_err("queue full, reset!!!");
             ctx->queue.clear();
             ctx->last_packet_ts = 0;
             ctx->last_dts = Timepoint::min();
@@ -169,7 +169,7 @@ int packet_stable_push(packet_stable_handle obj, struct packet_stable_packet con
         pkt_inner->other_data.resize(packet->other_data_size);
         memcpy(pkt_inner->other_data.data(), packet->other_data, packet->other_data_size);
 
-        // xlog_dbg("dts: {}\n", (int)pkt_inner->dts);
+        // xlog_dbg("dts: {}", (int)pkt_inner->dts);
 
         ctx->queue.push_back(pkt_inner);
         if (ctx->queue.size() > ctx->param_back.queue_low_level) {

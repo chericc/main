@@ -183,7 +183,7 @@ MySink *MySink::createNew(UsageEnvironment& env, TrackPtr track, rtsp_client_cb 
 MySink::MySink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
     : MediaSink(env)
 {
-    xlog_dbg("sink created\n");
+    xlog_dbg("sink created");
     _recv_buf.resize(audio_recv_buf);
     _track = std::move(track);
     _cb = cb;
@@ -201,7 +201,7 @@ void MySink::afterGettingFrame(void *clientData, unsigned int frameSize,
 void MySink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    // xlog_dbg("{}/{}: frame: {}\n", _track->sub->mediumName(), 
+    // xlog_dbg("{}/{}: frame: {}", _track->sub->mediumName(), 
     //     _track->sub->codecName(), frameSize);
 
     if (_cb) {
@@ -218,14 +218,14 @@ void MySink::afterGettingFrame(unsigned int frameSize,
 Boolean MySink::continuePlaying()
 {
     if (!fSource) {
-        xlog_err("error\n");
+        xlog_err("error");
         return False;
     }
 
-    // xlog_dbg("before get frame\n");
+    // xlog_dbg("before get frame");
     fSource->getNextFrame(_recv_buf.data(), _recv_buf.size(), 
         afterGettingFrame, this, onSourceClosure, this);
-    // xlog_dbg("after get frame\n");
+    // xlog_dbg("after get frame");
     return True;
 }
 
@@ -237,7 +237,7 @@ MyH264or5MediaSink *MyH264or5MediaSink::createNew(UsageEnvironment& env, TrackPt
 MyH264or5MediaSink::MyH264or5MediaSink(UsageEnvironment &env, TrackPtr track, rtsp_client_cb cb)
     : MediaSink(env)
 {
-    xlog_dbg("sink created\n");
+    xlog_dbg("sink created");
     _recv_buf.resize(video_recv_buf);
     _track = std::move(track);
     _cb = cb;
@@ -255,7 +255,7 @@ void MyH264or5MediaSink::afterGettingFrame(void *clientData, unsigned int frameS
 void MyH264or5MediaSink::afterGettingFrame(unsigned int frameSize,
     unsigned int numTruncatedBytes, struct timeval presentationTime, unsigned int durationInMs)
 {
-    // xlog_dbg("{}/{}: frame: {}\n", _track->sub->mediumName(), 
+    // xlog_dbg("{}/{}: frame: {}", _track->sub->mediumName(), 
     //     _track->sub->codecName(), frameSize);
 
     if ( (strcmp(_track->sub->codecName(), "H264") == 0)
@@ -273,7 +273,7 @@ void MyH264or5MediaSink::afterGettingFrame(unsigned int frameSize,
             for (unsigned int i = 0; i < numSPropRecords; ++i) {
                 if (sPropRecords[i].sPropLength > 0) {
                     packet.append(nalu_sep.data(), nalu_sep.size());
-                    xlog_dbg("spspps: {}\n", sPropRecords[i].sPropLength);
+                    xlog_dbg("spspps: {}", sPropRecords[i].sPropLength);
                     packet.append(sPropRecords[i].sPropBytes, sPropRecords[i].sPropLength);
                 }
             }
@@ -305,17 +305,17 @@ void MyH264or5MediaSink::afterGettingFrame(unsigned int frameSize,
 
 Boolean MyH264or5MediaSink::continuePlaying()
 {
-    // xlog_dbg("continue playing\n");
+    // xlog_dbg("continue playing");
 
     if (!fSource) {
-        xlog_err("error\n");
+        xlog_err("error");
         return False;
     }
 
-    // xlog_dbg("before get frame\n");
+    // xlog_dbg("before get frame");
     fSource->getNextFrame(_recv_buf.data(), _recv_buf.size(), 
         afterGettingFrame, this, onSourceClosure, this);
-    // xlog_dbg("after get frame\n");
+    // xlog_dbg("after get frame");
     
     return True;
 }
@@ -343,13 +343,13 @@ void RtspClientWrapper::continueAfterDescribe(int resultCode, char *resultString
         _live555_ret = resultCode;
 
         if (resultCode != 0) {
-            xlog_err("failed to get SDP description\n");
+            xlog_err("failed to get SDP description");
             break;
         }
 
         _sdp = result_str;
 
-        xlog_dbg("sdp: {}\n", _sdp.c_str());
+        xlog_dbg("sdp: {}", _sdp.c_str());
 
     } while (0);
 
@@ -365,12 +365,12 @@ void RtspClientWrapper::default_live555_callback(RTSPClient *client, int resultC
 
 void RtspClientWrapper::default_live555_callback(int resultCode, char *resultString)
 {
-    xlog_dbg("cb: code:{}\n", resultCode);
+    xlog_dbg("cb: code:{}", resultCode);
 
     _live555_ret = resultCode;
     _loop = 1;
 
-    xlog_dbg("set live555 ret: {}\n", _live555_ret);
+    xlog_dbg("set live555 ret: {}", _live555_ret);
 
     return ;
 }
@@ -389,14 +389,14 @@ void RtspClientWrapper::TaskInterruptData(void *user)
 
 void RtspClientWrapper::TaskInterruptData()
 {
-    // xlog_dbg("TaskInterruptData\n");
+    // xlog_dbg("TaskInterruptData");
     _loop = static_cast<char>(0xff);
     return ;
 }
 
 void RtspClientWrapper::TaskInterruptRTSP()
 {
-    xlog_dbg("interrupt rtsp loop\n");
+    xlog_dbg("interrupt rtsp loop");
     _loop = static_cast<char>(0xff);
     return ;
 }
@@ -415,15 +415,15 @@ void RtspClientWrapper::byeHandler(void *user, const char *reason)
 
 void RtspClientWrapper::afterPlaying(Track *track)
 {
-    xlog_err("close subsession stream not implemented yet\n");
+    xlog_err("close subsession stream not implemented yet");
 }
 
 void RtspClientWrapper::byeHandler(Track *track, const char *reason)
 {
-    xlog_dbg("bye handler of track\n");
+    xlog_dbg("bye handler of track");
 
     if (reason) {
-        xlog_dbg("reason: {}\n", reason);
+        xlog_dbg("reason: {}", reason);
         delete [] reason;
     }
 
@@ -437,15 +437,15 @@ int RtspClientWrapper::wait_live555_response(int timeout_ms)
         
         _loop = 0;
         if (timeout_ms > 0) {
-            xlog_dbg("schedule rtsp interrupt\n");
+            xlog_dbg("schedule rtsp interrupt");
             task = _scheduler->scheduleDelayedTask((int64_t)timeout_ms * 1000, 
                 TaskInterruptRTSP, this);
         }
         _live555_ret = -1;
-        xlog_dbg("set live555 ret to {}\n", _live555_ret);
+        xlog_dbg("set live555 ret to {}", _live555_ret);
         _scheduler->doEventLoop(&_loop);
         if (timeout_ms > 0) {
-            xlog_dbg("unschedule rtsp interrupt\n");
+            xlog_dbg("unschedule rtsp interrupt");
             _scheduler->unscheduleDelayedTask(task);
         }
     } while (0);
@@ -461,7 +461,7 @@ RtspClientWrapper::RtspClientWrapper()
 
 RtspClientWrapper::~RtspClientWrapper()
 {
-    xlog_dbg("do nothing\n");
+    xlog_dbg("do nothing");
     return ;
 }
 
@@ -470,14 +470,14 @@ int RtspClientWrapper::connect()
     int success = 0;
     do {
         if (_rtsp) {
-            xlog_err("inner error, not null\n");
+            xlog_err("inner error, not null");
             break;
         }
 
         int verbosityLevel = 0;
         _rtsp = new MyRtspClient(*_env, _param.url.c_str(), verbosityLevel, "test", 0, this);
 
-        xlog_dbg("connect {} using {}/{}\n", _param.url.c_str(), 
+        xlog_dbg("connect {} using {}/{}", _param.url.c_str(), 
             _param.username.c_str(), 
             _param.password.c_str());
 
@@ -493,9 +493,9 @@ int RtspClientWrapper::connect()
         int live555_ret = wait_live555_response(ivp4_timeout_ms);
         if (live555_ret) {
             if (live555_ret == 401) {
-                xlog_err("authentication failed\n");
+                xlog_err("authentication failed");
             } else {
-                xlog_err("connect error: {}\n", live555_ret);
+                xlog_err("connect error: {}", live555_ret);
             }
             break;
         }
@@ -517,21 +517,21 @@ int RtspClientWrapper::session_setup()
         int ret = 0;
 
         if (_ms) {
-            xlog_err("inner error, not null\n");
+            xlog_err("inner error, not null");
             error_flag = true;
             break;
         }
 
         _ms = MediaSession::createNew(*_env, _sdp.c_str());
         if (!this->_ms) {
-            xlog_err("create rtsp session failed: {}\n",
+            xlog_err("create rtsp session failed: {}",
                 _env->getResultMsg());
             error_flag = true;
             break;
         }
 
         if (!_ms->hasSubsessions()) {
-            xlog_err("has no sub session\n");
+            xlog_err("has no sub session");
             break;
         }
 
@@ -539,7 +539,7 @@ int RtspClientWrapper::session_setup()
         while (1) {
             sub = iter->next();
             if (!sub) {
-                xlog_dbg("no more sub, break\n");
+                xlog_dbg("no more sub, break");
                 break;
             }
 
@@ -548,19 +548,19 @@ int RtspClientWrapper::session_setup()
 
             int binit = sub->initiate();
             if (!binit) {
-                xlog_err("rtp subsession {}/{} failed: {}\n", 
+                xlog_err("rtp subsession {}/{} failed: {}", 
                     sub->mediumName(), sub->codecName(),
                     _env->getResultMsg());
                 continue;
             }
 
-            xlog_dbg("rtp subsesion: {}/{}\n", 
+            xlog_dbg("rtp subsesion: {}/{}", 
                 sub->mediumName(), sub->codecName());
 
             if (sub->rtcpIsMuxed()) {
-                xlog_dbg("client port: {}\n", sub->clientPortNum());
+                xlog_dbg("client port: {}", sub->clientPortNum());
             } else {
-                xlog_dbg("client ports: {}-{}\n", sub->clientPortNum(),
+                xlog_dbg("client ports: {}-{}", sub->clientPortNum(),
                     sub->clientPortNum() + 1);
             }
 
@@ -572,12 +572,12 @@ int RtspClientWrapper::session_setup()
 
             ret = wait_live555_response();
             if (ret) {
-                xlog_err("ret: {}\n", ret);
+                xlog_err("ret: {}", ret);
                 break;
             }
 
             if (!sub->readSource()) {
-                xlog_war("sub read failed\n");
+                xlog_war("sub read failed");
                 continue;
             }
 
@@ -596,12 +596,12 @@ int RtspClientWrapper::session_setup()
             if (strcmp(sub->mediumName(), "video") == 0) {
                 if ( (strcmp(sub->codecName(), "H264") == 0)
                     || (strcmp(sub->codecName(), "H265") == 0) ) {
-                    xlog_dbg("create sink for: {}/{}\n", sub->mediumName(), sub->codecName());
+                    xlog_dbg("create sink for: {}/{}", sub->mediumName(), sub->codecName());
                     sub->sink = MyH264or5MediaSink::createNew(*_env, track, _param.cb);
                 }
             } else if (strcmp(sub->mediumName(), "audio") == 0) {
                 if (strcmp(sub->codecName(), "MPEG4-GENERIC") == 0) {
-                    xlog_dbg("create sink for: {}/{}\n", sub->mediumName(), sub->codecName());
+                    xlog_dbg("create sink for: {}/{}", sub->mediumName(), sub->codecName());
                     FramedFilter *adtsFramer = ADTSAudioStreamDiscreteFramer::createNew(*_env, 
                         sub->readSource(), sub->fmtp_config());
                     sub->addFilter(adtsFramer);
@@ -610,7 +610,7 @@ int RtspClientWrapper::session_setup()
             }
             
             if (!sub->sink) {
-                xlog_err("no sutable sink, or create sink failed: {}/{}\n",
+                xlog_err("no sutable sink, or create sink failed: {}/{}",
                     sub->mediumName(), sub->codecName());
                 break;
             }
@@ -631,7 +631,7 @@ int RtspClientWrapper::session_setup()
     }
 
     if (_tracks.empty()) {
-        xlog_err("no track\n");
+        xlog_err("no track");
         error_flag = true;
     }
 
@@ -645,7 +645,7 @@ int RtspClientWrapper::play()
     do {
         _rtsp->sendPlayCommand(*_ms, default_live555_callback);
         if (wait_live555_response()) {
-            xlog_err("rtsp play failed: {}\n", _env->getResultMsg());
+            xlog_err("rtsp play failed: {}", _env->getResultMsg());
             error_flag = 1;
             break;
         }
@@ -677,7 +677,7 @@ void RtspClientWrapper::trd()
 
     do {
         if (connect()) {
-            xlog_err("connect failed\n");
+            xlog_err("connect failed");
             break;
         }
 
@@ -686,27 +686,27 @@ void RtspClientWrapper::trd()
             break;
         }
 
-        xlog_dbg("connect ok\n");
+        xlog_dbg("connect ok");
 
         if (session_setup()) {
-            xlog_err("nothing to play: no track\n");
+            xlog_err("nothing to play: no track");
             break;
         }
 
-        xlog_dbg("session setup ok\n");
+        xlog_dbg("session setup ok");
 
         if (play()) {
-            xlog_err("play failed\n");
+            xlog_err("play failed");
             break;
         }
 
-        xlog_dbg("play ok\n");
+        xlog_dbg("play ok");
 
         while (!_close_flag) {
             demux();
         }
 
-        xlog_dbg("demux end, closing\n");
+        xlog_dbg("demux end, closing");
 
     } while (0);
 
@@ -714,7 +714,7 @@ void RtspClientWrapper::trd()
 
     _close_fin_flag = 1;
 
-    xlog_dbg("close ok\n");
+    xlog_dbg("close ok");
 
     return ;
 }
@@ -760,7 +760,7 @@ int RtspClientWrapper::close_imp()
 
         if (some_subsessions_active) {
             if (_rtsp) {
-                xlog_dbg("sending teardown command\n");
+                xlog_dbg("sending teardown command");
                 _rtsp->sendTeardownCommand(*_ms, nullptr);
             }
         }
@@ -792,20 +792,20 @@ int RtspClientWrapper::close_imp()
 int RtspClientWrapper::close()
 {
     _close_flag = true;
-    xlog_dbg("wait close fin\n");
+    xlog_dbg("wait close fin");
     while (1) {
         if (_close_fin_flag) {
             break;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
-    xlog_dbg("wait close fin done\n");
+    xlog_dbg("wait close fin done");
 
-    xlog_dbg("before join\n");
+    xlog_dbg("before join");
     if (_trd->joinable()) {
         _trd->join();
     }
-    xlog_dbg("join end\n");
+    xlog_dbg("join end");
 
     return 0;
 }
@@ -829,7 +829,7 @@ int rtsp_client_stop(rtsp_client_obj obj)
     do {
         auto *ctx = reinterpret_cast<RtspClientWrapper*>(obj);
         if (!ctx) {
-            xlog_dbg("null obj\n");
+            xlog_dbg("null obj");
             break;
         }
 

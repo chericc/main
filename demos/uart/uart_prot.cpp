@@ -32,20 +32,20 @@ static void uart_prot_on_data_imp(void const* data, size_t size, void *user)
         int ret = 0;
 
         if (!obj) {
-            xlog_err("inner error, null obj\n");
+            xlog_err("inner error, null obj");
             break;
         }
 
         Lock lock(obj->mutex_prot);
         if (!obj->prot) {
-            xlog_err("inner error, null prot\n");
+            xlog_err("inner error, null prot");
             break;
         }
 
         // feed uart data to prot
         ret = obj->prot->input(data, size);
         if (ret < 0) {
-            xlog_err("input failed\n");
+            xlog_err("input failed");
             break;
         }
     } while (0);
@@ -57,7 +57,7 @@ static int uart_prot_deinit_imp(struct uart_prot_obj *obj)
 {
     do {
         if (!obj) {
-            xlog_war("null obj\n");
+            xlog_war("null obj");
             break;
         }
 
@@ -96,7 +96,7 @@ uart_prot_handle uart_prot_init(const struct uart_prot_param *param)
         obj->uart = uart_raw_open(&param_raw);
 
         if (obj->uart == uart_raw_handle_invalid) {
-            xlog_err("uart_raw_open failed\n");
+            xlog_err("uart_raw_open failed");
             error_flag = true;
             break;
         }
@@ -125,7 +125,7 @@ int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
 {
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
-    xlog_dbg("switch mode\n");
+    xlog_dbg("switch mode");
 
     bool error_flag = false;
     do {
@@ -142,12 +142,12 @@ int uart_prot_switch_mode(uart_prot_handle handle, UART_PROT_MODE mode)
             };
             obj->prot = UartProt::produce(obj->mode, &obj->param, write_cb);
             if (!obj->prot) {
-                xlog_err("switch failed\n");
+                xlog_err("switch failed");
             } else {
-                xlog_dbg("switch to {} ok\n", uart_prot_mode_name(mode));
+                xlog_dbg("switch to {} ok", uart_prot_mode_name(mode));
             }
         } else {
-            xlog_dbg("mode same, no action\n");
+            xlog_dbg("mode same, no action");
         }
     } while (0);
     
@@ -159,7 +159,7 @@ int uart_prot_send(uart_prot_handle handle,
         void *response_data, size_t *response_data_size,
         int timeout_ms)
 {
-    xlog_dbg("send: {} bytes\n", request_data_size);
+    xlog_dbg("send: {} bytes", request_data_size);
 
     auto obj = static_cast<struct uart_prot_obj*>(handle);
 
@@ -169,7 +169,7 @@ int uart_prot_send(uart_prot_handle handle,
         int ret = 0;
 
         if (!obj) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             error_flag = true;
             break;
         }
@@ -179,7 +179,7 @@ int uart_prot_send(uart_prot_handle handle,
         // obj->prot will not change in this call(lock_send protected)
 
         if (!obj->prot) {
-            xlog_err("prot is null\n");
+            xlog_err("prot is null");
             error_flag = true;
             break;
         }
@@ -187,7 +187,7 @@ int uart_prot_send(uart_prot_handle handle,
         // clear input and output for request
         ret = uart_raw_flush(obj->uart, UART_RAW_FLUSH_IN_OUT);
         if (ret < 0) {
-            xlog_err("flush failed\n");
+            xlog_err("flush failed");
             error_flag = true;
             break;
         }
@@ -196,7 +196,7 @@ int uart_prot_send(uart_prot_handle handle,
             response_data, response_data_size, 
             std::chrono::milliseconds(timeout_ms));
         if (ret < 0) {
-            xlog_err("request failed\n");
+            xlog_err("request failed");
             error_flag = true;
             break;
         }

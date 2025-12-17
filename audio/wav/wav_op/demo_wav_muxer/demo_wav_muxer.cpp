@@ -19,14 +19,14 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
         int ret = 0;
         fp_raw = fopen(rawfile, "r");
         if (nullptr == fp_raw) {
-            xlog_err("error open {}\n", rawfile);
+            xlog_err("error open {}", rawfile);
             error_flag = true;
             break;
         }
 
         fp_wav = fopen(wavfile, "w");
         if (nullptr == wavfile) {
-            xlog_err("error open {}\n", wavfile);
+            xlog_err("error open {}", wavfile);
             error_flag = true;
             break;
         }
@@ -39,7 +39,7 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
         info.fp = fp_wav;
         wav_muxer = wav_muxer_create(&info);
         if (wav_muxer_handle_invalid == wav_muxer) {
-            xlog_err("wav_muxer_create failed\n");
+            xlog_err("wav_muxer_create failed");
             error_flag = true;
             break;
         }
@@ -52,13 +52,13 @@ int wav_mux(const char *rawfile, const char *wavfile, int channel, WAV_AUDIO_TYP
             size_t ret_fread = fread(buf.data(), 1, chunk_size, fp_raw);
             if (ret_fread != chunk_size) {
                 if (ret_fread != 0) {
-                    xlog_err("tail not full chunk\n");
+                    xlog_err("tail not full chunk");
                 }
                 break;
             }
             ret = wav_muxer_input(wav_muxer, buf.data(), chunk_size, 1);
             if (ret < 0) {
-                xlog_err("wav_muxer_input failed\n");
+                xlog_err("wav_muxer_input failed");
                 error_flag = true;
                 break;
             }

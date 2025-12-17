@@ -5,7 +5,7 @@
 
 static void data_cb(int ch, int payload, const void *data, size_t bytes)
 {
-    // xlog_dbg("data: size={}\n", (int)bytes);
+    // xlog_dbg("data: size={}", (int)bytes);
 
     if (1) {
         using Clock = std::chrono::steady_clock;
@@ -13,7 +13,7 @@ static void data_cb(int ch, int payload, const void *data, size_t bytes)
         static Clock::time_point tp_last;
 
         auto passed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - tp_last).count();
-        xlog_dbg("passed={} ms(size={})\n", (int)passed_ms, (int)bytes);
+        xlog_dbg("passed={} ms(size={})", (int)passed_ms, (int)bytes);
         tp_last = now;
     }
 

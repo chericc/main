@@ -14,18 +14,18 @@ void test_info(const char *file)
         XDemuxer myff(file);
 
         if (!myff.open()) {
-            xlog_err("open failed\n");
+            xlog_err("open failed");
             break;
         }
 
         auto info = myff.getInfo();
         if (!info) {
-            xlog_err("getinfo failed\n");
+            xlog_err("getinfo failed");
             break;
         }
 
         auto dump = XDemuxer::dumpInfo(info);
-        xlog_dbg("dump: {}\n", dump.c_str());
+        xlog_dbg("dump: {}", dump.c_str());
     } while (false);
 }
 
@@ -36,7 +36,7 @@ void test_dump(const char *file, const char *outputfile)
     do {
         XDemuxer myff(file);
         if (!myff.open()) {
-            xlog_err("open failed\n");
+            xlog_err("open failed");
             break;
         }
 
@@ -47,7 +47,7 @@ void test_dump(const char *file, const char *outputfile)
 
         while (true) {
             if (!myff.popPacket(frame)) {
-                xlog_dbg("pop end or fail\n");
+                xlog_dbg("pop end or fail");
                 break;
             }
 
@@ -69,7 +69,7 @@ void test_dump(const char *file, const char *outputfile)
                 }
             }
 
-            xlog_dbg("pop size: {}, pts: {}, isVideo={}\n", frame->buf.size(), frame->pts, frame->isVideo);
+            xlog_dbg("pop size: {}, pts: {}, isVideo={}", frame->buf.size(), frame->pts, frame->isVideo);
         }
     } while (false);
 
@@ -85,7 +85,7 @@ void test_dump(const char *file, const char *outputfile)
 
 void print_usage(int argc, char *argv[])
 {
-    xlog_err("usage: {} [info|dump] [file] [outputfile]\n", argv[0]);
+    xlog_err("usage: {} [info|dump] [file] [outputfile]", argv[0]);
 }
 
 int main(int argc, char *argv[])
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
         }
         test_dump(file, outputfile);
     } else {
-        xlog_err("unknown choice\n");
+        xlog_err("unknown choice");
     }
 
     return 0;

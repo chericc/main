@@ -76,13 +76,13 @@ struct my_nm_context s_ctx;
 void handle_msg(struct work *worker, nng_msg *msg)
 {
     do {
-        xlog_dbg("handle msg, len={}\n", nng_msg_len(msg));
+        xlog_dbg("handle msg, len={}", nng_msg_len(msg));
 
         s_ctx.server_rsp_msg_buf.resize(MSG_SIZE_LIMIT);
 
         size_t recv_msg_len = nng_msg_len(msg);
         if (worker->cb == nullptr) {
-            xlog_dbg("callback is null\n");
+            xlog_dbg("callback is null");
             break;
         }
         
@@ -90,7 +90,7 @@ void handle_msg(struct work *worker, nng_msg *msg)
         worker->cb(worker->url.c_str(), nng_msg_body(msg), recv_msg_len, 
             s_ctx.server_rsp_msg_buf.data(), &rsp_msg_buf_size);
         if (rsp_msg_buf_size > MSG_SIZE_LIMIT) {
-            xlog_err("invalid size returned: {}\n", rsp_msg_buf_size);
+            xlog_err("invalid size returned: {}", rsp_msg_buf_size);
             break;
         }
 
@@ -100,7 +100,7 @@ void handle_msg(struct work *worker, nng_msg *msg)
         // ok
     } while (false);
 
-    xlog_dbg("handle msg over\n");
+    xlog_dbg("handle msg over");
 }
 
 void server_cb(void *arg)
@@ -119,7 +119,7 @@ void server_cb(void *arg)
 	case WORK_STATE::RECV: {
         rv = nng_aio_result(work->aio);
         if (rv != 0) {
-            xlog_err("nng_aio_result error\n");
+            xlog_err("nng_aio_result error");
         }
         
 		msg = nng_aio_get_msg(work->aio);
@@ -144,18 +144,18 @@ void server_cb(void *arg)
 		rv = nng_aio_result(work->aio);
         if (rv != 0) {
 			nng_msg_free(work->msg);
-            xlog_err("nng_ctx_send failed\n");
+            xlog_err("nng_ctx_send failed");
 		}
 		work->state = WORK_STATE::RECV;
 		nng_ctx_recv(work->ctx, work->aio);
 		break;
     }
     case WORK_STATE::EXIT: {
-        xlog_err("exit state\n");
+        xlog_err("exit state");
         break;
     }
 	default: {
-        xlog_err("bad state: {}\n", (int)work->state);
+        xlog_err("bad state: {}", (int)work->state);
 		break;
     }
 	}
@@ -193,11 +193,11 @@ int opened_servers_destroy(const char *url)
     Lock lock(s_ctx.mutex_opened_server);
     auto result = s_ctx.opened_server.find(url);
     if (result != s_ctx.opened_server.end()) {
-        xlog_dbg("destroy server: {}\n", result->first.c_str());
+        xlog_dbg("destroy server: {}", result->first.c_str());
         server_destroy(result->second.get());
         s_ctx.opened_server.erase(result);
     } else {
-        xlog_err("url not found: {}\n", url);
+        xlog_err("url not found: {}", url);
     }
     return (int)s_ctx.opened_server.size();
 }
@@ -208,7 +208,7 @@ int client_destroy(my_nm_client &client)
         nng_socket_close(client.sock);
         client.sock_valid = false;
     } else {
-        xlog_war("sock not valid\n");
+        xlog_war("sock not valid");
     }
     return 0;
 }
@@ -218,11 +218,11 @@ int opened_clients_destroy(const char *url)
     Lock lock(s_ctx.mutex_opened_client);
     auto result = s_ctx.opened_client.find(url);
     if (result != s_ctx.opened_client.end()) {
-        xlog_dbg("destroy client: {}\n", result->first.c_str());
+        xlog_dbg("destroy client: {}", result->first.c_str());
         client_destroy(result->second);
         s_ctx.opened_client.erase(result);
     } else {
-        xlog_err("url not found: {}\n", url);
+        xlog_err("url not found: {}", url);
     }
     return (int)s_ctx.opened_client.size();
 }
@@ -246,18 +246,18 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
             Lock lock(s_ctx.mutex_opened_server);
 
             if (s_ctx.opened_server.find(url) != s_ctx.opened_server.end()) {
-                xlog_err("url already started\n");
+                xlog_err("url already started");
                 break;
             }
 
             if (s_ctx.opened_server.size() > 4) {
-                xlog_err("server number over limit: {}\n", s_ctx.opened_server.size());
+                xlog_err("server number over limit: {}", s_ctx.opened_server.size());
             }
         }
         
         ret = nng_rep0_open(&serv->sock);
         if (ret != 0) {
-            xlog_err("nng_rep0_open failed\n");
+            xlog_err("nng_rep0_open failed");
             error_flag = true;
             break;
         }
@@ -270,14 +270,14 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
 
             ret = nng_aio_alloc(&serv->workers[i].aio, server_cb, &serv->workers[i]);
             if (ret != 0) {
-                xlog_err("nng_aio_alloc failed\n");
+                xlog_err("nng_aio_alloc failed");
                 error_flag = true;
                 break;
             }
 
             ret = nng_ctx_open(&serv->workers[i].ctx, serv->sock);
             if (ret != 0) {
-                xlog_err("nng_ctx_open failed\n");
+                xlog_err("nng_ctx_open failed");
                 error_flag = true;
                 break;
             }
@@ -292,9 +292,9 @@ int my_nng_start(const char *url, my_nm_start_param const* param)
         }
 
         s_ctx.opened_server[url] = serv;
-        xlog_dbg("cached server number: {}\n", s_ctx.opened_server.size());
+        xlog_dbg("cached server number: {}", s_ctx.opened_server.size());
 
-        xlog_dbg("nm start ok: {}\n", url);
+        xlog_dbg("nm start ok: {}", url);
     } while (false);
 
     if (error_flag) {
@@ -318,7 +318,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         int ret = 0;
 
         if (req_param->req_size > MSG_SIZE_LIMIT) {
-            xlog_err("req size over limit: {} > {}\n", req_param->req_size, (int)MSG_SIZE_LIMIT);
+            xlog_err("req size over limit: {} > {}", req_param->req_size, (int)MSG_SIZE_LIMIT);
             error_flag = true;
             break;
         }
@@ -326,14 +326,14 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         client_it = s_ctx.opened_client.find(url);
         if (client_it == s_ctx.opened_client.end()) {
             if (s_ctx.opened_client.size() >= MAX_CACHED_SOCK_NUMBER) {
-                xlog_err("over max cached client number: {}\n", s_ctx.opened_client.size());
+                xlog_err("over max cached client number: {}", s_ctx.opened_client.size());
                 error_flag = true;
                 break;
             }
 
             ret = nng_req0_open(&client.sock);
             if (ret != 0) {
-                xlog_err("nng_req0_open failed\n");
+                xlog_err("nng_req0_open failed");
                 error_flag = true;
                 break;
             }
@@ -341,18 +341,18 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
 
             ret = nng_dial(client.sock, url, nullptr, 0);
             if (ret != 0) {
-                xlog_err("nng_dial failed\n");
+                xlog_err("nng_dial failed");
                 error_flag = true;
                 break;
             }
 
             client_it = s_ctx.opened_client.insert(std::make_pair(url, client)).first;
             client.sock_valid = false;
-            xlog_dbg("cache client number: {}\n", s_ctx.opened_client.size());
+            xlog_dbg("cache client number: {}", s_ctx.opened_client.size());
         }
 
         if (client_it == s_ctx.opened_client.end()) {
-            xlog_err("unexpected happendd\n");
+            xlog_err("unexpected happendd");
             error_flag = true;
             break;
         }
@@ -361,13 +361,13 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         if (s_ctx.msg_client == nullptr) {
             ret = nng_msg_alloc(&s_ctx.msg_client, 0);
             if (ret != 0) {
-                xlog_err("nng_msg_alloc failed\n");
+                xlog_err("nng_msg_alloc failed");
                 error_flag = true;
                 break;
             }
             ret = nng_msg_reserve(s_ctx.msg_client, MSG_SIZE_LIMIT);
             if (ret != 0) {
-                xlog_err("nng_msg_reserve failed\n");
+                xlog_err("nng_msg_reserve failed");
                 error_flag = true;
                 break;
             }
@@ -378,14 +378,14 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
 
         ret = nng_sendmsg(client_it->second.sock, s_ctx.msg_client, 0);
         if (ret != 0) {
-            xlog_err("nng_sendmsg failed\n");
+            xlog_err("nng_sendmsg failed");
             error_flag = true;
             break;
         }
 
         ret = nng_recvmsg(client_it->second.sock, &s_ctx.msg_client, 0);
         if (ret != 0) {
-            xlog_err("nng_recvmsg failed\n");
+            xlog_err("nng_recvmsg failed");
             error_flag = true;
             break;
         }
@@ -397,7 +397,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
         size_t rsp_size_cache = *req_param->rsp_size;
         size_t msg_len = nng_msg_len(s_ctx.msg_client);
         if (msg_len > rsp_size_cache) {
-            xlog_err("rsp size over buf len, deserted\n");
+            xlog_err("rsp size over buf len, deserted");
             error_flag = true;
             break;
         }
@@ -417,7 +417,7 @@ int my_nng_req(const char *url, my_nm_req_param *req_param)
 
 int my_nng_stop(const char *url)
 {
-    xlog_dbg("stopping\n");
+    xlog_dbg("stopping");
     Lock lock(s_ctx.mutex_call);
 
     do {
@@ -428,6 +428,6 @@ int my_nng_stop(const char *url)
         }
     } while (false);
 
-    xlog_dbg("stopping end\n");
+    xlog_dbg("stopping end");
     return 0;
 }

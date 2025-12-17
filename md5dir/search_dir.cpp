@@ -21,7 +21,7 @@ static int search_dir_recusive(const std::string& dir_path,
 
     dir = opendir(dir_path.c_str());
     if (nullptr == dir) {
-        xlog_err("open dir failed: <{}>\n", dir_path.c_str());
+        xlog_err("open dir failed: <{}>", dir_path.c_str());
         return -1;
     }
 

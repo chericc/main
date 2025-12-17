@@ -14,7 +14,7 @@ void test_make_json_str()
     js["parents"]["father"] = "HFather";
     js["parents"]["mother"] = "HMother";
 
-    xlog_dbg("js dump: {}\n", js.dump().c_str());
+    xlog_dbg("js dump: {}", js.dump().c_str());
 }
 
 void test_parse_json_str()
@@ -22,7 +22,7 @@ void test_parse_json_str()
     auto str_json = R"({"name": "Handsome", "sex": "Male", "age": 32, "temp": 36.51})";
     auto js_obj = nlohmann::json::parse(str_json);
 
-    xlog_dbg("js dump: {}\n", js_obj.dump().c_str());
+    xlog_dbg("js dump: {}", js_obj.dump().c_str());
 }
 
 struct Parents {
@@ -51,7 +51,7 @@ void test_serial()
     student.parents.mother = "HMother";
 
     nlohmann::json js = student;
-    xlog_dbg("dump: {}\n", js.dump().c_str());
+    xlog_dbg("dump: {}", js.dump().c_str());
 }
 
 void test_unserial()
@@ -59,20 +59,20 @@ void test_unserial()
     auto str_json = R"({"age":18,"name":"Handsome","parents":{"father":"HFather","mother":"HMother"},"sex":"Male","temp":36.50})";
     auto js = nlohmann::json::parse(str_json);
     auto stru = js.template get<Student>();
-    xlog_dbg("name: {}, temp: {}\n", stru.name.c_str(), stru.temp);
+    xlog_dbg("name: {}, temp: {}", stru.name.c_str(), stru.temp);
 
     // what if some element is lost?
     auto str_json_incomplete = R"({"age":18,"name":"Handsome","parents":{"father":"HFather","mother":"HMother"},"sex":"Male"})";
     auto js_incomplete = nlohmann::json::parse(str_json_incomplete);
     auto stru_incomplete = js_incomplete.template get<Student>();
-    xlog_dbg("name: {}, temp: {}\n", stru_incomplete.name.c_str(), stru_incomplete.temp);
+    xlog_dbg("name: {}, temp: {}", stru_incomplete.name.c_str(), stru_incomplete.temp);
 }
 
 }
 
 int main(int, char *[])
 {
-    xlog_dbg("in\n");
+    xlog_dbg("in");
 
     // test_make_json_str();
     // test_parse_json_str();

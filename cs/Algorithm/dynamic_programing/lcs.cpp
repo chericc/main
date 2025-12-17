@@ -74,9 +74,9 @@ void Lcs::registerTest()
         seq seqb = "tbdh";
 
         seq lcs = longest_common_sequence(seqa, seqb);
-        xlog_dbg("seqa: {}\n", seqa.c_str());
-        xlog_dbg("seqb: {}\n", seqb.c_str());
-        xlog_dbg("lcs : {}\n", lcs.c_str());
+        xlog_dbg("seqa: {}", seqa.c_str());
+        xlog_dbg("seqb: {}", seqb.c_str());
+        xlog_dbg("lcs : {}", lcs.c_str());
     };
 
     MainAlgManager::Funcs funcs;

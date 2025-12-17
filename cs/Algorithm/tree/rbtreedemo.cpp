@@ -23,13 +23,13 @@ void rbtreedemo_registertest()
         }
         xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
         // for (int i = 1; i < 11; ++i) {
-        //     xlog_dbg("remove value {}\n", i);
+        //     xlog_dbg("remove value {}", i);
         //     tree.remove(i);
         //     xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
         //     // break;
         // }
         for (int i = 10; i >= 1; --i) {
-            xlog_dbg("remove value {}\n", i);
+            xlog_dbg("remove value {}", i);
             tree.remove(i);
             xlog_dbg("dump: \n\n{}\n\n", tree.dump().c_str());
             // break;

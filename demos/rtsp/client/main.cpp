@@ -13,11 +13,11 @@ void my_rtsp_client_cb(int channel_id, uint8_t *data, size_t size,
     struct timeval presentationTime, unsigned int durationInMs)
 {
     
-    xlog_dbg("[{}]{}/{}: frame: {}\n", channel_id, medium_name, 
+    xlog_dbg("[{}]{}/{}: frame: {}", channel_id, medium_name, 
         codec_name, size);
 
     if ( (channel_id < 0) || (channel_id >= static_cast<int>(sizeof(fps) / sizeof(fps[0]))) ) {
-        xlog_err("channel id over\n");
+        xlog_err("channel id over");
         return ;
     }
 

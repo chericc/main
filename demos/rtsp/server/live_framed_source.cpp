@@ -29,15 +29,15 @@ LiveFramedSource::LiveFramedSource(UsageEnvironment &env, Profile profile) : Fra
 
 void LiveFramedSource::doGetNextFrame()
 {
-    xlog_dbg("get next frame\n");
+    xlog_dbg("get next frame");
 
     std::vector<uint8_t> buf;
     if (!_ctx->profile.popBufCb(fMaxSize, buf)) {
-        xlog_err("pop end\n");
+        xlog_err("pop end");
         handleClosure();
     }
 
-    xlog_dbg("pkt: size={}\n", buf.size());
+    xlog_dbg("pkt: size={}", buf.size());
 
     memcpy(fTo, buf.data(), buf.size());
     fFrameSize = buf.size();
@@ -50,6 +50,6 @@ void LiveFramedSource::doGetNextFrame()
 
 void LiveFramedSource::doStopGettingFrames()
 {
-    xlog_dbg("stop getting frame\n");
+    xlog_dbg("stop getting frame");
     envir().taskScheduler().unscheduleDelayedTask(nextTask());
 }

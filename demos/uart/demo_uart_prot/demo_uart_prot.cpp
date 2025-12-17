@@ -25,11 +25,11 @@ void on_request_cb(void const* in_data, size_t in_data_size,
         int ret = snprintf((char*)response_data, response_data_size_tmp, "%s", buf_response);
         *response_data_size = ret;
 
-        xlog_dbg("request: <{2:.{1}}>({}), response: <{2:.{1}}>({})\n", 
+        xlog_dbg("request: <{2:.{1}}>({}), response: <{2:.{1}}>({})", 
             (int)in_data_size, (const char *)in_data, in_data_size,
             ret, (const char *)response_data, ret);
     } else {
-        xlog_dbg("not respond for response\n");
+        xlog_dbg("not respond for response");
         *response_data_size = 0;
     }
 
@@ -39,7 +39,7 @@ void on_request_cb(void const* in_data, size_t in_data_size,
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        xlog_dbg("usage: {} [uart_dev_path] [boudrate]\n", argv[0]);
+        xlog_dbg("usage: {} [uart_dev_path] [boudrate]", argv[0]);
         return 1;
     }
 
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         param.on_reqeust_cb = on_request_cb;
         prot = uart_prot_init(&param);
         if (prot == uart_prot_handle_invalid) {
-            xlog_err("uart_prot_init failed\n");
+            xlog_err("uart_prot_init failed");
             break;
         }
 
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
                 if (strstr(c1, "quit")) {
                     break;
                 } else {
-                    xlog_err("unknown\n");
+                    xlog_err("unknown");
                 }
             } else if (ret == 2) {
                 if (strstr(c1, "switch")) {
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
                     if (ok) {
                         ret = uart_prot_switch_mode(prot, mode);
                         if (ret < 0) {
-                            xlog_err("uart_prot_switch_mode failed\n");
+                            xlog_err("uart_prot_switch_mode failed");
                         }
                     }
                 }
@@ -114,15 +114,15 @@ int main(int argc, char *argv[])
                     ret = uart_prot_send(prot, content, content_len, 
                         res_buf, &res_size, timeout_ms);
                     if (ret < 0) {
-                        xlog_err("uart_prot_send failed\n");
+                        xlog_err("uart_prot_send failed");
                     } else {
-                        xlog_dbg("resp: <{2:.{1}}>, size={}\n", (int)res_size, res_buf, res_size);
+                        xlog_dbg("resp: <{2:.{1}}>, size={}", (int)res_size, res_buf, res_size);
                     }
                 } else {
-                    xlog_err("unknown\n");
+                    xlog_err("unknown");
                 }
             } else {
-                xlog_err("unknown\n");
+                xlog_err("unknown");
             }
         }
 

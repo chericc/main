@@ -23,7 +23,7 @@ int Md5Worker::start(std::size_t jobs) {
     std::lock_guard<std::mutex> lock_call(mutex_call__);
 
     if (!threads__.empty()) {
-        xlog_err("tasks not empty\n");
+        xlog_err("tasks not empty");
         return -1;
     }
 
@@ -48,7 +48,7 @@ int Md5Worker::finish() {
 
             continue;
         } else {
-            xlog_err("not joinable\n");
+            xlog_err("not joinable");
             return -1;
         }
 
@@ -111,14 +111,14 @@ int Md5Worker::workerThd(int id) {
         item_ptr = getJob();
 
         if (!item_ptr) {
-            xlog_dbg("no task, thread [{}] fin\n", id);
+            xlog_dbg("no task, thread [{}] fin", id);
             break;
         }
 
         if (nullptr == fp) {
             fp = fopen(item_ptr->file_path.c_str(), "r");
             if (nullptr == fp) {
-                xlog_err("open file <{}> failed\n",
+                xlog_err("open file <{}> failed",
                          item_ptr->file_path.c_str());
                 error_flag = true;
                 continue;
@@ -130,7 +130,7 @@ int Md5Worker::workerThd(int id) {
         md5_result.md5.fill(0);
 
         if (md5_stream(fp, md5_result.md5.data())) {
-            xlog_err("md5 failed\n");
+            xlog_err("md5 failed");
             break;
         }
 

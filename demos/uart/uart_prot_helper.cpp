@@ -22,7 +22,7 @@ std::shared_ptr<UartProt> UartProt::produce(enum UART_PROT_MODE mode,
         }
         case UART_PROT_MODE_NONE: 
         default: {
-            xlog_err("none prot\n");
+            xlog_err("none prot");
             break;
         }
     }
@@ -46,7 +46,7 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
 {
     bool error_flag = false;
 
-    xlog_dbg("request begin\n");
+    xlog_dbg("request begin");
     _requesting = true;
 
     do {
@@ -60,12 +60,12 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
         // send request
         ret = _cb_write_uart(out_data, out_data_size);
         if (ret < 0) {
-            xlog_err("write uart failed\n");
+            xlog_err("write uart failed");
             error_flag = true;
             break;
         }
 
-        xlog_dbg("wait response begin\n");
+        xlog_dbg("wait response begin");
 
         // wait response
         
@@ -85,17 +85,17 @@ int UartProtRaw::request(const void* out_data, size_t out_data_size,
             size_t resp_size_tmp = *resp_data_size;
             
             lock.lock();
-            xlog_dbg("wait response end: size={}\n", _buf.size());
+            xlog_dbg("wait response end: size={}", _buf.size());
 
             size_t min_resp_size = std::min(resp_size_tmp, _buf.size());
             memcpy(resp_data, _buf.data(), min_resp_size);
             *resp_data_size = min_resp_size;
         } else {
-            xlog_dbg("no need response\n");
+            xlog_dbg("no need response");
         }
     } while(0);
 
-    xlog_dbg("request end\n");
+    xlog_dbg("request end");
     _requesting = false;
 
     return error_flag ? -1 : 0;
@@ -117,7 +117,7 @@ int UartProtRaw::handle_request(const void *data, size_t size)
             _param.on_reqeust_cb(data, size, response_buf.data(), &response_buf_size);
 
             if (response_buf_size > response_buf.size()) {
-                xlog_err("inner error: response size over\n");
+                xlog_err("inner error: response size over");
                 error_flag = true;
                 break;
             }
@@ -126,7 +126,7 @@ int UartProtRaw::handle_request(const void *data, size_t size)
             if (response_buf_size > 0) {
                 ret = _cb_write_uart(response_buf.data(), response_buf_size);
                 if (ret < 0) {
-                    xlog_err("response failed\n");
+                    xlog_err("response failed");
                     error_flag = true;
                     break;
                 }
@@ -144,14 +144,14 @@ int UartProtRaw::handle_response(const void *data, size_t size)
     do {
         size_t now_size = _buf.size();
         if (now_size > buf_max_size) {
-            xlog_err("inner error, buf over\n");
+            xlog_err("inner error, buf over");
             error_flag = true;
             break;
         }
 
         size_t left_size = buf_max_size - now_size;
         if (left_size < size) {
-            xlog_err("buf full(input: {}, now: {})\n", size, now_size);
+            xlog_err("buf full(input: {}, now: {})", size, now_size);
             error_flag = true;
             break;
         }
@@ -160,7 +160,7 @@ int UartProtRaw::handle_response(const void *data, size_t size)
         _buf.resize(new_size);
         memcpy(_buf.data() + now_size, data, size);
 
-        xlog_dbg("new size: {}\n", new_size);
+        xlog_dbg("new size: {}", new_size);
     } while (0);
 
     return error_flag ? -1 : 0;
@@ -177,22 +177,22 @@ int UartProtRaw::input(const void *data, size_t size)
 
         // not requesting: i.e. input is request
         if (!_requesting) {
-            // xlog_dbg("handle request\n");
+            // xlog_dbg("handle request");
             // ret = handle_request(data, size);
             // if (ret < 0) {
-            //     xlog_err("handle_request failed\n");
+            //     xlog_err("handle_request failed");
             //     error_flag = true;
             // }
             
-            xlog_dbg("raw mode not answering request\n");
+            xlog_dbg("raw mode not answering request");
             // not an error (just ignored)
             break;
         }
 
-        xlog_dbg("handle response\n");
+        xlog_dbg("handle response");
         ret = handle_response(data, size);
         if (ret < 0) {
-            xlog_err("handle_response failed\n");
+            xlog_err("handle_response failed");
             error_flag = true;
             break;
         }
@@ -212,7 +212,7 @@ void TF_WriteImpl(TinyFrame *tf, const uint8_t *buff, uint32_t len)
     do {
         auto obj = (UartProtMsg*)(tf->userdata);
         if (!obj) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
 
@@ -245,7 +245,7 @@ TF_Result UartProtMsg::id_listener_static(TinyFrame *tf, TF_Msg *msg)
     do {
         auto obj = static_cast<UartProtMsg*>(tf->userdata);
         if (!obj) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
         result = obj->id_listener(tf, msg);
@@ -260,7 +260,7 @@ TF_Result UartProtMsg::id_listener(TinyFrame *tf, TF_Msg *msg)
         // we don't check id, for request should be called in 
         // single thread
         if (msg->len > buf_max_size) {
-            xlog_err("len over max size\n");
+            xlog_err("len over max size");
             break;
         }
 
@@ -279,7 +279,7 @@ TF_Result UartProtMsg::generic_listener_static(TinyFrame *tf, TF_Msg *msg)
     do {
         auto obj = static_cast<UartProtMsg*>(tf->userdata);
         if (!obj) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
         result = obj->generic_listener(tf, msg);
@@ -298,7 +298,7 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
         size_t response_buf_size = response_buf.size();
 
         if (!_param.on_reqeust_cb) {
-            xlog_err("null cb\n");
+            xlog_err("null cb");
             break;
         }
 
@@ -306,18 +306,18 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
             response_buf.data(), &response_buf_size);
         
         if (response_buf_size <= 0) {
-            xlog_dbg("no response\n");
+            xlog_dbg("no response");
             break;
         }
 
         if (response_buf_size > response_buf.size()) {
-            xlog_err("inner error: response size over\n");
+            xlog_err("inner error: response size over");
             break;
         }
 
         auto const len_max = std::numeric_limits<decltype(msg->len)>::max();
         if (response_buf_size > len_max) {
-            xlog_err("response too big for msg({} > {})\n", (int)response_buf_size, len_max);
+            xlog_err("response too big for msg({} > {})", (int)response_buf_size, len_max);
             break;
         }
         
@@ -327,11 +327,11 @@ TF_Result UartProtMsg::generic_listener(TinyFrame *tf, TF_Msg *msg)
         msg_resp.len = response_buf_size;
         msg_resp.frame_id = msg->frame_id;
 
-        xlog_dbg("respond with id: {}\n", (int)msg_resp.frame_id);
+        xlog_dbg("respond with id: {}", (int)msg_resp.frame_id);
 
         ret = TF_Respond(tf, &msg_resp);
         if (ret < 0) {
-            xlog_err("respond failed\n");
+            xlog_err("respond failed");
             break;
         }
         
@@ -348,7 +348,7 @@ void UartProtMsg::tf_writeimpl(TinyFrame *tf, const uint8_t *buff, uint32_t len)
         int ret = 0;
         ret = _cb_write_uart(buff, len);
         if (ret < 0) {
-            xlog_err("write uart failed\n");
+            xlog_err("write uart failed");
             // error_flag = true;
             break;
         }
@@ -379,9 +379,9 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
                 && resp_data_size 
                 && (*resp_data_size > 0) ) {
             need_response = true;
-            xlog_dbg("need response\n");
+            xlog_dbg("need response");
         } else {
-            xlog_dbg("no need response\n");
+            xlog_dbg("no need response");
         }
 
         Lock lock_buf(_mutex_buf);
@@ -398,7 +398,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
                 auto now = Clock::now();
                 if (now >= dead) {
                     error_flag = true;
-                    xlog_err("timeout\n");
+                    xlog_err("timeout");
                     break;
                 }
                 if (!_buf.empty()) {
@@ -414,7 +414,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
             if (!_buf.empty()) {
                 size_t resp_data_size_tmp = *resp_data_size;
                 if (resp_data_size_tmp < _buf.size()) {
-                    xlog_err("resp buf small: {} < {})\n", 
+                    xlog_err("resp buf small: {} < {})", 
                         resp_data_size_tmp, _buf.size());
                     error_flag = true;
                     break;
@@ -422,7 +422,7 @@ int UartProtMsg::request(const void* out_data, size_t out_data_size,
                 memcpy(resp_data, _buf.data(), _buf.size());
                 *resp_data_size = _buf.size();
             } else {
-                xlog_war("got no content\n");
+                xlog_war("got no content");
             }
         }
 

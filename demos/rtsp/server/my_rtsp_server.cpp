@@ -167,7 +167,7 @@ ServerMediaSession* createNewFileSms(UsageEnvironment& env, const char *filename
         sms->addSubsession(smss);
         }
     } else {
-        xlog_err("file not support: {}\n", filename);
+        xlog_err("file not support: {}", filename);
     }
 
     return sms;
@@ -206,7 +206,7 @@ void MyRTSPServer::onVod(const char *filepath, const char *streamname,
     void *completionClientData,
     Boolean isFirstLoopupInSession)
 {
-    xlog_dbg("path/streamname: [{}]/[{}]\n", filepath, streamname);
+    xlog_dbg("path/streamname: [{}]/[{}]", filepath, streamname);
 
     bool error_flag = false;
     FILE *fp = nullptr;
@@ -215,9 +215,9 @@ void MyRTSPServer::onVod(const char *filepath, const char *streamname,
     do {
         fp = fopen(filepath, "r");
         if (!fp) {
-            xlog_dbg("failed to open file: <{}>\n", filepath);
+            xlog_dbg("failed to open file: <{}>", filepath);
             if (sms) {
-                xlog_dbg("sms exist while file not exist, remove sms\n");
+                xlog_dbg("sms exist while file not exist, remove sms");
                 removeServerMediaSession(sms);
                 sms = nullptr;
             }
@@ -246,7 +246,7 @@ void MyRTSPServer::onVod(const char *filepath, const char *streamname,
     }
 
     if (error_flag) {
-        xlog_err("error\n");
+        xlog_err("error");
     }
 
 }
@@ -255,7 +255,7 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
     void *completionClientData,
     Boolean isFirstLoopupInSession)
 {
-    xlog_dbg("path/streamname: [{}]/[{}]\n", path, streamname);
+    xlog_dbg("path/streamname: [{}]/[{}]", path, streamname);
 
     ServerMediaSession *sms = getServerMediaSession(streamname);
     do {
@@ -274,14 +274,14 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
                 std::array<char, PATH_MAX> absPath = {};
                 snprintf(absPath.data(), absPath.size(), "%s/%s", curPath.data(), path);
 
-                xlog_dbg("path: {}\n", absPath.data());
+                xlog_dbg("path: {}", absPath.data());
 
                 _provider = std::make_shared<LiveStreamProviderFile>(absPath.data());
             }
 
             LiveStreamProvider::Info info = {};
             if (!_provider->info(info)) {
-                xlog_err("get info failed\n");
+                xlog_err("get info failed");
                 _provider = nullptr;
             }
 
@@ -301,13 +301,13 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
                     if (info.codecV == LiveStreamProvider::HEVC) {
                         FramedSource *liveSource = LiveFramedSource::createNew(envir(), profile);
                         if (liveSource != nullptr) {
-                            xlog_dbg("create h265 stream framer\n");
+                            xlog_dbg("create h265 stream framer");
                             return H265VideoStreamFramer::createNew(envir(), liveSource);
                         }
                     } else if (info.codecV == LiveStreamProvider::H264) {
                         FramedSource *liveSource = LiveFramedSource::createNew(envir(), profile);
                         if (liveSource != nullptr) {
-                            xlog_dbg("create h264 stream framer\n");
+                            xlog_dbg("create h264 stream framer");
                             return H264VideoStreamFramer::createNew(envir(), liveSource);
                         }
                     }
@@ -315,15 +315,15 @@ void MyRTSPServer::onLive(const char *path, const char *streamname,
                 };
                 auto genSink = [=](Groupsock* rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic)->RTPSink* {
                     if (info.codecV == LiveStreamProvider::HEVC) {
-                        xlog_dbg("create h265 rtp sink\n");
+                        xlog_dbg("create h265 rtp sink");
                         return H265VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
                     }
                     if (info.codecV == LiveStreamProvider::H264) {
-                        xlog_dbg("create h264 rtp sink\n");
+                        xlog_dbg("create h264 rtp sink");
                         return H264VideoRTPSink::createNew(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic);
                     }
 
-                    xlog_err("codec not found\n");
+                    xlog_err("codec not found");
                     return nullptr;
                 };
                 LiveMediaSubsessionProfile profile = {};
@@ -353,26 +353,26 @@ void MyRTSPServer::lookupServerMediaSession(const char *streamName,
     // live/0
 
     do {
-        xlog_dbg("opening stream {}\n", streamName);
+        xlog_dbg("opening stream {}", streamName);
 
         std::string stream(streamName);
         size_t index_slash = stream.find("/");
         if (index_slash == std::string::npos) {
-            xlog_err("stream not support\n");
+            xlog_err("stream not support");
             break;
         }
 
         std::string type = std::string(stream, 0, index_slash);
         std::string path = std::string(stream, index_slash + 1);
         if (type == "vod") {
-            xlog_dbg("vod\n");
+            xlog_dbg("vod");
             onVod(path.c_str(), streamName, completionFunc, completionClientData, isFirstLoopupInSession);
         } else if (type == "live") {
             // ignore vod path
-            xlog_dbg("live\n");
+            xlog_dbg("live");
             onLive(path.c_str(), streamName, completionFunc, completionClientData, isFirstLoopupInSession);
         } else {
-            xlog_err("type not support: {}\n", type.c_str());
+            xlog_err("type not support: {}", type.c_str());
             break;
         }
     } while (false);

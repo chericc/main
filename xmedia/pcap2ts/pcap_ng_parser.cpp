@@ -175,7 +175,7 @@ int PcapngParser::parse(const std::string& file,
             }
 
             if (block_probe->block_type != BT_SHB) {
-                xlog_err("Not shb\n");
+                xlog_err("Not shb");
                 error = true;
                 break;
             }

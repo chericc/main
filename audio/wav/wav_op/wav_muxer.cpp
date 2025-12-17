@@ -76,7 +76,7 @@ int wav_muxer_write_header(wav_muxer_context *ctx)
 
     do {
         if (nullptr == ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             error_flag = true;
             break;
         }
@@ -124,13 +124,13 @@ wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
 
     do {
         if (nullptr == info) {
-            xlog_err("null info\n");
+            xlog_err("null info");
             error_flag = true;
             break;
         }
 
         if (nullptr == info->fp) {
-            xlog_err("null fp\n");
+            xlog_err("null fp");
             error_flag = true;
             break;
         }
@@ -141,7 +141,7 @@ wav_muxer_handle wav_muxer_create(struct wav_muxer_info const *info)
         ctx->header_flag = false;
         ctx->xio_fp = std::make_shared<XIOFp>(ctx->info_backup.fp);
         if (ctx->xio_fp->error()) {
-            xlog_err("io error\n");
+            xlog_err("io error");
             error_flag = true;
             break;
         }
@@ -166,13 +166,13 @@ int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize
 
         auto *ctx = reinterpret_cast<wav_muxer_context*>(handle);
         if (nullptr == ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             error_flag = true;
             break;
         }
 
         if (nullptr == ctx->xio_fp) {
-            xlog_err("io null\n");
+            xlog_err("io null");
             error_flag = true;
             break;
         }
@@ -180,7 +180,7 @@ int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize
         if (!ctx->header_flag) {
             ret = wav_muxer_write_header(ctx);
             if (ret < 0) {
-                xlog_err("write header failed\n");
+                xlog_err("write header failed");
                 error_flag = true;
                 break;
             }
@@ -200,7 +200,7 @@ int wav_muxer_input(wav_muxer_handle handle, const void *chunk, size_t chunksize
         }
 
         if (ctx->xio_fp->error()) {
-            xlog_err("io error\n");
+            xlog_err("io error");
             error_flag = true;
             break;
         }
@@ -216,20 +216,20 @@ int wav_muxer_close(wav_muxer_handle handle)
 
     do {
         if (nullptr == ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             error_flag = true;
             break;
         }
 
         if (ctx->xio_fp == nullptr) {
-            xlog_err("io null\n");
+            xlog_err("io null");
             error_flag = true;
             break;
         }
 
         if (ctx->pos_data_chunksize < 0
             || ctx->pos_riff_chunksize < 0) {
-            xlog_err("pos empty\n");
+            xlog_err("pos empty");
             error_flag = true;
             break;
         }

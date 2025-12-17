@@ -26,7 +26,7 @@ void uart_dump__(const char *desc, uint8_t const*buf, int len,
         char dump_buf[512] = {};
         fp = fmemopen(dump_buf, sizeof(dump_buf), "w");
         if (!fp) {
-            xlog_err("fmemopen failed\n");
+            xlog_err("fmemopen failed");
             break;
         }
         

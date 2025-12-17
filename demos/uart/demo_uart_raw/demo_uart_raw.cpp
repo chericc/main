@@ -7,13 +7,13 @@
 
 static void uart_raw_read_on_data_imp(void const* data, size_t size, void *user)
 {
-    xlog_dbg("on data: user={}, <{2:.{1}}>\n", user, (int)size, (const char *)data);
+    xlog_dbg("on data: user={}, <{2:.{1}}>", user, (int)size, (const char *)data);
 }
 
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        xlog_dbg("usage: {} [uart_dev_path] [boudrate]\n", argv[0]);
+        xlog_dbg("usage: {} [uart_dev_path] [boudrate]", argv[0]);
         return 1;
     }
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     uart_raw_handle uart = uart_raw_open(&param);
 
     if (uart == uart_raw_handle_invalid) {
-        xlog_err("open failed\n");
+        xlog_err("open failed");
         return -1;
     }
 
@@ -40,11 +40,11 @@ int main(int argc, char *argv[])
         }
 
         if (strstr(buf, "exit")) {
-            xlog_dbg("break\n");
+            xlog_dbg("break");
             break;
         }
 
-        xlog_dbg("input: <{}>\n", buf);
+        xlog_dbg("input: <{}>", buf);
         char buf_with_tail[64] = {};
         // snprintf(buf_with_tail, sizeof(buf_with_tail), "%s\n", buf);
         snprintf(buf_with_tail, sizeof(buf_with_tail), "%s", buf);

@@ -22,10 +22,10 @@ int XConfigImp::LoadFile() {
     ret = LoadFromFile__();
 
     if (0 == ret) {
-        xlog_dbg("Load file successful\n");
+        xlog_dbg("Load file successful");
         m_file_loaded__ = true;
     } else {
-        xlog_err("Load file failed\n");
+        xlog_err("Load file failed");
     }
 
     return m_file_loaded__ ? 0 : -1;
@@ -36,12 +36,12 @@ int XConfigImp::GetValue(const std::string& section, const std::string& key,
     std::lock_guard<std::mutex> lock(m_mutex__);
 
     if (!m_file_loaded__) {
-        xlog_err("Not loaded\n");
+        xlog_err("Not loaded");
         return -1;
     }
 
     if (DataGet__(section, key, value) < 0) {
-        xlog_err("Get data failed\n");
+        xlog_err("Get data failed");
         return -1;
     }
 
@@ -53,22 +53,22 @@ int XConfigImp::SetValue(const std::string& section, const std::string& key,
     std::lock_guard<std::mutex> lock(m_mutex__);
 
     if (!m_file_loaded__) {
-        xlog_err("Not loaded\n");
+        xlog_err("Not loaded");
         return -1;
     }
 
     if (m_readonly__) {
-        xlog_err("Readonly mode\n");
+        xlog_err("Readonly mode");
         return -1;
     }
 
     if (DataSet__(section, key, value) < 0) {
-        xlog_err("Data set failed\n");
+        xlog_err("Data set failed");
         return -1;
     }
 
     if (WriteToFile__() < 0) {
-        xlog_err("Write to file failed\n");
+        xlog_err("Write to file failed");
         return -1;
     }
 
@@ -79,7 +79,7 @@ bool XConfigImp::Exist(const std::string& section, const std::string& key) {
     std::lock_guard<std::mutex> lock(m_mutex__);
 
     if (!m_file_loaded__) {
-        xlog_err("Not loaded\n");
+        xlog_err("Not loaded");
         return false;
     }
 
@@ -94,22 +94,22 @@ int XConfigImp::Erase(const std::string& section, const std::string& key) {
     std::lock_guard<std::mutex> lock(m_mutex__);
 
     if (!m_file_loaded__) {
-        xlog_err("Not loaded\n");
+        xlog_err("Not loaded");
         return -1;
     }
 
     if (m_readonly__) {
-        xlog_err("Readonly mode\n");
+        xlog_err("Readonly mode");
         return -1;
     }
 
     if (DataErase__(section, key) < 0) {
-        xlog_err("Erase failed\n");
+        xlog_err("Erase failed");
         return -1;
     }
 
     if (WriteToFile__() < 0) {
-        xlog_err("Write to file failed\n");
+        xlog_err("Write to file failed");
         return -1;
     }
 
@@ -120,25 +120,25 @@ int XConfigImp::WriteToFile__() {
     FILE* fp = nullptr;
 
     if (m_readonly__) {
-        xlog_err("Can't write to file with readonly mode\n");
+        xlog_err("Can't write to file with readonly mode");
         return 0;
     }
 
     if (!m_file_loaded__) {
-        xlog_dbg("Can't write to file while state not ready\n");
+        xlog_dbg("Can't write to file while state not ready");
         return -1;
     }
 
     fp = fopen(m_filename__.c_str(), "wb+");
     if (nullptr == fp) {
-        xlog_err("Open file to write failed\n");
+        xlog_err("Open file to write failed");
         return -1;
     }
 
     for (auto it_map = m_map_data__.cbegin(); it_map != m_map_data__.cend();
          ++it_map) {
         if (it_map->second.empty()) {
-            xlog_err("Section with no keys in map found\n");
+            xlog_err("Section with no keys in map found");
             continue;
         }
 
@@ -247,14 +247,14 @@ int XConfigImp::DataGet__(const std::string& section, const std::string& key,
                           std::string& value) {
     auto it_section = m_map_data__.find(section);
     if (it_section == m_map_data__.cend()) {
-        xlog_err("Get [{}.{}]: section not exist\n", section.c_str(),
+        xlog_err("Get [{}.{}]: section not exist", section.c_str(),
                  key.c_str());
         return -1;
     }
 
     auto it_item = it_section->second.find(key);
     if (it_item == it_section->second.cend()) {
-        xlog_err("Get [{}.{}]: key not exist\n", section.c_str(), key.c_str());
+        xlog_err("Get [{}.{}]: key not exist", section.c_str(), key.c_str());
         return -1;
     }
 
@@ -284,13 +284,13 @@ bool XConfigImp::DataExist__(const std::string& section,
                              const std::string& key) {
     auto it_section = m_map_data__.find(section);
     if (it_section == m_map_data__.cend()) {
-        xlog_dbg("Section not exist\n");
+        xlog_dbg("Section not exist");
         return false;
     }
 
     auto it_item = it_section->second.find(key);
     if (it_item == it_section->second.cend()) {
-        xlog_dbg("Key not exist\n");
+        xlog_dbg("Key not exist");
         return false;
     }
 
@@ -301,13 +301,13 @@ int XConfigImp::DataErase__(const std::string& section,
                             const std::string& key) {
     auto it_section = m_map_data__.find(section);
     if (it_section == m_map_data__.cend()) {
-        xlog_dbg("Section not exist\n");
+        xlog_dbg("Section not exist");
         return 0;
     }
 
     auto it_item = it_section->second.find(key);
     if (it_item == it_section->second.cend()) {
-        xlog_dbg("Key not exist\n");
+        xlog_dbg("Key not exist");
         return 0;
     }
 

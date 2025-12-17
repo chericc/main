@@ -10,17 +10,17 @@ static int callback_example(struct lws *wsi, enum lws_callback_reasons reason,
                             void *user, void *in, size_t len) {
     switch (reason) {
         case LWS_CALLBACK_CLIENT_ESTABLISHED: {
-            xlog_dbg("Connected to server\n");
+            xlog_dbg("Connected to server");
             lws_callback_on_writable(wsi);
             break;
         }
         case LWS_CALLBACK_CLIENT_RECEIVE: {
-            xlog_dbg("Received data: {}\n", (char *)in);
+            xlog_dbg("Received data: {}", (char *)in);
             lws_callback_on_writable(wsi);
             break;
         }
         case LWS_CALLBACK_CLIENT_WRITEABLE: {
-            xlog_dbg("Sending message\n");
+            xlog_dbg("Sending message");
             const char *msg = "Hello, WebSocket!";
             size_t msg_len = strlen(msg);
             unsigned char buf[LWS_PRE + 128] = {};

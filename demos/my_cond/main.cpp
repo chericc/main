@@ -29,9 +29,9 @@ void trd()
     auto now = Clock::now();
     auto dead = now + std::chrono::seconds(10);
 
-    xlog_dbg("wait begin\n");
+    xlog_dbg("wait begin");
     s_cond.wait_until(lock, dead);
-    xlog_dbg("wait end\n");
+    xlog_dbg("wait end");
 }
 
 int main()

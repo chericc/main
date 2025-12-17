@@ -29,7 +29,7 @@ XDemuxer::XDemuxer(std::string file)
     av_log_set_level(AV_LOG_ERROR);
     // av_log_set_level(AV_LOG_TRACE);
 
-    xlog_dbg("file: {}\n", file.c_str());
+    xlog_dbg("file: {}", file.c_str());
 
     _ctx = std::make_shared<Ctx>();
     _ctx->file = std::move(file);
@@ -52,7 +52,7 @@ bool XDemuxer::open()
     bool error_flag = false;
     do {
         if (_ctx->ffctx) {
-            xlog_err("not null\n");
+            xlog_err("not null");
             break;
         }
 
@@ -60,7 +60,7 @@ bool XDemuxer::open()
         _ctx->ffctx = openImp(_ctx->file);;
         if (!_ctx->ffctx) {
             error_flag = true;
-            xlog_err("open failed\n");
+            xlog_err("open failed");
             break;
         }
     } while (false);
@@ -76,13 +76,13 @@ std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
     do {
         if (!_ctx->ffctx) {
             error_flag = true;
-            xlog_err("null\n");
+            xlog_err("null");
             break;
         }
 
         if (_ctx->ffctx->index_video >= 0) {
             if (static_cast<unsigned int>(_ctx->ffctx->index_video) >= _ctx->ffctx->context->nb_streams) {
-                xlog_err("invalid index: {}({})\n", _ctx->ffctx->index_video, _ctx->ffctx->context->nb_streams);
+                xlog_err("invalid index: {}({})", _ctx->ffctx->index_video, _ctx->ffctx->context->nb_streams);
                 error_flag = true;
                 break;
             }
@@ -90,7 +90,7 @@ std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
             AVStream *streamV = _ctx->ffctx->context->streams[_ctx->ffctx->index_video];
 
             if (nullptr == streamV->codecpar) {
-                xlog_err("inner error: codecpar is null\n");
+                xlog_err("inner error: codecpar is null");
                 error_flag = true;
                 break;
             }
@@ -121,14 +121,14 @@ std::shared_ptr<XDemuxerInfo> XDemuxer::getInfo()
 
         if (_ctx->ffctx->index_audio >= 0) {
             if (static_cast<unsigned int>(_ctx->ffctx->index_audio) >= _ctx->ffctx->context->nb_streams) {
-                xlog_err("invalid index: {}({})\n", _ctx->ffctx->index_audio, _ctx->ffctx->context->nb_streams);
+                xlog_err("invalid index: {}({})", _ctx->ffctx->index_audio, _ctx->ffctx->context->nb_streams);
                 error_flag = true;
                 break;
             }
 
             AVStream *streamA = _ctx->ffctx->context->streams[_ctx->ffctx->index_audio];
             if (nullptr == streamA->codecpar) {
-                xlog_err("codecpar is null\n");
+                xlog_err("codecpar is null");
                 error_flag = true;
                 break;
             }
@@ -152,7 +152,7 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
 
     do {
         if (nullptr == _ctx->ffctx) {
-            xlog_err("not opened yet\n");
+            xlog_err("not opened yet");
             error_flag = true;
             break;
         }
@@ -161,7 +161,7 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
             int ret = popPacketOnce(_ctx->ffctx, framePtr);
             if (ret >= 0) {
                 if (framePtr->isVideo) {
-                    xlog_dbg("pop frame: size={}, video={}\n", framePtr->buf.size(), framePtr->isVideo);
+                    xlog_dbg("pop frame: size={}, video={}", framePtr->buf.size(), framePtr->isVideo);
                 }
                 
                 break;
@@ -174,7 +174,7 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
                 break;
             }
 
-            xlog_err("pop packet failed\n");
+            xlog_err("pop packet failed");
             error_flag = true;
             break;
 
@@ -209,7 +209,7 @@ bool XDemuxer::forceIFrame()
             break;
         }
 
-        xlog_dbg("seek ok\n");
+        xlog_dbg("seek ok");
         okFlag = true;
     } while (false);
     return okFlag;
@@ -253,21 +253,21 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
 
         ret = avformat_open_input(&fftmp->context, file.c_str(), nullptr, nullptr);
         if (ret < 0) {
-            xlog_err("avformat_open_input failed\n");
+            xlog_err("avformat_open_input failed");
             error_flag = true;
             break;
         }
 
         ret = avformat_find_stream_info(fftmp->context, nullptr);
         if (ret < 0) {
-            xlog_err("avformat_find_stream_info failed\n");
+            xlog_err("avformat_find_stream_info failed");
             error_flag = true;
             break;
         }
 
         fftmp->index_video = av_find_best_stream(fftmp->context, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
         if (fftmp->index_video < 0) {
-            xlog_err("av_find_best_stream failed\n");
+            xlog_err("av_find_best_stream failed");
             error_flag = true;
             break;
         }
@@ -277,7 +277,7 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
         AVStream *streamV = fftmp->context->streams[fftmp->index_video];
 
         if (nullptr == streamV->codecpar) {
-            xlog_err("inner error: codecpar is null\n");
+            xlog_err("inner error: codecpar is null");
             error_flag = true;
             break;
         }
@@ -289,21 +289,21 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
                  ? "h264_mp4toannexb" : "hevc_mp4toannexb");
             auto const* bsf_filter = av_bsf_get_by_name(name);
             if (nullptr == bsf_filter) {
-                xlog_err("get bsf_filter failed\n");
+                xlog_err("get bsf_filter failed");
                 error_flag = true;
                 break;
             }
 
             ret = av_bsf_alloc(bsf_filter, &fftmp->bsf_context_v);
             if (ret < 0) {
-                xlog_err("av_bsf_alloc failed\n");
+                xlog_err("av_bsf_alloc failed");
                 error_flag = true;
                 break;
             }
 
             ret = avcodec_parameters_copy(fftmp->bsf_context_v->par_in, streamV->codecpar);
             if (ret < 0) {
-                xlog_err("avcodec_parameters_copy failed\n");
+                xlog_err("avcodec_parameters_copy failed");
                 error_flag = true;
                 break;
             }
@@ -311,7 +311,7 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
             fftmp->bsf_context_v->time_base_in = streamV->time_base;
             ret = av_bsf_init(fftmp->bsf_context_v);
             if (ret < 0) {
-                xlog_err("av_bsf_init failed\n");
+                xlog_err("av_bsf_init failed");
                 error_flag = true;
                 break;
             }
@@ -321,7 +321,7 @@ XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
 
         // copy results
         
-        xlog_dbg("open input successful, v.index={}\n", fftmp->index_video);
+        xlog_dbg("open input successful, v.index={}", fftmp->index_video);
     } while (false);
 
     if (error_flag) {
@@ -358,7 +358,7 @@ bool XDemuxer::handlePacket(AVPacket *pkt, AVStream *stream, XDemuxerFramePtr &f
     bool okFlag = false;
     do {
         if (pkt->size > MAX_PKT_SIZE) {
-            xlog_err("pkt too big: {}\n", pkt->size);
+            xlog_err("pkt too big: {}", pkt->size);
             break;
         }
         
@@ -398,7 +398,7 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
         
         if ((nullptr == pktFilter)
             || (nullptr == pktRead)) {
-            xlog_err("alloc packet failed\n");
+            xlog_err("alloc packet failed");
             ret = AVERROR(ENOMEM);
             break;
         }
@@ -415,7 +415,7 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
                     } else if (ret == AVERROR_EOF) {
                         ret = AVERROR(EAGAIN); // 认为没有取到帧
                     } else {
-                        xlog_err("av_bsf_receive_packet failed\n");
+                        xlog_err("av_bsf_receive_packet failed");
                         break;
                     }
                 } else {
@@ -425,7 +425,7 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
                 
                     AVStream *stream = ffctx->context->streams[ffctx->index_video];
                     if (!handlePacket(pktFilter, stream, framePtr)) {
-                        xlog_err("handlePacket failed\n");
+                        xlog_err("handlePacket failed");
                         ret = AVERROR(E2BIG);
                     }
                     framePtr->isVideo = true;
@@ -439,9 +439,9 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
             ret = av_read_frame(ffctx->context, pktRead);
             if (ret < 0) {
                 if (AVERROR_EOF == ret) {
-                    xlog_dbg("got eof\n"); 
+                    xlog_dbg("got eof"); 
                 } else {
-                    xlog_err("av_read_frame failed: {}\n", ret);
+                    xlog_err("av_read_frame failed: {}", ret);
                 }
                 break; // 读不到，并且bsf也取不到，则认为结束了
             }
@@ -452,9 +452,9 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
                 ret = av_bsf_send_packet(ffctx->bsf_context_v, pktRead);
                 if(ret < 0) {
                     if (ret == AVERROR(EAGAIN)) {
-                        xlog_err("bsf if full (should not happen)\n");
+                        xlog_err("bsf if full (should not happen)");
                     } else {
-                        xlog_err("av_bsf_send_packet failed\n");
+                        xlog_err("av_bsf_send_packet failed");
                     }
                     break;
                 }
@@ -467,7 +467,7 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
             if (pktRead->stream_index == ffctx->index_audio) {
                 AVStream *stream = ffctx->context->streams[pktRead->stream_index];
                 if (!handlePacket(pktRead, stream, framePtr)) {
-                    xlog_err("handlePacket failed\n");
+                    xlog_err("handlePacket failed");
                     ret = AVERROR(E2BIG);
                 }
                 framePtr->isVideo = false;
@@ -546,7 +546,7 @@ std::string XDemuxer::dumpInfo(std::shared_ptr<XDemuxerInfo> info)
     do {
         fp = fmemopen(buf, sizeof(buf), "w");
         if (nullptr == fp) {
-            xlog_err("fmemopen failed\n");
+            xlog_err("fmemopen failed");
             break;
         }
         fprintf(fp, "[%d/%d | %s | %s | %s | %s]", 

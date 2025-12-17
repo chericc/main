@@ -32,7 +32,7 @@ void rtsp_server_trd(struct rtsp_server_ctx *ctx)
         scheduler = BasicTaskScheduler::createNew();
         env = BasicUsageEnvironment::createNew(*scheduler);
 
-        xlog_dbg("server: [{}/{}], port={}\n", 
+        xlog_dbg("server: [{}/{}], port={}", 
             ctx->param.username, ctx->param.password,
             ctx->param.port);
 
@@ -45,13 +45,13 @@ void rtsp_server_trd(struct rtsp_server_ctx *ctx)
         rtspServer = MyRTSPServer::createNew(*env, port, authDB);
     
         if (nullptr == rtspServer) {
-            xlog_err("create rtsp server failed\n");
+            xlog_err("create rtsp server failed");
             break;
         }
 
-        xlog_dbg("rtsp server started\n");
+        xlog_dbg("rtsp server started");
         env->taskScheduler().doEventLoop(&ctx->loopVariable);
-        xlog_dbg("rtsp server stopped\n");
+        xlog_dbg("rtsp server stopped");
     } while (false);
 
     if (rtspServer != nullptr) {
@@ -66,7 +66,7 @@ void rtsp_server_trd(struct rtsp_server_ctx *ctx)
 
     if (env != nullptr) {
         if (!static_cast<bool>(env->reclaim())) {
-            xlog_err("delete env failed\n");
+            xlog_err("delete env failed");
         }
     }
 

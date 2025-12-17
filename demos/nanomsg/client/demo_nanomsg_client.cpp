@@ -12,19 +12,19 @@ int start_client(const char *url)
 
         fd = nn_socket(AF_SP, NN_SUB);
         if (fd < 0) {
-            xlog_err("nn_socket failed: {}\n", nn_strerror(nn_errno()));
+            xlog_err("nn_socket failed: {}", nn_strerror(nn_errno()));
             break;
         }
 
         ret = nn_connect(fd, url);
         if (ret < 0) {
-            xlog_err("nn_connect failed: {}\n", nn_strerror(nn_errno()));
+            xlog_err("nn_connect failed: {}", nn_strerror(nn_errno()));
             break;
         }
 
         ret = nn_setsockopt(fd, NN_SUB, NN_SUB_SUBSCRIBE, "", 0);
         if (ret < 0) {
-            xlog_err("nn_setsockopt failed: {}\n", nn_strerror(nn_errno()));
+            xlog_err("nn_setsockopt failed: {}", nn_strerror(nn_errno()));
             break;
         }
 
@@ -32,11 +32,11 @@ int start_client(const char *url)
             char buf[256] = {};
             ret = nn_recv(fd, buf, sizeof(buf), 0);
             if (ret < 0) {
-                xlog_err("nn_recv: {}\n", nn_strerror(nn_errno()));
+                xlog_err("nn_recv: {}", nn_strerror(nn_errno()));
                 break;
             }
 
-            xlog_dbg("msg: [{:.{}}]\n", 
+            xlog_dbg("msg: [{:.{}}]", 
                 buf, static_cast<int>(sizeof(buf)));
         }
         
@@ -52,10 +52,10 @@ int start_client(const char *url)
 
 int main(int argc, char *argv[])
 {
-    xlog_dbg("client in\n");
+    xlog_dbg("client in");
 
     if (argc < 2) {
-        xlog_err("Usage: {} [url]\n", argv[0]);
+        xlog_err("Usage: {} [url]", argv[0]);
         return -1;
     }
 

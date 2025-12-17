@@ -205,7 +205,7 @@ int packet_gen_destroy(packet_gen_handle obj)
     auto *ctx = static_cast<packet_gen_ctx*>(obj);
     do {
         if (!ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
 
@@ -218,13 +218,13 @@ int packet_gen_destroy(packet_gen_handle obj)
                 } else {
                     ctx->trds[i]->state = DEAD;
                 }
-                xlog_dbg("join trd begin: {}\n", i);
+                xlog_dbg("join trd begin: {}", i);
                 ctx->trds[i]->trd->join();
-                xlog_dbg("join trd end: {}\n", i);
+                xlog_dbg("join trd end: {}", i);
             }
         }
 
-        xlog_dbg("deleting obj\n");
+        xlog_dbg("deleting obj");
         delete ctx;
         ctx = nullptr;
     } while (0);
@@ -236,7 +236,7 @@ int packet_gen_start(packet_gen_handle obj)
     auto *ctx = static_cast<packet_gen_ctx*>(obj);
     do {
         if (!ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
 
@@ -247,11 +247,11 @@ int packet_gen_start(packet_gen_handle obj)
                     ctx->trds[i]->state = RUN;
                     ctx->trds[i]->cond_state_changed.notify_one();
                 } else if (ctx->trds[i]->state == RUN) {
-                    xlog_dbg("already running\n");
+                    xlog_dbg("already running");
                 } else if (ctx->trds[i]->state == DEAD) {
-                    xlog_err("already dead\n");
+                    xlog_err("already dead");
                 } else {
-                    xlog_err("not handled\n");
+                    xlog_err("not handled");
                 }
             }
         }
@@ -264,24 +264,24 @@ int packet_gen_stop(packet_gen_handle obj)
     auto *ctx = static_cast<packet_gen_ctx*>(obj);
     do {
         if (!ctx) {
-            xlog_err("null obj\n");
+            xlog_err("null obj");
             break;
         }
 
         for (int i = 0; i < (int)ctx->trds.size(); ++i) {
             if (ctx->trds[i]->trd->joinable()) {
                 if (ctx->trds[i]->state == SLEEP) {
-                    xlog_dbg("already stopped\n");
+                    xlog_dbg("already stopped");
                 } else if (ctx->trds[i]->state == RUN) {
                     UniClock lock(ctx->trds[i]->mutex_state);
                     ctx->trds[i]->state = SLEEP;
-                    xlog_dbg("wait stop begin: {}\n", i);
+                    xlog_dbg("wait stop begin: {}", i);
                     ctx->trds[i]->cond_state_activated.wait(lock);
-                    xlog_dbg("wait stop end: {}\n", i);
+                    xlog_dbg("wait stop end: {}", i);
                 } else if (ctx->trds[i]->state == DEAD) {
-                    xlog_err("already dead\n");
+                    xlog_err("already dead");
                 } else {
-                    xlog_err("not handled\n");
+                    xlog_err("not handled");
                 }
             }
         }

@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     if ((argc != 2) && (argc != 4)) {
-        xlog_err("usage: [port: 8080] [username] [password]\n");
+        xlog_err("usage: [port: 8080] [username] [password]");
         return -1;
     }
     

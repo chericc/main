@@ -7,14 +7,14 @@
 
 int main()
 {
-    xlog_dbg("hello world\n");
+    xlog_dbg("hello world");
 
     lv_init();
 
     lv_display_t *disp = lv_sdl_window_create(800, 600);
 
     lv_obj_t *screen = lv_screen_active();
-    xlog_dbg("screen: {}\n", fmt::ptr(screen));
+    xlog_dbg("screen: {}", fmt::ptr(screen));
 
     lv_obj_t *label = lv_label_create(screen);
     lv_label_set_text(label, "123123");

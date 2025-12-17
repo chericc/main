@@ -6,13 +6,13 @@
 
 void on_msg_cb(unsigned int clientID, LWS_SERVER_WRAPPER_CLIENT_TYPE type, const void *data, size_t size)
 {
-    xlog_dbg("client:{},type:{},msg:{2:.{1}},size:{}\n", 
+    xlog_dbg("client:{},type:{},msg:{2:.{1}},size:{}", 
         clientID, type, (int)size, (const char*)data, size);
 }
 
 void on_event_cb(unsigned int clientID, LWS_SERVER_WRAPPER_CLIENT_TYPE type, LWS_SERVER_WRAPPER_CLIENT_EVENT event)
 {
-    xlog_dbg("client:{},type:{},event:{}\n", 
+    xlog_dbg("client:{},type:{},event:{}", 
         clientID, type, event);
 }
 

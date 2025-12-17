@@ -242,7 +242,7 @@ void* rtp_receiver_tcp_test(uint8_t interleave1, uint8_t interleave2, int payloa
 	struct rtp_context_t* ctx;
 	const struct rtp_profile_t* profile;
 
-	xlog_dbg("rtp receive: int1={}, int2={}, payload={}, encoding={}\n", 
+	xlog_dbg("rtp receive: int1={}, int2={}, payload={}, encoding={}", 
 		interleave1, interleave2, payload, encoding);
 
 	ctx = (struct rtp_context_t*)malloc(sizeof(struct rtp_context_t));

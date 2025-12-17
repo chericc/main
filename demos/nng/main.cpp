@@ -13,7 +13,7 @@ bool exit_flag = false;
 
 void cb_on_req(const char *url, void const *req, size_t req_size, void *rsp, size_t *rsp_size)
 {
-    xlog_dbg("cb on req: url: {}\n", url);
+    xlog_dbg("cb on req: url: {}", url);
 
     int ret = snprintf((char*)rsp, *rsp_size, "%s: %.*s", url, (int)req_size, (const char *)req);
     *rsp_size = ret;
@@ -31,7 +31,7 @@ void server(std::vector<std::string> urls)
     for (auto const& ref : urls) {
         int ret = my_nng_start(ref.c_str(), &param);
         if (ret != 0) {
-            xlog_err("start failed\n");
+            xlog_err("start failed");
             break;
         }
     }
@@ -47,9 +47,9 @@ void client(std::vector<std::string> urls)
 {
     while (true) {
         char buf[128] = {};
-        xlog_dbg("input to send, eg: 0 hello\n");
+        xlog_dbg("input to send, eg: 0 hello");
         for (size_t i = 0; i < urls.size(); ++i) {
-            xlog_dbg("[{}]: {}\n", i, urls[i].c_str());
+            xlog_dbg("[{}]: {}", i, urls[i].c_str());
         }
         fgets(buf, sizeof(buf), stdin);
 
@@ -68,15 +68,15 @@ void client(std::vector<std::string> urls)
             param.rsp_size = &buf_recv_size;
 
             int ret = my_nng_req(urls[choice].c_str(), &param);
-            xlog_dbg("ret: {}, size={}\n", ret, buf_recv_size);
-            xlog_dbg("msg: {:.{}}\n", buf_recv, buf_recv_size);
+            xlog_dbg("ret: {}, size={}", ret, buf_recv_size);
+            xlog_dbg("msg: {:.{}}", buf_recv, buf_recv_size);
 
             std::string str((const char *)param.req, param.req_size);
             if (str == "exit") {
                 break;
             }
         } else {
-            xlog_err("unknown choice: {}\n", choice);
+            xlog_err("unknown choice: {}", choice);
         }
     }
 
@@ -89,10 +89,10 @@ void client(std::vector<std::string> urls)
 
 int main(int argc, char *argv[])
 {
-    xlog_dbg("in\n");
+    xlog_dbg("in");
 
     if (argc < 3) {
-        xlog_err("usage: {} [server|client] [url: ipc:///tmp/test]\n", argv[0]);
+        xlog_err("usage: {} [server|client] [url: ipc:///tmp/test]", argv[0]);
         return 1;
     }
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     } else if (strcmp(argv[1], "client") == 0) {
         client(urls);
     } else {
-        xlog_err("unknown role\n");
+        xlog_err("unknown role");
     }
 
     return 0;

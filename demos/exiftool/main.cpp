@@ -6,14 +6,14 @@ namespace {
 
 void printUsage(int argc, char *argv[])
 {
-    xlog_dbg("usage: {} [file1] [file2] ...\n", argv[0]);
+    xlog_dbg("usage: {} [file1] [file2] ...", argv[0]);
 }
 
 }
 
 int main(int argc, char *argv[])
 {
-    xlog_dbg("hello\n");
+    xlog_dbg("hello");
 
     if (argc < 2) {
         printUsage(argc, argv);

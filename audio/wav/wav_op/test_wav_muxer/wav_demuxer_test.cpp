@@ -29,7 +29,7 @@ static void testExtractRaw(const std::string& wavFile,
         fp = fopen(wavFile.c_str(), "r");
         EXPECT_NE(fp, nullptr);
         if (nullptr == fp) {
-            xlog_err("open file failed: {}\n", wavFile.c_str());
+            xlog_err("open file failed: {}", wavFile.c_str());
             break;
         }
         struct wav_demuxer_info demuxer_info = {};
@@ -37,7 +37,7 @@ static void testExtractRaw(const std::string& wavFile,
         demuxer = wav_demuxer_create(&demuxer_info);
         EXPECT_NE(demuxer, wav_demuxer_handle_invalid);
         if (demuxer == wav_demuxer_handle_invalid) {
-            xlog_err("demuxer create failed\n");
+            xlog_err("demuxer create failed");
             break;
         }
 
@@ -45,7 +45,7 @@ static void testExtractRaw(const std::string& wavFile,
         ret = wav_demuxer_get_info(demuxer, &wav_info);
         EXPECT_EQ(ret, 0);
         if (ret < 0) {
-            xlog_err("get wav info failed\n");
+            xlog_err("get wav info failed");
             break;
         }
 
@@ -58,7 +58,7 @@ static void testExtractRaw(const std::string& wavFile,
         ret = wav_demuxer_get_data_size(demuxer, &data_size);
         EXPECT_EQ(ret, 0);
         if (ret < 0) {
-            xlog_err("wav_demuxer_get_data_size failed\n");
+            xlog_err("wav_demuxer_get_data_size failed");
             break;
         }
 

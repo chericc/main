@@ -552,7 +552,7 @@ static void saveFrame(AVFrame* frame) {
                 break;
             }
             default: {
-                xlog_err("unknown pix_fmt={}\n", (int)format);
+                xlog_err("unknown pix_fmt={}", (int)format);
                 break;
             }
         }

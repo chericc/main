@@ -18,7 +18,7 @@ static void packet_cb(struct packet_stable_packet const *packet, void *user)
         auto dur = now - last_tp;
         last_tp = now;
 
-        xlog_dbg("dts: {}, duration: {:4d} ms\n", 
+        xlog_dbg("dts: {}, duration: {:4d} ms", 
             (packet_stable_timestamp_ms)packet->dts,
             (int)std::chrono::duration_cast<std::chrono::milliseconds>(dur).count());
     }
@@ -36,7 +36,7 @@ static void gen_cb(int ch, uint64_t time_ms, uint64_t packet_id, void *user)
         auto dur = now - last_tp;
         last_tp = now;
 
-        xlog_dbg("dts: {}, duration: {:4d} ms\n", 
+        xlog_dbg("dts: {}, duration: {:4d} ms", 
             (packet_stable_timestamp_ms)time_ms,
             (int)std::chrono::duration_cast<std::chrono::milliseconds>(dur).count());
     }

@@ -70,7 +70,7 @@ void on_packet_stable_data_cb(const void *data, size_t bytes, void *user_data)
     do {
         auto data_cb = demux_ctx->obj->param.data_cb;
         if (!data_cb) {
-            xlog_err("null data cb\n");
+            xlog_err("null data cb");
             break;
         }
         
@@ -85,14 +85,14 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
     rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(param);
 
     // if (demux_ctx->idx == 0) {
-    //     xlog_dbg("idx:{}, encoding: {}, ts: {}, bytes: {}, flags: {}\n", 
+    //     xlog_dbg("idx:{}, encoding: {}, ts: {}, bytes: {}, flags: {}", 
     //         demux_ctx->idx, demux_ctx->encoding, timestamp / 90, bytes, flags);
     // }
     do {
 
         int idx = demux_ctx->idx;
         if (idx < 0 || idx >= (int)ARRAY_SIZE(demux_ctx->obj->stable)) {
-            xlog_err("invalid idx({})\n", idx);
+            xlog_err("invalid idx({})", idx);
             break;
         }
 
@@ -112,7 +112,7 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
 
             if (buffer.size() < combined_size) {
                 buffer.resize(combined_size);
-                xlog_dbg("buffer size:{}\n", (int)combined_size);
+                xlog_dbg("buffer size:{}", (int)combined_size);
             }
 
             memcpy(buffer.data(), start_code, sizeof(start_code));
@@ -128,7 +128,7 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
 
 int rtp_receive_tcp_setup(rtsp_client_wrapper_obj_t *obj, uint8_t interleave1, uint8_t interleave2, int payload, const char* encoding)
 {
-    xlog_war("rtp payload: interleave1,interleave2,payload,encoding={},{},{},{}\n", 
+    xlog_war("rtp payload: interleave1,interleave2,payload,encoding={},{},{},{}", 
         interleave1, interleave2, payload, encoding);
 
     int error_flag = 0;
@@ -137,14 +137,14 @@ int rtp_receive_tcp_setup(rtsp_client_wrapper_obj_t *obj, uint8_t interleave1, u
         int demuxer_max_size = ARRAY_SIZE(obj->demuxer);
         int chn_idx = interleave1 / 2;
         if (chn_idx < 0 || chn_idx >= demuxer_max_size) {
-            xlog_war("chn idx not support({})\n", chn_idx);
+            xlog_war("chn idx not support({})", chn_idx);
             error_flag = 1;
             break;
         }
 
         rdp_demuxer_ctx_t *demux_ctx = &obj->demuxer[chn_idx];
         if (demux_ctx->valid) {
-            xlog_err("demux is used\n");
+            xlog_err("demux is used");
             error_flag = 1;
             break;
         }
@@ -158,7 +158,7 @@ int rtp_receive_tcp_setup(rtsp_client_wrapper_obj_t *obj, uint8_t interleave1, u
         const struct rtp_profile_t *profile = nullptr;
         profile = rtp_profile_find(payload);
 
-        xlog_war("demux create: idx={}\n", chn_idx);
+        xlog_war("demux create: idx={}", chn_idx);
 
         const int jitter_ms = 100;
         const int frequency_dft = 90000;
@@ -173,7 +173,7 @@ int rtp_receive_tcp_setup(rtsp_client_wrapper_obj_t *obj, uint8_t interleave1, u
 
 int rtp_receive_tcp_input(rtsp_client_wrapper_obj_t *obj, uint8_t channel, const void* data, uint16_t bytes)
 {
-    // xlog_war("rtp input: ch,bytes={},{}\n", channel, bytes);
+    // xlog_war("rtp input: ch,bytes={},{}", channel, bytes);
     
     int error_flag = 0;
 
@@ -181,21 +181,21 @@ int rtp_receive_tcp_input(rtsp_client_wrapper_obj_t *obj, uint8_t channel, const
         int chn_idx = channel / 2;
         int demuxer_max_size = ARRAY_SIZE(obj->demuxer);
         if (chn_idx < 0 || chn_idx >= demuxer_max_size) {
-            xlog_err("invalid channel: {}\n", channel);
+            xlog_err("invalid channel: {}", channel);
             error_flag = 1;
             break;
         }
 
         rdp_demuxer_ctx_t *demuxer_ctx = &obj->demuxer[chn_idx];
         if (!demuxer_ctx->valid) {
-            xlog_err("demuxer invalid(chn={})\n", chn_idx);
+            xlog_err("demuxer invalid(chn={})", chn_idx);
             error_flag = 1;
             break;
         }
 
         int ret_input = rtp_demuxer_input(demuxer_ctx->demuxer, data, bytes);
         if (ret_input < 0) {
-            xlog_err("input failed\n");
+            xlog_err("input failed");
             error_flag = 1;
             break;
         }
@@ -207,7 +207,7 @@ int rtp_receive_tcp_input(rtsp_client_wrapper_obj_t *obj, uint8_t channel, const
 int cb_send(void* param, const char* uri, const void* req, size_t bytes)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("send: {}\n", (char*)req);
+    xlog_war("send: {}", (char*)req);
     int ret = socket_send_all_by_time(obj->socket, req, bytes, 0, GENERAL_NET_TIMEOUT_MS);
     return ret;
 }
@@ -215,12 +215,12 @@ int cb_send(void* param, const char* uri, const void* req, size_t bytes)
 int cb_rtpport(void* param, int media, const char* source, unsigned short rtp[2], char* ip, int len)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("on rtp port\n");
+    xlog_war("on rtp port");
     do {
 
         int media_type = rtsp_client_get_media_type(obj->rtsp, media);
         if (media_type != SDP_M_MEDIA_AUDIO && media_type != SDP_M_MEDIA_VIDEO) {
-            xlog_err("not audio or video({})\n", media_type);
+            xlog_err("not audio or video({})", media_type);
             break;
         }
 
@@ -236,7 +236,7 @@ int cb_rtpport(void* param, int media, const char* source, unsigned short rtp[2]
 int cb_ondescribe(void* param, const char* sdp, int len)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("cb_ondescribe: {}\n", sdp);
+    xlog_war("cb_ondescribe: {}", sdp);
     int ret = rtsp_client_setup(obj->rtsp, sdp, len);
 
     return ret;
@@ -246,18 +246,18 @@ int cb_onsetup(void* param, int timeout, int64_t duration)
 {
     int error_flag = 0;
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("on setup\n");
+    xlog_war("on setup");
 
     do {
         uint64_t npt = 0;
         int ret = rtsp_client_play(obj->rtsp, &npt, nullptr);
         if (ret != 0) {
-            xlog_err("rtsp_client_play failed\n");
+            xlog_err("rtsp_client_play failed");
             break;
         }
 
         int media_count = rtsp_client_media_count(obj->rtsp);
-        xlog_war("client media count: {}\n", media_count);
+        xlog_war("client media count: {}", media_count);
         for (int i = 0; i < media_count; ++i) {
             const struct rtsp_header_transport_t *transport = nullptr;
             const char *encoding = nullptr;
@@ -267,10 +267,10 @@ int cb_onsetup(void* param, int timeout, int64_t duration)
             encoding = rtsp_client_get_media_encoding(obj->rtsp, i);
             payload = rtsp_client_get_media_payload(obj->rtsp, i);
 
-            xlog_war("transport[{}]={}(1 udp,2 tcp,3 raw)\n", i, transport->transport);
+            xlog_war("transport[{}]={}(1 udp,2 tcp,3 raw)", i, transport->transport);
 
             if (RTSP_TRANSPORT_RTP_UDP == transport->transport) {
-                xlog_err("udp not support now\n");
+                xlog_err("udp not support now");
             } else {
                 rtp_receive_tcp_setup(obj, transport->interleaved1, transport->interleaved2, 
                     payload, encoding);
@@ -284,28 +284,28 @@ int cb_onsetup(void* param, int timeout, int64_t duration)
 int cb_onteardown(void* param)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("cb_onteardown\n");
+    xlog_war("cb_onteardown");
     return 0;
 }
 
 int cb_onplay(void* param, int media, const uint64_t *nptbegin, const uint64_t *nptend, const double *scale, const struct rtsp_rtp_info_t* rtpinfo, int count)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("cb_onplay\n");
+    xlog_war("cb_onplay");
     return 0;
 }
 
 int cb_onpause(void* param)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    xlog_war("cb_onpause\n");
+    xlog_war("cb_onpause");
     return 0;
 }
 
 void cb_onrtp(void* param, uint8_t channel, const void* data, uint16_t bytes)
 {
     rtsp_client_wrapper_obj_t *obj = (rtsp_client_wrapper_obj_t *)param;
-    // xlog_war("on rtp: [ch,bytes]=[{},{}]\n", channel, bytes);
+    // xlog_war("on rtp: [ch,bytes]=[{},{}]", channel, bytes);
     rtp_receive_tcp_input(obj, channel, data, bytes);
     return ;
 }
@@ -326,20 +326,20 @@ void *trd_recv_rtsp(void *args)
         int ret_recv = socket_recv(obj->socket, buf, sizeof(buf), 0);
         int errno_cache = errno;
         if (ret_recv == 0) {
-            xlog_war("recv eof\n");
+            xlog_war("recv eof");
             break;
         } else if (ret_recv < 0) {
             if (errno_cache == EAGAIN || errno_cache == EWOULDBLOCK) {
-                xlog_war("recv timeout(error:{})\n", strerror(errno_cache));
+                xlog_war("recv timeout(error:{})", strerror(errno_cache));
                 continue;
             } else {
-                xlog_err("recv error(error:{})\n", strerror(errno_cache));
+                xlog_err("recv error(error:{})", strerror(errno_cache));
             break;
             }
         }
         int ret_input = rtsp_client_input(obj->rtsp, buf, ret_recv);
         if (ret_input != 0) {
-            xlog_err("input failed\n");
+            xlog_err("input failed");
         }
     }
 
@@ -350,12 +350,12 @@ int rtsp_client_deinit(rtsp_client_wrapper_obj_t *obj)
 {
     do {
         if (!obj) {
-            xlog_err("obj is null\n");
+            xlog_err("obj is null");
             break;
         }
 
         if (obj->trd_recv_flag) {
-            xlog_war("join thread\n");
+            xlog_war("join thread");
             obj->trd_recv_running_flag = 0;
             pthread_join(obj->tid_recv_trd, nullptr);
             obj->trd_recv_flag = 0;
@@ -365,25 +365,25 @@ int rtsp_client_deinit(rtsp_client_wrapper_obj_t *obj)
             rtsp_client_teardown(obj->rtsp);
             rtsp_client_destroy(obj->rtsp);
         } else {
-            xlog_err("rtsp is not initialized\n");
+            xlog_err("rtsp is not initialized");
         }
 
         if (obj->socket != socket_invalid) {
             socket_close(obj->socket);
         } else {
-            xlog_err("socket is not created\n");
+            xlog_err("socket is not created");
         }
         
         for (auto &ref : obj->demuxer) {
             if (ref.demuxer) {
-                xlog_dbg("destroy demuxer\n");
+                xlog_dbg("destroy demuxer");
                 rtp_demuxer_destroy(&ref.demuxer);
                 ref.demuxer = nullptr;
             }
         }
         for (auto &ref : obj->stable) {
             if (ref) {
-                xlog_dbg("destroy stable\n");
+                xlog_dbg("destroy stable");
                 delete ref;
                 ref = nullptr;
             }
@@ -403,7 +403,7 @@ int rtsp_client_init(rtsp_client_wrapper_obj_t *obj)
         // socket_init();
         obj->socket = socket_connect_host(obj->param.host, atoi(obj->param.port), GENERAL_NET_TIMEOUT_MS);
         if (obj->socket == socket_invalid) {
-            xlog_err("connect failed\n");
+            xlog_err("connect failed");
             error_flag = 1;
             break;
         }
@@ -411,7 +411,7 @@ int rtsp_client_init(rtsp_client_wrapper_obj_t *obj)
         char url[256] = {};
         snprintf(url, sizeof(url), "rtsp://%s/%s", obj->param.host, obj->param.file);
 
-        xlog_war("url: {}\n", url);
+        xlog_war("url: {}", url);
 
         struct rtsp_client_handler_t handler = {};
         handler.send = cb_send;
@@ -422,17 +422,17 @@ int rtsp_client_init(rtsp_client_wrapper_obj_t *obj)
         handler.onpause = cb_onpause;
         handler.onteardown = cb_onteardown;
         handler.onrtp = cb_onrtp;
-        xlog_war("url:{}, username:{}, password:{}\n", url, obj->param.username, obj->param.password);
+        xlog_war("url:{}, username:{}, password:{}", url, obj->param.username, obj->param.password);
         obj->rtsp = rtsp_client_create(url, obj->param.username, obj->param.password, &handler, obj);
         if (obj->rtsp == nullptr) {
-            xlog_err("rtsp create failed\n");
+            xlog_err("rtsp create failed");
             error_flag = 1;
             break;
         }
 
         ret = rtsp_client_describe(obj->rtsp);
         if (ret != 0) {
-            xlog_err("rtsp_client_describe failed\n");
+            xlog_err("rtsp_client_describe failed");
             error_flag = 1;
             break;
         }
@@ -440,7 +440,7 @@ int rtsp_client_init(rtsp_client_wrapper_obj_t *obj)
         obj->trd_recv_running_flag = 1;
         ret = pthread_create(&obj->tid_recv_trd, NULL, trd_recv_rtsp, obj);
         if (ret != 0) {
-            xlog_err("pthread_create failed\n");
+            xlog_err("pthread_create failed");
             error_flag = 1;
             break;
         }
@@ -464,7 +464,7 @@ rtsp_client_wrapper_handle_t rtsp_client_wrapper_start(const rtsp_client_wrapper
     do {
         client = (rtsp_client_wrapper_obj_t*)malloc(sizeof(rtsp_client_wrapper_obj_t));
         if (!client) {
-            xlog_err("malloc failed\n");
+            xlog_err("malloc failed");
             error_flag = 1;
             break;
         }
@@ -482,7 +482,7 @@ rtsp_client_wrapper_handle_t rtsp_client_wrapper_start(const rtsp_client_wrapper
         int ret = 0;
         ret = rtsp_client_init(client);
         if (ret < 0) {
-            xlog_err("init failed\n");
+            xlog_err("init failed");
             error_flag = 1;
             break;
         }
@@ -507,7 +507,7 @@ int rtsp_client_wrapper_destroy(rtsp_client_wrapper_handle_t handle)
     rtsp_client_wrapper_obj_t *client = reinterpret_cast<rtsp_client_wrapper_obj_t*>(handle);
     do {
         if (!client) {
-            xlog_err("client is null\n");
+            xlog_err("client is null");
             break;
         }
 

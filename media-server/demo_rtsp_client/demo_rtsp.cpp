@@ -45,7 +45,7 @@ static int rtpport(void* param, int media, const char* source, unsigned short rt
 {
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("rtp port: source: {}, ip: {}\n", source, ip);
+	xlog_dbg("rtp port: source: {}, ip: {}", source, ip);
 
 	int m = rtsp_client_get_media_type(ctx->rtsp, media);
 	if (SDP_M_MEDIA_AUDIO != m && SDP_M_MEDIA_VIDEO != m)
@@ -93,7 +93,7 @@ static void onrtp(void* param, uint8_t channel, const void* data, uint16_t bytes
 	static int keepalive = 0;
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("onrtp: {} bytes\n", bytes);
+	xlog_dbg("onrtp: {} bytes", bytes);
 
 	rtp_receiver_tcp_input(channel, data, bytes);
 	if (++keepalive % 1000 == 0)
@@ -106,14 +106,14 @@ static int ondescribe(void* param, const char* sdp, int len)
 {
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 
-	xlog_dbg("on describe: {}\n", sdp);
+	xlog_dbg("on describe: {}", sdp);
 
 	return rtsp_client_setup(ctx->rtsp, sdp, len);
 }
 
 static int onsetup(void* param, int timeout, int64_t duration)
 {
-	xlog_dbg("onsetup\n");
+	xlog_dbg("onsetup");
 
 	int i;
 	uint64_t npt = 0;
@@ -121,7 +121,7 @@ static int onsetup(void* param, int timeout, int64_t duration)
 	u_short rtspport;
 	struct rtsp_client_test_t *ctx = (struct rtsp_client_test_t *)param;
 	assert(0 == rtsp_client_play(ctx->rtsp, &npt, NULL));
-	xlog_dbg("client media count: {}\n", rtsp_client_media_count(ctx->rtsp));
+	xlog_dbg("client media count: {}", rtsp_client_media_count(ctx->rtsp));
 	for (i = 0; i < rtsp_client_media_count(ctx->rtsp); i++)
 	{
 		int payload, port[2];
@@ -131,7 +131,7 @@ static int onsetup(void* param, int timeout, int64_t duration)
 		encoding = rtsp_client_get_media_encoding(ctx->rtsp, i);
 		payload = rtsp_client_get_media_payload(ctx->rtsp, i);
 
-		xlog_dbg("transport[{}]={}(1 udp,2 tcp,3 raw)\n", i, transport->transport);
+		xlog_dbg("transport[{}]={}(1 udp,2 tcp,3 raw)", i, transport->transport);
 
 		if (RTSP_TRANSPORT_RTP_UDP == transport->transport)
 		{
@@ -169,19 +169,19 @@ static int onsetup(void* param, int timeout, int64_t duration)
 
 static int onteardown(void* param)
 {
-	xlog_dbg("onteardown\n");
+	xlog_dbg("onteardown");
 	return 0;
 }
 
 static int onplay(void* param, int media, const uint64_t *nptbegin, const uint64_t *nptend, const double *scale, const struct rtsp_rtp_info_t* rtpinfo, int count)
 {
-	xlog_dbg("onplay\n");
+	xlog_dbg("onplay");
 	return 0;
 }
 
 static int onpause(void* param)
 {
-	xlog_dbg("onpause\n");
+	xlog_dbg("onpause");
 	return 0;
 }
 
@@ -205,7 +205,7 @@ void rtsp_client_test(const char* host, const char* file)
 	ctx.transport = RTSP_TRANSPORT_RTP_TCP; // RTSP_TRANSPORT_RTP_UDP
 	snprintf(packet, sizeof(packet), "rtsp://%s/%s", host, file); // url
 
-	xlog_dbg("host:{}, packet:{}\n", host, packet);
+	xlog_dbg("host:{}, packet:{}", host, packet);
 
 	socket_init();
 	ctx.socket = socket_connect_host(host, 554, 2000);
@@ -223,7 +223,7 @@ void rtsp_client_test(const char* host, const char* file)
 		r = socket_recv(ctx.socket, packet, sizeof(packet), 0);
 	}
 
-	xlog_dbg("socket closed\n");
+	xlog_dbg("socket closed");
 
 	assert(0 == rtsp_client_teardown(ctx.rtsp));
 	rtsp_client_destroy(ctx.rtsp);

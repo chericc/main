@@ -94,7 +94,7 @@ int parse_file(const char *filename)
 
 		size_t ret_read = fread(buffer, 1, len, fp);
 		if ((int)ret_read != len) {
-			xlog_err("read failed\n");
+			xlog_err("read failed");
 			break;
 		}
 
@@ -137,7 +137,7 @@ int parse_file(const char *filename)
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
-		xlog_err("Usage: {} <h264_file>\n", argv[0]);
+		xlog_err("Usage: {} <h264_file>", argv[0]);
 	} else {
 		parse_file(argv[1]);
 	}
