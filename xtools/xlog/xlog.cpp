@@ -1,7 +1,8 @@
 #include "xlog.h"
 
+#include "spdlog/sinks/stdout_color_sinks.h"
+
 namespace {
-int unused;
 }
 
 #if false
@@ -140,3 +141,19 @@ void xlog(XLOG_LEVEL level, const char* file, int line, const char* func,
 
 
 #endif 
+
+
+spdlog::logger *xlog_default_logger_raw()
+{
+    static std::shared_ptr<spdlog::logger> logger;
+    static std::once_flag once;
+    std::call_once(once, [](){
+        auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        consoleSink->set_level(spdlog::level::debug);
+        consoleSink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] %n %^%l%$ [%s:%#:%!] %v");
+        consoleSink->set_level(spdlog::level::debug);
+        logger = std::make_shared<spdlog::logger>("main", consoleSink);
+        logger->set_level(spdlog::level::debug);
+    });
+    return logger.get();
+}

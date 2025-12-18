@@ -2,6 +2,8 @@
 
 ## syntax
 
+ref: https://fmt.dev/12.0/syntax/
+
 ```bash
 replacement_field ::= "{" [arg_id] [":" (format_spec | chrono_format_spec)] "}"
 arg_id            ::= integer | identifier

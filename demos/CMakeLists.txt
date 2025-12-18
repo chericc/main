@@ -16,6 +16,7 @@ add_subdirectory(exiftool)
 endif()
 
 add_subdirectory(ffmpeg)
+add_subdirectory(fmtlib)
 if(${gnu})
 add_subdirectory(h264_sei)
 endif()

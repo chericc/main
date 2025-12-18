@@ -7,12 +7,12 @@
 #pragma once
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
-
 #include "spdlog/spdlog.h"
 
-#define xlog_trc(...) SPDLOG_TRACE(__VA_ARGS__)
-#define xlog_dbg(...) SPDLOG_DEBUG(__VA_ARGS__)
-#define xlog_inf(...) SPDLOG_INFO(__VA_ARGS__)
-#define xlog_war(...) SPDLOG_WARN(__VA_ARGS__)
-#define xlog_err(...) SPDLOG_ERROR(__VA_ARGS__)
-#define xlog_cri(...) SPDLOG_CRITICAL(__VA_ARGS__)
+spdlog::logger *xlog_default_logger_raw();
+#define xlog_trc(...) SPDLOG_LOGGER_TRACE(xlog_default_logger_raw(), __VA_ARGS__)
+#define xlog_dbg(...) SPDLOG_LOGGER_DEBUG(xlog_default_logger_raw(), __VA_ARGS__)
+#define xlog_inf(...) SPDLOG_LOGGER_INFO(xlog_default_logger_raw(), __VA_ARGS__)
+#define xlog_war(...) SPDLOG_LOGGER_WARN(xlog_default_logger_raw(), __VA_ARGS__)
+#define xlog_err(...) SPDLOG_LOGGER_ERROR(xlog_default_logger_raw(), __VA_ARGS__)
+#define xlog_cri(...) SPDLOG_LOGGER_CRITICAL(xlog_default_logger_raw(), __VA_ARGS__)
