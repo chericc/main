@@ -2,6 +2,11 @@
 
 #include <cstring>
 
+
+#if defined(X_PLATFORM_GNU)
+#include <pthread.h>
+#endif 
+
 int x_fseek64(FILE* stream, int64_t offset, int whence) {
     int ret = 0;
 
@@ -56,11 +61,11 @@ int x_strerror(int errnum, char* buf, size_t buflen) {
 
 int x_setthreadname(const char *name)
 {
-#if defined(G_PLATFORM_GNU)
+#if defined(X_PLATFORM_GNU)
     return pthread_setname_np(pthread_self(), name);
-#elif defined(G_PLATFORM_CLANG)
+#elif defined(X_PLATFORM_CLANG)
     return pthread_setname_np(name);
 #else 
-    #pragma error("not support")
+    #error "not support"
 #endif 
 }
