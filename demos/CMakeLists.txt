@@ -63,7 +63,6 @@ endif()
 
 if(${gnu} AND HEADER_TINYFRAME)
 add_subdirectory(tinyframe)
-add_subdirectory(uart)
 endif()
 
 if(LIB_WEBSOCKETS)

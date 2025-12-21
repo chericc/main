@@ -10,7 +10,7 @@ include_directories(
 )
 
 add_library(
-    ${G_PCAP2TS} SHARED ${src_pcap2ts}
+    ${G_PCAP2TS} STATIC ${src_pcap2ts}
 )
 
 target_link_libraries(
