@@ -3,7 +3,7 @@
 #include <cstring>
 
 
-#if defined(X_PLATFORM_GNU)
+#if defined(X_PLATFORM_GNU) or defined (X_PLATFORM_CLANG)
 #include <pthread.h>
 #endif 
 
