@@ -61,6 +61,8 @@ int main(int argc, char *argv[])
         using SysClock = std::chrono::system_clock;
         auto now = SysClock::now();
         xlog_dbg("{:%F %T}", now);
+        auto nowSec = std::chrono::time_point_cast<std::chrono::seconds>(now);
+        xlog_dbg("{:%FT%TZ}", nowSec);
     }
 
     return 0;
