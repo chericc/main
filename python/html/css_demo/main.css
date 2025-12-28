@@ -1,0 +1,22 @@
+
+* {
+    padding: 0px;
+    margin: 0px;
+}
+
+div {
+    border: 1px solid Black;
+}
+
+h1 {
+    text-align: center;
+    color: darkolivegreen;
+    background-color: lightgray;
+}
+
+/* 影响所有p元素（段落） */
+p {
+text-align: center;
+color:black;
+background-color: lightgray;
+}
