@@ -7,6 +7,10 @@ app = Flask(__name__,static_folder='static')
 def index():
     return app.send_static_file('index.html')
 
+@app.route('/demo')
+def route():
+    return app.send_static_file('demo.html')
+
 @app.route('/submit', methods=['POST'])
 def submit():
     # 从请求中获取 JSON 数据
