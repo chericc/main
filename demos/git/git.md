@@ -114,6 +114,9 @@ git diff ver1 ver2
 # apply patch
 git apply <patch-file>
 
+# apply with-reject
+git apply --reject <patch-file>
+
 # adjust apply path 
 
 ## remove <n> leading components seperated by slashes('/')
