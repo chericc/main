@@ -84,7 +84,8 @@ Enjoy it.
     "git.repositoryScanIgnoredFolders": [
         "node_modules",
         "linux*,u-boot*"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "standard"
 }
 ```
 
