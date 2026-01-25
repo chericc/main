@@ -385,6 +385,16 @@ Host github.com
 
 ```
 
+## sshfs
+
+```bash
+# /etc/fuse.conf
+user_allow_other
+
+sshfs -o allow_other work:///home/test/ ./mnt
+
+```
+
 ## netplan
 
 ```bash
