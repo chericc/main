@@ -642,3 +642,8 @@ sudo apt purge cloud-init
 # /etc/apache2/ports.conf
 Listen 10086
 ```
+
+## oom
+
+### early-oom
+
