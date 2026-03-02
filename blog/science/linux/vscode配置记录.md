@@ -108,6 +108,7 @@ Diagnostics:
         bugprone-easily-swappable-parameters,
         modernize-use-using,
         performance-enum-size,
+        readability-identifier-length
       ]
     CheckOptions:
       WarnOnFloatingPointNarrowingConversion: false
