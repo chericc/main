@@ -668,3 +668,16 @@ d: .*nginx\\html.*
 add_compile_options(--param=ggc-min-expand=10)
 add_compile_options(--param=ggc-min-heapsize=8192)
 ```
+
+## ccache
+
+```bash
+mkdir -p ~/.ccache/
+touch ~/.ccache/ccache.conf
+
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
+endif()
+```
