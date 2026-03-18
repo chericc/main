@@ -369,6 +369,10 @@ find . -path *svn* -prune -o -type d
 
 ```bash
 find ./ -type f -printf '%s %p\n' | sort -rn
+
+or 
+
+ncdu
 ```
 
 ## 找出一个目录下的全部文件个数
