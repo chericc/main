@@ -32,7 +32,7 @@ struct rtsp_client_wrapper_param_inner_t {
     char file[64];
     char username[64];
     char password[64];
-    char port[64];
+    int port;
 
     rtsp_client_wrapper_data_cb data_cb;
 };
@@ -74,7 +74,7 @@ void on_packet_stable_data_cb(const void *data, size_t bytes, void *user_data)
             break;
         }
         
-        data_cb(demux_ctx->idx, demux_ctx->payload, data, bytes);
+        data_cb(demux_ctx->idx, demux_ctx->encoding, data, bytes);
     } while (false);
 
     return ;
@@ -84,10 +84,11 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
 {
     rdp_demuxer_ctx_t *demux_ctx = reinterpret_cast<rdp_demuxer_ctx_t*>(param);
 
-    // if (demux_ctx->idx == 0) {
-    //     xlog_dbg("idx:{}, encoding: {}, ts: {}, bytes: {}, flags: {}", 
-    //         demux_ctx->idx, demux_ctx->encoding, timestamp / 90, bytes, flags);
-    // }
+    if (demux_ctx->idx == 0) {
+        // xlog_dbg("idx:{}, encoding: {}, payload: {}, ts: {}, bytes: {}, flags: {}", 
+        //     demux_ctx->idx, demux_ctx->encoding, demux_ctx->payload, timestamp / 90, bytes, flags);
+    }
+    
     do {
 
         int idx = demux_ctx->idx;
@@ -100,8 +101,8 @@ int rtp_onpacket(void* param, const void *packet, int bytes, uint32_t timestamp,
             demux_ctx->obj->stable[idx] = new PacketStable(on_packet_stable_data_cb, demux_ctx);
         }
 
-        if (demux_ctx->payload == RTP_PAYLOAD_H265
-            || demux_ctx->payload == RTP_PAYLOAD_H264) {
+        if (strcmp(demux_ctx->encoding, "H265") == 0
+            || strcmp(demux_ctx->encoding, "H264") == 0) {
             
             static std::mutex mutex;
             static std::vector<uint8_t> buffer;
@@ -401,15 +402,17 @@ int rtsp_client_init(rtsp_client_wrapper_obj_t *obj)
         int ret = 0;
 
         // socket_init();
-        obj->socket = socket_connect_host(obj->param.host, atoi(obj->param.port), GENERAL_NET_TIMEOUT_MS);
+        obj->socket = socket_connect_host(obj->param.host, obj->param.port, GENERAL_NET_TIMEOUT_MS);
         if (obj->socket == socket_invalid) {
             xlog_err("connect failed");
             error_flag = 1;
             break;
         }
 
+        xlog_dbg("connect done");
+
         char url[256] = {};
-        snprintf(url, sizeof(url), "rtsp://%s/%s", obj->param.host, obj->param.file);
+        snprintf(url, sizeof(url), "rtsp://%s%s", obj->param.host, obj->param.file);
 
         xlog_war("url: {}", url);
 
@@ -476,7 +479,7 @@ rtsp_client_wrapper_handle_t rtsp_client_wrapper_start(const rtsp_client_wrapper
         snprintf(client->param.file, sizeof(client->param.file), "%s", param->file);
         snprintf(client->param.username, sizeof(client->param.username), "%s", param->username);
         snprintf(client->param.password, sizeof(client->param.password), "%s", param->password);
-        snprintf(client->param.port, sizeof(client->param.port), "%s", param->port);
+        client->param.port = param->port;
         client->param.data_cb = param->data_cb;
 
         int ret = 0;
