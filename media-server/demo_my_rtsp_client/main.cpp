@@ -83,7 +83,7 @@ void data_cb(int ch, const char *encoding, const void *data, size_t bytes)
 void printUsage(int argc, char *argv[])
 {
     xlog_dbg("usage: {} [url]\n"
-        "url: rtsp://[username:password@]host[:port]/path");
+        "url: rtsp://[username:password@]host[:port]/path", argv[0]);
 }
 
 }
