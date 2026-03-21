@@ -1,8 +1,10 @@
 
 aux_source_directory(. src)
-set(BIN demo_rtsp_client_inner)
-add_executable(${BIN}
-    ${src})
+set(BIN demo_my_rtsp_server)
+add_executable(
+    ${BIN}
+    ${src}
+)
 target_link_libraries(
     ${BIN}
     ${LIB_MEDIA_SERVER}

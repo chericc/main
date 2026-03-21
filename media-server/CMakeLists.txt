@@ -1,6 +1,4 @@
 set(LIB_MEDIA_SERVER media_server)
-set(DEMO_RTSP_CLIENT_INNER demo_rtsp_client_inner)
-set(DEMO_RTSP_CLIENT demo_rtsp_client)
 
 add_definitions(-DOS_LINUX)
 
@@ -51,8 +49,9 @@ set(src_aio ${src_aio_root})
 aux_source_directory(librtsp/source/ src_rtsp_root)
 aux_source_directory(librtsp/source/client src_rtsp_client)
 aux_source_directory(librtsp/source/sdp src_rtsp_rdp)
-aux_source_directory(librtsp/source/server src_rtsp_utils)
-set(src_rtsp ${src_rtsp_root} ${src_rtsp_client} ${src_rtsp_rdp} ${src_rtsp_utils})
+aux_source_directory(librtsp/source/server src_rtsp_server)
+aux_source_directory(librtsp/source/server/aio src_rtsp_server)
+set(src_rtsp ${src_rtsp_root} ${src_rtsp_client} ${src_rtsp_rdp} ${src_rtsp_server})
 
 # librtp
 aux_source_directory(librtp/source/ src_rtp_source)
@@ -76,3 +75,4 @@ include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
 
 add_subdirectory(demo_rtsp_client)
 add_subdirectory(demo_my_rtsp_client)
+add_subdirectory(demo_my_rtsp_server)
