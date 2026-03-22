@@ -1,16 +1,79 @@
-#include <thread>
-
 #include "rtsp-server.h"
 #include "aio-worker.h"
 #include "rtsp-server-aio.h"
+#include "uri-parse.h"
+#include "urlcodec.h"
+
+#include "ffmpeg-file-source.hpp"
 
 #include "xlog.h"
 
 #define N_AIO_THREAD 4
 
 
+static int rtsp_uri_parse(const char* uri, std::string& path)
+{
+	char path1[256];
+	struct uri_t* r = uri_parse(uri, strlen(uri));
+	if(!r)
+		return -1;
+
+	url_decode(r->path, strlen(r->path), path1, sizeof(path1));
+	path = path1;
+	uri_free(r);
+	return 0;
+}
+
 static int rtsp_ondescribe(void* /*ptr*/, rtsp_server_t* rtsp, const char* uri)
 {
+	do {
+		static const char* pattern_vod =
+			"v=0\n"
+			"o=- %llu %llu IN IP4 %s\n"
+			"s=%s\n"
+			"c=IN IP4 0.0.0.0\n"
+			"t=0 0\n"
+			"a=range:npt=0-%.1f\n"
+			"a=recvonly\n"
+			"a=control:*\n"; // aggregate control
+
+		static const char* pattern_live =
+			"v=0\n"
+			"o=- %llu %llu IN IP4 %s\n"
+			"s=%s\n"
+			"c=IN IP4 0.0.0.0\n"
+			"t=0 0\n"
+			"a=range:npt=now-\n" // live
+			"a=recvonly\n"
+			"a=control:*\n"; // aggregate control
+
+		std::string filename;
+		rtsp_uri_parse(uri, filename);
+
+		xlog_dbg("filename: {}", filename);
+
+		constexpr std::string_view livePath = "/live/";
+		constexpr std::string_view  vodPath = "/vod";
+
+		bool liveFlag = false;
+		if (strcmp(filename.c_str(), livePath.data()) == 0) {
+			liveFlag = true;
+		} else if (strcmp(filename.c_str(), vodPath.data()) == 0) {
+			filename = filename.substr(vodPath.size());
+		} else {
+			xlog_err("path not support");
+			break;
+		}
+
+		std::string sdp;
+		
+		int64_t duration = 0;
+
+		auto source = std::shared_ptr<IMediaSource>(new FFFileSource(filename.c_str()));
+		source->GetDuration(duration);
+		
+	} while (false);
+
     #if 0
 	static const char* pattern_vod =
 		"v=0\n"

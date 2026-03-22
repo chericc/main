@@ -75,4 +75,6 @@ include_directories(${G_XTOOLS_XLOG_HEADER_PATH})
 
 add_subdirectory(demo_rtsp_client)
 add_subdirectory(demo_my_rtsp_client)
+
+set(LIBRTSP_TEST_MEDIA_PATH ${CMAKE_CURRENT_SOURCE_DIR}/librtsp/test/media)
 add_subdirectory(demo_my_rtsp_server)

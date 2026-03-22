@@ -5,6 +5,10 @@ add_executable(
     ${BIN}
     ${src}
 )
+target_compile_definitions(
+    ${BIN}
+    PRIVATE
+)
 target_link_libraries(
     ${BIN}
     ${LIB_MEDIA_SERVER}
@@ -16,3 +20,4 @@ install(
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
 )
+
