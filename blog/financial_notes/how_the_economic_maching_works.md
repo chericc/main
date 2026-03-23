@@ -24,7 +24,7 @@ Credit:
 
 Credit is the most important part of the economy, and probably the least understood. It is the most important part because it is the biggest and most volatile part.
 
-Just like buyers and sellers go to the market to make transactions, so do lenders and borrowers. Leders usually want to make their money into more money, and borrowers usually want to buy something they can't afford, like a house or a car, or they want to invest in something like starting a business. Credit can help both lenders and borrowers get what they want. 
+Just like buyers and sellers go to the market to make transactions, so do lenders and borrowers. Lenders usually want to make their money into more money, and borrowers usually want to buy something they can't afford, like a house or a car, or they want to invest in something like starting a business. Credit can help both lenders and borrowers get what they want. 
 
 Borrowers promise to repay the amount they borrow, called the principal, plus an additional amount, called interest. When interest rates are high, there is less borrowing because it's expensive. When interest rates are low, borrowing increases because it's cheaper. When borrowers promise to repay, and lenders believe them, credit is created. 
 
