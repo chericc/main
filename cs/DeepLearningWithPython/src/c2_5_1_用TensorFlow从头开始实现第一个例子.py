@@ -70,14 +70,14 @@ class BatchGenerator:
 # 更新权重的目的，就是将权重沿着减小批量损失值的方向移动一小步。
 # 移动幅度由学习率决定，它通常是一个很小的数
 # 要实现update_weights函数，最简单的办法就是从每个权重中减去gradient * learning_rate
-def update_weights(gradients, weights):
-    learning_rate = 1e-3
-    for g,w in zip(gradients, weights):
-        w.assign_sub(g * learning_rate) # 相当于TwnsorFlow的 -=
-
-# optimizer = tf.keras.optimizers.SGD(learning_rate=1e-3)
 # def update_weights(gradients, weights):
-#     optimizer.apply_gradients(zip(gradients, weights))
+#     learning_rate = 1e-3
+#     for g,w in zip(gradients, weights):
+#         w.assign_sub(g * learning_rate) # 相当于TwnsorFlow的 -=
+
+optimizer = tf.keras.optimizers.SGD(learning_rate=1e-3)
+def update_weights(gradients, weights):
+    optimizer.apply_gradients(zip(gradients, weights))
 
 # 最难的一步就是训练步骤，即在一批数据上运行模型后更新模型权重。需要做到以下几点：
 # （1）计算模型对图像的预测值
