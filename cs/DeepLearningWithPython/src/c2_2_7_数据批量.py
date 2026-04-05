@@ -6,4 +6,4 @@ batch = train_images[:128]
 batch = train_images[128:256]
 
 n = 3
-batch  = train_images[128 * n, 128 * (n + 1)]
+batch  = train_images[128 * n:128 * (n + 1)]

@@ -1,4 +1,4 @@
-# Python Learning with Python. Second Edition
+###### Python Learning with Python. Second Edition
 
 [toc]
 
@@ -938,4 +938,92 @@ Keras和TensorFlow多年来一直保持共生关系。到2017年底，大多数T
 
 #### 3.5.1 常数张量和变量
 
-要使用
+要使用TensorFlow，我们需要用到一些张量。创建张量需要给定初始值。例如，可以创建全1张量或全0张量，也可以从随机分布中取值来创建张量。
+
+```python
+x = tf.ones(shape=(2,3))
+print(x)
+# tf.Tensor(
+# [[1. 1. 1.]
+#  [1. 1. 1.]], shape=(2, 3), dtype=float32)
+
+x = tf.zeros(shape=(2,3))
+# print(x)
+# [[0. 0. 0.]
+#  [0. 0. 0.]], shape=(2, 3), dtype=float32)
+
+# 从均值为0、标准差为1的正态分布中抽取的随机张量
+x = tf.random.normal(shape=(2,3),mean=0,stddev=1.)
+print(x)
+# tf.Tensor(
+# [[ 0.80221695  1.5176442   0.4680181 ]
+#  [-1.2655354   0.23147008  1.5174577 ]], shape=(2, 3), dtype=float32)
+
+x = tf.random.uniform(shape=(2,3),minval=0,maxval=1)
+print(x)
+# tf.Tensor(
+# [[0.7594527  0.9105085  0.28936458]
+#  [0.46199334 0.9873706  0.29011333]], shape=(2, 3), dtype=float32)
+
+```
+
+NumPy数组和TensorFlow张量之间的一个重要区别是，TensorFlow张量是不可赋值的，它是常量。
+
+模型状态是一组张量，如何更新其状态呢？这时就需要用到变量。`tf.Variable`是一个类，其作用是管理TensorFlow中的可变状态。
+
+
+
+#### 3.5.2 张量运算：用TensorFlow进行数学运算
+
+就像NumPy一样，TensorFlow提供了很多张量运算来表达数学公式。举例：
+
+```python
+
+a = tf.constant(
+    [[1,2,3],
+     [0,1,2],
+     [0,0,1]], dtype=tf.float32)
+print(a)
+
+b = tf.square(a)
+print(b)
+#tf.Tensor(
+#[[1. 4. 9.]
+# [0. 1. 4.]
+# [0. 0. 1.]], shape=(3, 3), dtype=float32)
+
+c = tf.sqrt(a)
+print(c)
+#tf.Tensor(
+#[[1.        1.4142135 1.7320508]
+# [0.        1.        1.4142135]
+# [0.        0.        1.       ]], shape=(3, 3), dtype=float32)
+
+d = a+a
+print(d)
+#[[2. 4. 6.]
+# [0. 2. 4.]
+# [0. 0. 2.]], shape=(3, 3), dtype=float32)
+
+# 两个张量逐元素相乘
+e = a * a
+print("e: ", e)
+#e:  tf.Tensor(
+#[[1. 4. 9.]
+# [0. 1. 4.]
+# [0. 0. 1.]], shape=(3, 3), dtype=float32)
+
+# 两个张量的积
+f = tf.matmul(a, a)
+print("f: ", f)
+#f:  tf.Tensor(
+#[[ 1.  4. 10.]
+# [ 0.  1.  4.]
+# [ 0.  0.  1.]], shape=(3, 3), dtype=float32)
+
+```
+
+#### 3.5.3 重温GradientTape API
+
+NumPy无法做到的是，检查任意可微表达式相对于其输入的梯度。只需要创建一个GradientTape作用域，对一个或多个输入张量做一些计算，然后就可以检索计算结果相对于输入的梯度。
+
