@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
 num_samples_per_class = 1000
 
@@ -31,3 +32,38 @@ targets = np.vstack((np.zeros((num_samples_per_class, 1), dtype='float32'),
 # 绘制两个类别
 plt.scatter(inputs[:, 0], inputs[:, 1], c=targets[:, 0])
 plt.show()
+
+# 创建变量W和b，分别用随机值和零进行初始化
+input_dim = 2 # 二维
+output_dim = 1 # 输出预测是一个分数值
+W = tf.Variable(initial_value=tf.random.uniform(shape=(input_dim, output_dim)))
+b = tf.Variable(initial_value=tf.zeros(shape=output_dim))
+
+# 前向传播函数
+def model(inputs):
+    return tf.matmul(inputs, W) + b
+
+# 均方误差损失函数
+def square_loss(targets, predictions):
+    per_sample_losses = tf.square(targets - predictions)
+    return tf.reduce_mean(per_sample_losses)
+
+learning_rate = 0.1
+def training_step(inputs, targets):
+    with tf.GradientTape() as tape:
+        predictions = model(inputs)
+        loss = square_loss(targets=targets, predictions=predictions)
+        grad_loss_wrt_W, grad_loss_wrt_b = tape.gradient(loss, [W, b])
+        W.assign_sub(grad_loss_wrt_W * learning_rate)
+        b.assign_sub(grad_loss_wrt_b * learning_rate)
+        return loss
+    
+# 为简单起见，我们将进行批量训练，而不是小批量训练，即在所有数据上进行训练，而不是小批量地进行迭代。
+for step in range(40):
+    loss = training_step(inputs, targets)
+    print(f"loss at step {step}: {loss: .4f}")
+
+predictions = model(inputs)
+plt.scatter(inputs[:, 0], inputs[:, 1], c=predictions[:, 0] > 0.5)
+plt.show()
+
