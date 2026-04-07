@@ -485,6 +485,13 @@ sudo apt-get install p7zip-full
 
 7z a -t7z -m0=lzma -mx=1 -mfb=32 -md=256k -ms=on -mmt archive.7z dir1
 
+7z a -mx=5 -v512m
+# 默认使用lzma2算法
+# 启用512M分卷
+# -mx: 压缩等级
+# -ms: 固实压缩
+# -md: 字典大小
+
 ```
 
 ## tmux
