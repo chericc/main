@@ -5,6 +5,9 @@
 # rm -rf ~/diff_workspace/; repo forall -c bash ~/git_gen_diff_dir_workspace.sh
 # cp changed_files in ~/diff_worksapce/ into this project to log diff
 
+# todo
+# support binary changes backupo
+
 targetfolder=~/diff_workspace
 
 gitdirpath=`git rev-parse --show-toplevel`
