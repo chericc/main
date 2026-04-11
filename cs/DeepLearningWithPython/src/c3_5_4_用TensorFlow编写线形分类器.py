@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
 
-num_samples_per_class = 1000
+num_samples_per_class:int = 1000
 
 # 生成第一个类别的点：1000个二维随机点。协方差矩阵为[[1,0.5],[0.5,1]]
 # 对应于一个从左下方到右上方的椭圆形点云
@@ -48,6 +48,7 @@ def square_loss(targets, predictions):
     per_sample_losses = tf.square(targets - predictions)
     return tf.reduce_mean(per_sample_losses)
 
+# 接收训练数据并更新权重W和b，以使损失值最小化
 learning_rate = 0.1
 def training_step(inputs, targets):
     with tf.GradientTape() as tape:
@@ -67,3 +68,11 @@ predictions = model(inputs)
 plt.scatter(inputs[:, 0], inputs[:, 1], c=predictions[:, 0] > 0.5)
 plt.show()
 
+# 
+x = np.linspace(-1, 4, 10)
+y = - W[0] / W[1] * x + (0.5 - b) / W[1]
+plt.plot(x, y, "-r")
+plt.scatter(inputs[:, 0], inputs[:, 1], c=predictions[:, 0] > 0.5)
+plt.show()
+
+# 
