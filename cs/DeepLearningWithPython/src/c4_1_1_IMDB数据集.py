@@ -39,3 +39,12 @@ y_test = np.asarray(test_labels).astype("float32")
 
 print(f"x_train:{x_train}")
 
+from tensorflow import keras
+from tensorflow.keras import layers
+
+model = keras.Sequential([
+    layers.Dense(16, activation="relu"),
+    layers.Dense(16, activation="relu"),
+    layers.Dense(1, activation="sigmoid")
+])
+
