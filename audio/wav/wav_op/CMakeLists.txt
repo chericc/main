@@ -27,11 +27,9 @@ target_link_libraries(
 # tests
 if(LIB_GTEST)
 
-if(${gnu})
+if(os_linux)
 set(COMMON_LIB ${LIB_GTEST} ${G_TEST_COMM} ${LIB_NAME} ${G_XTOOLS} pthread)
-elseif(${msvc})
-set(COMMON_LIB ${LIB_GTEST} ${G_TEST_COMM} ${LIB_NAME} ${G_XTOOLS})
-elseif(${clang})
+else()
 set(COMMON_LIB ${LIB_GTEST} ${G_TEST_COMM} ${LIB_NAME} ${G_XTOOLS})
 endif()
 

@@ -9,13 +9,20 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMAKE_BUILD_TYPE not set, default to Release" FORCE)
 endif()
 
-# platform
-string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" msvc)
-string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" gnu)
-string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "AppleClang" clang)
-set(G_PLATFORM_MSVC "X_PLATFORM_MSVC")
-set(G_PLATFORM_GNU "X_PLATFORM_GNU")
-set(G_PLATFORM_CLANG "X_PLATFORM_CLANG")
+# OS detection
+if(WIN32)
+  set(os_win TRUE)
+elseif(APPLE)
+  set(os_mac TRUE)
+elseif(UNIX AND NOT APPLE)
+  set(os_linux TRUE)
+endif()
+
+# compiler detection
+string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "MSVC" cc_msvc)
+string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "GNU" cc_gnu)
+string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "Clang" cc_clang)
+string(COMPARE EQUAL ${CMAKE_CXX_COMPILER_ID} "AppleClang" cc_appleclang)
 
 # dirs
 # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -27,11 +34,11 @@ set(CMAKE_CXX_STANDARD 17) # gtest needs c++ version 14+
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 # warning
-if(${msvc})
+if(${cc_msvc})
 #add_compile_options(/W4)
-elseif(${gnu})
+elseif(${cc_gnu})
 add_compile_options(-Wall -Wextra -Wpedantic -Wno-unused-parameter)
-elseif(${clang})
+elseif(${cc_clang} OR ${cc_appleclang})
 add_compile_options(-Wall -Wno-unused-parameter)
 else()
 add_compile_options(-Wall -Wextra)
@@ -159,7 +166,7 @@ set(G_NET net)
 set(G_PCAP2TS pcap2ts)
 set(G_PCAP2TS_HEADER_PATH ${CMAKE_SOURCE_DIR}/xmedia/pcap2ts)
 
-if(${gnu})
+if(${os_linux})
 link_libraries(pthread)
 endif()
 
@@ -186,16 +193,21 @@ if(USE_BIG_ENDIAN)
 add_definitions(-DX_BIGENDIAN)
 endif()
 
-# platform
-set(G_PLATFORM_MSVC "X_PLATFORM_MSVC")
-set(G_PLATFORM_GNU "X_PLATFORM_GNU")
-set(G_PLATFORM_CLANG "X_PLATFORM_CLANG")
-if(${msvc})
-add_definitions(-D${G_PLATFORM_MSVC})
-elseif(${gnu})
-add_definitions(-D${G_PLATFORM_GNU})
-elseif(${clang})
-add_definitions(-D${G_PLATFORM_CLANG})
+# platform defines (OS + compiler)
+if(${os_win})
+add_definitions(-DX_OS_WIN32)
+elseif(${os_mac})
+add_definitions(-DX_OS_DARWIN)
+elseif(${os_linux})
+add_definitions(-DX_OS_LINUX)
+endif()
+
+if(${cc_msvc})
+add_definitions(-DX_CC_MSVC)
+elseif(${cc_gnu})
+add_definitions(-DX_CC_GNU)
+elseif(${cc_clang} OR ${cc_appleclang})
+add_definitions(-DX_CC_CLANG)
 endif()
 
 # targets
@@ -207,7 +219,7 @@ add_subdirectory(cs/Algorithm)
 
 add_subdirectory(demos)
 
-if(${gnu})
+if(${os_linux})
 add_subdirectory(md5dir)
 add_subdirectory(media-server)
 endif()

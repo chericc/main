@@ -3,16 +3,16 @@
 #include <cstring>
 
 
-#if defined(X_PLATFORM_GNU) or defined (X_PLATFORM_CLANG)
+#if defined(X_OS_LINUX) || defined(X_OS_DARWIN)
 #include <pthread.h>
-#endif 
+#endif
 
 int x_fseek64(FILE* stream, int64_t offset, int whence) {
     int ret = 0;
 
-#if defined(X_PLATFORM_MSVC)
+#if defined(X_OS_WIN32)
     ret = _fseeki64(stream, offset, whence);
-#elif defined(X_PLATFORM_CLANG)
+#elif defined(X_OS_DARWIN)
     static_assert(sizeof(off_t) == sizeof(int64_t), "");
     ret = fseeko(stream, offset, whence);
 #else
@@ -25,9 +25,9 @@ int x_fseek64(FILE* stream, int64_t offset, int whence) {
 int64_t x_ftell64(FILE* stream) {
     int64_t ret = 0;
 
-#if defined(X_PLATFORM_MSVC)
+#if defined(X_OS_WIN32)
     ret = _ftelli64(stream);
-#elif defined(X_PLATFORM_CLANG)
+#elif defined(X_OS_DARWIN)
     static_assert(sizeof(off_t) == sizeof(int64_t), "");
     ret = ftello(stream);
 #else
@@ -39,11 +39,11 @@ int64_t x_ftell64(FILE* stream) {
 
 int x_strerror(int errnum, char* buf, size_t buflen) {
     int ret = 0;
-#if defined(X_PLATFORM_MSVC)
+#if defined(X_OS_WIN32)
     ret = strerror_s(buf, buflen, errnum);
 #else
 
-#if ((_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE) || defined(X_PLATFORM_CLANG)
+#if ((_POSIX_C_SOURCE >= 200112L) && !_GNU_SOURCE) || defined(X_OS_DARWIN)
     ret = strerror_r(errnum, buf, buflen);
 #else
     char* res = strerror_r(errnum, buf, buflen);
@@ -61,11 +61,11 @@ int x_strerror(int errnum, char* buf, size_t buflen) {
 
 int x_setthreadname(const char *name)
 {
-#if defined(X_PLATFORM_GNU)
+#if defined(X_OS_LINUX)
     return pthread_setname_np(pthread_self(), name);
-#elif defined(X_PLATFORM_CLANG)
+#elif defined(X_OS_DARWIN)
     return pthread_setname_np(name);
-#else 
+#else
     #error "not support"
-#endif 
+#endif
 }

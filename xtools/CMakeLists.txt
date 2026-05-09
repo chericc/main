@@ -78,11 +78,9 @@ if(LIB_GTEST)
 set(TEST_LIB ${LIB_GTEST} ${G_TEST_COMM})
 endif()
 
-if(${gnu})
+if(os_linux)
 set(COMMON_LIB ${TEST_LIB} ${G_XTOOLS} pthread)
-elseif(${msvc})
-set(COMMON_LIB ${TEST_LIB} ${G_XTOOLS})
-elseif(${clang})
+else()
 set(COMMON_LIB ${TEST_LIB} ${G_XTOOLS})
 endif()
 

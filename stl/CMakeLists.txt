@@ -8,6 +8,6 @@ add_executable(
     ${src_stl_demo}
 )
 
-if (${gnu})
+if (os_linux)
 target_link_libraries(${STL_DEMO} pthread)
 endif()

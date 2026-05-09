@@ -16,7 +16,7 @@ add_executable(
 	${src_xdisplay}
 )
 
-if(${msvc})
+if(os_win)
 target_compile_definitions(${L_XDISPLAY} PRIVATE X_WINDOWS_PLATFORM)
 endif()
 

@@ -11,13 +11,13 @@ if(LIB_CURL)
 add_subdirectory(curl)
 endif()
 
-if(gnu OR clang)
+if(NOT os_win)
 add_subdirectory(exiftool)
 endif()
 
 add_subdirectory(ffmpeg)
 add_subdirectory(fmtlib)
-if(${gnu})
+if(NOT os_win)
 add_subdirectory(h264_sei)
 endif()
 add_subdirectory(json_nlohmann)
@@ -35,7 +35,7 @@ if(LIB_LVGL)
 add_subdirectory(lvgl/demo)
 endif()
 
-if(${gnu})
+if(NOT os_win)
 add_subdirectory(my_cond)
 endif()
 
@@ -61,7 +61,7 @@ if(Sqlpp11_FOUND)
 add_subdirectory(sqlpp11)
 endif()
 
-if(${gnu} AND HEADER_TINYFRAME)
+if(NOT os_win AND HEADER_TINYFRAME)
 add_subdirectory(tinyframe)
 endif()
 
@@ -69,7 +69,7 @@ if(LIB_WEBSOCKETS)
 add_subdirectory(websockets)
 endif()
 
-if(${msvc})
+if(os_win)
 add_subdirectory(winusb)
 endif()
 

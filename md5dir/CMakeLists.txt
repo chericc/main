@@ -10,11 +10,9 @@ add_executable(
     ${src_md5dir}
 )
 
-if(${gnu})
+if(os_linux)
 set(COMMON_LIB ${G_XTOOLS} pthread)
-elseif(${msvc})
-set(COMMON_LIB ${G_XTOOLS})
-elseif(${clang})
+else()
 set(COMMON_LIB ${G_XTOOLS})
 endif()
 
