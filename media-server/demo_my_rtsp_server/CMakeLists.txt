@@ -1,5 +1,12 @@
 
-aux_source_directory(. src)
+set(src
+    main.cpp
+    h264-file-reader.cpp
+    h264-file-source.cpp
+    h265-file-reader.cpp
+    h265-file-source.cpp
+    rtp-udp-transport.cpp
+)
 set(BIN demo_my_rtsp_server)
 add_executable(
     ${BIN}
