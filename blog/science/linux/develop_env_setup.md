@@ -351,8 +351,8 @@ listen-address 0.0.0.0:55554
 export http_proxy="http://127.0.0.1:7897"
 export https_proxy="http://127.0.0.1:7897"
 
-export http_proxy="http://10.0.0.2:7897"
-export https_proxy="http://10.0.0.2:7897"
+export http_proxy="http://10.0.0.3:7897"
+export https_proxy="http://10.0.0.3:7897"
 
 export http_proxy="http://10.0.0.4:7897"
 export https_proxy="http://10.0.0.4:7897"
