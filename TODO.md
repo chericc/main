@@ -1,5 +1,7 @@
 # TODO
 
+- [ ] USB跨设备和系统虚拟
+- [ ] fsck.fat内存精简版本
 - [ ] std::promise实现会调函数的同步实现
 - [ ] xdemuxer
 - [ ] opennfm: block dev layer for nandflash
