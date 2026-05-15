@@ -221,7 +221,6 @@ add_subdirectory(demos)
 
 if(${os_linux})
 add_subdirectory(md5dir)
-add_subdirectory(media-server)
 endif()
 
 add_subdirectory(stl)
