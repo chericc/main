@@ -487,7 +487,7 @@ int XPlay::videoThread() {
 
         pts =
             (frame->pts == AV_NOPTS_VALUE) ? (NAN) : (frame->pts * av_q2d(tb));
-        ret = queuePicture(frame, pts, duration, frame->pkt_pos,
+        ret = queuePicture(frame, pts, duration, -1,
                            _is->videoq->serial());
         av_frame_unref(frame);
 
