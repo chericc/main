@@ -426,7 +426,13 @@ void pushFrame(const uint8_t *data, size_t size, uint64_t timestampUs)
     if (gServerCtx.subsession_ == nullptr) {
         return;
     }
-    xlog_inf("pushFrame: {} bytes, ts={} us", size, timestampUs);
+    {
+        static uint64_t last_log_us = 0;
+        if (timestampUs == 0 || timestampUs - last_log_us >= kUsecPerSec) {
+            last_log_us = timestampUs;
+            xlog_inf("pushFrame: {} bytes, ts={} us", size, timestampUs);
+        }
+    }
 
     gServerCtx.subsession_->broadcastFrame(data, size, timestampUs);
 }

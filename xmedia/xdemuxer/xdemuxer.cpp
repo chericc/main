@@ -152,9 +152,9 @@ bool XDemuxer::popPacket(XDemuxerFramePtr &framePtr)
         while (true) {
             int ret = popPacketOnce(_ctx->ffctx, framePtr);
             if (ret >= 0) {
-                if (framePtr->isVideo) {
-                    xlog_dbg("pop frame: size={}, video={}", framePtr->buf.size(), framePtr->isVideo);
-                }
+                // if (framePtr->isVideo) {
+                //     xlog_dbg("pop frame: size={}, video={}", framePtr->buf.size(), framePtr->isVideo);
+                // }
                 
                 break;
             } 
@@ -400,16 +400,29 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
             // got pkt here
 
             if (pktRead->stream_index == ffctx->index_video) {
-                ret = av_bsf_send_packet(ffctx->bsf_context_v, pktRead);
-                if(ret < 0) {
-                    if (ret == AVERROR(EAGAIN)) {
-                        xlog_err("bsf if full (should not happen)");
-                    } else {
-                        xlog_err("av_bsf_send_packet failed");
+                if (ffctx->bsf_context_v) {
+                    ret = av_bsf_send_packet(ffctx->bsf_context_v, pktRead);
+                    if (ret < 0) {
+                        if (ret == AVERROR(EAGAIN)) {
+                            xlog_err("bsf if full (should not happen)");
+                        } else {
+                            xlog_err("av_bsf_send_packet failed");
+                        }
+                        break;
                     }
+                    ret = AVERROR(EAGAIN); // pkt sent to the filter. we need call again to get it.
                     break;
                 }
-                ret = AVERROR(EAGAIN); // pkt sent to the filter. we need call again to get it.
+
+                // no bsf — handle video packet directly
+                AVStream *stream = ffctx->context->streams[pktRead->stream_index];
+                if (!handlePacket(pktRead, stream, framePtr)) {
+                    xlog_err("handlePacket failed");
+                    ret = AVERROR(E2BIG);
+                    break;
+                }
+                framePtr->isVideo = true;
+                ret = 0;
                 break;
             }
 

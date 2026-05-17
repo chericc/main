@@ -4,7 +4,8 @@
 #include <cstdio>
 #include <csignal>
 #include <cstdlib>
-#include <unistd.h>
+#include <thread>
+#include <chrono>
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) {
     // push frames in a loop, simulating a live stream
     auto frame = std::make_shared<XDemuxerFrame>();
     uint64_t base_pts = 0;
+    uint64_t last_pts_us = 0;
     bool first = true;
 
     while (!g_quit) {
@@ -67,6 +69,7 @@ int main(int argc, char *argv[]) {
             // EOF — restart from the beginning
             demuxer.forceIFrame();
             first = true;
+            last_pts_us = 0;
             printf("EOF, restarting from beginning ...\n");
             continue;
         }
@@ -80,6 +83,11 @@ int main(int argc, char *argv[]) {
         }
 
         uint64_t pts_us = (frame->pts - base_pts) * 1000; // ms → us
+        if (pts_us > last_pts_us) {
+            std::this_thread::sleep_for(std::chrono::microseconds(pts_us - last_pts_us));
+        }
+        last_pts_us = pts_us;
+
         rtsp_server::pushFrame(frame->buf.data(), frame->buf.size(), pts_us);
     }
 
