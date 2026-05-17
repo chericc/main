@@ -1,10 +1,5 @@
 #include "xdemuxer.hpp"
 
-#include <array>
-#include <thread>
-
-#include "aac.hpp"
-
 #include "xlog.h"
 
 struct XDemuxer::FFmpegCtx {
@@ -16,13 +11,10 @@ struct XDemuxer::FFmpegCtx {
 };
 
 struct XDemuxer::Ctx {
+    
     std::string file;
     FFmpegCtxPtr ffctx;
 };
-
-namespace {
-
-}
 
 XDemuxer::XDemuxer(std::string file)
 {
@@ -215,34 +207,6 @@ bool XDemuxer::forceIFrame()
     return okFlag;
 }
 
-bool XDemuxer::getInfo(AVCodecParameters &param, bool isVideo)
-{
-    bool okFlag = false;
-    do {
-        if (!_ctx->ffctx) {
-            xlog_err("not opened yet");
-            break;
-        }
-
-        int index = 0;
-        if (isVideo) {
-            index = _ctx->ffctx->index_video;
-        } else {
-            index = _ctx->ffctx->index_audio;
-        }
-
-        auto codecpar = _ctx->ffctx->context->streams[index]->codecpar;
-        if (nullptr == codecpar) {
-            xlog_err("null codec par");
-            break;
-        }
-
-        param = *codecpar;
-        okFlag = true;
-    } while (false);
-    return okFlag;
-}
-
 XDemuxer::FFmpegCtxPtr XDemuxer::openImp(std::string const& file)
 {
     auto fftmp = std::make_shared<FFmpegCtx>();
@@ -362,24 +326,13 @@ bool XDemuxer::handlePacket(AVPacket *pkt, AVStream *stream, XDemuxerFramePtr &f
             break;
         }
         
-        if (stream->codecpar->codec_id == AV_CODEC_ID_AAC) {
-            xlog_dbg("pktsize={}", pkt->size);
-            if (!aac_avpacket_to_adts(stream->codecpar, pkt, framePtr->buf)) {
-                break;
-            }
-        } else {
-            framePtr->buf.resize(pkt->size);
-            memcpy(framePtr->buf.data(), pkt->data, pkt->size);
-        }
-
+        framePtr->buf.resize(pkt->size);
+        memcpy(framePtr->buf.data(), pkt->data, pkt->size);
         if (pkt->pts != AV_NOPTS_VALUE) {
             framePtr->pts = av_rescale_q(pkt->pts, stream->time_base, AVRational{1, 1000}); // ms
         } else {
             framePtr->pts = AV_NOPTS_VALUE;
         }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
         okFlag = true;
     } while (false);
     return okFlag;
@@ -420,8 +373,6 @@ int XDemuxer::popPacketOnce(FFmpegCtxPtr ffctx, XDemuxerFramePtr &framePtr)
                     }
                 } else {
                     // got pkt from bsf
-
-                    continue;
                 
                     AVStream *stream = ffctx->context->streams[ffctx->index_video];
                     if (!handlePacket(pktFilter, stream, framePtr)) {
