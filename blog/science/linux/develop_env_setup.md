@@ -310,8 +310,16 @@ conda init --reverse $SHELL
 ```bash
 python -m pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple/
 python -m pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
+
+# 配置 index-url（包下载地址）
+python -m pip config set global.index-url https://mirrors.ustc.edu.cn/pypi/web/simple
 ```
 
+## aria
+
+```bash
+aria2c -x 5 -s 5 -k 1M --dir=./tmp "https://..."
+```
 
 ## 代理
 
