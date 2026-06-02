@@ -46,3 +46,5 @@ build
 output.txt
 *.xml
 *.log
+
+**/target
