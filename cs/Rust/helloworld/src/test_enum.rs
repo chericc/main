@@ -24,15 +24,19 @@ fn calculate(op: Operation) -> CalcResult {
     }
 }
 
-pub fn test()
-{
+fn add_sub_example() {
     let op_add = Operation::Add(10, 20);
     let op_sub = Operation::Subtract(5, 10);
     let op_arr = [op_add, op_sub];
     for x in op_arr {
         match calculate(x) {
-            CalcResult::Ok(result) => println!("add: {}", result),
-            CalcResult::Invalid(msg) => println!("sub: {}", msg),
+            CalcResult::Ok(result) => crate::log!("add: {}", result),
+            CalcResult::Invalid(msg) => crate::log!("sub: {}", msg),
         }
     }
+}
+
+pub fn test()
+{
+    add_sub_example();
 }
