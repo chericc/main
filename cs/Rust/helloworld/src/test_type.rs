@@ -6,7 +6,6 @@ fn foo(x : u8) -> u32
 
 pub fn test_type()
 {
-
     println!("Hello, world!");
 
     let x : i32 = 42;
