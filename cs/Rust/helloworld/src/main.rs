@@ -16,9 +16,11 @@ macro_rules! log {
 mod test_type;
 mod test_enum_1;
 mod test_enum_2;
+mod test_lifetime;
 
 fn main() {
     test_type::test_type();
     test_enum_1::test();
     test_enum_2::test();
+    test_lifetime::test();
 }
