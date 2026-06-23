@@ -118,8 +118,6 @@ int XDisplay::open(const std::string& url) {
 int XDisplay::close() {
     xlog_inf("close");
 
-    xlog_setoutput(std::vector<FILE*>());
-
     exit(0);
 
     return 0;

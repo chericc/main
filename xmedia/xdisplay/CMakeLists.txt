@@ -29,8 +29,8 @@ target_include_directories(
 )
 
 set(COMMON_LIB
-	SDL2
-	SDL2main
+	${LIB_SDL2}
+	${LIB_SDL2MAIN}
 	${G_XPLAY}
 	${G_XTOOLS})
 

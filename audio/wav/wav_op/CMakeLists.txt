@@ -22,6 +22,7 @@ target_link_libraries(
     ${DEMO} 
     ${LIB_NAME} 
     ${G_XTOOLS}
+    spdlog::spdlog
 )
 
 # tests

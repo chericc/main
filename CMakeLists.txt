@@ -45,6 +45,9 @@ add_compile_options(-Wall -Wextra)
 endif()
 
 # spdlog
+if(EXISTS "/opt/homebrew/lib/cmake/fmt")
+  set(fmt_DIR "/opt/homebrew/lib/cmake/fmt" CACHE PATH "" FORCE)
+endif()
 find_package(spdlog REQUIRED)
 
 # googletest
@@ -60,7 +63,8 @@ find_library(LIB_FFMPEG_SWSCALE swscale)
 find_path(HEADER_FFMPEG libavformat)
 
 # SDL2
-find_library(LIB_SDL2 SDL2-2.0)
+find_library(LIB_SDL2 SDL2)
+find_library(LIB_SDL2MAIN SDL2main)
 
 # fdk-aac
 find_library(LIB_FDKAAC fdk-aac)
