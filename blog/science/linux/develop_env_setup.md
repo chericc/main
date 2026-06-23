@@ -689,3 +689,45 @@ if(CCACHE_PROGRAM)
     set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_PROGRAM})
 endif()
 ```
+
+
+## opencode
+
+```bash
+# .config/opencode/opencode.json
+```
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "bash": {
+    }
+  },
+  "agent": {
+    "build": {
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "git commit*": "ask",
+          "git push*": "ask",
+          "git log*": "allow",
+          "git diff*": "allow",
+          "grep *": "allow"
+        }
+      }
+    },
+    "manual": {
+      "description": "Manual Mode",
+      "permission": {
+        "bash": {
+          "*": "ask"
+        },
+        "edit": {
+          "*": "ask"
+        }
+      }
+    }
+  }
+}
+```
