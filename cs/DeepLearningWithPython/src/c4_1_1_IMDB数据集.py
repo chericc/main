@@ -45,12 +45,15 @@ from tensorflow.keras import layers
 model = keras.Sequential([
     layers.Dense(16, activation="relu"),
     layers.Dense(16, activation="relu"),
+    # layers.Dense(16, activation="tanh"),
+    # layers.Dense(16, activation="tanh"),
     layers.Dense(1, activation="sigmoid")
 ])
 
 # 4.1.3 编译模型
 model.compile(optimizer="rmsprop",
                 loss="binary_crossentropy",
+                # loss="mse",
                 metrics=["accuracy"])
 
 
