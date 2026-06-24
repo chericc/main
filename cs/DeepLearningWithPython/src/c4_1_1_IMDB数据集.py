@@ -103,3 +103,14 @@ plt.xlabel('epochs')
 plt.ylabel('accuracy')
 plt.legend()
 plt.show()
+
+print(model.predict(x_test))
+'''
+[[0.04714732]
+ [1.        ]
+ [0.9980222 ]
+ ...
+ [0.01046927]
+ [0.02241139]
+ [0.96911156]]
+'''
