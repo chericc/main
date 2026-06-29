@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "cs/Rust/c1_1_hello_world",
+    "cs/Rust/c2_gussing_game"
+]
