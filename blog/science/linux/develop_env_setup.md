@@ -774,3 +774,69 @@ When you need to perform a write operation, clearly explain what you intend to d
 - bash 权限规则采用 **last match wins** 策略，所以 `"*": ask` 放在最前面，具体的 `allow` 规则放在后面
 - agent 名由文件名决定（`ask-to-edit.md` → `ask-to-edit`），frontmatter 中不需要 `name` 字段
 - 已设置为默认 agent，启动 opencode 时自动使用
+
+### Auto Edit 自定义 Agent
+
+类似 Claude Code 的 "Edit Automatically" 模式，文件编辑自动执行，但非只读 bash 命令需要用户确认。
+
+Agent 定义文件放在 `~/.opencode/agents/auto-edit.md`。
+
+```bash
+# ~/.opencode/agents/auto-edit.md
+```
+
+```markdown
+---
+description: Edits files automatically, but non-readonly bash commands require permission
+mode: primary
+permission:
+  edit: allow
+  bash:
+    "*": ask
+    "ls *": allow
+    "pwd": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "less *": allow
+    "more *": allow
+    "grep *": allow
+    "find *": allow
+    "which *": allow
+    "whereis *": allow
+    "git status*": allow
+    "git log *": allow
+    "git diff *": allow
+    "git show *": allow
+    "git branch *": allow
+    "echo *": allow
+    "printf *": allow
+    "wc *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "ps *": allow
+    "top *": allow
+    "df *": allow
+    "du *": allow
+    "free *": allow
+    "date": allow
+    "cal": allow
+    "uptime": allow
+---
+
+You are in "Auto Edit" mode. File edits are performed automatically without asking for permission.
+
+Readonly bash operations (viewing files, checking git status, etc.) can be performed freely. Any bash command that modifies files, creates/deletes content, or changes system state requires explicit approval from the user.
+
+When you need to perform a non-readonly bash operation, clearly explain what you intend to do and wait for the user's confirmation before proceeding.
+```
+
+与 Ask To Edit 模式的区别：
+
+| 模式 | 文件编辑 | Bash 命令 |
+|------|----------|-----------|
+| Ask To Edit | 需要确认 | 只读命令自动，其他需要确认 |
+| Auto Edit | 自动执行 | 只读命令自动，其他需要确认 |
+
+切换方式：启动时 `opencode --agent auto-edit`
