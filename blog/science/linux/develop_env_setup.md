@@ -840,3 +840,20 @@ When you need to perform a non-readonly bash operation, clearly explain what you
 | Auto Edit | 自动执行 | 只读命令自动，其他需要确认 |
 
 切换方式：启动时 `opencode --agent auto-edit`
+
+## zsh
+
+### Tab 补全行为优化
+
+**问题：** 默认情况下，zsh 开启了 `AUTO_MENU`，导致按两次 Tab 后会进入菜单选择模式并自动填入第一个匹配项。如果路径不对，还需要手动删除。
+
+**解决：** 在 `~/.zshrc` 中添加：
+
+```zsh
+unsetopt AUTO_MENU
+```
+
+**效果：**
+- 第一次 Tab：补全到最长公共前缀
+- 第二次 Tab：列出所有匹配项（不会自动填入）
+- 可以继续输入字符缩小范围，再按 Tab 进一步补全
