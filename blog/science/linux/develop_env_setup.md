@@ -878,3 +878,30 @@ font-codepoint-map = U+3400-U+4DBF=PingFang SC   # CJK 扩展A（生僻字/姓�
 ```
 
 配置修改后按 `cmd + shift + ,` 热加载。
+
+### SSH terminfo
+
+通过 SSH 连接远程服务器（如 Ubuntu）时，如果出现 `missing or unsuitable terminal: xterm-ghostty` 警告，
+说明远程系统缺少 Ghostty 的 terminfo 条目。可以使用以下命令将本地的 terminfo 复制到远程服务器：
+
+```bash
+infocmp -x xterm-ghostty | ssh USER@SERVER -- tic -x -
+```
+
+注意事项：
+
+- **macOS 版本要求**：macOS Sonoma (14.x) 及以上的系统自带的 `infocmp` 可用。如果使用 macOS Ventura (13.x) 或更早版本，
+  需要先通过 Homebrew 安装较新版本的 ncurses：
+  ```bash
+  brew install ncurses
+  ```
+  然后使用完整路径调用：
+  ```bash
+  /opt/homebrew/opt/ncurses/bin/infocmp -x xterm-ghostty | ssh USER@SERVER -- tic -x -
+  ```
+
+- 如果远程 `tic` 提示 `older tic versions may treat the description field as an alias`，可以忽略。
+
+- `tic` 默认写入系统数据库 `/usr/share/terminfo`，如果没有写权限则回退到 `$HOME/.terminfo`。
+
+- 如果远程 ncurses 版本 >= 6.5-20241228，则系统已自带 `xterm-ghostty` 条目，无需手动安装。
