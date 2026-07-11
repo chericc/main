@@ -857,3 +857,24 @@ unsetopt AUTO_MENU
 - 第一次 Tab：补全到最长公共前缀
 - 第二次 Tab：列出所有匹配项（不会自动填入）
 - 可以继续输入字符缩小范围，再按 Tab 进一步补全
+
+## Ghostty 配置
+
+Ghostty 是 macOS 上的终端模拟器。配置文件路径：
+
+```bash
+~/.config/ghostty/config.ghostty
+```
+
+当前生效的配置：
+
+```ini
+# 将 CJK 汉字及标点映射到系统字体 PingFang SC，保持默认英文字体不变
+font-codepoint-map = U+4E00-U+9FFF=PingFang SC   # CJK 统一表意文字（汉字）
+font-codepoint-map = U+3000-U+303F=PingFang SC   # CJK 符号和标点（。、「」等）
+font-codepoint-map = U+FF00-U+FFEF=PingFang SC   # 全角形式（，：；！？等）
+font-codepoint-map = U+2000-U+206F=PingFang SC   # 通用标点（—破折号、…省略号等）
+font-codepoint-map = U+3400-U+4DBF=PingFang SC   # CJK 扩展A（生僻字/姓名用字）
+```
+
+配置修改后按 `cmd + shift + ,` 热加载。
