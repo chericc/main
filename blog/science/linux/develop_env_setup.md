@@ -739,6 +739,17 @@ registry = "sparse+https://mirrors.aliyun.com/crates.io-index/"
 }
 ```
 
+### 配置编辑器
+
+opencode 默认使用系统编辑器打开和编辑文件，可以通过配置 `EDITOR` 环境变量来指定编辑器：
+
+```bash
+# ~/.bashrc
+export EDITOR=vim
+```
+
+配置后，opencode 中需要打开编辑器编辑文件的操作（如编辑 prompt 等）会使用配置的编辑器。
+
 ### Ask To Edit 自定义 Agent
 
 类似 Claude Code 的 "Ask To Edit" 模式，所有编辑和非只读命令都需要用户确认。
