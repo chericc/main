@@ -691,33 +691,6 @@ endif()
 ```
 
 
-## Rust
-
-### Cargo 国内镜像源配置
-
-Cargo 默认从 `crates.io` 下载依赖，国内访问较慢，推荐配置阿里云源：
-
-```bash
-# ~/.cargo/config.toml
-```
-
-```toml
-[source.crates-io]
-replace-with = 'aliyun'
-
-[source.aliyun]
-registry = "sparse+https://mirrors.aliyun.com/crates.io-index/"
-```
-
-其他可用的镜像源：
-
-| 镜像 | 地址 | 备注 |
-|------|------|------|
-| 阿里云 | `sparse+https://mirrors.aliyun.com/crates.io-index/` | 完整镜像（index + crates），推荐 |
-| 清华 TUNA | `sparse+https://mirrors.tuna.tsinghua.edu.cn/crates.io-index/` | 仅镜像 index，crate 仍从官方 CDN 下载 |
-| 中科大 USTC | `sparse+https://mirrors.ustc.edu.cn/crates.io-index/` | 完整镜像，但注意服务状态 |
-| rustcc / rsproxy | `sparse+https://rsproxy.cn/index/` | 社区维护，安全性需自行评估 |
-
 ## opencode
 
 ### 全局配置
@@ -738,17 +711,6 @@ registry = "sparse+https://mirrors.aliyun.com/crates.io-index/"
   }
 }
 ```
-
-### 配置编辑器
-
-opencode 默认使用系统编辑器打开和编辑文件，可以通过配置 `EDITOR` 环境变量来指定编辑器：
-
-```bash
-# ~/.bashrc
-export EDITOR=vim
-```
-
-配置后，opencode 中需要打开编辑器编辑文件的操作（如编辑 prompt 等）会使用配置的编辑器。
 
 ### Ask To Edit 自定义 Agent
 
