@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "alg.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 
 void QuickSort::register_test() {
     auto test = []() {
@@ -69,3 +69,5 @@ void QuickSort::sort(index begin, index last) {
         sort(idx_mid + 1, last);
     }
 }
+
+static StaticRegistrant _reg_quicksort(QuickSort::register_test);

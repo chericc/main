@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "alg.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 
 void MaxHeap::registerTest() {
     auto test = []() -> void {
@@ -95,3 +95,5 @@ MaxHeap::index MaxHeap::leftIndex(index idx) { return 2 * idx + 1; }
 MaxHeap::index MaxHeap::rightIndex(index idx) { return 2 * idx + 2; }
 
 MaxHeap::index MaxHeap::parentIndex(index idx) { return (idx - 1) / 2; }
+
+static StaticRegistrant _reg_heap(MaxHeap::registerTest);

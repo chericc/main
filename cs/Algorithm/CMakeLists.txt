@@ -1,3 +1,12 @@
+cmake_minimum_required(VERSION 3.6)
+project(alg)
+
+cmake_minimum_required(VERSION 3.10)
+project(AlgorithmDemo CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(ALG demo_alg)
 
 aux_source_directory(main src_demo_alg_main)
@@ -9,7 +18,7 @@ aux_source_directory(dynamic_programing src_dp)
 aux_source_directory(greedy_algorithm src_greedy)
 
 include_directories(
-    ${G_XTOOLS_XLOG_HEADER_PATH} 
+    ${CMAKE_CURRENT_SOURCE_DIR}
     main
     heap
     quicksort
@@ -18,9 +27,6 @@ include_directories(
     dynamic_programing
     greedy_algorithm
 )
-
-link_directories(${G_XTOOLS})
-link_libraries(${G_XTOOLS})
 
 add_executable(${ALG} 
     ${src_demo_alg_main} 

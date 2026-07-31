@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "alg.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 
 /*
 
@@ -82,3 +82,5 @@ void ActivitySelect::registerTest()
 
     MainAlgManager::getInstance().add("greddy", {{"activity_select", fun}});
 }
+
+static StaticRegistrant _reg_greedy(ActivitySelect::registerTest);

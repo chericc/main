@@ -5,7 +5,7 @@
 #include <list>
 
 #include "alg.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 
 namespace {
 
@@ -85,3 +85,5 @@ void Lcs::registerTest()
 
     return ;
 }
+
+static StaticRegistrant _reg_lcs(Lcs::registerTest);

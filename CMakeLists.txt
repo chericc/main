@@ -219,7 +219,6 @@ endif()
 add_subdirectory(audio/wav/wav_op)
 
 add_subdirectory(cs/DesignPatterns)
-add_subdirectory(cs/Algorithm)
 
 add_subdirectory(demos)
 

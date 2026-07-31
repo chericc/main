@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "alg.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 
 void NthMinium::register_test() {
     auto test = []() {
@@ -80,3 +80,5 @@ int NthMinium::nth() {
     }
     return -1;
 }
+
+static StaticRegistrant _reg_nth(NthMinium::register_test);

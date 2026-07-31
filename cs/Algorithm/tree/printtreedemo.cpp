@@ -4,7 +4,7 @@
 #include "alg.hpp"
 #include "printtree.hpp"
 #include "treenode.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 
 namespace Tree {
 
@@ -59,3 +59,5 @@ void printtreedemo_registertest() {
 }
 
 }  // namespace Tree
+
+static StaticRegistrant _reg_printtree(Tree::printtreedemo_registertest);

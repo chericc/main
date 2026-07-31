@@ -1,7 +1,7 @@
 #include "rbtreedemo.hpp"
 
 #include "alg.hpp"
-#include "xlog.h"
+#include "xlog.hpp"
 #include "rbtree.hpp"
 
 namespace Tree {
@@ -42,6 +42,6 @@ void rbtreedemo_registertest()
     MainAlgManager::getInstance().add("rbtree", funcs);
 }
 
+}  // namespace Tree
 
-
-}
+static StaticRegistrant _reg_rbtreedemo(Tree::rbtreedemo_registertest);

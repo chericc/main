@@ -1,6 +1,6 @@
 #include "alg.hpp"
 
-#include "xlog.h"
+#include "xlog.hpp"
 
 std::shared_ptr<MainAlgManager> MainAlgManager::instance_;
 
@@ -46,4 +46,29 @@ void MainAlgManager::runAllDemo() {
             func_it->second();
         }
     }
+}
+
+void MainAlgManager::runModules(std::vector<std::string> const& modules) {
+    for (auto const& mod : modules) {
+        runModule(mod);
+    }
+}
+
+bool MainAlgManager::runModule(std::string const& module) {
+    auto it = alg_demos_.find(module);
+    if (it == alg_demos_.end()) {
+        xlog_warn("module '{}' not found, skip", module.c_str());
+        return false;
+    }
+
+    xlog_dbg("module: {}", module.c_str());
+    for (auto& [name, func] : it->second) {
+        xlog_dbg("|--func: {}", name.c_str());
+        func();
+    }
+    return true;
+}
+
+bool MainAlgManager::hasModule(std::string const& module) const {
+    return alg_demos_.find(module) != alg_demos_.end();
 }
