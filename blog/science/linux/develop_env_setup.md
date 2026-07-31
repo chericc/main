@@ -841,6 +841,28 @@ When you need to perform a non-readonly bash operation, clearly explain what you
 
 切换方式：启动时 `opencode --agent auto-edit`
 
+### 清理配置与数据
+
+不卸载 opencode 本身，仅清除其配置、数据和缓存，恢复到全新状态。清理前先退出所有正在运行的 opencode 进程。
+
+```bash
+# 1. 全局配置（opencode.jsonc、agents/、commands/、skills/、插件依赖 node_modules/ 等）
+rm -rf ~/.config/opencode
+
+# 2. 用户数据（登录凭证 auth.json、会话数据库 opencode.db、日志 log/、仓库缓存 repos/）
+rm -rf ~/.local/share/opencode
+
+# 3. 缓存（升级用的二进制缓存 bin/）
+rm -rf ~/.cache/opencode
+```
+
+注意事项：
+
+- 清理后所有登录凭证（API key 等）丢失，需重新执行 `opencode auth login`
+- 会话历史、消息记录存储在 `~/.local/share/opencode/opencode.db`（SQLite），删除后不可恢复
+- `~/.config/opencode` 下的 `node_modules/` 是 opencode 自动安装的插件依赖，无需手动保留
+- `~/.agents/skills`、`~/.claude/skills` 属于外部技能目录，并非 opencode 独有，仅在确定不需要时一并清理
+
 ## zsh
 
 ### Tab 补全行为优化
