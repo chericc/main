@@ -696,7 +696,7 @@ endif()
 ### 全局配置
 
 ```bash
-# ~/.config/opencode/opencode.json
+# ~/.config/opencode/opencode.jsonc
 ```
 
 ```json
@@ -716,10 +716,10 @@ endif()
 
 类似 Claude Code 的 "Ask To Edit" 模式，所有编辑和非只读命令都需要用户确认。
 
-Agent 定义文件放在 `~/.opencode/agents/ask-to-edit.md`，文件名即 agent 名。
+Agent 定义文件放在 `~/.config/opencode/agents/ask-to-edit.md`，文件名即 agent 名。
 
 ```bash
-# ~/.opencode/agents/ask-to-edit.md
+# ~/.config/opencode/agents/ask-to-edit.md
 ```
 
 ```markdown
@@ -779,10 +779,10 @@ When you need to perform a write operation, clearly explain what you intend to d
 
 类似 Claude Code 的 "Edit Automatically" 模式，文件编辑自动执行，但非只读 bash 命令需要用户确认。
 
-Agent 定义文件放在 `~/.opencode/agents/auto-edit.md`。
+Agent 定义文件放在 `~/.config/opencode/agents/auto-edit.md`。
 
 ```bash
-# ~/.opencode/agents/auto-edit.md
+# ~/.config/opencode/agents/auto-edit.md
 ```
 
 ```markdown
