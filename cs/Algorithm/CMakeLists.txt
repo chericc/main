@@ -14,8 +14,9 @@ aux_source_directory(heap src_heap)
 aux_source_directory(quicksort src_quicksort)
 aux_source_directory(nth src_nth)
 aux_source_directory(tree src_tree)
-aux_source_directory(dynamic_programing src_dp)
 aux_source_directory(greedy_algorithm src_greedy)
+
+add_subdirectory(dynamic_programing)
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -24,7 +25,6 @@ include_directories(
     quicksort
     nth
     tree
-    dynamic_programing
     greedy_algorithm
 )
 
@@ -34,6 +34,8 @@ add_executable(${ALG}
     ${src_quicksort}
     ${src_nth}
     ${src_tree}
-    ${src_dp}
     ${src_greedy}
+    $<TARGET_OBJECTS:alg_dp>
 )
+
+target_link_libraries(${ALG} alg_dp)
