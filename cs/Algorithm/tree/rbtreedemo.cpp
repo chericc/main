@@ -39,7 +39,7 @@ void rbtreedemo_registertest()
     MainAlgManager::Funcs funcs;
     funcs["insert"] = test_insert;
     funcs["remove"] = test_remove;
-    MainAlgManager::getInstance().add("rbtree", funcs);
+    MainAlgManager::getInstance().add("rbtreedemo", funcs);
 }
 
 }  // namespace Tree

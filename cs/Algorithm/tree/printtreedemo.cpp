@@ -45,6 +45,10 @@ void printtreedemo_registertest() {
         nodes[0]->set_right(nodes[2]);
         nodes[1]->set_left(nodes[3]);
         nodes[2]->set_left(nodes[4]);
+        nodes[1]->set_parent(nodes[0]);
+        nodes[2]->set_parent(nodes[0]);
+        nodes[3]->set_parent(nodes[1]);
+        nodes[4]->set_parent(nodes[2]);
 
         std::string str = print_tree(nodes[0], nullptr);
         xlog_dbg("tree is: \n{}\n", str.c_str());
