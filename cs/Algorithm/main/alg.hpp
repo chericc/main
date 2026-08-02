@@ -18,7 +18,7 @@ class MainAlgManager {
     void listDemos();
     void runAllDemo();
 
-    /// Run specific modules by name (e.g. "heap", "lcs").
+    /// Run specific modules by name (e.g. "heap", "longest_common_subsequence").
     /// Unknown modules are skipped with a warning.
     void runModules(std::vector<std::string> const& modules);
 

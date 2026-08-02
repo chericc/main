@@ -1,4 +1,4 @@
-#include "lcs.hpp"
+#include "longest_common_subsequence.hpp"
 
 #include <vector>
 #include <cstdint>
@@ -67,7 +67,7 @@ seq longest_common_sequence(const seq &seqa, const seq &seqb)
 
 }
 
-void Lcs::registerTest()
+void LongestCommonSubsequence::registerTest()
 {
     auto test = []() {
         seq seqa = "abcdefg";
@@ -81,9 +81,9 @@ void Lcs::registerTest()
 
     MainAlgManager::Funcs funcs;
     funcs["base"] = test;
-    MainAlgManager::getInstance().add("lcs", funcs);
+    MainAlgManager::getInstance().add("longest_common_subsequence", funcs);
 
     return ;
 }
 
-static StaticRegistrant _reg_lcs(Lcs::registerTest);
+static StaticRegistrant _reg_longest_common_subsequence(LongestCommonSubsequence::registerTest);
