@@ -708,87 +708,11 @@ endif()
     "bash": {
       "git commit*": "ask"
     }
-  },
-  "lsp": {
-    "clangd": {
-      "command": [
-        "/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd",
-        "--header-insertion=never",
-        "--function-arg-placeholders=0",
-        "--clang-tidy",
-        "--completion-style=bundled",
-        "--ranking-model=decision_forest",
-        "-j=4",
-        "--background-index",
-        "--compile-commands-dir=./build_host"
-      ],
-      "extensions": [".c", ".cpp", ".cc", ".cxx", ".c++", ".h", ".hpp", ".hh", ".hxx", ".h++"]
-    }
   }
 }
 ```
 
 > 说明：`plugin` 字段不写在配置文件中，插件通过 `opencode plugin <name> --global` 手动安装（见下文插件小节）。
-
-### LSP 配置（clangd）
-
-LSP（Language Server Protocol）默认关闭。启用后，opencode 打开文件时根据扩展名匹配并启动对应的语言服务器，把 clangd 的诊断（diagnostics）反馈给 agent，帮助其发现和修复代码问题。
-
-`lsp` 设为对象即启用所有内置 LSP 服务器；`clangd` 是内置条目，覆盖时 key 必须同名。系统已安装的 clangd 位于 `/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd`（从 `clangd-linux-*.zip` 解压，见 `vscode配置记录.md`）：
-
-```json
-"lsp": {
-  "clangd": {
-    "command": [
-      "/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd",
-      "--header-insertion=never",
-      "--function-arg-placeholders=0",
-      "--clang-tidy",
-      "--completion-style=bundled",
-      "--ranking-model=decision_forest",
-      "-j=4",
-      "--background-index",
-      "--compile-commands-dir=./build_host"
-    ],
-    "extensions": [".c", ".cpp", ".cc", ".cxx", ".c++", ".h", ".hpp", ".hh", ".hxx", ".h++"]
-  }
-}
-```
-
-字段说明：
-
-- `command`：启动语言服务器的命令及参数（数组形式）。第一个元素显式指定本机 clangd 的绝对路径，避免 opencode 走内置的自动下载逻辑
-- `extensions`：该服务器负责的文件扩展名，opencode 打开这些文件时启动服务器
-- 可选字段：`env`（服务器环境变量）、`initialization`（initialize 请求的初始化参数）、`disabled`（单独禁用某服务器）
-- `lsp: false` 可整体禁用；`"clangd": { "disabled": true }` 只禁用 clangd
-- 配置在 opencode 启动时加载，修改后需重启 opencode 生效
-
-clangd 参数说明：
-
-| 参数 | 对 opencode 的作用 |
-|------|--------------------|
-| `--compile-commands-dir=./build_host` | 指定编译数据库目录。clangd 默认只在文件所在目录及祖先目录、`build/` 子目录查找 `compile_commands.json`；opencode 没有 workspace 概念，这里用相对路径，相对于 opencode 启动 clangd 时的项目目录（即在项目根启动 opencode，`./build_host` 即 `<项目根>/build_host`） |
-| `--clang-tidy` | 启用 clang-tidy 检查，产生额外诊断（opencode 消费 diagnostics，有用） |
-| `--background-index` | 后台索引整个项目，提高跨文件诊断准确性 |
-| `-j=4` | 限制并行度，控制索引/诊断时的 CPU 占用 |
-| `--header-insertion=never` 等补全参数 | 控制代码补全行为（`--function-arg-placeholders=0`、`--completion-style=bundled`、`--ranking-model=decision_forest`）；opencode 只消费诊断、不消费补全，这些参数对 opencode 无用但无害，与编辑器共用配置时保留 |
-
-验证是否生效：
-
-```bash
-# 1. 确认配置已加载
-opencode debug config | grep -A 8 '"lsp"'
-
-# 2. 对 C 文件获取 clangd 诊断（在项目目录内执行）
-opencode debug lsp diagnostics test.c
-# 返回 JSON 数组，包含 clang 的报错/警告及 clang-tidy 检查项即表示生效
-
-# 3. 正常会话日志中 clangd 应出现在启用列表
-opencode run --print-logs --log-level DEBUG --auto "ok" 2>&1 | grep "enabled LSP servers"
-# 输出 serverIds 中包含 clangd
-```
-
-另外注意：clangd 会读取用户级配置 `~/.config/clangd/config.yaml`（例如开启的 clang-tidy 检查），这些检查同样会出现在 opencode 的诊断里。
 
 ### 视觉支持插件（opencode-see-image）
 
