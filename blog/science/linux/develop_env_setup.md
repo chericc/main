@@ -711,7 +711,17 @@ endif()
   },
   "lsp": {
     "clangd": {
-      "command": ["/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd"],
+      "command": [
+        "/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd",
+        "--header-insertion=never",
+        "--function-arg-placeholders=0",
+        "--clang-tidy",
+        "--completion-style=bundled",
+        "--ranking-model=decision_forest",
+        "-j=4",
+        "--background-index",
+        "--compile-commands-dir=./build_host"
+      ],
       "extensions": [".c", ".cpp", ".cc", ".cxx", ".c++", ".h", ".hpp", ".hh", ".hxx", ".h++"]
     }
   }
@@ -729,7 +739,17 @@ LSP（Language Server Protocol）默认关闭。启用后，opencode 打开文�
 ```json
 "lsp": {
   "clangd": {
-    "command": ["/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd"],
+    "command": [
+      "/home/test/opensrc/clangd/clangd_22.1.6/bin/clangd",
+      "--header-insertion=never",
+      "--function-arg-placeholders=0",
+      "--clang-tidy",
+      "--completion-style=bundled",
+      "--ranking-model=decision_forest",
+      "-j=4",
+      "--background-index",
+      "--compile-commands-dir=./build_host"
+    ],
     "extensions": [".c", ".cpp", ".cc", ".cxx", ".c++", ".h", ".hpp", ".hh", ".hxx", ".h++"]
   }
 }
@@ -737,11 +757,21 @@ LSP（Language Server Protocol）默认关闭。启用后，opencode 打开文�
 
 字段说明：
 
-- `command`：启动语言服务器的命令（数组形式）。显式指定本机 clangd 的绝对路径，避免 opencode 走内置的自动下载逻辑
+- `command`：启动语言服务器的命令及参数（数组形式）。第一个元素显式指定本机 clangd 的绝对路径，避免 opencode 走内置的自动下载逻辑
 - `extensions`：该服务器负责的文件扩展名，opencode 打开这些文件时启动服务器
 - 可选字段：`env`（服务器环境变量）、`initialization`（initialize 请求的初始化参数）、`disabled`（单独禁用某服务器）
 - `lsp: false` 可整体禁用；`"clangd": { "disabled": true }` 只禁用 clangd
 - 配置在 opencode 启动时加载，修改后需重启 opencode 生效
+
+clangd 参数说明：
+
+| 参数 | 对 opencode 的作用 |
+|------|--------------------|
+| `--compile-commands-dir=./build_host` | 指定编译数据库目录。clangd 默认只在文件所在目录及祖先目录、`build/` 子目录查找 `compile_commands.json`；opencode 没有 workspace 概念，这里用相对路径，相对于 opencode 启动 clangd 时的项目目录（即在项目根启动 opencode，`./build_host` 即 `<项目根>/build_host`） |
+| `--clang-tidy` | 启用 clang-tidy 检查，产生额外诊断（opencode 消费 diagnostics，有用） |
+| `--background-index` | 后台索引整个项目，提高跨文件诊断准确性 |
+| `-j=4` | 限制并行度，控制索引/诊断时的 CPU 占用 |
+| `--header-insertion=never` 等补全参数 | 控制代码补全行为（`--function-arg-placeholders=0`、`--completion-style=bundled`、`--ranking-model=decision_forest`）；opencode 只消费诊断、不消费补全，这些参数对 opencode 无用但无害，与编辑器共用配置时保留 |
 
 验证是否生效：
 
