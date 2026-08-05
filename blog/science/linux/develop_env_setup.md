@@ -653,6 +653,13 @@ Listen 10086
 
 ## oom
 
+### zram-tools
+
+```bash
+# 使用 zram 压缩内存，大幅节省内存使用
+sudo apt install zram-tools
+```
+
 ### early-oom
 
 ## windows11
