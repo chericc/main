@@ -719,16 +719,6 @@ endif()
 }
 ```
 
-> 说明：`plugin` 字段不写在配置文件中，插件通过 `opencode plugin <name> --global` 手动安装（见下文插件小节）。
-
-### 视觉支持插件（opencode-see-image）
-
-部分模型不支持图像输入（视觉），安装 opencode-see-image 插件后，遇到图片时会自动路由到视觉模型查看，使这些模型也能"看到"图片：
-
-```bash
-opencode plugin opencode-see-image --global
-```
-
 ### Ask To Edit 自定义 Agent
 
 类似 Claude Code 的 "Ask To Edit" 模式，所有编辑和非只读命令都需要用户确认。
