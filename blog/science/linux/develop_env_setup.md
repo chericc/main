@@ -624,6 +624,49 @@ window list
 sudo apt purge cloud-init
 ```
 
+### 命令行输出切换为英文
+
+Ubuntu 中文版默认 `LANG=zh_CN.UTF-8`，导致 git 等命令输出为中文。如需切换为英文：
+
+先安装英文语言包：
+
+```bash
+sudo apt install language-pack-en
+```
+
+验证语言包已生成：
+
+```bash
+locale -a | grep en_US
+# en_US.utf8
+```
+
+在 `~/.bashrc` 末尾追加环境变量（仅对当前用户生效，新开的终端自动生效）：
+
+```bash
+# 命令行输出使用英文
+export LANG=en_US.UTF-8
+```
+
+重新加载配置：
+
+```bash
+source ~/.bashrc
+```
+
+验证：
+
+```bash
+locale
+git status
+```
+
+说明：
+
+- 只改 `~/.bashrc` 仅影响当前用户；系统级生效可执行 `sudo update-locale LANG=en_US.UTF-8`（修改 `/etc/default/locale`）
+- 不装语言包直接设 `LANG=en_US.UTF-8` 会出现 `cannot change locale` 警告，因此必须先安装 `language-pack-en`
+- 若不想安装语言包，也可用系统自带的 `C.UTF-8`（`export LANG=C.UTF-8`），输出同样是英文且无警告
+
 ## apache2
 
 ### configs
