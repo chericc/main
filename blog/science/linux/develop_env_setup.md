@@ -748,11 +748,58 @@ permission:
     "find *": allow
     "which *": allow
     "whereis *": allow
+    "sed -n *": allow
+    "awk *": allow
+    "rg *": allow
+    "nl *": allow
+    "tac *": allow
+    "rev *": allow
+    "tr *": allow
+    "paste *": allow
+    "column *": allow
+    "join *": allow
+    "fold *": allow
+    "zcat *": allow
+    "zgrep *": allow
+    "zless *": allow
+    "bzcat *": allow
+    "xzcat *": allow
+    "diff *": allow
+    "cmp *": allow
+    "stat *": allow
+    "file *": allow
+    "strings *": allow
+    "xxd *": allow
+    "od *": allow
+    "hexdump *": allow
+    "md5sum *": allow
+    "sha256sum *": allow
+    "cksum *": allow
+    "readelf *": allow
+    "objdump *": allow
+    "nm *": allow
+    "size *": allow
+    "ldd *": allow
+    "addr2line *": allow
+    "basename *": allow
+    "dirname *": allow
+    "realpath *": allow
+    "readlink *": allow
+    "tar -tf *": allow
+    "unzip -l *": allow
+    "zipinfo *": allow
     "git status*": allow
     "git log *": allow
     "git diff *": allow
     "git show *": allow
     "git branch *": allow
+    "git blame *": allow
+    "git grep *": allow
+    "git reflog": allow
+    "git stash list": allow
+    "git config -l": allow
+    "git remote -v": allow
+    "git tag": allow
     "echo *": allow
     "printf *": allow
     "wc *": allow
@@ -813,11 +860,58 @@ permission:
     "find *": allow
     "which *": allow
     "whereis *": allow
+    "sed -n *": allow
+    "awk *": allow
+    "rg *": allow
+    "nl *": allow
+    "tac *": allow
+    "rev *": allow
+    "tr *": allow
+    "paste *": allow
+    "column *": allow
+    "join *": allow
+    "fold *": allow
+    "zcat *": allow
+    "zgrep *": allow
+    "zless *": allow
+    "bzcat *": allow
+    "xzcat *": allow
+    "diff *": allow
+    "cmp *": allow
+    "stat *": allow
+    "file *": allow
+    "strings *": allow
+    "xxd *": allow
+    "od *": allow
+    "hexdump *": allow
+    "md5sum *": allow
+    "sha256sum *": allow
+    "cksum *": allow
+    "readelf *": allow
+    "objdump *": allow
+    "nm *": allow
+    "size *": allow
+    "ldd *": allow
+    "addr2line *": allow
+    "basename *": allow
+    "dirname *": allow
+    "realpath *": allow
+    "readlink *": allow
+    "tar -tf *": allow
+    "unzip -l *": allow
+    "zipinfo *": allow
     "git status*": allow
     "git log *": allow
     "git diff *": allow
     "git show *": allow
     "git branch *": allow
+    "git blame *": allow
+    "git grep *": allow
+    "git reflog": allow
+    "git stash list": allow
+    "git config -l": allow
+    "git remote -v": allow
+    "git tag": allow
     "echo *": allow
     "printf *": allow
     "wc *": allow
