@@ -767,7 +767,6 @@ permission:
     "date": allow
     "cal": allow
     "uptime": allow
-    "*>*": ask
     "*.env*": deny
 ---
 
@@ -781,7 +780,6 @@ When you need to perform a write operation, clearly explain what you intend to d
 注意事项：
 
 - bash 权限规则采用 **last match wins** 策略，所以 `"*": ask` 放在最前面，具体的 `allow` 规则放在中间，兜底的 `deny`/`ask` 规则放在最后
-- `"*>*": ask`：禁止任何带重定向的命令自动执行。只读命令一旦带上 `>`（如 `echo x > file`、`grep foo file > out`、`sort a > b`）就会写文件，该规则使这类命令必须经过用户确认，避免绕过 `edit` 权限
 - `"*.env*": deny`：阻止通过 bash 读取 `.env` 文件（如 `cat .env`、`grep key .env`），补上 opencode 默认 `.env` 读取保护对 bash 命令的绕过
 - agent 名由文件名决定（`ask-to-edit.md` → `ask-to-edit`），frontmatter 中不需要 `name` 字段
 - 已设置为默认 agent，启动 opencode 时自动使用
@@ -834,7 +832,6 @@ permission:
     "date": allow
     "cal": allow
     "uptime": allow
-    "*>*": ask
     "*.env*": deny
 ---
 
