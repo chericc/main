@@ -743,22 +743,34 @@ endif()
 
 ## opencode
 
+> 本文档此前按 opencode v1 编写，本机当前为 opencode v2（命令名由 `opencode` 变为 `opencode2`，
+> 且可同时安装 v1 与 v2）。以下内容已按 v2 语法更新，与 v2 文档（https://opencode.ai/v2/docs）核对：
+>
+> - 配置路径不变：`~/.config/opencode/opencode.json(c)` 仍为全局配置；`~/.config/opencode/agents/*.md` 仍为 agent 定义文件
+> - v1 的 `provider` → v2 的 `providers`（复数）
+> - v1 的 `permission`（按工具分组的对象）→ v2 的 `permissions`（有序规则数组），规则格式为 `{ action, resource, effect }`
+> - v1 的 `bash` 动作名 → v2 的 `shell`；`*.env*` 防护规则同样从 `permission.bash` 迁移为 `permissions` 中的 `action: shell` 规则
+> - 规则匹配策略不变：均为 **last match wins**，宽泛规则在前、例外规则在后
+> - v2 会自动翻译 v1 旧格式的配置与 agent frontmatter（可兼容），但新写配置建议直接用 v2 语法
+
 ### 全局配置
 
 ```bash
 # ~/.config/opencode/opencode.jsonc
 ```
 
-```json
+```jsonc
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "ask-to-edit",
-  "provider": {},
-  "permission": {
-    "bash": {
-      "git commit*": "ask"
+  "providers": {},
+  "permissions": [
+    {
+      "action": "shell",
+      "resource": "git commit*",
+      "effect": "ask"
     }
-  }
+  ]
 }
 ```
 
@@ -776,88 +788,247 @@ Agent 定义文件放在 `~/.config/opencode/agents/ask-to-edit.md`，文件名�
 ---
 description: All edits and non-readonly commands require permission before execution
 mode: primary
-permission:
-  edit: ask
-  bash:
-    "*": ask
-    "ls *": allow
-    "pwd": allow
-    "cat *": allow
-    "head *": allow
-    "tail *": allow
-    "less *": allow
-    "more *": allow
-    "grep *": allow
-    "find *": allow
-    "which *": allow
-    "whereis *": allow
-    "sed -n *": allow
-    "awk *": allow
-    "rg *": allow
-    "nl *": allow
-    "tac *": allow
-    "rev *": allow
-    "tr *": allow
-    "paste *": allow
-    "column *": allow
-    "join *": allow
-    "fold *": allow
-    "zcat *": allow
-    "zgrep *": allow
-    "zless *": allow
-    "bzcat *": allow
-    "xzcat *": allow
-    "diff *": allow
-    "cmp *": allow
-    "stat *": allow
-    "file *": allow
-    "strings *": allow
-    "xxd *": allow
-    "od *": allow
-    "hexdump *": allow
-    "md5sum *": allow
-    "sha256sum *": allow
-    "cksum *": allow
-    "readelf *": allow
-    "objdump *": allow
-    "nm *": allow
-    "size *": allow
-    "ldd *": allow
-    "addr2line *": allow
-    "basename *": allow
-    "dirname *": allow
-    "realpath *": allow
-    "readlink *": allow
-    "tar -tf *": allow
-    "unzip -l *": allow
-    "zipinfo *": allow
-    "git status*": allow
-    "git log *": allow
-    "git diff *": allow
-    "git show *": allow
-    "git branch *": allow
-    "git blame *": allow
-    "git grep *": allow
-    "git reflog": allow
-    "git stash list": allow
-    "git config -l": allow
-    "git remote -v": allow
-    "git tag": allow
-    "echo *": allow
-    "printf *": allow
-    "wc *": allow
-    "sort *": allow
-    "uniq *": allow
-    "cut *": allow
-    "ps *": allow
-    "top *": allow
-    "df *": allow
-    "du *": allow
-    "free *": allow
-    "date": allow
-    "cal": allow
-    "uptime": allow
-    "*.env*": deny
+permissions:
+  - action: edit
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "ls *"
+    effect: allow
+  - action: shell
+    resource: "pwd"
+    effect: allow
+  - action: shell
+    resource: "cat *"
+    effect: allow
+  - action: shell
+    resource: "head *"
+    effect: allow
+  - action: shell
+    resource: "tail *"
+    effect: allow
+  - action: shell
+    resource: "less *"
+    effect: allow
+  - action: shell
+    resource: "more *"
+    effect: allow
+  - action: shell
+    resource: "grep *"
+    effect: allow
+  - action: shell
+    resource: "find *"
+    effect: allow
+  - action: shell
+    resource: "which *"
+    effect: allow
+  - action: shell
+    resource: "whereis *"
+    effect: allow
+  - action: shell
+    resource: "sed -n *"
+    effect: allow
+  - action: shell
+    resource: "awk *"
+    effect: allow
+  - action: shell
+    resource: "rg *"
+    effect: allow
+  - action: shell
+    resource: "nl *"
+    effect: allow
+  - action: shell
+    resource: "tac *"
+    effect: allow
+  - action: shell
+    resource: "rev *"
+    effect: allow
+  - action: shell
+    resource: "tr *"
+    effect: allow
+  - action: shell
+    resource: "paste *"
+    effect: allow
+  - action: shell
+    resource: "column *"
+    effect: allow
+  - action: shell
+    resource: "join *"
+    effect: allow
+  - action: shell
+    resource: "fold *"
+    effect: allow
+  - action: shell
+    resource: "zcat *"
+    effect: allow
+  - action: shell
+    resource: "zgrep *"
+    effect: allow
+  - action: shell
+    resource: "zless *"
+    effect: allow
+  - action: shell
+    resource: "bzcat *"
+    effect: allow
+  - action: shell
+    resource: "xzcat *"
+    effect: allow
+  - action: shell
+    resource: "diff *"
+    effect: allow
+  - action: shell
+    resource: "cmp *"
+    effect: allow
+  - action: shell
+    resource: "stat *"
+    effect: allow
+  - action: shell
+    resource: "file *"
+    effect: allow
+  - action: shell
+    resource: "strings *"
+    effect: allow
+  - action: shell
+    resource: "xxd *"
+    effect: allow
+  - action: shell
+    resource: "od *"
+    effect: allow
+  - action: shell
+    resource: "hexdump *"
+    effect: allow
+  - action: shell
+    resource: "md5sum *"
+    effect: allow
+  - action: shell
+    resource: "sha256sum *"
+    effect: allow
+  - action: shell
+    resource: "cksum *"
+    effect: allow
+  - action: shell
+    resource: "readelf *"
+    effect: allow
+  - action: shell
+    resource: "objdump *"
+    effect: allow
+  - action: shell
+    resource: "nm *"
+    effect: allow
+  - action: shell
+    resource: "size *"
+    effect: allow
+  - action: shell
+    resource: "ldd *"
+    effect: allow
+  - action: shell
+    resource: "addr2line *"
+    effect: allow
+  - action: shell
+    resource: "basename *"
+    effect: allow
+  - action: shell
+    resource: "dirname *"
+    effect: allow
+  - action: shell
+    resource: "realpath *"
+    effect: allow
+  - action: shell
+    resource: "readlink *"
+    effect: allow
+  - action: shell
+    resource: "tar -tf *"
+    effect: allow
+  - action: shell
+    resource: "unzip -l *"
+    effect: allow
+  - action: shell
+    resource: "zipinfo *"
+    effect: allow
+  - action: shell
+    resource: "git status*"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "git branch *"
+    effect: allow
+  - action: shell
+    resource: "git blame *"
+    effect: allow
+  - action: shell
+    resource: "git grep *"
+    effect: allow
+  - action: shell
+    resource: "git reflog"
+    effect: allow
+  - action: shell
+    resource: "git stash list"
+    effect: allow
+  - action: shell
+    resource: "git config -l"
+    effect: allow
+  - action: shell
+    resource: "git remote -v"
+    effect: allow
+  - action: shell
+    resource: "git tag"
+    effect: allow
+  - action: shell
+    resource: "echo *"
+    effect: allow
+  - action: shell
+    resource: "printf *"
+    effect: allow
+  - action: shell
+    resource: "wc *"
+    effect: allow
+  - action: shell
+    resource: "sort *"
+    effect: allow
+  - action: shell
+    resource: "uniq *"
+    effect: allow
+  - action: shell
+    resource: "cut *"
+    effect: allow
+  - action: shell
+    resource: "ps *"
+    effect: allow
+  - action: shell
+    resource: "top *"
+    effect: allow
+  - action: shell
+    resource: "df *"
+    effect: allow
+  - action: shell
+    resource: "du *"
+    effect: allow
+  - action: shell
+    resource: "free *"
+    effect: allow
+  - action: shell
+    resource: "date"
+    effect: allow
+  - action: shell
+    resource: "cal"
+    effect: allow
+  - action: shell
+    resource: "uptime"
+    effect: allow
+  - action: shell
+    resource: "*.env*"
+    effect: deny
 ---
 
 You are in "Ask To Edit" mode. Before performing any file edits or executing non-readonly bash commands, you must request permission from the user.
@@ -869,10 +1040,10 @@ When you need to perform a write operation, clearly explain what you intend to d
 
 注意事项：
 
-- bash 权限规则采用 **last match wins** 策略，所以 `"*": ask` 放在最前面，具体的 `allow` 规则放在中间，兜底的 `deny`/`ask` 规则放在最后
-- `"*.env*": deny`：阻止通过 bash 读取 `.env` 文件（如 `cat .env`、`grep key .env`），补上 opencode 默认 `.env` 读取保护对 bash 命令的绕过
+- `permissions` 权限规则采用 **last match wins** 策略，所以 `action: shell / resource: "*"` 的 `ask` 规则放在最前面，具体的 `allow` 规则放在中间，兜底的 `deny`/`ask` 规则放在最后
+- `*.env*` 的 `deny` 规则：阻止通过 shell 读取 `.env` 文件（如 `cat .env`、`grep key .env`），补上 opencode 默认 `.env` 读取保护对 shell 命令的绕过
 - agent 名由文件名决定（`ask-to-edit.md` → `ask-to-edit`），frontmatter 中不需要 `name` 字段
-- 已设置为默认 agent，启动 opencode 时自动使用
+- 已设置为默认 agent（`default_agent`），启动 opencode2 时自动使用
 
 ### Auto Edit 自定义 Agent
 
@@ -888,88 +1059,247 @@ Agent 定义文件放在 `~/.config/opencode/agents/auto-edit.md`。
 ---
 description: Edits files automatically, but non-readonly bash commands require permission
 mode: primary
-permission:
-  edit: allow
-  bash:
-    "*": ask
-    "ls *": allow
-    "pwd": allow
-    "cat *": allow
-    "head *": allow
-    "tail *": allow
-    "less *": allow
-    "more *": allow
-    "grep *": allow
-    "find *": allow
-    "which *": allow
-    "whereis *": allow
-    "sed -n *": allow
-    "awk *": allow
-    "rg *": allow
-    "nl *": allow
-    "tac *": allow
-    "rev *": allow
-    "tr *": allow
-    "paste *": allow
-    "column *": allow
-    "join *": allow
-    "fold *": allow
-    "zcat *": allow
-    "zgrep *": allow
-    "zless *": allow
-    "bzcat *": allow
-    "xzcat *": allow
-    "diff *": allow
-    "cmp *": allow
-    "stat *": allow
-    "file *": allow
-    "strings *": allow
-    "xxd *": allow
-    "od *": allow
-    "hexdump *": allow
-    "md5sum *": allow
-    "sha256sum *": allow
-    "cksum *": allow
-    "readelf *": allow
-    "objdump *": allow
-    "nm *": allow
-    "size *": allow
-    "ldd *": allow
-    "addr2line *": allow
-    "basename *": allow
-    "dirname *": allow
-    "realpath *": allow
-    "readlink *": allow
-    "tar -tf *": allow
-    "unzip -l *": allow
-    "zipinfo *": allow
-    "git status*": allow
-    "git log *": allow
-    "git diff *": allow
-    "git show *": allow
-    "git branch *": allow
-    "git blame *": allow
-    "git grep *": allow
-    "git reflog": allow
-    "git stash list": allow
-    "git config -l": allow
-    "git remote -v": allow
-    "git tag": allow
-    "echo *": allow
-    "printf *": allow
-    "wc *": allow
-    "sort *": allow
-    "uniq *": allow
-    "cut *": allow
-    "ps *": allow
-    "top *": allow
-    "df *": allow
-    "du *": allow
-    "free *": allow
-    "date": allow
-    "cal": allow
-    "uptime": allow
-    "*.env*": deny
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: ask
+  - action: shell
+    resource: "ls *"
+    effect: allow
+  - action: shell
+    resource: "pwd"
+    effect: allow
+  - action: shell
+    resource: "cat *"
+    effect: allow
+  - action: shell
+    resource: "head *"
+    effect: allow
+  - action: shell
+    resource: "tail *"
+    effect: allow
+  - action: shell
+    resource: "less *"
+    effect: allow
+  - action: shell
+    resource: "more *"
+    effect: allow
+  - action: shell
+    resource: "grep *"
+    effect: allow
+  - action: shell
+    resource: "find *"
+    effect: allow
+  - action: shell
+    resource: "which *"
+    effect: allow
+  - action: shell
+    resource: "whereis *"
+    effect: allow
+  - action: shell
+    resource: "sed -n *"
+    effect: allow
+  - action: shell
+    resource: "awk *"
+    effect: allow
+  - action: shell
+    resource: "rg *"
+    effect: allow
+  - action: shell
+    resource: "nl *"
+    effect: allow
+  - action: shell
+    resource: "tac *"
+    effect: allow
+  - action: shell
+    resource: "rev *"
+    effect: allow
+  - action: shell
+    resource: "tr *"
+    effect: allow
+  - action: shell
+    resource: "paste *"
+    effect: allow
+  - action: shell
+    resource: "column *"
+    effect: allow
+  - action: shell
+    resource: "join *"
+    effect: allow
+  - action: shell
+    resource: "fold *"
+    effect: allow
+  - action: shell
+    resource: "zcat *"
+    effect: allow
+  - action: shell
+    resource: "zgrep *"
+    effect: allow
+  - action: shell
+    resource: "zless *"
+    effect: allow
+  - action: shell
+    resource: "bzcat *"
+    effect: allow
+  - action: shell
+    resource: "xzcat *"
+    effect: allow
+  - action: shell
+    resource: "diff *"
+    effect: allow
+  - action: shell
+    resource: "cmp *"
+    effect: allow
+  - action: shell
+    resource: "stat *"
+    effect: allow
+  - action: shell
+    resource: "file *"
+    effect: allow
+  - action: shell
+    resource: "strings *"
+    effect: allow
+  - action: shell
+    resource: "xxd *"
+    effect: allow
+  - action: shell
+    resource: "od *"
+    effect: allow
+  - action: shell
+    resource: "hexdump *"
+    effect: allow
+  - action: shell
+    resource: "md5sum *"
+    effect: allow
+  - action: shell
+    resource: "sha256sum *"
+    effect: allow
+  - action: shell
+    resource: "cksum *"
+    effect: allow
+  - action: shell
+    resource: "readelf *"
+    effect: allow
+  - action: shell
+    resource: "objdump *"
+    effect: allow
+  - action: shell
+    resource: "nm *"
+    effect: allow
+  - action: shell
+    resource: "size *"
+    effect: allow
+  - action: shell
+    resource: "ldd *"
+    effect: allow
+  - action: shell
+    resource: "addr2line *"
+    effect: allow
+  - action: shell
+    resource: "basename *"
+    effect: allow
+  - action: shell
+    resource: "dirname *"
+    effect: allow
+  - action: shell
+    resource: "realpath *"
+    effect: allow
+  - action: shell
+    resource: "readlink *"
+    effect: allow
+  - action: shell
+    resource: "tar -tf *"
+    effect: allow
+  - action: shell
+    resource: "unzip -l *"
+    effect: allow
+  - action: shell
+    resource: "zipinfo *"
+    effect: allow
+  - action: shell
+    resource: "git status*"
+    effect: allow
+  - action: shell
+    resource: "git log *"
+    effect: allow
+  - action: shell
+    resource: "git diff *"
+    effect: allow
+  - action: shell
+    resource: "git show *"
+    effect: allow
+  - action: shell
+    resource: "git branch *"
+    effect: allow
+  - action: shell
+    resource: "git blame *"
+    effect: allow
+  - action: shell
+    resource: "git grep *"
+    effect: allow
+  - action: shell
+    resource: "git reflog"
+    effect: allow
+  - action: shell
+    resource: "git stash list"
+    effect: allow
+  - action: shell
+    resource: "git config -l"
+    effect: allow
+  - action: shell
+    resource: "git remote -v"
+    effect: allow
+  - action: shell
+    resource: "git tag"
+    effect: allow
+  - action: shell
+    resource: "echo *"
+    effect: allow
+  - action: shell
+    resource: "printf *"
+    effect: allow
+  - action: shell
+    resource: "wc *"
+    effect: allow
+  - action: shell
+    resource: "sort *"
+    effect: allow
+  - action: shell
+    resource: "uniq *"
+    effect: allow
+  - action: shell
+    resource: "cut *"
+    effect: allow
+  - action: shell
+    resource: "ps *"
+    effect: allow
+  - action: shell
+    resource: "top *"
+    effect: allow
+  - action: shell
+    resource: "df *"
+    effect: allow
+  - action: shell
+    resource: "du *"
+    effect: allow
+  - action: shell
+    resource: "free *"
+    effect: allow
+  - action: shell
+    resource: "date"
+    effect: allow
+  - action: shell
+    resource: "cal"
+    effect: allow
+  - action: shell
+    resource: "uptime"
+    effect: allow
+  - action: shell
+    resource: "*.env*"
+    effect: deny
 ---
 
 You are in "Auto Edit" mode. File edits are performed automatically without asking for permission.
@@ -981,19 +1311,19 @@ When you need to perform a non-readonly bash operation, clearly explain what you
 
 与 Ask To Edit 模式的区别：
 
-| 模式 | 文件编辑 | Bash 命令 |
+| 模式 | 文件编辑 | Shell 命令 |
 |------|----------|-----------|
 | Ask To Edit | 需要确认 | 只读命令自动，其他需要确认 |
 | Auto Edit | 自动执行 | 只读命令自动，其他需要确认 |
 
-切换方式：启动时 `opencode --agent auto-edit`
+切换方式：v2 主 TUI 不支持 `--agent` 启动标志（`--agent` 仅用于子命令），在 TUI 内通过 agent 切换菜单选择即可；非交互运行用 `opencode2 run --agent auto-edit "..."`，最小化界面用 `opencode2 mini --agent auto-edit`
 
 ### 清理配置与数据
 
 不卸载 opencode 本身，仅清除其配置、数据和缓存，恢复到全新状态。清理前先退出所有正在运行的 opencode 进程。
 
 ```bash
-# 1. 全局配置（opencode.jsonc、agents/、commands/、skills/、插件依赖 node_modules/ 等）
+# 1. 全局配置（opencode.jsonc、cli.json、agents/、commands/、skills/、插件依赖 node_modules/ 等）
 rm -rf ~/.config/opencode
 
 # 2. 用户数据（登录凭证 auth.json、会话数据库 opencode.db、日志 log/、仓库缓存 repos/）
@@ -1005,10 +1335,12 @@ rm -rf ~/.cache/opencode
 
 注意事项：
 
-- 清理后所有登录凭证（API key 等）丢失，需重新执行 `opencode auth login`
+- 清理后所有登录凭证（API key 等）丢失，需重新执行 `opencode2 auth login`
 - 会话历史、消息记录存储在 `~/.local/share/opencode/opencode.db`（SQLite），删除后不可恢复
+- `~/.local/share/opencode/log/` 存放服务运行日志（如 `opencode.log`），v1/v2 路径相同
 - `~/.config/opencode` 下的 `node_modules/` 是 opencode 自动安装的插件依赖，无需手动保留
 - `~/.agents/skills`、`~/.claude/skills` 属于外部技能目录，并非 opencode 独有，仅在确定不需要时一并清理
+- v1（`opencode`）与 v2（`opencode2`）复用同一配置目录，上述清理会对两者同时生效
 
 ## zsh
 
