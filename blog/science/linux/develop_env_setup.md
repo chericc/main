@@ -774,6 +774,52 @@ endif()
 }
 ```
 
+### 自定义 Provider + Model
+
+配置自定义 AI 提供商及其模型的限制和思考等级。
+
+```bash
+# ~/.config/opencode/opencode.json
+```
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "scnet": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "SCNet",
+      "options": {
+        "baseURL": "https://api.scnet.cn/api/llm/v1",
+        "apiKey": "sk-tp-xxxx"
+      },
+      "models": {
+        "DeepSeek-V4-Flash-0731": {
+          "name": "DeepSeek-V4-Flash-0731",
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          },
+          "options": {
+            "reasoningEffort": "high"
+          }
+        }
+      }
+    }
+  },
+  "model": "DeepSeek-V4-Flash-0731"
+}
+```
+
+关键配置说明：
+
+- `limit.context`: 最大输入上下文（tokens），DeepSeek V4 Flash 为 1M
+- `limit.output`: 最大输出长度（tokens），DeepSeek V4 Flash 为 384K
+- `options.reasoningEffort`: 思考强度等级，DeepSeek V4 Flash 支持 `low` / `high` / `max`，默认 `high`
+
+参考：
+- [DeepSeek API 文档](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
+
 ### Ask To Edit 自定义 Agent
 
 类似 Claude Code 的 "Ask To Edit" 模式，所有编辑和非只读命令都需要用户确认。
