@@ -1342,6 +1342,277 @@ rm -rf ~/.cache/opencode
 - `~/.agents/skills`、`~/.claude/skills` 属于外部技能目录，并非 opencode 独有，仅在确定不需要时一并清理
 - v1（`opencode`）与 v2（`opencode2`）复用同一配置目录，上述清理会对两者同时生效
 
+### v1（opencode）配置
+
+> 本节为 v2 升级前（opencode v1）的配置存档，直接从提交历史中拷贝。当前机器已升级到 v2，v1 配置仅作参考，若要使用 v1 请先安装 v1 版本的 opencode。
+
+#### 全局配置
+
+```bash
+# ~/.config/opencode/opencode.jsonc
+```
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "ask-to-edit",
+  "provider": {},
+  "permission": {
+    "bash": {
+      "git commit*": "ask"
+    }
+  }
+}
+```
+
+#### Ask To Edit 自定义 Agent
+
+类似 Claude Code 的 "Ask To Edit" 模式，所有编辑和非只读命令都需要用户确认。
+
+Agent 定义文件放在 `~/.config/opencode/agents/ask-to-edit.md`，文件名即 agent 名。
+
+```bash
+# ~/.config/opencode/agents/ask-to-edit.md
+```
+
+```markdown
+---
+description: All edits and non-readonly commands require permission before execution
+mode: primary
+permission:
+  edit: ask
+  bash:
+    "*": ask
+    "ls *": allow
+    "pwd": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "less *": allow
+    "more *": allow
+    "grep *": allow
+    "find *": allow
+    "which *": allow
+    "whereis *": allow
+    "sed -n *": allow
+    "awk *": allow
+    "rg *": allow
+    "nl *": allow
+    "tac *": allow
+    "rev *": allow
+    "tr *": allow
+    "paste *": allow
+    "column *": allow
+    "join *": allow
+    "fold *": allow
+    "zcat *": allow
+    "zgrep *": allow
+    "zless *": allow
+    "bzcat *": allow
+    "xzcat *": allow
+    "diff *": allow
+    "cmp *": allow
+    "stat *": allow
+    "file *": allow
+    "strings *": allow
+    "xxd *": allow
+    "od *": allow
+    "hexdump *": allow
+    "md5sum *": allow
+    "sha256sum *": allow
+    "cksum *": allow
+    "readelf *": allow
+    "objdump *": allow
+    "nm *": allow
+    "size *": allow
+    "ldd *": allow
+    "addr2line *": allow
+    "basename *": allow
+    "dirname *": allow
+    "realpath *": allow
+    "readlink *": allow
+    "tar -tf *": allow
+    "unzip -l *": allow
+    "zipinfo *": allow
+    "git status*": allow
+    "git log *": allow
+    "git diff *": allow
+    "git show *": allow
+    "git branch *": allow
+    "git blame *": allow
+    "git grep *": allow
+    "git reflog": allow
+    "git stash list": allow
+    "git config -l": allow
+    "git remote -v": allow
+    "git tag": allow
+    "echo *": allow
+    "printf *": allow
+    "wc *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "ps *": allow
+    "top *": allow
+    "df *": allow
+    "du *": allow
+    "free *": allow
+    "date": allow
+    "cal": allow
+    "uptime": allow
+    "*.env*": deny
+---
+
+You are in "Ask To Edit" mode. Before performing any file edits or executing non-readonly bash commands, you must request permission from the user.
+
+Readonly operations (viewing files, checking git status, etc.) can be performed freely. Any operation that modifies files, creates/deletes content, or changes system state requires explicit approval.
+
+When you need to perform a write operation, clearly explain what you intend to do and wait for the user's confirmation before proceeding.
+```
+
+注意事项：
+
+- bash 权限规则采用 **last match wins** 策略，所以 `"*": ask` 放在最前面，具体的 `allow` 规则放在中间，兜底的 `deny`/`ask` 规则放在最后
+- `"*.env*": deny`：阻止通过 bash 读取 `.env` 文件（如 `cat .env`、`grep key .env`），补上 opencode 默认 `.env` 读取保护对 bash 命令的绕过
+- agent 名由文件名决定（`ask-to-edit.md` → `ask-to-edit`），frontmatter 中不需要 `name` 字段
+- 已设置为默认 agent，启动 opencode 时自动使用
+
+#### Auto Edit 自定义 Agent
+
+类似 Claude Code 的 "Edit Automatically" 模式，文件编辑自动执行，但非只读 bash 命令需要用户确认。
+
+Agent 定义文件放在 `~/.config/opencode/agents/auto-edit.md`。
+
+```bash
+# ~/.config/opencode/agents/auto-edit.md
+```
+
+```markdown
+---
+description: Edits files automatically, but non-readonly bash commands require permission
+mode: primary
+permission:
+  edit: allow
+  bash:
+    "*": ask
+    "ls *": allow
+    "pwd": allow
+    "cat *": allow
+    "head *": allow
+    "tail *": allow
+    "less *": allow
+    "more *": allow
+    "grep *": allow
+    "find *": allow
+    "which *": allow
+    "whereis *": allow
+    "sed -n *": allow
+    "awk *": allow
+    "rg *": allow
+    "nl *": allow
+    "tac *": allow
+    "rev *": allow
+    "tr *": allow
+    "paste *": allow
+    "column *": allow
+    "join *": allow
+    "fold *": allow
+    "zcat *": allow
+    "zgrep *": allow
+    "zless *": allow
+    "bzcat *": allow
+    "xzcat *": allow
+    "diff *": allow
+    "cmp *": allow
+    "stat *": allow
+    "file *": allow
+    "strings *": allow
+    "xxd *": allow
+    "od *": allow
+    "hexdump *": allow
+    "md5sum *": allow
+    "sha256sum *": allow
+    "cksum *": allow
+    "readelf *": allow
+    "objdump *": allow
+    "nm *": allow
+    "size *": allow
+    "ldd *": allow
+    "addr2line *": allow
+    "basename *": allow
+    "dirname *": allow
+    "realpath *": allow
+    "readlink *": allow
+    "tar -tf *": allow
+    "unzip -l *": allow
+    "zipinfo *": allow
+    "git status*": allow
+    "git log *": allow
+    "git diff *": allow
+    "git show *": allow
+    "git branch *": allow
+    "git blame *": allow
+    "git grep *": allow
+    "git reflog": allow
+    "git stash list": allow
+    "git config -l": allow
+    "git remote -v": allow
+    "git tag": allow
+    "echo *": allow
+    "printf *": allow
+    "wc *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "ps *": allow
+    "top *": allow
+    "df *": allow
+    "du *": allow
+    "free *": allow
+    "date": allow
+    "cal": allow
+    "uptime": allow
+    "*.env*": deny
+---
+
+You are in "Auto Edit" mode. File edits are performed automatically without asking for permission.
+
+Readonly bash operations (viewing files, checking git status, etc.) can be performed freely. Any bash command that modifies files, creates/deletes content, or changes system state requires explicit approval from the user.
+
+When you need to perform a non-readonly bash operation, clearly explain what you intend to do and wait for the user's confirmation before proceeding.
+```
+
+与 Ask To Edit 模式的区别：
+
+| 模式 | 文件编辑 | Bash 命令 |
+|------|----------|-----------|
+| Ask To Edit | 需要确认 | 只读命令自动，其他需要确认 |
+| Auto Edit | 自动执行 | 只读命令自动，其他需要确认 |
+
+切换方式：启动时 `opencode --agent auto-edit`
+
+#### 清理配置与数据
+
+不卸载 opencode 本身，仅清除其配置、数据和缓存，恢复到全新状态。清理前先退出所有正在运行的 opencode 进程。
+
+```bash
+# 1. 全局配置（opencode.jsonc、agents/、commands/、skills/、插件依赖 node_modules/ 等）
+rm -rf ~/.config/opencode
+
+# 2. 用户数据（登录凭证 auth.json、会话数据库 opencode.db、日志 log/、仓库缓存 repos/）
+rm -rf ~/.local/share/opencode
+
+# 3. 缓存（升级用的二进制缓存 bin/）
+rm -rf ~/.cache/opencode
+```
+
+注意事项：
+
+- 清理后所有登录凭证（API key 等）丢失，需重新执行 `opencode auth login`
+- 会话历史、消息记录存储在 `~/.local/share/opencode/opencode.db`（SQLite），删除后不可恢复
+- `~/.config/opencode` 下的 `node_modules/` 是 opencode 自动安装的插件依赖，无需手动保留
+- `~/.agents/skills`、`~/.claude/skills` 属于外部技能目录，并非 opencode 独有，仅在确定不需要时一并清理
+
 ## zsh
 
 ### Tab 补全行为优化
