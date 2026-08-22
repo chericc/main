@@ -774,6 +774,32 @@ endif()
 }
 ```
 
+### 默认编辑器（EDITOR）
+
+opencode 及 git 等命令行工具在需要打开外部编辑器时（如交互式编辑提交说明），读取 `EDITOR` 环境变量；未设置时通常回退到系统默认（Ubuntu 为 nano）。
+
+在 `~/.bashrc` 末尾追加：
+
+```bash
+# 默认编辑器使用 vim
+export EDITOR=vim
+```
+
+重新加载并验证：
+
+```bash
+source ~/.bashrc
+
+echo $EDITOR
+# vim
+```
+
+说明：
+
+- 只改 `~/.bashrc` 仅影响当前用户；zsh 用户写入 `~/.zshrc`
+- 系统级默认编辑器可通过 `sudo update-alternatives --config editor` 修改（Debian/Ubuntu）
+- 若设置了 `VISUAL` 变量，多数程序优先取 `VISUAL`，建议两者保持一致（`export VISUAL=vim`）
+
 ### 自定义 Provider + Model
 
 配置自定义 AI 提供商及其模型的限制和思考等级。
