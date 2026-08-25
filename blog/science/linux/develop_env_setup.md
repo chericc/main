@@ -1749,3 +1749,14 @@ infocmp -x xterm-ghostty | ssh USER@SERVER -- tic -x -
 - `tic` 默认写入系统数据库 `/usr/share/terminfo`，如果没有写权限则回退到 `$HOME/.terminfo`。
 
 - 如果远程 ncurses 版本 >= 6.5-20241228，则系统已自带 `xterm-ghostty` 条目，无需手动安装。
+
+## deepseek-harness
+
+```bash
+# remote
+npm install -g @deepseek-ai/dsh --proxy http://proxy-server:port
+dsh web --port 10086
+
+# host
+ssh -N -L 10086:localhost:10086 ubuntu
+```
