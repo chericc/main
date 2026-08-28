@@ -911,6 +911,12 @@ permissions:
     resource: "find *"
     effect: allow
   - action: shell
+    resource: "find /"
+    effect: ask
+  - action: shell
+    resource: "find / *"
+    effect: ask
+  - action: shell
     resource: "which *"
     effect: allow
   - action: shell
@@ -1181,6 +1187,12 @@ permissions:
   - action: shell
     resource: "find *"
     effect: allow
+  - action: shell
+    resource: "find /"
+    effect: ask
+  - action: shell
+    resource: "find / *"
+    effect: ask
   - action: shell
     resource: "which *"
     effect: allow
@@ -1480,6 +1492,8 @@ permission:
     "more *": allow
     "grep *": allow
     "find *": allow
+    "find /": ask
+    "find / *": ask
     "which *": allow
     "whereis *": allow
     "sed -n *": allow
@@ -1592,6 +1606,8 @@ permission:
     "more *": allow
     "grep *": allow
     "find *": allow
+    "find /": ask
+    "find / *": ask
     "which *": allow
     "whereis *": allow
     "sed -n *": allow
