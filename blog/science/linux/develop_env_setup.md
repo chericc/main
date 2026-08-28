@@ -846,6 +846,22 @@ echo $EDITOR
 参考：
 - [DeepSeek API 文档](https://api-docs.deepseek.com/zh-cn/quick_start/pricing)
 
+### 刷新内置模型列表（models.dev 缓存）
+
+opencode 内置的是它发布时打包的 models.dev 快照，不会实时同步。当 TUI 的 switch model 菜单看不到 models.dev 上已经有的新模型（如 `ollama-cloud/glm-5.3-flash`）时，即使命令行里能查到，菜单也可能不显示，可用 `--refresh` 强制刷新缓存：
+
+```bash
+# 查看某个 provider 下所有模型（含详细元数据），并强制刷新 models.dev 缓存
+opencode models ollama-cloud --refresh --verbose
+```
+
+说明：
+
+- `--refresh`：重新拉取 models.dev 的模型数据（内置快照 → 最新数据）
+- `--verbose`：输出模型完整元数据（cost、limit、capabilities、api 端点等），便于排查
+- 若刷新后 TUI 菜单仍不显示，直接在该 provider 的 `models` 里手动补全（见上节"自定义 Provider + Model"）
+- 本机为 opencode v2 时，命令名用 `opencode2 models ollama-cloud --refresh --verbose`
+
 ### Ask To Edit 自定义 Agent
 
 类似 Claude Code 的 "Ask To Edit" 模式，所有编辑和非只读命令都需要用户确认。
