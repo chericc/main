@@ -767,6 +767,11 @@ endif()
   "permissions": [
     {
       "action": "shell",
+      "resource": "git config*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
       "resource": "git commit*",
       "effect": "ask"
     }
@@ -1070,8 +1075,8 @@ permissions:
     resource: "git stash list"
     effect: allow
   - action: shell
-    resource: "git config -l"
-    effect: allow
+    resource: "git config*"
+    effect: deny
   - action: shell
     resource: "git remote -v"
     effect: allow
@@ -1347,8 +1352,8 @@ permissions:
     resource: "git stash list"
     effect: allow
   - action: shell
-    resource: "git config -l"
-    effect: allow
+    resource: "git config*"
+    effect: deny
   - action: shell
     resource: "git remote -v"
     effect: allow
@@ -1459,6 +1464,7 @@ rm -rf ~/.cache/opencode
   "provider": {},
   "permission": {
     "bash": {
+      "git config*": "deny",
       "git commit*": "ask"
     }
   }
@@ -1545,7 +1551,7 @@ permission:
     "git grep *": allow
     "git reflog": allow
     "git stash list": allow
-    "git config -l": allow
+    "git config*": deny
     "git remote -v": allow
     "git tag": allow
     "echo *": allow
@@ -1659,7 +1665,7 @@ permission:
     "git grep *": allow
     "git reflog": allow
     "git stash list": allow
-    "git config -l": allow
+    "git config*": deny
     "git remote -v": allow
     "git tag": allow
     "echo *": allow
