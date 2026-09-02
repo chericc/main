@@ -57,6 +57,12 @@ Enjoy it.
 
 ## clangd
 
+交叉编译项目（compile_commands.json 里的编译器是 arm-linux-gnueabi-gcc 之类的交叉工具链）必须加 `--query-driver`：
+clangd 默认不执行 CDB 里的编译器，只会拿宿主机 `/usr/include` 当系统头文件路径，
+于是 sysroot 里的头文件（如 sys/time.h、errno.h）全部报 "file not found"，并连锁出一堆
+undeclared identifier。加上 `--query-driver` 后 clangd 会执行一次交叉编译器提取真实的
+include 路径，问题消失。
+
 ```json
 {
     "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
@@ -70,6 +76,7 @@ Enjoy it.
         "-j=4",
         "--background-index", 
         "--compile-commands-dir=${workspaceFolder}/build/release",
+        "--query-driver=/home/test/toolchain/bin/*",
     ],
     "clangd.path": "/home/test/opensrc/clangd/bin/clangd",
     "files.exclude": {
