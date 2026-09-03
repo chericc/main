@@ -108,6 +108,15 @@ Diagnostics:
         modernize-*,
         readability-*,
         cppcoreguidelines-pro-type-member-init,
+        cppcoreguidelines-slicing,
+        cppcoreguidelines-prefer-member-initializer,
+        cppcoreguidelines-special-member-functions,
+        cert-err34-c,
+        cert-err60-cpp,
+        cert-oop57-cpp,
+        cert-flp30-c,
+        misc-unused-parameters,
+        misc-definitions-in-headers,
       ]
     Remove:
       [
