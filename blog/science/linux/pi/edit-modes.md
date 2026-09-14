@@ -13,6 +13,16 @@ pi（`@earendil-works/pi-coding-agent`）本身没有内置的权限 / 编辑确
 
 `ask-to-edit` / `auto-edit` 下 bash 行为一致：只读命令自动放行，非只读命令一律弹窗确认。`auto-all` 下只有危险命令（见下文）才弹窗。无 UI 时（`-p` / `--mode json`）需要审批的操作直接阻止并返回原因。
 
+## 审批界面
+
+`ask-to-edit`（以及 `auto-all` 下的项目外编辑）弹出的确认框是一个自定义 TUI 组件：
+
+- 默认只显示前 6 行 diff（`+` 绿 / `-` 红 / `@@` 高亮），超出部分显示 `… N more lines`
+- 点击预览区，或按 `v` / `ctrl+o`，打开**全屏可滚动的完整 diff**（overlay）
+- 全屏中：`↑↓`、`PageUp` / `PageDown`、`Home` / `End`、鼠标滚轮滚动；点击任意处或按 `Esc` / `q` / `ctrl+c` 返回
+- 选项 `Allow once` / `Allow all edits` / `Deny`：`↑↓` + `Enter`，或直接用鼠标点击选项行
+- 鼠标交互依赖 `tuiMode: "fullscreen"`（见 [开发环境配置](../develop_env_setup.md)）；非 TUI 模式回退为普通 `select` 对话框
+
 ## 扩展文件
 
 放到全局扩展目录即可被自动发现，无需修改 `settings.json`：
@@ -71,8 +81,18 @@ import {
 	type EditToolCallEvent,
 	type ExtensionAPI,
 	type ExtensionContext,
+	type Theme,
 	type WriteToolCallEvent,
 } from "@earendil-works/pi-coding-agent";
+import {
+	matchesKey,
+	truncateToWidth,
+	visibleWidth,
+	type Component,
+	type TUI,
+	type TuiMouseEvent,
+	type TuiMouseEventResult,
+} from "@earendil-works/pi-tui";
 
 type EditMode = "ask-to-edit" | "auto-edit" | "auto-all";
 
@@ -856,24 +876,272 @@ function classifyDangerousBash(command: string, cwd: string, depth = 0): string 
 }
 
 // ---------------------------------------------------------------------------
-// Edit/write previews
+// Full-diff review UI
+//
+// The approval dialog shows a short collapsed preview. Clicking the preview (or
+// pressing "v") opens a fullscreen, scrollable overlay so the whole change can
+// be reviewed before deciding. The overlay is a separate ctx.ui.custom() call so
+// the two UIs never nest.
 // ---------------------------------------------------------------------------
 
-function buildEditPreview(input: EditToolCallEvent["input"]): string {
-	const parts: string[] = [];
-	input.edits.forEach((edit, index) => {
-		if (input.edits.length > 1) {
-			parts.push(`@@ change ${index + 1} of ${input.edits.length} @@`);
-		}
-		for (const line of edit.oldText.split("\n")) parts.push(`- ${line}`);
-		for (const line of edit.newText.split("\n")) parts.push(`+ ${line}`);
-	});
-	return truncateForPreview(parts.join("\n"), MAX_PREVIEW_LINES, MAX_PREVIEW_WIDTH);
+type DiffLineKind = "add" | "del" | "hunk" | "context";
+
+interface DiffLine {
+	text: string;
+	kind: DiffLineKind;
 }
 
-function buildWritePreview(input: WriteToolCallEvent["input"]): string {
-	const parts = input.content.split("\n").map((line) => `+ ${line}`);
-	return truncateForPreview(parts.join("\n"), MAX_PREVIEW_LINES, MAX_PREVIEW_WIDTH);
+type ApprovalChoice = "allow" | "allow-all" | "deny";
+type ApprovalResult = ApprovalChoice | "view" | undefined;
+
+function buildEditDiffLines(input: EditToolCallEvent["input"]): DiffLine[] {
+	const lines: DiffLine[] = [];
+	input.edits.forEach((edit, index) => {
+		if (input.edits.length > 1) {
+			lines.push({ text: `@@ change ${index + 1} of ${input.edits.length} @@`, kind: "hunk" });
+		}
+		for (const line of edit.oldText.split("\n")) lines.push({ text: `- ${line}`, kind: "del" });
+		for (const line of edit.newText.split("\n")) lines.push({ text: `+ ${line}`, kind: "add" });
+	});
+	return lines;
+}
+
+function buildWriteDiffLines(input: WriteToolCallEvent["input"]): DiffLine[] {
+	return input.content.split("\n").map((line) => ({ text: `+ ${line}`, kind: "add" as const }));
+}
+
+function colorDiffLine(line: DiffLine, theme: Theme): string {
+	const color =
+		line.kind === "add"
+			? "toolDiffAdded"
+			: line.kind === "del"
+				? "toolDiffRemoved"
+				: line.kind === "hunk"
+					? "accent"
+					: "toolDiffContext";
+	return theme.fg(color, line.text);
+}
+
+/** Lines shown in the collapsed approval dialog before the user expands. */
+const COLLAPSED_PREVIEW_LINES = 6;
+
+const APPROVAL_OPTIONS: ReadonlyArray<{ label: string; choice: ApprovalChoice }> = [
+	{ label: "Allow once", choice: "allow" },
+	{ label: "Allow all edits (switch to auto-edit)", choice: "allow-all" },
+	{ label: "Deny", choice: "deny" },
+];
+
+class ApprovalDialog implements Component {
+	private selected = 0;
+	private previewTop = -1;
+	private previewBottom = -1;
+	private optionRows: Array<{ start: number; end: number; choice: ApprovalChoice }> = [];
+
+	constructor(
+		private readonly mode: EditMode,
+		private readonly summary: string,
+		private readonly lines: DiffLine[],
+		private readonly theme: Theme,
+		private readonly tui: TUI,
+		private readonly done: (value: ApprovalResult) => void,
+	) {}
+
+	handleInput(data: string): void {
+		if (matchesKey(data, "escape") || matchesKey(data, "ctrl+c")) {
+			this.done(undefined);
+			return;
+		}
+		if (matchesKey(data, "up")) {
+			this.selected = Math.max(0, this.selected - 1);
+			this.tui.requestRender();
+			return;
+		}
+		if (matchesKey(data, "down")) {
+			this.selected = Math.min(APPROVAL_OPTIONS.length - 1, this.selected + 1);
+			this.tui.requestRender();
+			return;
+		}
+		if (matchesKey(data, "enter")) {
+			this.done(APPROVAL_OPTIONS[this.selected]?.choice);
+			return;
+		}
+		if (matchesKey(data, "v") || matchesKey(data, "ctrl+o")) {
+			this.done("view");
+		}
+	}
+
+	handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
+		if (event.type !== "click" || event.button !== "left") return undefined;
+		if (this.previewTop >= 0 && event.y >= this.previewTop && event.y <= this.previewBottom) {
+			this.done("view");
+			return { handled: true };
+		}
+		for (const row of this.optionRows) {
+			if (event.y >= row.start && event.y <= row.end) {
+				this.done(row.choice);
+				return { handled: true };
+			}
+		}
+		return undefined;
+	}
+
+	render(width: number): string[] {
+		const th = this.theme;
+		const out: string[] = [];
+		out.push(truncateToWidth(th.fg("warning", th.bold(`✎ ${this.mode}: ${this.summary}`)), width, "…"));
+		out.push("");
+
+		const shown = this.lines.slice(0, COLLAPSED_PREVIEW_LINES);
+		this.previewTop = out.length;
+		for (const line of shown) {
+			out.push(truncateToWidth(`  ${colorDiffLine(line, th)}`, width, "…"));
+		}
+		this.previewBottom = out.length - 1;
+
+		const hidden = this.lines.length - shown.length;
+		const more = hidden > 0 ? `${th.fg("muted", `… ${hidden} more line${hidden === 1 ? "" : "s"}`)} ` : "";
+		const viewHint = th.fg("dim", hidden > 0 ? "[ click here or press v to view full ]" : "[ press v to view full ]");
+		out.push(truncateToWidth(`  ${more}${viewHint}`, width, "…"));
+		out.push("");
+
+		this.optionRows = [];
+		APPROVAL_OPTIONS.forEach((option, index) => {
+			const start = out.length;
+			const marker = index === this.selected ? th.fg("accent", "▶") : " ";
+			const label = index === this.selected ? th.bold(option.label) : th.fg("text", option.label);
+			out.push(truncateToWidth(` ${marker} ${label}`, width, "…"));
+			this.optionRows.push({ start, end: out.length - 1, choice: option.choice });
+		});
+
+		out.push("");
+		out.push(truncateToWidth(th.fg("dim", " ↑↓ select · enter confirm · v full diff · esc cancel"), width, "…"));
+		return out;
+	}
+
+	invalidate(): void {}
+}
+
+class DiffViewer implements Component {
+	private offset = 0;
+
+	constructor(
+		private readonly title: string,
+		private readonly lines: DiffLine[],
+		private readonly theme: Theme,
+		private readonly tui: TUI,
+		private readonly done: () => void,
+	) {}
+
+	private viewportHeight(): number {
+		return Math.max(3, this.tui.terminal.rows - 5);
+	}
+
+	private maxOffset(): number {
+		return Math.max(0, this.lines.length - this.viewportHeight());
+	}
+
+	handleInput(data: string): void {
+		if (matchesKey(data, "escape") || matchesKey(data, "ctrl+c") || matchesKey(data, "q")) {
+			this.done();
+			return;
+		}
+		const page = Math.max(1, this.viewportHeight() - 1);
+		if (matchesKey(data, "up")) this.offset = Math.max(0, this.offset - 1);
+		else if (matchesKey(data, "down")) this.offset = Math.min(this.maxOffset(), this.offset + 1);
+		else if (matchesKey(data, "pageUp")) this.offset = Math.max(0, this.offset - page);
+		else if (matchesKey(data, "pageDown")) this.offset = Math.min(this.maxOffset(), this.offset + page);
+		else if (matchesKey(data, "home")) this.offset = 0;
+		else if (matchesKey(data, "end")) this.offset = this.maxOffset();
+		else return;
+		this.tui.requestRender();
+	}
+
+	handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
+		if (event.type === "wheel" && typeof event.wheelDelta === "number") {
+			this.offset = Math.max(0, Math.min(this.maxOffset(), this.offset + event.wheelDelta));
+			this.tui.requestRender();
+			return { handled: true };
+		}
+		if (event.type === "click" && event.button === "left") {
+			this.done();
+			return { handled: true };
+		}
+		return undefined;
+	}
+
+	render(width: number): string[] {
+		const th = this.theme;
+		const innerWidth = Math.max(1, width - 2);
+		const border = (text: string) => th.fg("border", text);
+		const padLine = (text: string) => {
+			const clipped = truncateToWidth(` ${text}`, innerWidth, "…");
+			const padding = Math.max(0, innerWidth - visibleWidth(clipped));
+			return `${clipped}${" ".repeat(padding)}`;
+		};
+
+		const viewport = this.viewportHeight();
+		const out: string[] = [];
+		const titleText = truncateToWidth(` ${this.title} `, innerWidth, "…");
+		const topFill = "─".repeat(Math.max(0, innerWidth - visibleWidth(titleText)));
+		out.push(border("╭") + th.fg("accent", titleText) + border(`${topFill}╮`));
+
+		const first = this.lines.length === 0 ? 0 : this.offset + 1;
+		const last = Math.min(this.lines.length, this.offset + viewport);
+		const info = `lines ${first}-${last} / ${this.lines.length}  ·  ↑↓/wheel/pageUp-pageDown · home/end · click/esc close`;
+		out.push(border("│") + padLine(th.fg("dim", info)) + border("│"));
+
+		const shown = this.lines.slice(this.offset, this.offset + viewport);
+		for (const line of shown) out.push(border("│") + padLine(colorDiffLine(line, th)) + border("│"));
+		for (let i = shown.length; i < viewport; i++) out.push(border("│") + padLine("") + border("│"));
+
+		out.push(border(`╰${"─".repeat(innerWidth)}╯`));
+		return out;
+	}
+
+	invalidate(): void {}
+}
+
+/**
+ * Show the edit/write approval UI. In TUI mode this uses a custom component with
+ * a collapsed preview and a fullscreen scrollable diff; other modes fall back to
+ * the plain select dialog.
+ */
+async function approveEditChange(
+	ctx: ExtensionContext,
+	mode: EditMode,
+	summary: string,
+	lines: DiffLine[],
+): Promise<ApprovalResult> {
+	if (ctx.mode !== "tui") {
+		const preview = truncateForPreview(
+			lines.map((line) => line.text).join("\n"),
+			MAX_PREVIEW_LINES,
+			MAX_PREVIEW_WIDTH,
+		);
+		const choice = await ctx.ui.select(
+			`✎ ${mode}: ${summary}\n\n${preview}\n`,
+			APPROVAL_OPTIONS.map((option) => option.label),
+		);
+		if (choice === APPROVAL_OPTIONS[0]!.label) return "allow";
+		if (choice === APPROVAL_OPTIONS[1]!.label) return "allow-all";
+		if (choice === APPROVAL_OPTIONS[2]!.label) return "deny";
+		return undefined;
+	}
+
+	for (;;) {
+		const result = await ctx.ui.custom<ApprovalResult>((tui, theme, _keybindings, done) =>
+			new ApprovalDialog(mode, summary, lines, theme, tui, done),
+		);
+		if (result !== "view") return result;
+
+		await ctx.ui.custom<void>(
+			(tui, theme, _keybindings, done) => new DiffViewer(summary, lines, theme, tui, done),
+			{
+				overlay: true,
+				overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "center" },
+			},
+		);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -1037,21 +1305,15 @@ export default function (pi: ExtensionAPI) {
 			};
 		}
 
-		const preview = isEditCall ? buildEditPreview(event.input) : buildWritePreview(event.input);
-		const title = `✎ ${mode}: ${summary}\n\n${preview}\n`;
+		const lines = isEditCall ? buildEditDiffLines(event.input) : buildWriteDiffLines(event.input);
+		const decision = await approveEditChange(ctx, mode, summary, lines);
 
-		const choice = await ctx.ui.select(title, [
-			"Allow once",
-			"Allow all edits (switch to auto-edit)",
-			"Deny",
-		]);
-
-		if (choice === "Allow once") return;
-		if (choice === "Allow all edits (switch to auto-edit)") {
+		if (decision === "allow") return;
+		if (decision === "allow-all") {
 			setMode("auto-edit", ctx);
 			return;
 		}
-		if (choice === "Deny") {
+		if (decision === "deny") {
 			return { block: true, reason: `User denied: ${summary} (${mode} mode)` };
 		}
 

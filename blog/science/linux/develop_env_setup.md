@@ -1806,11 +1806,13 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 
 | 扩展 | 说明 | 文档 |
 |------|------|------|
-| `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式，`bash` 只读守卫与危险命令审批 | [pi/edit-modes.md](pi/edit-modes.md) |
+| `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；审批框默认折叠 diff，点击预览或按 `v` 弹出全屏可滚动的完整 diff（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
+| `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `write`）结果默认只显示 1 行，点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
 | `token-speed.ts` | 在 footer 显示最近一次回复的生成速度（tok/s），消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
 
 ```bash
 ~/.pi/agent/extensions/edit-modes.ts
+~/.pi/agent/extensions/compact-tools.ts
 ~/.pi/agent/extensions/token-speed.ts
 ```
 
@@ -1838,7 +1840,34 @@ pi update --extensions
 ~/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
 ```
 
+### 全局 settings.json
+
+`~/.pi/agent/settings.json` 中与本次配置相关的键：
+
+```json
+{
+  "theme": "dark",
+  "hideThinkingBlock": true,
+  "tuiMode": "fullscreen",
+  "fullscreenScrollbar": "auto",
+  "fullscreenCopyOnSelect": true,
+  "steeringMode": "one-at-a-time",
+  "packages": [
+    "npm:pi-workspace-history",
+    "npm:@juicesharp/rpiv-todo"
+  ]
+}
+```
+
+- `tuiMode: "fullscreen"` 是**鼠标交互的前提**：点击工具行展开 / 收拢（compact-tools）、点击预览打开 / 关闭全屏 diff（edit-modes）。regular 模式下 pi 不抓鼠标，只能用键盘（`ctrl+o`、`v`、`Esc` 等）。
+- `theme` / `hideThinkingBlock` / `fullscreenScrollbar` / `fullscreenCopyOnSelect` / `steeringMode` 为个人显示与交互偏好，可按需调整。
+
 常用配置：
 
-- `pi-workspace-history`：在 `~/.pi/agent/settings.json` 的 `workspaceHistory` 中配置（`enabled`、`storageDir`、`maxWorkspaces` 等，默认存储于 `~/.pi/agent/state/workspace-history`）
+- `pi-workspace-history`：在 `~/.pi/agent/settings.json` 的 `workspaceHistory` 下配置：
+  - `enabled`：`auto`（默认，检测到项目标记才启用）/ `true`（强制启用）/ `false`
+  - `requireProjectMarker`：默认 `true`，要求当前目录或祖先目录存在 `.git`、`.jj`、`package.json`、`Cargo.toml`、`go.mod`、`pyproject.toml` 之一；**纯 `.gitignore` 不算标记**
+  - `allowHomeDirectory`：默认 `false`，家目录下不启用
+  - `storageDir`（默认 `~/.pi/agent/state/workspace-history`）、`maxWorkspaces`（默认 10）、`maxSessionsPerWorkspace`（默认 3）等
+  - 在无项目标记的目录启动会提示 `Workspace history is disabled ... no project marker`；如需启用：`git init`、放一个上述标记文件，或将 `enabled` 设为 `true` / `requireProjectMarker` 设为 `false`
 - `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
