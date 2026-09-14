@@ -1813,3 +1813,32 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 ~/.pi/agent/extensions/edit-modes.ts
 ~/.pi/agent/extensions/token-speed.ts
 ```
+
+### npm 插件
+
+第三方插件通过 `pi install` 安装，记录在 `~/.pi/agent/settings.json` 的 `packages` 中，统一安装在 `~/.pi/agent/npm/node_modules/` 下；安装 / 修改后运行中的 pi 需要 `/reload` 生效。
+
+```bash
+# 查看已安装插件（包名 + 安装路径）
+pi list
+
+# 安装 / 卸载 / 更新
+pi install npm:<package>
+pi remove npm:<package>
+pi update --extensions
+```
+
+| 插件 | 说明 | 文档 |
+|------|------|------|
+| `npm:pi-workspace-history` | 工作区级撤销 / 重做：`/undo`、`/redo`、`/checkpoint`，并与 `/tree` 历史导航联动；快照存于内部 shadow git，不影响项目仓库 | [pi-workspace-history](https://github.com/wcldyx/pi-workspace-history) |
+| `npm:@juicesharp/rpiv-todo` | 给模型提供 `todo` 工具：编辑器上方的实时任务面板、`/todos` 命令；列表从会话回放，可跨 `/reload` 与压缩 | [rpiv-todo](https://github.com/juicesharp/rpiv-mono/tree/main/packages/rpiv-todo) |
+
+```bash
+~/.pi/agent/npm/node_modules/pi-workspace-history
+~/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
+```
+
+常用配置：
+
+- `pi-workspace-history`：在 `~/.pi/agent/settings.json` 的 `workspaceHistory` 中配置（`enabled`、`storageDir`、`maxWorkspaces` 等，默认存储于 `~/.pi/agent/state/workspace-history`）
+- `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
