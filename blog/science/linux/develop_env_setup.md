@@ -1806,7 +1806,7 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 
 | 扩展 | 说明 | 文档 |
 |------|------|------|
-| `edit-modes.ts` | `ask-to-edit` / `auto-edit` 两种编辑模式，以及对 `bash` 工具的只读守卫 | [pi/edit-modes.md](pi/edit-modes.md) |
+| `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式，`bash` 只读守卫与危险命令审批 | [pi/edit-modes.md](pi/edit-modes.md) |
 | `token-speed.ts` | 在 footer 显示最近一次回复的生成速度（tok/s），消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
 
 ```bash
