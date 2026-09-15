@@ -1,43 +1,3 @@
-# pi 工具输出折叠（compact-tools）
-
-让内置工具默认只展示**标题 + 最多 5 行内容**，点击工具行（或 `ctrl+o`）展开 / 收拢，长输出下保持 transcript 紧凑。
-
-## 覆盖的工具
-
-| 工具 | 折叠时展示的 5 行 | 展开 |
-|------|------------------|------|
-| `bash` | 结果的**末尾** 5 行 | 完整输出 |
-| `powershell` | 结果的**末尾** 5 行（仅当系统有 `pwsh` / `powershell` 时才注册） | 完整输出 |
-| `read` / `grep` / `find` / `ls` | 结果的**开头** 5 行 | 完整输出 |
-| `edit` | diff 的**开头** 5 行（带颜色 / 行内高亮） | 完整 diff |
-| `write` | 文件内容的**开头** 5 行（带语法高亮） | 完整内容 |
-
-> 第三方插件的工具不在覆盖范围：`todo`（rpiv-todo）自带一行摘要渲染；`web_search` / `web_fetch`（@ollama/pi-web-search）没有自定义渲染，走 pi 通用兜底（折叠 10 行 + `ctrl+o` 展开）。
-
-## 行为
-
-- 折叠态默认显示标题 + 最多 5 行内容（`COLLAPSED_LINES`），`bash` / `powershell` 取末尾，其余取开头
-- 超出时追加灰色提示 `… (N more, click / ctrl+o to expand)`
-- 点击该工具行，或按 `ctrl+o`（全局）：展开为完整内容
-- 再次点击 / `ctrl+o`：收拢
-- 内容不足 5 行时不再显示展开提示
-- `edit` 的 diff 优先取执行结果里的 `details.diff`（带行号、行内高亮）；结果尚未返回时回退到按 `args.edits` 拼出的 `-old / +new`
-- `write` 的内容取自工具参数（`args.content`），流式输入期间即可预览
-
-## 前提
-
-- 鼠标点击需要 `tuiMode: "fullscreen"`（`~/.pi/agent/settings.json`）；regular 模式 pi 不抓鼠标，只能用 `ctrl+o`
-- `ctrl+o` 是全局展开 / 收拢所有工具行，与逐行点击互不影响
-
-## 扩展文件
-
-```bash
-~/.pi/agent/extensions/compact-tools.ts
-```
-
-## 完整代码
-
-```ts
 /**
  * compact-tools.ts
  *
@@ -342,14 +302,3 @@ export default function (pi: ExtensionAPI) {
 		} as any);
 	}
 }
-```
-
-## 实现说明
-
-- 复用包根公开导出的 `create*ToolDefinition` 构造工具定义，保留内置的 `execute`、截断、语法高亮；对 `bash` / `read` / `grep` / `find` / `ls` 只覆盖 `renderResult`，未覆盖的 `renderCall` 自动用内置实现
-- `edit` 的内置渲染器会把完整 diff 同时画进 `renderCall` 和 `renderResult` 且无视 `expanded`，因此必须**同时覆盖** `renderCall`（只留标题）与 `renderResult`（折叠时前 5 行 diff）；展开用包根导出的 `renderDiff` 做行内高亮
-- `write` 的内容在工具参数里，所以覆盖 `renderCall` 渲染标题 + 内容预览；展开用 `highlightCode` / `getLanguageFromPath` 做语法高亮
-- 折叠行数：`COLLAPSED_LINES`（默认 5）；取末尾的工具：`TAIL_TOOLS`（默认 `bash` / `powershell`）
-- `powershell` 只在 `process.platform === "win32"` 或 PATH 上能找到 `pwsh` / `powershell` 时注册，避免在无 PowerShell 的机器上给模型暴露一个必然失败的工具
-- 覆盖内置工具时交互模式会提示一次 "overrides built-in"，无害
-- 新增 / 修改扩展后，运行中的 pi 需要 `/reload` 才会生效

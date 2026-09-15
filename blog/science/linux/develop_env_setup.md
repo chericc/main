@@ -1799,58 +1799,32 @@ dsh web --port 10086
 ssh -N -L 10086:localhost:10086 ubuntu
 ```
 
-
 ## pi
 
-pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力。扩展放到全局目录 `~/.pi/agent/extensions/` 即可被自动发现，无需修改 `settings.json`；新增 / 修改扩展后，运行中的 pi 需要 `/reload` 才会生效。
-
-| 扩展 | 说明 | 文档 |
-|------|------|------|
-| `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；`git commit` 在任何模式下都必须逐次确认（不可自动批准，弹窗只有 `Allow once` / `Deny`）；edit diff 与 bash 命令共用同一个审批框：默认折叠前 6 行预览，点击预览或按 `v` / `ctrl+o` 弹出全屏可滚动的完整内容（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
-| `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `edit` / `write`，系统有 `pwsh` 时含 `powershell`）默认只展示标题 + 最多 5 行内容：`bash` / `powershell` 取末尾 5 行，其余取开头 5 行；`edit` 折叠显示 diff 前 5 行、`write` 折叠显示文件内容前 5 行。点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
-| `token-speed.ts` | 在 footer 常驻显示生成速度：最近 5 次回复的**中位数 + 平均值**（tok/s），过短回复不计入，消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
+扩展放在 `~/.pi/agent/extensions/`（改动后 `/reload` 生效）：
 
 ```bash
-~/.pi/agent/extensions/edit-modes.ts
-~/.pi/agent/extensions/compact-tools.ts
-~/.pi/agent/extensions/token-speed.ts
+edit-modes.ts      # 编辑模式 ask-to-edit / auto-edit / auto-all，bash 只读守卫，git commit 强制确认
+compact-tools.ts   # 工具输出默认折叠 5 行，点击 / ctrl+o 展开
+token-speed.ts     # footer 显示生成速度
 ```
 
-### npm 插件
-
-第三方插件通过 `pi install` 安装，记录在 `~/.pi/agent/settings.json` 的 `packages` 中，统一安装在 `~/.pi/agent/npm/node_modules/` 下；安装 / 修改后运行中的 pi 需要 `/reload` 生效。
+插件通过 `pi install` 安装，记录在 `settings.json` 的 `packages` 中：
 
 ```bash
-# 查看已安装插件（包名 + 安装路径）
 pi list
-
-# 安装 / 卸载 / 更新
 pi install npm:<package>
 pi remove npm:<package>
 pi update --extensions
 ```
 
-| 插件 | 说明 | 文档 |
-|------|------|------|
-| `npm:@juicesharp/rpiv-todo` | 给模型提供 `todo` 工具：编辑器上方的实时任务面板、`/todos` 命令；列表从会话回放，可跨 `/reload` 与压缩 | [rpiv-todo](https://github.com/juicesharp/rpiv-mono/tree/main/packages/rpiv-todo) |
-| `npm:@ollama/pi-web-search` | 提供 `web_search` / `web_fetch` 工具：走本机 Ollama 的搜索 / 抓取 API（需本地 Ollama 运行） | [pi-web-search](https://github.com/ollama/pi-web-search) |
-| `npm:billion-context-pi` | 模型驱动的上下文管理：提供 `compress` / `decompress` / `search_context` / `acp_status` 工具与 `acp_delegate` 子代理，替代 pi 内置 auto-compaction | [billion-context-pi](https://github.com/ranxianglei/billion-context-pi) |
-
-当前 `pi list` 输出（包名 + 安装路径）：
-
 ```bash
-User packages:
-  npm:@ollama/pi-web-search
-    /home/test/.pi/agent/npm/node_modules/@ollama/pi-web-search
-  npm:@juicesharp/rpiv-todo
-    /home/test/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
-  npm:billion-context-pi
-    /home/test/.pi/agent/npm/node_modules/billion-context-pi
+npm:@ollama/pi-web-search
+npm:@juicesharp/rpiv-todo
+npm:billion-context-pi
 ```
 
-### 全局 settings.json
-
-`~/.pi/agent/settings.json` 当前内容：
+### ~/.pi/agent/settings.json
 
 ```json
 {
@@ -1881,22 +1855,11 @@ User packages:
 }
 ```
 
-- `tuiMode: "fullscreen"` 是**鼠标交互的前提**：点击工具行展开 / 收拢（compact-tools）、点击预览打开 / 关闭全屏 diff 或完整命令（edit-modes）。regular 模式下 pi 不抓鼠标，只能用键盘（`ctrl+o`、`v`、`Esc` 等）。
-- `defaultModel` / `defaultProvider` / `modelThinkingLevels`：默认走本机 ollama 的 `deepseek-v4.1-flash:cloud`（1M 上下文，thinking level `high`）；provider 与模型定义在 `~/.pi/agent/models.json`（`openai-completions` API、`http://127.0.0.1:11434/v1`）。
-- `theme` / `hideThinkingBlock` / `fullscreenScrollbar` / `outputPad` / `showCacheMissNotices` / `doubleEscapeAction` / `treeFilterMode` / `fullscreenExitOutput` / `editorPaddingX` 为个人显示与交互偏好，可按需调整。
-- `lastChangelogVersion` 由 pi 自动维护，无配置意义。
-- `terminal.trueColor`：强制真彩色输出，避免 SSH 下 256 色降级导致配色刺眼，详见下节。
+（`tuiMode: "fullscreen"` 是鼠标交互的前提。）
 
-常用配置：
+### ~/.pi/acp.json
 
-- `~/.pi/agent/config/pi-task-models/config.json`：子任务（task）模型配置，含 `profiles` 与 `tasks` 两组；本机仅定义 `fast` profile（`ollama/deepseek-v4.1-flash:cloud`，`thinkingLevel: "high"`），`tasks` 为空
-- `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
-- `@ollama/pi-web-search`：提供 `web_search` / `web_fetch` 工具，需本地 Ollama 运行（搜索 / 抓取由 Ollama 的 API 完成）；无额外配置
-- `billion-context-pi`：零配置即可用（自动读取模型上下文窗口）；配置文件 `~/.pi/acp.json`（全局）/ `<project>/.pi/acp.json`（项目），当前配置见下节《billion-context-pi 配置》；常用键 `delegate: false`（关掉内置子代理，改用其他 sub-agent）；日志 `~/.pi/acp.log`（`tail -f ~/.pi/acp.log`，10 MB 轮转到 `.old`，环境变量 `ACP_LOG_FILE` 可改路径）；`/acp` 查看上下文分布与压缩块
-
-### billion-context-pi 配置（`~/.pi/acp.json`）
-
-billion-context-pi 的配置独立于 pi 的 `settings.json`，放在 `~/.pi/acp.json`（全局）或 `<project>/.pi/acp.json`（项目，逐字段覆盖全局）；优先级为 环境变量 > 项目文件 > 全局文件 > 内置默认值。未知键、缺失文件、坏 JSON 都会被静默忽略。当前生效的全局配置：
+billion-context-pi 配置，热生效：
 
 ```json
 {
@@ -1906,20 +1869,7 @@ billion-context-pi 的配置独立于 pi 的 `settings.json`，放在 `~/.pi/acp
 }
 ```
 
-说明：
-
-- `compress.nudgeGrowthTokens`：**软压缩 nudge（软提醒）的门槛**，默认 `50000`。设置后同时映射到内核的 `nudge.growthFloor` 与 `nudge.growthCap`。
-- 软 nudge 需要**同时**满足两道闸门：
-  - 待压缩内容 ≥ `nudgeGrowthTokens`（本机为 **200000**）
-  - 自上次 nudge 以来上下文增长 ≥ `max(20000, 0.45 × nudgeGrowthTokens)`（本机为 **90000**；默认 50000 时为 22500）
-- 调到 200000 是为了**降低压缩频率**（默认值下提醒过于频繁）。代价是上下文会涨得更大才会被建议压缩；`compress.maxContextLimit`（默认窗口 75%）的强制 nudge 与 95% 的紧急截断不受此键影响，仍作兜底。
-- 若要改成“上下文到某个绝对水位线（如 ~150K）就建议压缩”，应改 `compress.maxContextLimit`（按窗口百分比，1M 窗口约 `"14.53%"`），而非本键。
-- **热生效**：插件在每个 `context` 事件（每次调用模型前）都会重新读取 `acp.json`，内容变化即应用，**无需 `/reload`、无需重启**；只有加载期读取的键（如 `enabled`、`toolPrompts`、`delegate.enabled`）才需要新会话。
-- 验证：`grep 'config-reloaded' ~/.pi/acp.log | tail`，或看 `nudgeReason` 里的 `threshold` / `floor` 是否为新值。
-
-### keybindings.json（全屏键盘滚动粒度）
-
-pi 全屏（`tuiMode: "fullscreen"`）下的鼠标滚轮步长是内置行为：默认每格 1 行、按住 `Alt` 时 ×5，没有暴露成设置项，无法通过 settings.json / 扩展干净地修改；键盘滚动则通过 `~/.pi/agent/keybindings.json` 配置，把默认的整页滚动拆成三档，便于细看长输出：
+### ~/.pi/agent/keybindings.json
 
 ```json
 {
@@ -1932,46 +1882,9 @@ pi 全屏（`tuiMode: "fullscreen"`）下的鼠标滚轮步长是内置行为：
 }
 ```
 
-| 按键 | 行为 |
-|------|------|
-| `PageUp` / `PageDown` | 半页 |
-| `Alt+PageUp` / `Alt+PageDown` | 单行 |
-| `Ctrl+PageUp` / `Ctrl+PageDown` | 整页（pi 默认速度） |
-
-注意事项：
-
-- 这些动作只在 fullscreen 下生效；regular 模式下 `PageUp` / `PageDown` 仍用于编辑器翻页
-- 修改后在运行中的 pi 里执行 `/reload` 即可生效，无需重启
-- 部分终端（如 GNOME Terminal）会截获 `Ctrl+PageUp` / `Ctrl+PageDown` 用于切换标签页，若整页不生效可换成其他键
-- fullscreen 下 `PageUp` / `PageDown` 改为半页滚动后，编辑器翻页不再有默认快捷键（影响很小）
-- 可用动作与默认绑定见 pi 文档 `docs/keybindings.md`；`tui.altScreen.halfPageUp` / `halfPageDown` / `lineUp` / `lineDown` 默认不绑定
-
-### 真彩色（truecolor）：避免 256 色降级
-
-**问题：** 从 Windows Terminal 经 SSH 连接本机时，SSH 不会转发 `COLORTERM` 环境变量，登录 shell 里只有 `TERM=xterm-256color` 而 `COLORTERM` 为空。pi 据此判定终端不支持真彩色，把主题中的 24-bit 十六进制颜色降级到 256 色。pi 的近似算法按 6×6×6 色块取值，会把内置 `dark` 主题的工具背景色 `toolSuccessBg #283228` 映射成 256 色 22 号 `#005f00`，渲染出来就是刺眼的亮绿色大色块（工具输出框背景）；`toolErrorBg`、`userMessageBg` 等也有类似偏差。这是颜色降级导致的，并非主题配色本身的问题，走真彩色即可解决，无需自定义主题。
-
-**解决：** 让 pi 输出真彩色，两种方式（建议都配）：
-
-1. 在 `~/.bashrc` 末尾追加（SSH 重新登录后生效）：
+### 真彩色
 
 ```bash
-# pi / truecolor
+# ~/.bashrc
 export COLORTERM=truecolor
 ```
-
-2. 在 `~/.pi/agent/settings.json` 中强制开启（`terminal.trueColor` 是 JSON-only 高级选项，见 pi 文档 `docs/settings.md`）：
-
-```json
-{
-  "terminal": {
-    "trueColor": true
-  }
-}
-```
-
-**验证与注意事项：**
-
-- `echo $COLORTERM` 应输出 `truecolor`
-- 修改后需完全退出并重启 pi，正在运行的实例不会重新读取该设置；修改 `settings.json` 前先退出正在运行的 pi，否则它保存设置时可能覆盖手动加入的字段
-- Windows Terminal、iTerm2、Kitty、WezTerm、VS Code 等现代终端都支持真彩，可以放心开启
-- 若仍出现大色块怪色，优先检查 pi 启动所在 shell 的 `COLORTERM` 是否为空
