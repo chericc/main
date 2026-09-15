@@ -1847,6 +1847,9 @@ pi update --extensions
 ```json
 {
   "theme": "dark",
+  "terminal": {
+    "trueColor": true
+  },
   "hideThinkingBlock": true,
   "tuiMode": "fullscreen",
   "fullscreenScrollbar": "auto",
@@ -1861,6 +1864,7 @@ pi update --extensions
 
 - `tuiMode: "fullscreen"` 是**鼠标交互的前提**：点击工具行展开 / 收拢（compact-tools）、点击预览打开 / 关闭全屏 diff（edit-modes）。regular 模式下 pi 不抓鼠标，只能用键盘（`ctrl+o`、`v`、`Esc` 等）。
 - `theme` / `hideThinkingBlock` / `fullscreenScrollbar` / `fullscreenCopyOnSelect` / `steeringMode` 为个人显示与交互偏好，可按需调整。
+- `terminal.trueColor`：强制真彩色输出，避免 SSH 下 256 色降级导致配色刺眼，详见下节。
 
 常用配置：
 
@@ -1871,3 +1875,33 @@ pi update --extensions
   - `storageDir`（默认 `~/.pi/agent/state/workspace-history`）、`maxWorkspaces`（默认 10）、`maxSessionsPerWorkspace`（默认 3）等
   - 在无项目标记的目录启动会提示 `Workspace history is disabled ... no project marker`；如需启用：`git init`、放一个上述标记文件，或将 `enabled` 设为 `true` / `requireProjectMarker` 设为 `false`
 - `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
+
+### 真彩色（truecolor）：避免 256 色降级
+
+**问题：** 从 Windows Terminal 经 SSH 连接本机时，SSH 不会转发 `COLORTERM` 环境变量，登录 shell 里只有 `TERM=xterm-256color` 而 `COLORTERM` 为空。pi 据此判定终端不支持真彩色，把主题中的 24-bit 十六进制颜色降级到 256 色。pi 的近似算法按 6×6×6 色块取值，会把内置 `dark` 主题的工具背景色 `toolSuccessBg #283228` 映射成 256 色 22 号 `#005f00`，渲染出来就是刺眼的亮绿色大色块（工具输出框背景）；`toolErrorBg`、`userMessageBg` 等也有类似偏差。这是颜色降级导致的，并非主题配色本身的问题，走真彩色即可解决，无需自定义主题。
+
+**解决：** 让 pi 输出真彩色，两种方式（建议都配）：
+
+1. 在 `~/.bashrc` 末尾追加（SSH 重新登录后生效）：
+
+```bash
+# pi / truecolor
+export COLORTERM=truecolor
+```
+
+2. 在 `~/.pi/agent/settings.json` 中强制开启（`terminal.trueColor` 是 JSON-only 高级选项，见 pi 文档 `docs/settings.md`）：
+
+```json
+{
+  "terminal": {
+    "trueColor": true
+  }
+}
+```
+
+**验证与注意事项：**
+
+- `echo $COLORTERM` 应输出 `truecolor`
+- 修改后需完全退出并重启 pi，正在运行的实例不会重新读取该设置；修改 `settings.json` 前先退出正在运行的 pi，否则它保存设置时可能覆盖手动加入的字段
+- Windows Terminal、iTerm2、Kitty、WezTerm、VS Code 等现代终端都支持真彩，可以放心开启
+- 若仍出现大色块怪色，优先检查 pi 启动所在 shell 的 `COLORTERM` 是否为空
