@@ -1,7 +1,7 @@
 # pi 编辑模式、Bash 审批与危险命令守卫
 
 
-pi（`@earendil-works/pi-coding-agent`）本身没有内置的权限 / 编辑确认模式，这类能力通过扩展（extension）实现。这里实现三种编辑模式，并对 `bash` 工具加只读守卫和危险命令审批。
+pi（`@earendil-works/pi-coding-agent`）本身没有内置的权限 / 编辑确认模式，这类能力通过扩展（extension）实现。这里实现三种编辑模式，并对 `bash` 工具加只读守卫和危险命令审批；此外 `git commit` 在任何模式下都不会被自动批准。
 
 ## 行为概览
 
@@ -13,14 +13,17 @@ pi（`@earendil-works/pi-coding-agent`）本身没有内置的权限 / 编辑确
 
 `ask-to-edit` / `auto-edit` 下 bash 行为一致：只读命令自动放行，非只读命令一律弹窗确认。`auto-all` 下只有危险命令（见下文）才弹窗。无 UI 时（`-p` / `--mode json`）需要审批的操作直接阻止并返回原因。
 
+**`git commit` 守卫（所有模式）**：命令文本里出现 `git commit` 时一律弹窗逐次确认 —— 即使已经选过 `Allow all (this session)`、或者处于 `auto-all`，也**不会**被自动批准；无 UI 时直接阻止并提示手动提交。判定就是简单的文本匹配（`git` 与 `commit` 之间只允许空白），因此 `sudo git commit`、`bash -c 'git commit'`、`git add -A && git commit` 这些包含该文本的写法都会被拦下；代价是 `git -C dir commit`（中间夹了选项）不会被识别，`echo git commit` 这类只是提及该文本的命令也会弹窗（偏保守，宁多问一次）。commit 弹窗只有 `Allow once` / `Deny` 两个选项，没有 session 级放行。
+
 ## 审批界面
 
-`ask-to-edit`（以及 `auto-all` 下的项目外编辑）弹出的确认框是一个自定义 TUI 组件：
+`edit` / `write` 的 diff 确认和 `bash` 的命令确认共用同一个自定义 TUI 组件：
 
-- 默认只显示前 6 行 diff（`+` 绿 / `-` 红 / `@@` 高亮），超出部分显示 `… N more lines`
-- 点击预览区，或按 `v` / `ctrl+o`，打开**全屏可滚动的完整 diff**（overlay）
+- 顶部一行标题（`ask-to-edit` / `auto-edit` 下为 warning 色，`git commit` / 危险命令为 error 色），下面可选一行 dim 副标题说明为什么要确认（commit 固定为 `never auto-approved · every commit needs explicit confirmation`）
+- 默认只显示前 6 行正文：edit / write 是 diff（`+` 绿 / `-` 红 / `@@` 高亮），bash 是 `$ 命令`（多行命令的后续行缩进）；超出部分显示 `… N more lines`
+- 点击预览区，或按 `v` / `ctrl+o`，打开**全屏可滚动的完整内容**（overlay；edit 为完整 diff，bash 为完整命令）
 - 全屏中：`↑↓`、`PageUp` / `PageDown`、`Home` / `End`、鼠标滚轮滚动；点击任意处或按 `Esc` / `q` / `ctrl+c` 返回
-- 选项 `Allow once` / `Allow all edits` / `Deny`：`↑↓` + `Enter`，或直接用鼠标点击选项行
+- 选项：`↑↓` + `Enter`，或直接用鼠标点击选项行；底部提示 `↑↓ select · enter confirm · v … · esc cancel`，`Esc` / `Ctrl+C` 取消弹窗（等同于拒绝）
 - 鼠标交互依赖 `tuiMode: "fullscreen"`（见 [开发环境配置](../develop_env_setup.md)）；非 TUI 模式回退为普通 `select` 对话框
 
 ## 扩展文件
@@ -47,12 +50,21 @@ pi（`@earendil-works/pi-coding-agent`）本身没有内置的权限 / 编辑确
  *                          - edit/write to paths outside the project directory;
  *                          - dangerous bash commands (sudo, rm -rf outside the
  *                            project, package/system changes, writes outside the
- *                            project, ...). See classifyDangerousBash.
+ *                            project, ...). See classifyDangerousBash;
+ *                          - `git commit`, which ALWAYS asks (see below).
  *
  * Bash in ask-to-edit / auto-edit (same in BOTH modes):
  *   - read-only commands run without asking;
  *   - any other command (writes, redirections, unknown commands, wrappers, ...)
- *     shows a confirmation dialog.
+ *     shows a confirmation dialog;
+ *   - `git commit` always asks in every mode (see next paragraph).
+ *
+ * git commit (all modes):
+ *   - never auto-approved: `git commit` always shows a confirmation dialog, in
+ *     every edit mode and even after "Allow all commands (this session)". That
+ *     dialog offers only "Allow once" / "Deny"; without an interactive UI the
+ *     command is refused. Deliberate: no pi mode may create a commit on its own.
+ *     See isGitCommitCommand for what is detected.
  *
  * Switch modes:
  *   /edit-mode [ask-to-edit|auto-edit|auto-all]   set explicitly (no arg opens a picker)
@@ -69,7 +81,10 @@ pi（`@earendil-works/pi-coding-agent`）本身没有内置的权限 / 编辑确
  * for non-read-only commands. The bash checks are heuristic fail-closed
  * classifiers, not a security sandbox. In auto-all mode only known-dangerous
  * commands and common writes outside the project directory ask; whatever a
- * script, build tool or package manager does internally is not inspected.
+ * script, build tool or package manager does internally is not inspected. The
+ * git commit guard is a plain text match for `git commit`, so wrappers such as
+ * `sudo git commit` are caught while `git -C dir commit` is not; a script that
+ * commits internally is not detected either.
  * In non-interactive sessions there is no UI to approve with, so blocked
  * actions are refused instead of silently allowed.
  */
@@ -498,6 +513,17 @@ function splitSegments(tokens: ShellToken[]): string[][] {
 	return segments;
 }
 
+/**
+ * Short version of a classifier reason for the confirmation dialog — the command
+ * itself is already shown in the dialog body.
+ */
+function shortAskReason(reason: string): string {
+	const prefix = "not read-only: ";
+	if (!reason.startsWith(prefix)) return reason;
+	const first = reason.slice(prefix.length).trim().split(/\s+/)[0] ?? "";
+	return first.length > 0 ? `not in the read-only allowlist: ${first}` : "not in the read-only allowlist";
+}
+
 function analyzeBashCommand(command: string): { readOnly: boolean; reason: string } {
 	const trimmed = command.trim();
 	if (trimmed.length === 0) return { readOnly: true, reason: "empty command" };
@@ -876,6 +902,21 @@ function classifyDangerousBash(command: string, cwd: string, depth = 0): string 
 }
 
 // ---------------------------------------------------------------------------
+// git commit guard (all modes)
+//
+// `git commit` is never auto-approved. The check is deliberately a plain text
+// match, so anything containing `git commit` (`sudo git commit`,
+// `bash -c 'git commit'`, `git add -A && git commit`) is caught as well. It is
+// not a security sandbox: options between `git` and `commit` (`git -C dir
+// commit`) and a script or build tool that commits internally are not detected,
+// and only the built-in `bash` tool is gated.
+// ---------------------------------------------------------------------------
+
+/** True when the command text contains a `git commit` call. */
+function isGitCommitCommand(command: string): boolean {
+	return /\bgit\s+commit(?![\w-])/.test(command);
+}
+// ---------------------------------------------------------------------------
 // Full-diff review UI
 //
 // The approval dialog shows a short collapsed preview. Clicking the preview (or
@@ -931,19 +972,52 @@ const APPROVAL_OPTIONS: ReadonlyArray<{ label: string; choice: ApprovalChoice }>
 	{ label: "Deny", choice: "deny" },
 ];
 
-class ApprovalDialog implements Component {
+/** Choices offered by the bash confirmation dialog. */
+type BashChoice = "allow" | "allow-all" | "deny";
+
+const BASH_OPTIONS: ReadonlyArray<{ label: string; choice: BashChoice }> = [
+	{ label: "Allow once", choice: "allow" },
+	{ label: "Allow all (this session)", choice: "allow-all" },
+	{ label: "Deny", choice: "deny" },
+];
+
+/** `git commit` can never be allowed for a whole session, so it has no allow-all option. */
+const COMMIT_OPTIONS: ReadonlyArray<{ label: string; choice: BashChoice }> = [
+	{ label: "Allow once", choice: "allow" },
+	{ label: "Deny", choice: "deny" },
+];
+
+type ThemeColor = Parameters<Theme["fg"]>[0];
+
+/** Everything the confirmation dialog needs in order to render one approval request. */
+interface ApprovalSpec<T> {
+	/** Plain (uncoloured) title line, e.g. `ask-to-edit: edit src/index.ts`. */
+	title: string;
+	titleColor: ThemeColor;
+	/** One-line explanation of why the confirmation is needed. */
+	subtitle?: string;
+	/** Body lines, already tagged for colouring. */
+	lines: DiffLine[];
+	/** How many body lines the collapsed dialog shows before `v`. */
+	maxBodyLines: number;
+	/** Body line budget for the plain select fallback used outside TUI mode. */
+	maxFallbackLines: number;
+	/** What `v` opens, e.g. `full diff` or `full command`. */
+	viewLabel: string;
+	options: ReadonlyArray<{ label: string; choice: T }>;
+}
+
+class ApprovalDialog<T> implements Component {
 	private selected = 0;
 	private previewTop = -1;
 	private previewBottom = -1;
-	private optionRows: Array<{ start: number; end: number; choice: ApprovalChoice }> = [];
+	private optionRows: Array<{ start: number; end: number; choice: T }> = [];
 
 	constructor(
-		private readonly mode: EditMode,
-		private readonly summary: string,
-		private readonly lines: DiffLine[],
+		private readonly spec: ApprovalSpec<T>,
 		private readonly theme: Theme,
 		private readonly tui: TUI,
-		private readonly done: (value: ApprovalResult) => void,
+		private readonly done: (value: T | "view" | undefined) => void,
 	) {}
 
 	handleInput(data: string): void {
@@ -957,12 +1031,12 @@ class ApprovalDialog implements Component {
 			return;
 		}
 		if (matchesKey(data, "down")) {
-			this.selected = Math.min(APPROVAL_OPTIONS.length - 1, this.selected + 1);
+			this.selected = Math.min(this.spec.options.length - 1, this.selected + 1);
 			this.tui.requestRender();
 			return;
 		}
 		if (matchesKey(data, "enter")) {
-			this.done(APPROVAL_OPTIONS[this.selected]?.choice);
+			this.done(this.spec.options[this.selected]?.choice);
 			return;
 		}
 		if (matchesKey(data, "v") || matchesKey(data, "ctrl+o")) {
@@ -988,24 +1062,32 @@ class ApprovalDialog implements Component {
 	render(width: number): string[] {
 		const th = this.theme;
 		const out: string[] = [];
-		out.push(truncateToWidth(th.fg("warning", th.bold(`${this.mode}: ${this.summary}`)), width, "…"));
+		out.push(truncateToWidth(th.fg(this.spec.titleColor, th.bold(this.spec.title)), width, "…"));
+		if (this.spec.subtitle) {
+			out.push(truncateToWidth(`  ${th.fg("dim", this.spec.subtitle)}`, width, "…"));
+		}
 		out.push("");
 
-		const shown = this.lines.slice(0, COLLAPSED_PREVIEW_LINES);
+		const shown = this.spec.lines.slice(0, this.spec.maxBodyLines);
 		this.previewTop = out.length;
 		for (const line of shown) {
 			out.push(truncateToWidth(`  ${colorDiffLine(line, th)}`, width, "…"));
 		}
 		this.previewBottom = out.length - 1;
 
-		const hidden = this.lines.length - shown.length;
+		const hidden = this.spec.lines.length - shown.length;
 		const more = hidden > 0 ? `${th.fg("muted", `… ${hidden} more line${hidden === 1 ? "" : "s"}`)} ` : "";
-		const viewHint = th.fg("dim", hidden > 0 ? "[ click here or press v to view full ]" : "[ press v to view full ]");
+		const viewHint = th.fg(
+			"dim",
+			hidden > 0
+				? `[ click here or press v to view ${this.spec.viewLabel} ]`
+				: `[ press v to view ${this.spec.viewLabel} ]`,
+		);
 		out.push(truncateToWidth(`  ${more}${viewHint}`, width, "…"));
 		out.push("");
 
 		this.optionRows = [];
-		APPROVAL_OPTIONS.forEach((option, index) => {
+		this.spec.options.forEach((option, index) => {
 			const start = out.length;
 			const marker = index === this.selected ? th.fg("accent", "▶") : " ";
 			const label = index === this.selected ? th.bold(option.label) : th.fg("text", option.label);
@@ -1014,7 +1096,9 @@ class ApprovalDialog implements Component {
 		});
 
 		out.push("");
-		out.push(truncateToWidth(th.fg("dim", " ↑↓ select · enter confirm · v full diff · esc cancel"), width, "…"));
+		out.push(
+			truncateToWidth(th.fg("dim", ` ↑↓ select · enter confirm · v ${this.spec.viewLabel} · esc cancel`), width, "…"),
+		);
 		return out;
 	}
 
@@ -1102,46 +1186,65 @@ class DiffViewer implements Component {
 }
 
 /**
- * Show the edit/write approval UI. In TUI mode this uses a custom component with
- * a collapsed preview and a fullscreen scrollable diff; other modes fall back to
- * the plain select dialog.
+ * Show a confirmation dialog. In TUI mode this uses a custom component with a
+ * collapsed preview, clickable options and a fullscreen viewer; other modes fall
+ * back to the plain select dialog.
  */
-async function approveEditChange(
+async function runApprovalDialog<T>(
 	ctx: ExtensionContext,
-	mode: EditMode,
-	summary: string,
-	lines: DiffLine[],
-): Promise<ApprovalResult> {
+	spec: ApprovalSpec<T>,
+	viewerTitle: string,
+): Promise<T | undefined> {
 	if (ctx.mode !== "tui") {
 		const preview = truncateForPreview(
-			lines.map((line) => line.text).join("\n"),
-			MAX_PREVIEW_LINES,
+			spec.lines.map((line) => line.text).join("\n"),
+			spec.maxFallbackLines,
 			MAX_PREVIEW_WIDTH,
 		);
+		const header = spec.subtitle ? `${spec.title} (${spec.subtitle})` : spec.title;
 		const choice = await ctx.ui.select(
-			`${mode}: ${summary}\n\n${preview}\n`,
-			APPROVAL_OPTIONS.map((option) => option.label),
+			`${header}\n\n${preview}\n`,
+			spec.options.map((option) => option.label),
 		);
-		if (choice === APPROVAL_OPTIONS[0]!.label) return "allow";
-		if (choice === APPROVAL_OPTIONS[1]!.label) return "allow-all";
-		if (choice === APPROVAL_OPTIONS[2]!.label) return "deny";
-		return undefined;
+		return spec.options.find((option) => option.label === choice)?.choice;
 	}
 
 	for (;;) {
-		const result = await ctx.ui.custom<ApprovalResult>((tui, theme, _keybindings, done) =>
-			new ApprovalDialog(mode, summary, lines, theme, tui, done),
+		const result = await ctx.ui.custom<T | "view" | undefined>((tui, theme, _keybindings, done) =>
+			new ApprovalDialog<T>(spec, theme, tui, done),
 		);
 		if (result !== "view") return result;
 
 		await ctx.ui.custom<void>(
-			(tui, theme, _keybindings, done) => new DiffViewer(summary, lines, theme, tui, done),
+			(tui, theme, _keybindings, done) => new DiffViewer(viewerTitle, spec.lines, theme, tui, done),
 			{
 				overlay: true,
 				overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "center" },
 			},
 		);
 	}
+}
+
+/** Show the edit/write approval UI (custom dialog in TUI mode, plain select otherwise). */
+async function approveEditChange(
+	ctx: ExtensionContext,
+	mode: EditMode,
+	summary: string,
+	lines: DiffLine[],
+): Promise<ApprovalResult> {
+	return runApprovalDialog<ApprovalChoice>(
+		ctx,
+		{
+			title: `${mode}: ${summary}`,
+			titleColor: "warning",
+			lines,
+			maxBodyLines: COLLAPSED_PREVIEW_LINES,
+			maxFallbackLines: MAX_PREVIEW_LINES,
+			viewLabel: "full diff",
+			options: APPROVAL_OPTIONS,
+		},
+		summary,
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -1240,11 +1343,15 @@ export default function (pi: ExtensionAPI) {
 	pi.on("tool_call", async (event, ctx) => {
 		// --- bash: read-only allowed; in auto-all only dangerous commands ask ---
 		if (isToolCallEventType("bash", event)) {
-			if (bashAutoApprove) return;
-
 			const command = event.input.command;
+			const commit = isGitCommitCommand(command);
+
 			let askReason: string | undefined;
-			if (mode === "auto-all") {
+			if (commit) {
+				askReason = "git commit is never auto-approved: each commit needs explicit confirmation";
+			} else if (bashAutoApprove) {
+				return;
+			} else if (mode === "auto-all") {
 				askReason = classifyDangerousBash(command, ctx.cwd);
 			} else {
 				const verdict = analyzeBashCommand(command);
@@ -1252,25 +1359,47 @@ export default function (pi: ExtensionAPI) {
 			}
 			if (askReason === undefined) return;
 
-			const preview = truncateForPreview(command, MAX_BASH_PREVIEW_LINES, MAX_PREVIEW_WIDTH);
-			const label = mode === "auto-all" ? "⚠ Dangerous bash" : "⚠ Non-read-only bash";
+			const label = commit
+				? "⚠ git commit"
+				: mode === "auto-all"
+					? "⚠ Dangerous bash"
+					: "⚠ Non-read-only bash";
 
 			if (!ctx.hasUI) {
 				return {
 					block: true,
-					reason:
-						`Blocked by ${mode} guard: ${askReason}, and no interactive UI is available ` +
-						`to approve it. Run a safe command or use an interactive session.`,
+					reason: commit
+						? `Blocked: ${askReason}, and no interactive UI to approve it. ` +
+							`Commit manually, or run pi in an interactive session.`
+						: `Blocked by ${mode} guard: ${askReason}, and no interactive UI is available ` +
+							`to approve it. Run a safe command or use an interactive session.`,
 				};
 			}
 
-			const choice = await ctx.ui.select(
-				`${label} (${askReason}):\n\n$ ${preview}\n`,
-				["Allow once", "Allow all commands (this session)", "Deny"],
+			const choice = await runApprovalDialog<BashChoice>(
+				ctx,
+				{
+					title: label,
+					titleColor: commit || mode === "auto-all" ? "error" : "warning",
+					subtitle: commit
+						? "never auto-approved · every commit needs explicit confirmation"
+						: shortAskReason(askReason),
+					lines: command
+						.split("\n")
+						.map((line, index) => ({
+							text: index === 0 ? `$ ${line}` : `  ${line}`,
+							kind: index === 0 ? ("hunk" as const) : ("context" as const),
+						})),
+					maxBodyLines: COLLAPSED_PREVIEW_LINES,
+					maxFallbackLines: MAX_BASH_PREVIEW_LINES,
+					viewLabel: "full command",
+					options: commit ? COMMIT_OPTIONS : BASH_OPTIONS,
+				},
+				label,
 			);
 
-			if (choice === "Allow once") return;
-			if (choice === "Allow all commands (this session)") {
+			if (choice === "allow") return;
+			if (choice === "allow-all") {
 				bashAutoApprove = true;
 				applyStatus(ctx);
 				ctx.ui.notify("Bash: auto-approving all commands for this session", "warning");
@@ -1338,7 +1467,7 @@ pi --edit-mode auto-edit    # 启动时指定默认模式（也可 auto-all）
 
 - 当前模式显示在 footer 状态栏。
 - 模式按 session 持久化（`pi.appendEntry`），`/reload`、`/resume`、`/tree` 后自动恢复；新 session 回到 `--edit-mode` 指定的默认值（未指定则 `ask-to-edit`）。
-- `Allow all commands (this session)` 只对当前 session 生效，不写入 session、不跨会话，footer 会显示 `ask-to-edit · bash:auto`。
+- `Allow all (this session)` 只对当前 session 生效，不写入 session、不跨会话，footer 会显示 `ask-to-edit · bash:auto`；它**不覆盖 `git commit`**，commit 仍需逐次确认。
 - `auto-all` 的 footer 显示 `auto-all`（accent 色）。
 
 ## edit / write 确认弹窗
@@ -1351,7 +1480,7 @@ pi --edit-mode auto-edit    # 启动时指定默认模式（也可 auto-all）
 
 `auto-edit` 模式下 `edit` / `write` 直接执行；`auto-all` 模式下路径在 cwd（项目目录）内的直接执行，项目外仍弹同样的 diff 确认。
 
-弹窗预览按终端高度自适应并设置了固定上限（edit / write 最多 15 行，bash 最多 12 行，宽度也按终端宽度截断），避免内容过长把窗口占满、选项不可见；被截断时末尾显示 `… (N more lines)`，完整内容仍可在上方的工具调用块中展开查看。
+TUI 模式弹窗默认只显示前 6 行预览（见 [审批界面](#审批界面)），`v` / `ctrl+o` 可打开全屏查看完整内容；非 TUI 模式回退为 `select`，预览行数按终端高度自适应并有固定上限（edit / write 最多 15 行，bash 最多 12 行，宽度也按终端宽度截断），被截断时末尾显示 `… (N more lines)`，完整内容仍可在上方的工具调用块中展开查看。
 
 ## bash 只读判定规则（fail-closed）
 
@@ -1387,8 +1516,10 @@ pi --edit-mode auto-edit    # 启动时指定默认模式（也可 auto-all）
 非只读命令弹窗选项：
 
 - `Allow once`：只允许这一次
-- `Allow all commands (this session)`：本次 session 内所有 bash 命令不再询问（不持久化）
+- `Allow all (this session)`：本次 session 内所有 bash 命令不再询问（不持久化）
 - `Deny`：拒绝
+
+`git commit` 是例外：弹窗标题为 error 色的 `⚠ git commit`，副标题固定为 `never auto-approved · every commit needs explicit confirmation`，选项只有 `Allow once` / `Deny`。
 
 ## auto-all 危险命令判定
 
@@ -1424,9 +1555,11 @@ errors: []
 
 行为测试覆盖：26 条只读命令全部放行、32 条非只读命令全部弹窗/拒绝、`auto-edit` 下仍拦截非只读 bash、session 级放行与重置、无 UI 时只读放行 / 非只读阻止、edit 模式恢复。`auto-all` 的危险规则为启发式，未做穷举测试。
 
+`git commit` 守卫另有一组自动化检查（用桩模块绕过 TUI，直接驱动扩展的 `tool_call` 钩子，当前共 130 项）：24 种提交调用形式（含 `sudo` / `doas` / `su -c` / `runuser -c` / `busybox sh -c` / `env` / `timeout` / `nice` / `time` / `command` / `cd x &&` / `bash -c` / `sh -c` / `eval`）在 **select 回退**和 **TUI 自定义弹窗**两条路径下全部弹窗，且弹窗固定为 `Allow once` / `Deny` 两项；9 条含 `commit` 但并非提交的命令（`git log --grep commit`、`git commit-tree`、`git config --get commit.gpgsign`、`cat .git/COMMIT_EDITMSG`、`git stash list` 等）不会被打上 commit 标记；session 级 `allow all` 之后 commit 仍弹窗；无 UI 时返回阻止并提示手动提交；`sudo rm -rf` / `sudo -s` 仍走危险命令弹窗（不受守卫改动影响）。另有专门的边界断言：3 条 `git -C` / `--no-pager` / `-c … commit` 不被识别，2 条 `echo "git commit"` 仍会弹窗。
+
 ## 注意事项
 
 - 这是启发式守卫，不是沙箱；扩展以当前用户权限运行，shell 语法仍可能绕过（例如允许的只读命令自身带副作用）。
 - `auto-all` 只检查命令文本，不检查脚本 / 构建工具 / 包管理器内部实际写入的内容；`kill`、`docker` 等未列入危险表的命令默认放行。
-- 只拦 `bash` 工具，不拦用户手动执行的 `!` / `!!` 命令。
+- 只拦 `bash` 工具，不拦用户手动执行的 `!` / `!!` 命令；`git commit` 守卫只是简单的文本匹配：脚本 / 构建工具 / `make` 目标内部调用 `git commit` 不会被识别，`git -C dir commit` 这种中间夹选项的写法也不会。
 - 新增 / 修改扩展后，运行中的 pi 需要 `/reload` 才会生效。
