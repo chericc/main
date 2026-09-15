@@ -1806,7 +1806,7 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 
 | 扩展 | 说明 | 文档 |
 |------|------|------|
-| `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；审批框默认折叠 diff，点击预览或按 `v` 弹出全屏可滚动的完整 diff（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
+| `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；`git commit` 在任何模式下都必须逐次确认（不可自动批准，弹窗只有 `Allow once` / `Deny`）；edit diff 与 bash 命令共用同一个审批框：默认折叠前 6 行预览，点击预览或按 `v` / `ctrl+o` 弹出全屏可滚动的完整内容（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
 | `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `write`）结果默认只显示 1 行，点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
 | `token-speed.ts` | 在 footer 常驻显示生成速度：最近 5 次回复的**中位数 + 平均值**（tok/s），过短回复不计入，消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
 
@@ -1832,14 +1832,12 @@ pi update --extensions
 
 | 插件 | 说明 | 文档 |
 |------|------|------|
-| `npm:pi-workspace-history` | 工作区级撤销 / 重做：`/undo`、`/redo`、`/checkpoint`，并与 `/tree` 历史导航联动；快照存于内部 shadow git，不影响项目仓库 | [pi-workspace-history](https://github.com/wcldyx/pi-workspace-history) |
 | `npm:@juicesharp/rpiv-todo` | 给模型提供 `todo` 工具：编辑器上方的实时任务面板、`/todos` 命令；列表从会话回放，可跨 `/reload` 与压缩 | [rpiv-todo](https://github.com/juicesharp/rpiv-mono/tree/main/packages/rpiv-todo) |
 | `npm:@ollama/pi-web-search` | 提供 `web_search` / `web_fetch` 工具：走本机 Ollama 的搜索 / 抓取 API（需本地 Ollama 运行） | [pi-web-search](https://github.com/ollama/pi-web-search) |
 | `npm:billion-context-pi` | 模型驱动的上下文管理：提供 `compress` / `decompress` / `search_context` / `acp_status` 工具与 `acp_delegate` 子代理，替代 pi 内置 auto-compaction | [billion-context-pi](https://github.com/ranxianglei/billion-context-pi) |
 
 ```bash
 ~/.pi/agent/npm/node_modules/@ollama/pi-web-search
-~/.pi/agent/npm/node_modules/pi-workspace-history
 ~/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
 ~/.pi/agent/npm/node_modules/billion-context-pi
 ```
@@ -1852,49 +1850,66 @@ pi update --extensions
 {
   "defaultModel": "deepseek-v4.1-flash:cloud",
   "defaultProvider": "ollama",
+  "doubleEscapeAction": "none",
+  "editorPaddingX": 1,
+  "fullscreenExitOutput": "transcript",
+  "fullscreenScrollbar": "auto",
+  "hideThinkingBlock": true,
+  "lastChangelogVersion": "0.85.1",
   "modelThinkingLevels": {
-    "ollama/deepseek-v4.1-flash:cloud": "max"
+    "ollama/deepseek-v4.1-flash:cloud": "high"
   },
+  "outputPad": 1,
   "packages": [
     "npm:@ollama/pi-web-search",
-    "npm:pi-workspace-history",
     "npm:@juicesharp/rpiv-todo",
     "npm:billion-context-pi"
   ],
-  "lastChangelogVersion": "0.85.1",
-  "theme": "dark",
+  "showCacheMissNotices": true,
   "terminal": {
     "trueColor": true
   },
-  "hideThinkingBlock": true,
-  "outputPad": 1,
-  "tuiMode": "fullscreen",
-  "fullscreenScrollbar": "auto",
-  "showCacheMissNotices": true,
-  "doubleEscapeAction": "none",
-  "treeFilterMode": "default",
-  "fullscreenExitOutput": "transcript",
-  "editorPaddingX": 1
+  "theme": "dark",
+  "treeFilterMode": "no-tools",
+  "tuiMode": "fullscreen"
 }
 ```
 
-- `tuiMode: "fullscreen"` 是**鼠标交互的前提**：点击工具行展开 / 收拢（compact-tools）、点击预览打开 / 关闭全屏 diff（edit-modes）。regular 模式下 pi 不抓鼠标，只能用键盘（`ctrl+o`、`v`、`Esc` 等）。
-- `defaultModel` / `defaultProvider` / `modelThinkingLevels`：默认走本机 ollama 的 `deepseek-v4.1-flash:cloud`（1M 上下文，thinking level `max`）；provider 与模型定义在 `~/.pi/agent/models.json`（`openai-completions` API、`http://127.0.0.1:11434/v1`）。
+- `tuiMode: "fullscreen"` 是**鼠标交互的前提**：点击工具行展开 / 收拢（compact-tools）、点击预览打开 / 关闭全屏 diff 或完整命令（edit-modes）。regular 模式下 pi 不抓鼠标，只能用键盘（`ctrl+o`、`v`、`Esc` 等）。
+- `defaultModel` / `defaultProvider` / `modelThinkingLevels`：默认走本机 ollama 的 `deepseek-v4.1-flash:cloud`（1M 上下文，thinking level `high`）；provider 与模型定义在 `~/.pi/agent/models.json`（`openai-completions` API、`http://127.0.0.1:11434/v1`）。
 - `theme` / `hideThinkingBlock` / `fullscreenScrollbar` / `outputPad` / `showCacheMissNotices` / `doubleEscapeAction` / `treeFilterMode` / `fullscreenExitOutput` / `editorPaddingX` 为个人显示与交互偏好，可按需调整。
 - `lastChangelogVersion` 由 pi 自动维护，无配置意义。
 - `terminal.trueColor`：强制真彩色输出，避免 SSH 下 256 色降级导致配色刺眼，详见下节。
 
 常用配置：
 
-- `pi-workspace-history`：在 `~/.pi/agent/settings.json` 的 `workspaceHistory` 下配置：
-  - `enabled`：`auto`（默认，检测到项目标记才启用）/ `true`（强制启用）/ `false`
-  - `requireProjectMarker`：默认 `true`，要求当前目录或祖先目录存在 `.git`、`.jj`、`package.json`、`Cargo.toml`、`go.mod`、`pyproject.toml` 之一；**纯 `.gitignore` 不算标记**
-  - `allowHomeDirectory`：默认 `false`，家目录下不启用
-  - `storageDir`（默认 `~/.pi/agent/state/workspace-history`）、`maxWorkspaces`（默认 10）、`maxSessionsPerWorkspace`（默认 3）等
-  - 在无项目标记的目录启动会提示 `Workspace history is disabled ... no project marker`；如需启用：`git init`、放一个上述标记文件，或将 `enabled` 设为 `true` / `requireProjectMarker` 设为 `false`
+- `~/.pi/agent/config/pi-task-models/config.json`：子任务（task）模型配置，含 `profiles` 与 `tasks` 两组；本机仅定义 `fast` profile（`ollama/deepseek-v4.1-flash:cloud`，`thinkingLevel: "high"`），`tasks` 为空
 - `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
 - `@ollama/pi-web-search`：提供 `web_search` / `web_fetch` 工具，需本地 Ollama 运行（搜索 / 抓取由 Ollama 的 API 完成）；无额外配置
-- `billion-context-pi`：零配置即可用（自动读取模型上下文窗口）；可选配置文件 `~/.pi/acp.json`（全局）/ `<project>/.pi/acp.json`（项目），常用键 `delegate: false`（关掉内置子代理，改用其他 sub-agent）；日志 `~/.pi/acp.log`（`tail -f ~/.pi/acp.log`，10 MB 轮转到 `.old`，环境变量 `ACP_LOG_FILE` 可改路径）；`/acp` 查看上下文分布与压缩块
+- `billion-context-pi`：零配置即可用（自动读取模型上下文窗口）；配置文件 `~/.pi/acp.json`（全局）/ `<project>/.pi/acp.json`（项目），当前配置见下节《billion-context-pi 配置》；常用键 `delegate: false`（关掉内置子代理，改用其他 sub-agent）；日志 `~/.pi/acp.log`（`tail -f ~/.pi/acp.log`，10 MB 轮转到 `.old`，环境变量 `ACP_LOG_FILE` 可改路径）；`/acp` 查看上下文分布与压缩块
+
+### billion-context-pi 配置（`~/.pi/acp.json`）
+
+billion-context-pi 的配置独立于 pi 的 `settings.json`，放在 `~/.pi/acp.json`（全局）或 `<project>/.pi/acp.json`（项目，逐字段覆盖全局）；优先级为 环境变量 > 项目文件 > 全局文件 > 内置默认值。未知键、缺失文件、坏 JSON 都会被静默忽略。当前生效的全局配置：
+
+```json
+{
+  "compress": {
+    "nudgeGrowthTokens": 200000
+  }
+}
+```
+
+说明：
+
+- `compress.nudgeGrowthTokens`：**软压缩 nudge（软提醒）的门槛**，默认 `50000`。设置后同时映射到内核的 `nudge.growthFloor` 与 `nudge.growthCap`。
+- 软 nudge 需要**同时**满足两道闸门：
+  - 待压缩内容 ≥ `nudgeGrowthTokens`（本机为 **200000**）
+  - 自上次 nudge 以来上下文增长 ≥ `max(20000, 0.45 × nudgeGrowthTokens)`（本机为 **90000**；默认 50000 时为 22500）
+- 调到 200000 是为了**降低压缩频率**（默认值下提醒过于频繁）。代价是上下文会涨得更大才会被建议压缩；`compress.maxContextLimit`（默认窗口 75%）的强制 nudge 与 95% 的紧急截断不受此键影响，仍作兜底。
+- 若要改成“上下文到某个绝对水位线（如 ~150K）就建议压缩”，应改 `compress.maxContextLimit`（按窗口百分比，1M 窗口约 `"14.53%"`），而非本键。
+- **热生效**：插件在每个 `context` 事件（每次调用模型前）都会重新读取 `acp.json`，内容变化即应用，**无需 `/reload`、无需重启**；只有加载期读取的键（如 `enabled`、`toolPrompts`、`delegate.enabled`）才需要新会话。
+- 验证：`grep 'config-reloaded' ~/.pi/acp.log | tail`，或看 `nudgeReason` 里的 `threshold` / `floor` 是否为新值。
 
 ### keybindings.json（全屏键盘滚动粒度）
 
