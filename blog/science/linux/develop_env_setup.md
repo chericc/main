@@ -1808,7 +1808,7 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 |------|------|------|
 | `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；审批框默认折叠 diff，点击预览或按 `v` 弹出全屏可滚动的完整 diff（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
 | `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `write`）结果默认只显示 1 行，点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
-| `token-speed.ts` | 在 footer 常驻显示生成速度：最近 5 次回复的**中位数 + 平均值**（tok/s），消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
+| `token-speed.ts` | 在 footer 常驻显示生成速度：最近 5 次回复的**中位数 + 平均值**（tok/s），过短回复不计入，消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
 
 ```bash
 ~/.pi/agent/extensions/edit-modes.ts

@@ -16,13 +16,15 @@ pi（`@earendil-works/pi-coding-agent`）默认 footer **不显示**生成速度
 
 - `message_start`：重置计时状态（保留上一次显示的速度不变）；
 - `message_update`：只记录**第一个流式 delta** 的时间戳（排除首 token 延迟 / TTFT），并累计字符数作为兜底，**不刷新界面**；
-- `message_end`：用 `event.message.usage.output`（真实输出 token 数）除以「首个 delta → 消息结束」的耗时，得到本次 `tok/s`；再取最近 5 次样本的**中位数（`med`）与平均值（`avg`）**写入 footer 状态区，避免单次速度剧烈跳动。只有 1 条样本时直接显示单次速度（`123 tok/s`），之后显示 `med 120 · avg 135 tok/s`。
+- `message_end`：用 `event.message.usage.output`（真实输出 token 数）除以「首个 delta → 消息结束」的耗时，得到本次 `tok/s`；再取最近 5 次样本的**中位数（`med`）与平均值（`avg`）**写入 footer 状态区，避免单次速度剧烈跳动。只有 1 条样本时直接显示单次速度（`123 tok/s`），之后显示 `med 120 · avg 135 tok/s`。过短的回复直接跳过、不写入样本（footer 保留上一次的值）。
 
 provider 没有返回 `usage.output` 时，退化为按字符数 `/4` 估算。
 
 > 注意：`usage.output` 包含 reasoning/thinking 的 token（如果模型开启思考），所以显示的是包含思考的整体生成速度。速度在消息结束后一直保留，新的 assistant 消息生成期间显示的是上一次的值，只有算出新速度后才会覆盖，不会清空。
 >
 > 平滑窗口长度为 5：中位数能抑制短消息（token 少、耗时短）产生的极端值，平均值仍会如实反映整体趋势（若想要更平滑，把 `WINDOW` 调大即可）。
+>
+> 过短回复会被过滤：本次输出 token 少于 `MIN_SAMPLE_TOKENS`（默认 20）或耗时少于 `MIN_SAMPLE_SECONDS`（默认 0.5s）时，不写入样本，footer 保留上一次的值——几个 token 的秒回最容易算出虚高的速度。两个常数都定义在扩展顶部，可按需调整。
 
 ## 扩展文件
 
@@ -43,6 +45,9 @@ provider 没有返回 `usage.output` 时，退化为按字符数 `/4` 估算。
  * The value stays visible while the next response is generating (it is only
  * replaced when a new speed is computed, never cleared).
  *
+ * Very short responses are filtered out (MIN_SAMPLE_TOKENS / MIN_SAMPLE_SECONDS):
+ * a handful of tokens over a few hundred ms can look like a huge burst.
+ *
  * Speed = output tokens / time between the first streamed delta and message end,
  * so time-to-first-token is excluded. Falls back to a character-based estimate
  * when the provider reports no output token usage.
@@ -62,6 +67,11 @@ export default function (pi: ExtensionAPI) {
 	const WINDOW = 5;
 	const samples: number[] = [];
 
+	// Responses that are too short to measure reliably are not recorded; the
+	// footer keeps showing the previous value instead.
+	const MIN_SAMPLE_TOKENS = 20;
+	const MIN_SAMPLE_SECONDS = 0.5;
+
 	const fmt = (v: number) => (v >= 100 ? Math.round(v).toString() : v.toFixed(1));
 
 	const median = (values: number[]) => {
@@ -77,6 +87,8 @@ export default function (pi: ExtensionAPI) {
 
 		const reported = event.message.usage?.output ?? 0;
 		const tokens = reported > 0 ? reported : chars / 4; // rough estimate for providers without usage
+		if (tokens < MIN_SAMPLE_TOKENS || elapsedSeconds < MIN_SAMPLE_SECONDS) return;
+
 		const tps = tokens / elapsedSeconds;
 
 		samples.push(tps);
