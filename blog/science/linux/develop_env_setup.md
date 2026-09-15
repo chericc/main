@@ -1807,7 +1807,7 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 | 扩展 | 说明 | 文档 |
 |------|------|------|
 | `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；`git commit` 在任何模式下都必须逐次确认（不可自动批准，弹窗只有 `Allow once` / `Deny`）；edit diff 与 bash 命令共用同一个审批框：默认折叠前 6 行预览，点击预览或按 `v` / `ctrl+o` 弹出全屏可滚动的完整内容（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
-| `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `write`）结果默认只显示 1 行，点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
+| `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `edit` / `write`，系统有 `pwsh` 时含 `powershell`）默认只展示标题 + 最多 5 行内容：`bash` / `powershell` 取末尾 5 行，其余取开头 5 行；`edit` 折叠显示 diff 前 5 行、`write` 折叠显示文件内容前 5 行。点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
 | `token-speed.ts` | 在 footer 常驻显示生成速度：最近 5 次回复的**中位数 + 平均值**（tok/s），过短回复不计入，消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
 
 ```bash
