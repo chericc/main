@@ -1876,6 +1876,35 @@ pi update --extensions
   - 在无项目标记的目录启动会提示 `Workspace history is disabled ... no project marker`；如需启用：`git init`、放一个上述标记文件，或将 `enabled` 设为 `true` / `requireProjectMarker` 设为 `false`
 - `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
 
+### keybindings.json（全屏键盘滚动粒度）
+
+pi 全屏（`tuiMode: "fullscreen"`）下的鼠标滚轮步长是内置行为：默认每格 1 行、按住 `Alt` 时 ×5，没有暴露成设置项，无法通过 settings.json / 扩展干净地修改；键盘滚动则通过 `~/.pi/agent/keybindings.json` 配置，把默认的整页滚动拆成三档，便于细看长输出：
+
+```json
+{
+  "tui.altScreen.pageUp": ["ctrl+pageUp"],
+  "tui.altScreen.pageDown": ["ctrl+pageDown"],
+  "tui.altScreen.halfPageUp": ["pageUp"],
+  "tui.altScreen.halfPageDown": ["pageDown"],
+  "tui.altScreen.lineUp": ["alt+pageUp"],
+  "tui.altScreen.lineDown": ["alt+pageDown"]
+}
+```
+
+| 按键 | 行为 |
+|------|------|
+| `PageUp` / `PageDown` | 半页 |
+| `Alt+PageUp` / `Alt+PageDown` | 单行 |
+| `Ctrl+PageUp` / `Ctrl+PageDown` | 整页（pi 默认速度） |
+
+注意事项：
+
+- 这些动作只在 fullscreen 下生效；regular 模式下 `PageUp` / `PageDown` 仍用于编辑器翻页
+- 修改后在运行中的 pi 里执行 `/reload` 即可生效，无需重启
+- 部分终端（如 GNOME Terminal）会截获 `Ctrl+PageUp` / `Ctrl+PageDown` 用于切换标签页，若整页不生效可换成其他键
+- fullscreen 下 `PageUp` / `PageDown` 改为半页滚动后，编辑器翻页不再有默认快捷键（影响很小）
+- 可用动作与默认绑定见 pi 文档 `docs/keybindings.md`；`tui.altScreen.halfPageUp` / `halfPageDown` / `lineUp` / `lineDown` 默认不绑定
+
 ### 真彩色（truecolor）：避免 256 色降级
 
 **问题：** 从 Windows Terminal 经 SSH 连接本机时，SSH 不会转发 `COLORTERM` 环境变量，登录 shell 里只有 `TERM=xterm-256color` 而 `COLORTERM` 为空。pi 据此判定终端不支持真彩色，把主题中的 24-bit 十六进制颜色降级到 256 色。pi 的近似算法按 6×6×6 色块取值，会把内置 `dark` 主题的工具背景色 `toolSuccessBg #283228` 映射成 256 色 22 号 `#005f00`，渲染出来就是刺眼的亮绿色大色块（工具输出框背景）；`toolErrorBg`、`userMessageBg` 等也有类似偏差。这是颜色降级导致的，并非主题配色本身的问题，走真彩色即可解决，无需自定义主题。
