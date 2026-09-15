@@ -1808,7 +1808,7 @@ pi（`@earendil-works/pi-coding-agent`）通过扩展（extension）扩展能力
 |------|------|------|
 | `edit-modes.ts` | `ask-to-edit` / `auto-edit` / `auto-all` 三种编辑模式；`bash` 只读守卫与危险命令审批；审批框默认折叠 diff，点击预览或按 `v` 弹出全屏可滚动的完整 diff（点击 / `Esc` 关闭） | [pi/edit-modes.md](pi/edit-modes.md) |
 | `compact-tools.ts` | 让内置工具（`bash` / `read` / `grep` / `find` / `ls` / `write`）结果默认只显示 1 行，点击工具行或 `ctrl+o` 展开 / 收拢 | [pi/compact-tools.md](pi/compact-tools.md) |
-| `token-speed.ts` | 在 footer 显示最近一次回复的生成速度（tok/s），消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
+| `token-speed.ts` | 在 footer 常驻显示生成速度：最近 5 次回复的**中位数 + 平均值**（tok/s），消息结束时计算 | [pi/token-speed.md](pi/token-speed.md) |
 
 ```bash
 ~/.pi/agent/extensions/edit-modes.ts
@@ -1834,36 +1834,54 @@ pi update --extensions
 |------|------|------|
 | `npm:pi-workspace-history` | 工作区级撤销 / 重做：`/undo`、`/redo`、`/checkpoint`，并与 `/tree` 历史导航联动；快照存于内部 shadow git，不影响项目仓库 | [pi-workspace-history](https://github.com/wcldyx/pi-workspace-history) |
 | `npm:@juicesharp/rpiv-todo` | 给模型提供 `todo` 工具：编辑器上方的实时任务面板、`/todos` 命令；列表从会话回放，可跨 `/reload` 与压缩 | [rpiv-todo](https://github.com/juicesharp/rpiv-mono/tree/main/packages/rpiv-todo) |
+| `npm:@ollama/pi-web-search` | 提供 `web_search` / `web_fetch` 工具：走本机 Ollama 的搜索 / 抓取 API（需本地 Ollama 运行） | [pi-web-search](https://github.com/ollama/pi-web-search) |
+| `npm:billion-context-pi` | 模型驱动的上下文管理：提供 `compress` / `decompress` / `search_context` / `acp_status` 工具与 `acp_delegate` 子代理，替代 pi 内置 auto-compaction | [billion-context-pi](https://github.com/ranxianglei/billion-context-pi) |
 
 ```bash
+~/.pi/agent/npm/node_modules/@ollama/pi-web-search
 ~/.pi/agent/npm/node_modules/pi-workspace-history
 ~/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
+~/.pi/agent/npm/node_modules/billion-context-pi
 ```
 
 ### 全局 settings.json
 
-`~/.pi/agent/settings.json` 中与本次配置相关的键：
+`~/.pi/agent/settings.json` 当前内容：
 
 ```json
 {
+  "defaultModel": "deepseek-v4.1-flash:cloud",
+  "defaultProvider": "ollama",
+  "modelThinkingLevels": {
+    "ollama/deepseek-v4.1-flash:cloud": "max"
+  },
+  "packages": [
+    "npm:@ollama/pi-web-search",
+    "npm:pi-workspace-history",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:billion-context-pi"
+  ],
+  "lastChangelogVersion": "0.85.1",
   "theme": "dark",
   "terminal": {
     "trueColor": true
   },
   "hideThinkingBlock": true,
+  "outputPad": 1,
   "tuiMode": "fullscreen",
   "fullscreenScrollbar": "auto",
-  "fullscreenCopyOnSelect": true,
-  "steeringMode": "one-at-a-time",
-  "packages": [
-    "npm:pi-workspace-history",
-    "npm:@juicesharp/rpiv-todo"
-  ]
+  "showCacheMissNotices": true,
+  "doubleEscapeAction": "none",
+  "treeFilterMode": "default",
+  "fullscreenExitOutput": "transcript",
+  "editorPaddingX": 1
 }
 ```
 
 - `tuiMode: "fullscreen"` 是**鼠标交互的前提**：点击工具行展开 / 收拢（compact-tools）、点击预览打开 / 关闭全屏 diff（edit-modes）。regular 模式下 pi 不抓鼠标，只能用键盘（`ctrl+o`、`v`、`Esc` 等）。
-- `theme` / `hideThinkingBlock` / `fullscreenScrollbar` / `fullscreenCopyOnSelect` / `steeringMode` 为个人显示与交互偏好，可按需调整。
+- `defaultModel` / `defaultProvider` / `modelThinkingLevels`：默认走本机 ollama 的 `deepseek-v4.1-flash:cloud`（1M 上下文，thinking level `max`）；provider 与模型定义在 `~/.pi/agent/models.json`（`openai-completions` API、`http://127.0.0.1:11434/v1`）。
+- `theme` / `hideThinkingBlock` / `fullscreenScrollbar` / `outputPad` / `showCacheMissNotices` / `doubleEscapeAction` / `treeFilterMode` / `fullscreenExitOutput` / `editorPaddingX` 为个人显示与交互偏好，可按需调整。
+- `lastChangelogVersion` 由 pi 自动维护，无配置意义。
 - `terminal.trueColor`：强制真彩色输出，避免 SSH 下 256 色降级导致配色刺眼，详见下节。
 
 常用配置：
@@ -1875,6 +1893,8 @@ pi update --extensions
   - `storageDir`（默认 `~/.pi/agent/state/workspace-history`）、`maxWorkspaces`（默认 10）、`maxSessionsPerWorkspace`（默认 3）等
   - 在无项目标记的目录启动会提示 `Workspace history is disabled ... no project marker`；如需启用：`git init`、放一个上述标记文件，或将 `enabled` 设为 `true` / `requireProjectMarker` 设为 `false`
 - `rpiv-todo`：配置文件 `~/.config/rpiv-todo/config.json`（`maxWidgetLines`、`collapseKey` 默认 `ctrl+shift+t`、`guidance`）
+- `@ollama/pi-web-search`：提供 `web_search` / `web_fetch` 工具，需本地 Ollama 运行（搜索 / 抓取由 Ollama 的 API 完成）；无额外配置
+- `billion-context-pi`：零配置即可用（自动读取模型上下文窗口）；可选配置文件 `~/.pi/acp.json`（全局）/ `<project>/.pi/acp.json`（项目），常用键 `delegate: false`（关掉内置子代理，改用其他 sub-agent）；日志 `~/.pi/acp.log`（`tail -f ~/.pi/acp.log`，10 MB 轮转到 `.old`，环境变量 `ACP_LOG_FILE` 可改路径）；`/acp` 查看上下文分布与压缩块
 
 ### keybindings.json（全屏键盘滚动粒度）
 
