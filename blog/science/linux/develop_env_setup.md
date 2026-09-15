@@ -1836,10 +1836,16 @@ pi update --extensions
 | `npm:@ollama/pi-web-search` | 提供 `web_search` / `web_fetch` 工具：走本机 Ollama 的搜索 / 抓取 API（需本地 Ollama 运行） | [pi-web-search](https://github.com/ollama/pi-web-search) |
 | `npm:billion-context-pi` | 模型驱动的上下文管理：提供 `compress` / `decompress` / `search_context` / `acp_status` 工具与 `acp_delegate` 子代理，替代 pi 内置 auto-compaction | [billion-context-pi](https://github.com/ranxianglei/billion-context-pi) |
 
+当前 `pi list` 输出（包名 + 安装路径）：
+
 ```bash
-~/.pi/agent/npm/node_modules/@ollama/pi-web-search
-~/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
-~/.pi/agent/npm/node_modules/billion-context-pi
+User packages:
+  npm:@ollama/pi-web-search
+    /home/test/.pi/agent/npm/node_modules/@ollama/pi-web-search
+  npm:@juicesharp/rpiv-todo
+    /home/test/.pi/agent/npm/node_modules/@juicesharp/rpiv-todo
+  npm:billion-context-pi
+    /home/test/.pi/agent/npm/node_modules/billion-context-pi
 ```
 
 ### 全局 settings.json
