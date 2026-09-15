@@ -988,7 +988,7 @@ class ApprovalDialog implements Component {
 	render(width: number): string[] {
 		const th = this.theme;
 		const out: string[] = [];
-		out.push(truncateToWidth(th.fg("warning", th.bold(`✎ ${this.mode}: ${this.summary}`)), width, "…"));
+		out.push(truncateToWidth(th.fg("warning", th.bold(`${this.mode}: ${this.summary}`)), width, "…"));
 		out.push("");
 
 		const shown = this.lines.slice(0, COLLAPSED_PREVIEW_LINES);
@@ -1119,7 +1119,7 @@ async function approveEditChange(
 			MAX_PREVIEW_WIDTH,
 		);
 		const choice = await ctx.ui.select(
-			`✎ ${mode}: ${summary}\n\n${preview}\n`,
+			`${mode}: ${summary}\n\n${preview}\n`,
 			APPROVAL_OPTIONS.map((option) => option.label),
 		);
 		if (choice === APPROVAL_OPTIONS[0]!.label) return "allow";
@@ -1162,7 +1162,7 @@ export default function (pi: ExtensionAPI) {
 		if (!ctx.hasUI) return;
 		const color = mode === "ask-to-edit" ? "warning" : mode === "auto-edit" ? "success" : "accent";
 		const suffix = bashAutoApprove ? " · bash:auto" : "";
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(color, `✎ ${mode}${suffix}`));
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(color, `${mode}${suffix}`));
 	}
 
 	function setMode(next: EditMode, ctx: ExtensionContext, options: { persist?: boolean; notify?: boolean } = {}): void {
@@ -1338,8 +1338,8 @@ pi --edit-mode auto-edit    # 启动时指定默认模式（也可 auto-all）
 
 - 当前模式显示在 footer 状态栏。
 - 模式按 session 持久化（`pi.appendEntry`），`/reload`、`/resume`、`/tree` 后自动恢复；新 session 回到 `--edit-mode` 指定的默认值（未指定则 `ask-to-edit`）。
-- `Allow all commands (this session)` 只对当前 session 生效，不写入 session、不跨会话，footer 会显示 `✎ ask-to-edit · bash:auto`。
-- `auto-all` 的 footer 显示 `✎ auto-all`（accent 色）。
+- `Allow all commands (this session)` 只对当前 session 生效，不写入 session、不跨会话，footer 会显示 `ask-to-edit · bash:auto`。
+- `auto-all` 的 footer 显示 `auto-all`（accent 色）。
 
 ## edit / write 确认弹窗
 

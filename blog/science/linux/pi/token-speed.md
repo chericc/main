@@ -14,13 +14,13 @@ pi（`@earendil-works/pi-coding-agent`）默认 footer **不显示**生成速度
 
 下面的扩展只在 `message_end`（消息结束）时计算并显示最近一次回复的生成速度：
 
-- `message_start`：重置状态，并清空上一次的速度；
+- `message_start`：重置计时状态（保留上一次显示的速度不变）；
 - `message_update`：只记录**第一个流式 delta** 的时间戳（排除首 token 延迟 / TTFT），并累计字符数作为兜底，**不刷新界面**；
 - `message_end`：用 `event.message.usage.output`（真实输出 token 数）除以「首个 delta → 消息结束」的耗时，得到 `tok/s`，写入 footer 状态区。
 
 provider 没有返回 `usage.output` 时，退化为按字符数 `/4` 估算。
 
-> 注意：`usage.output` 包含 reasoning/thinking 的 token（如果模型开启思考），所以显示的是包含思考的整体生成速度。速度在消息结束后保留，直到下一次 assistant 消息开始时被清空。
+> 注意：`usage.output` 包含 reasoning/thinking 的 token（如果模型开启思考），所以显示的是包含思考的整体生成速度。速度在消息结束后一直保留，新的 assistant 消息生成期间显示的是上一次的值，只有算出新速度后才会覆盖，不会清空。
 
 ## 扩展文件
 
@@ -37,7 +37,9 @@ provider 没有返回 `usage.output` 时，退化为按字符数 `/4` 估算。
  * Token speed extension
  *
  * Shows the generation speed of the last assistant response in the footer,
- * computed once the message finishes (`message_end`).
+ * computed once the message finishes (`message_end`). The value from the
+ * previous response stays visible while the next one is generating (it is
+ * only replaced when a new speed is computed, never cleared).
  *
  * Speed = output tokens / time between the first streamed delta and message end,
  * so time-to-first-token is excluded. Falls back to a character-based estimate
@@ -66,12 +68,11 @@ export default function (pi: ExtensionAPI) {
 		ctx.ui.setStatus("token-speed", ctx.ui.theme.fg("dim", text));
 	};
 
-	pi.on("message_start", async (event, ctx) => {
+	pi.on("message_start", async (event) => {
 		if (event.message.role !== "assistant") return;
 		startedAt = 0;
 		chars = 0;
 		active = true;
-		ctx.ui.setStatus("token-speed", undefined);
 	});
 
 	pi.on("message_update", async (event) => {
