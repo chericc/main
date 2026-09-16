@@ -1864,7 +1864,7 @@ billion-context-pi 配置，热生效：
 ```json
 {
   "compress": {
-    "nudgeGrowthTokens": 200000
+    "nudgeGrowthTokens": 250000
   }
 }
 ```
