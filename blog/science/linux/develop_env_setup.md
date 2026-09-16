@@ -1805,9 +1805,17 @@ ssh -N -L 10086:localhost:10086 ubuntu
 
 ```bash
 edit-modes.ts      # 编辑模式 ask-to-edit / auto-edit / auto-all，bash 只读守卫，git commit 强制确认
-compact-tools.ts   # 工具输出默认折叠 5 行，点击 / ctrl+o 展开
+compact-tools.ts   # 工具输出默认折叠 5 个视觉行（折行后），点击 / ctrl+o 展开
 token-speed.ts     # footer 显示生成速度
 ```
+
+### 工具输出 / 确认框行为（近期修复）
+
+- **折叠按「视觉行」计数**：`compact-tools.ts` 不再按 `\n` 逻辑行切片，而是先用 `Text` 组件按当前终端宽度折行，再取前/后 5 个**视觉行**。因此即使一条逻辑行很长（例如 `grep` 命中 bundle 里压缩成一行的 JS），折叠后也不会超过 5 行。bash/powershell 保留尾部、提示放在上方，其余工具保留头部、提示在下方；edit 的 diff 预览走同一套逻辑。
+- **全屏确认框也能直接确认**：`edit-modes.ts` 的确认弹框点击预览（或按 `v`）进入全屏查看器。查看器按面板宽度**折行**显示完整命令/diff（长行不再被截断成 `…`），并在底部直接列出确认项：
+  - 数字键 `1`–`9` 或鼠标点击选项 → 直接确认并关闭全屏
+  - `esc` / `q` / 点击别处 → 返回原来的小确认框
+  - `↑↓` / `pageUp`/`pageDown` / `home`/`end` / 滚轮 → 滚动内容
 
 插件通过 `pi install` 安装，记录在 `settings.json` 的 `packages` 中：
 
