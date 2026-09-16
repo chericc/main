@@ -32,7 +32,7 @@
  *   /ask-to-edit                         switch to ask-to-edit
  *   /auto-edit                           switch to auto-edit
  *   /auto-all                            switch to auto-all
- *   Shift+Tab                            cycle through the three modes
+ *   Alt+E                                cycle through the three modes
  *
  * The active mode is shown in the footer and persisted per session, so it is
  * restored on /reload, /resume and tree navigation. The startup mode can be set
@@ -61,6 +61,7 @@ import {
 	type WriteToolCallEvent,
 } from "@earendil-works/pi-coding-agent";
 import {
+	Text,
 	matchesKey,
 	truncateToWidth,
 	visibleWidth,
@@ -972,7 +973,6 @@ class ApprovalDialog<T> implements Component {
 	private selected = 0;
 	private previewTop = -1;
 	private previewBottom = -1;
-	private optionRows: Array<{ start: number; end: number; choice: T }> = [];
 
 	constructor(
 		private readonly spec: ApprovalSpec<T>,
@@ -1006,16 +1006,11 @@ class ApprovalDialog<T> implements Component {
 	}
 
 	handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
+		// The only mouse action is opening the full viewer; a click must never confirm a decision.
 		if (event.type !== "click" || event.button !== "left") return undefined;
 		if (this.previewTop >= 0 && event.y >= this.previewTop && event.y <= this.previewBottom) {
 			this.done("view");
 			return { handled: true };
-		}
-		for (const row of this.optionRows) {
-			if (event.y >= row.start && event.y <= row.end) {
-				this.done(row.choice);
-				return { handled: true };
-			}
 		}
 		return undefined;
 	}
@@ -1047,13 +1042,10 @@ class ApprovalDialog<T> implements Component {
 		out.push(truncateToWidth(`  ${more}${viewHint}`, width, "…"));
 		out.push("");
 
-		this.optionRows = [];
 		this.spec.options.forEach((option, index) => {
-			const start = out.length;
 			const marker = index === this.selected ? th.fg("accent", "▶") : " ";
 			const label = index === this.selected ? th.bold(option.label) : th.fg("text", option.label);
 			out.push(truncateToWidth(` ${marker} ${label}`, width, "…"));
-			this.optionRows.push({ start, end: out.length - 1, choice: option.choice });
 		});
 
 		out.push("");
@@ -1066,34 +1058,83 @@ class ApprovalDialog<T> implements Component {
 	invalidate(): void {}
 }
 
-class DiffViewer implements Component {
+class DiffViewer<T> implements Component {
 	private offset = 0;
+	/** Index of the highlighted confirmation option (↑↓ select, enter confirms). */
+	private selected = 0;
+	/** Cache of `lines` wrapped to the current render width. */
+	private wrapped?: { width: number; lines: string[] };
 
 	constructor(
 		private readonly title: string,
 		private readonly lines: DiffLine[],
 		private readonly theme: Theme,
 		private readonly tui: TUI,
-		private readonly done: () => void,
+		private readonly done: (value: T | "back" | undefined) => void,
+		private readonly options: ReadonlyArray<{ label: string; choice: T }> = [],
 	) {}
 
 	private viewportHeight(): number {
-		return Math.max(3, this.tui.terminal.rows - 5);
+		// top border + info + blank + options + hint + bottom border, plus a
+		// two-row margin below the overlay.
+		const chrome = this.options.length > 0 ? this.options.length + 5 : 3;
+		return Math.max(3, this.tui.terminal.rows - chrome - 2);
+	}
+
+	/**
+	 * Wrap each logical line to the pane width so long single-line content (e.g.
+	 * a shell command or a minified JS line) is shown in full instead of being
+	 * truncated with "…". Wrapped lines carry the original colour codes.
+	 */
+	private wrapLines(width: number): string[] {
+		if (this.wrapped && this.wrapped.width === width) return this.wrapped.lines;
+		const textWidth = Math.max(1, width - 2 - 1); // inner width minus the leading pad space
+		const lines: string[] = [];
+		for (const line of this.lines) {
+			const rendered = new Text(colorDiffLine(line, this.theme), 0, 0).render(textWidth);
+			lines.push(...(rendered.length > 0 ? rendered : [""]));
+		}
+		this.wrapped = { width, lines };
+		return lines;
 	}
 
 	private maxOffset(): number {
-		return Math.max(0, this.lines.length - this.viewportHeight());
+		const total = this.wrapped?.lines.length ?? this.lines.length;
+		return Math.max(0, total - this.viewportHeight());
 	}
 
 	handleInput(data: string): void {
-		if (matchesKey(data, "escape") || matchesKey(data, "ctrl+c") || matchesKey(data, "q")) {
-			this.done();
+		// v / ctrl+o collapse back to the smaller dialog, mirroring the keys that open this view.
+		if (
+			matchesKey(data, "escape") ||
+			matchesKey(data, "ctrl+c") ||
+			matchesKey(data, "q") ||
+			matchesKey(data, "v") ||
+			matchesKey(data, "ctrl+o")
+		) {
+			this.done("back");
 			return;
 		}
+		// Same option-selection model as the collapsed dialog: ↑↓ selects, enter confirms.
+		if (this.options.length > 0) {
+			if (matchesKey(data, "enter")) {
+				const option = this.options[this.selected];
+				if (option) this.done(option.choice);
+				return;
+			}
+			if (matchesKey(data, "up")) {
+				this.selected = Math.max(0, this.selected - 1);
+				this.tui.requestRender();
+				return;
+			}
+			if (matchesKey(data, "down")) {
+				this.selected = Math.min(this.options.length - 1, this.selected + 1);
+				this.tui.requestRender();
+				return;
+			}
+		}
 		const page = Math.max(1, this.viewportHeight() - 1);
-		if (matchesKey(data, "up")) this.offset = Math.max(0, this.offset - 1);
-		else if (matchesKey(data, "down")) this.offset = Math.min(this.maxOffset(), this.offset + 1);
-		else if (matchesKey(data, "pageUp")) this.offset = Math.max(0, this.offset - page);
+		if (matchesKey(data, "pageUp")) this.offset = Math.max(0, this.offset - page);
 		else if (matchesKey(data, "pageDown")) this.offset = Math.min(this.maxOffset(), this.offset + page);
 		else if (matchesKey(data, "home")) this.offset = 0;
 		else if (matchesKey(data, "end")) this.offset = this.maxOffset();
@@ -1102,13 +1143,10 @@ class DiffViewer implements Component {
 	}
 
 	handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
+		// The wheel scrolls the preview; a mouse click must never decide for the user.
 		if (event.type === "wheel" && typeof event.wheelDelta === "number") {
 			this.offset = Math.max(0, Math.min(this.maxOffset(), this.offset + event.wheelDelta));
 			this.tui.requestRender();
-			return { handled: true };
-		}
-		if (event.type === "click" && event.button === "left") {
-			this.done();
 			return { handled: true };
 		}
 		return undefined;
@@ -1124,32 +1162,54 @@ class DiffViewer implements Component {
 			return `${clipped}${" ".repeat(padding)}`;
 		};
 
+		const wrapped = this.wrapLines(width);
+		const total = wrapped.length;
 		const viewport = this.viewportHeight();
+		this.offset = Math.min(this.offset, Math.max(0, total - viewport));
+
 		const out: string[] = [];
 		const titleText = truncateToWidth(` ${this.title} `, innerWidth, "…");
 		const topFill = "─".repeat(Math.max(0, innerWidth - visibleWidth(titleText)));
 		out.push(border("╭") + th.fg("accent", titleText) + border(`${topFill}╮`));
 
-		const first = this.lines.length === 0 ? 0 : this.offset + 1;
-		const last = Math.min(this.lines.length, this.offset + viewport);
-		const info = `lines ${first}-${last} / ${this.lines.length}  ·  ↑↓/wheel/pageUp-pageDown · home/end · click/esc close`;
+		const first = total === 0 ? 0 : this.offset + 1;
+		const last = Math.min(total, this.offset + viewport);
+		const info = `lines ${first}-${last} / ${total}  ·  wheel/pageUp-pageDown/home/end scroll`;
 		out.push(border("│") + padLine(th.fg("dim", info)) + border("│"));
 
-		const shown = this.lines.slice(this.offset, this.offset + viewport);
-		for (const line of shown) out.push(border("│") + padLine(colorDiffLine(line, th)) + border("│"));
+		const shown = wrapped.slice(this.offset, this.offset + viewport);
+		for (const line of shown) out.push(border("│") + padLine(line) + border("│"));
 		for (let i = shown.length; i < viewport; i++) out.push(border("│") + padLine("") + border("│"));
+
+		// Confirmation options, so the decision can be made without leaving fullscreen.
+		if (this.options.length > 0) {
+			out.push(border("│") + padLine("") + border("│"));
+			this.options.forEach((option, index) => {
+				const isSelected = index === this.selected;
+				const marker = isSelected ? th.fg("accent", "▶") : " ";
+				const label = isSelected ? th.bold(option.label) : th.fg("text", option.label);
+				out.push(border("│") + padLine(`${marker} ${label}`) + border("│"));
+			});
+			out.push(
+				border("│") +
+					padLine(th.fg("dim", " ↑↓ select · enter confirm · pageUp/pageDown scroll · esc back")) +
+					border("│"),
+			);
+		}
 
 		out.push(border(`╰${"─".repeat(innerWidth)}╯`));
 		return out;
 	}
 
-	invalidate(): void {}
+	invalidate(): void {
+		this.wrapped = undefined;
+	}
 }
 
 /**
  * Show a confirmation dialog. In TUI mode this uses a custom component with a
- * collapsed preview, clickable options and a fullscreen viewer; other modes fall
- * back to the plain select dialog.
+ * collapsed preview, an option list driven by ↑↓ + enter, and a fullscreen viewer;
+ * other modes fall back to the plain select dialog.
  */
 async function runApprovalDialog<T>(
 	ctx: ExtensionContext,
@@ -1176,13 +1236,15 @@ async function runApprovalDialog<T>(
 		);
 		if (result !== "view") return result;
 
-		await ctx.ui.custom<void>(
-			(tui, theme, _keybindings, done) => new DiffViewer(viewerTitle, spec.lines, theme, tui, done),
+		const choice = await ctx.ui.custom<T | "back" | undefined>(
+			(tui, theme, _keybindings, done) =>
+				new DiffViewer<T>(viewerTitle, spec.lines, theme, tui, done, spec.options),
 			{
 				overlay: true,
 				overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "center" },
 			},
 		);
+		if (choice !== "back") return choice;
 	}
 }
 
@@ -1292,7 +1354,7 @@ export default function (pi: ExtensionAPI) {
 		handler: async (_args, ctx) => setMode("auto-all", ctx),
 	});
 
-	pi.registerShortcut("shift+tab", {
+	pi.registerShortcut("alt+e", {
 		description: "Cycle edit mode (ask-to-edit → auto-edit → auto-all)",
 		handler: async (ctx) => {
 			const next: EditMode =
@@ -1366,6 +1428,9 @@ export default function (pi: ExtensionAPI) {
 				ctx.ui.notify("Bash: auto-approving all commands for this session", "warning");
 				return;
 			}
+			// Denying stops the current agent run entirely (like pressing Esc) instead of
+			// just blocking this tool call and letting the model continue working.
+			ctx.abort();
 			return { block: true, reason: `User denied bash command: ${askReason}` };
 		}
 
@@ -1404,10 +1469,14 @@ export default function (pi: ExtensionAPI) {
 			return;
 		}
 		if (decision === "deny") {
+			// Denying stops the current agent run entirely (like pressing Esc) instead
+			// of just blocking this tool call and letting the model continue working.
+			ctx.abort();
 			return { block: true, reason: `User denied: ${summary} (${mode} mode)` };
 		}
 
 		// Cancelled the dialog (Esc / Ctrl+C) counts as a denial.
+		ctx.abort();
 		return { block: true, reason: `User cancelled approval for: ${summary} (${mode} mode)` };
 	});
 }

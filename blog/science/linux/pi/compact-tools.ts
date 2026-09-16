@@ -54,15 +54,40 @@ function textOf(result: AgentToolResult<any>): string {
 		.trim();
 }
 
-/** Render a set of already-coloured body lines, truncating to COLLAPSED_LINES when not expanded. */
-function previewText(lines: string[], expanded: boolean, theme: Theme): string {
-	const shown = expanded ? lines : lines.slice(0, COLLAPSED_LINES);
-	const hidden = lines.length - shown.length;
-	let body = `\n${shown.join("\n")}`;
-	if (hidden > 0) {
-		body += theme.fg("muted", `\n… (${hidden} more, ${EXPAND_HINT})`);
+/**
+ * Renders already-coloured logical lines, truncating to COLLAPSED_LINES *visual*
+ * (wrapped) lines when collapsed. Counting wrapped lines — not `\n`-separated
+ * ones — is what keeps a single very long line (e.g. a minified bundle match)
+ * from blowing past the preview budget.
+ */
+class VisualPreview implements Component {
+	private readonly text: Text;
+
+	constructor(
+		private readonly lines: string[],
+		private readonly expanded: boolean,
+		private readonly fromTail: boolean,
+		private readonly theme: Theme,
+	) {
+		this.text = new Text(this.lines.join("\n"), 0, 0);
 	}
-	return body;
+
+	render(width: number): string[] {
+		const rendered = this.text.render(width);
+		if (this.expanded) {
+			return ["", ...rendered];
+		}
+		const shown = this.fromTail ? rendered.slice(-COLLAPSED_LINES) : rendered.slice(0, COLLAPSED_LINES);
+		const hidden = rendered.length - shown.length;
+		const hint = hidden > 0 ? this.theme.fg("muted", `… (${hidden} more lines, ${EXPAND_HINT})`) : undefined;
+		// For tail tools the hidden lines are above the visible ones, so the hint
+		// goes on top (matching the built-in shell renderer).
+		return this.fromTail ? ["", ...(hint ? [hint] : []), ...shown] : ["", ...shown, ...(hint ? [hint] : [])];
+	}
+
+	invalidate(): void {
+		this.text.invalidate();
+	}
 }
 
 function compactResult(
@@ -74,19 +99,8 @@ function compactResult(
 	const output = textOf(result);
 	if (!output) return new Container();
 
-	const lines = output.split("\n");
-	const chosen = options.expanded
-		? lines
-		: TAIL_TOOLS.has(toolName)
-			? lines.slice(-COLLAPSED_LINES)
-			: lines.slice(0, COLLAPSED_LINES);
-	const hidden = lines.length - chosen.length;
-
-	let body = chosen.map((line) => theme.fg("toolOutput", line)).join("\n");
-	if (hidden > 0) {
-		body += theme.fg("muted", `\n… (${hidden} more, ${EXPAND_HINT})`);
-	}
-	return new Text(`\n${body}`, 0, 0);
+	const lines = output.split("\n").map((line) => theme.fg("toolOutput", line));
+	return new VisualPreview(lines, options.expanded, TAIL_TOOLS.has(toolName), theme);
 }
 
 // ---------------------------------------------------------------------------
@@ -170,7 +184,7 @@ function renderEditResult(
 		? renderDiff(diff).split("\n")
 		: editArgsDiffLines(context.args).map((line) => colorDiffLine(line, theme));
 	if (bodyLines.length > 0) {
-		component.addChild(new Text(previewText(bodyLines, options.expanded, theme), 0, 0));
+		component.addChild(new VisualPreview(bodyLines, options.expanded, false, theme));
 	}
 	return component;
 }
