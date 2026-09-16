@@ -1816,6 +1816,11 @@ token-speed.ts     # footer 显示生成速度
   - 数字键 `1`–`9` 或鼠标点击选项 → 直接确认并关闭全屏
   - `esc` / `q` / 点击别处 → 返回原来的小确认框
   - `↑↓` / `pageUp`/`pageDown` / `home`/`end` / 滚轮 → 滚动内容
+- **拒绝 / 取消确认框会停止当前会话**：`edit-modes.ts` 的确认框被拒绝（选 deny / No）或按 `esc` / `ctrl+c` 取消时，除了返回 `{ block: true, reason }` 拦截本次工具调用，还会调用 `ctx.abort()`：
+  - `ctx.abort()` 在 TUI 下等价于流式输出时按 `esc`（`restoreQueuedMessagesToEditor({ abort: true })` → `agent.abort()`），立即终止当前 agent run，控制权交回编辑器等待下一条命令；排队中的 steering / follow-up 消息会被还原回编辑器
+  - 覆盖三条路径：bash 拒绝、编辑/写入拒绝、弹框取消（`esc` / `ctrl+c` 触发 `ApprovalDialog` 的 `done(undefined)`）
+  - 修复前只返回 `{ block: true }`，仅拦截该次调用，模型收到 "blocked" 结果后会继续尝试其他做法或继续下一个 tool call；现在拒绝/取消即停止
+  - 注意：abort 会在返回 block 结果之前终止 run，因此模型通常看不到 `User denied/cancelled` 的 reason；若想让模型看到 reason 可改用 `terminate: true`，但该方式只在同一 tool batch 内所有结果都 terminating 时才停止，多 tool call 并行时不可靠
 
 插件通过 `pi install` 安装，记录在 `settings.json` 的 `packages` 中：
 
