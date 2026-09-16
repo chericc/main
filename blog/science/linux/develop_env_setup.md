@@ -1833,7 +1833,6 @@ pi update --extensions
 
 ```bash
 npm:@ollama/pi-web-search
-npm:@juicesharp/rpiv-todo
 npm:billion-context-pi
 ```
 
@@ -1847,7 +1846,7 @@ npm:billion-context-pi
   "editorPaddingX": 1,
   "fullscreenExitOutput": "transcript",
   "fullscreenScrollbar": "auto",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "lastChangelogVersion": "0.85.1",
   "modelThinkingLevels": {
     "ollama/deepseek-v4.1-flash:cloud": "high"
@@ -1855,7 +1854,6 @@ npm:billion-context-pi
   "outputPad": 1,
   "packages": [
     "npm:@ollama/pi-web-search",
-    "npm:@juicesharp/rpiv-todo",
     "npm:billion-context-pi"
   ],
   "showCacheMissNotices": true,
