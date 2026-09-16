@@ -32,7 +32,7 @@
  *   /ask-to-edit                         switch to ask-to-edit
  *   /auto-edit                           switch to auto-edit
  *   /auto-all                            switch to auto-all
- *   Alt+E                                cycle through the three modes
+ *   Shift+Tab                            cycle through the three modes
  *
  * The active mode is shown in the footer and persisted per session, so it is
  * restored on /reload, /resume and tree navigation. The startup mode can be set
@@ -1292,7 +1292,7 @@ export default function (pi: ExtensionAPI) {
 		handler: async (_args, ctx) => setMode("auto-all", ctx),
 	});
 
-	pi.registerShortcut("alt+e", {
+	pi.registerShortcut("shift+tab", {
 		description: "Cycle edit mode (ask-to-edit → auto-edit → auto-all)",
 		handler: async (ctx) => {
 			const next: EditMode =

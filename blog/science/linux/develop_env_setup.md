@@ -1801,30 +1801,15 @@ ssh -N -L 10086:localhost:10086 ubuntu
 
 ## pi
 
-扩展放在 `~/.pi/agent/extensions/`（改动后 `/reload` 生效）：
-
 ```bash
-edit-modes.ts      # 编辑模式 ask-to-edit / auto-edit / auto-all，bash 只读守卫，git commit 强制确认
+# ~/.pi/agent/extensions/
+edit-modes.ts      # 编辑模式 ask-to-edit / auto-edit / auto-all，shift+tab 切换，bash 只读守卫，git commit 强制确认
 compact-tools.ts   # 工具输出默认折叠 5 个视觉行（折行后），点击 / ctrl+o 展开
 token-speed.ts     # footer 显示生成速度
 ```
 
-### 工具输出 / 确认框行为（近期修复）
-
-- **折叠按「视觉行」计数**：`compact-tools.ts` 不再按 `\n` 逻辑行切片，而是先用 `Text` 组件按当前终端宽度折行，再取前/后 5 个**视觉行**。因此即使一条逻辑行很长（例如 `grep` 命中 bundle 里压缩成一行的 JS），折叠后也不会超过 5 行。bash/powershell 保留尾部、提示放在上方，其余工具保留头部、提示在下方；edit 的 diff 预览走同一套逻辑。
-- **全屏确认框也能直接确认**：`edit-modes.ts` 的确认弹框点击预览（或按 `v`）进入全屏查看器。查看器按面板宽度**折行**显示完整命令/diff（长行不再被截断成 `…`），并在底部直接列出确认项：
-  - 数字键 `1`–`9` 或鼠标点击选项 → 直接确认并关闭全屏
-  - `esc` / `q` / 点击别处 → 返回原来的小确认框
-  - `↑↓` / `pageUp`/`pageDown` / `home`/`end` / 滚轮 → 滚动内容
-- **拒绝 / 取消确认框会停止当前会话**：`edit-modes.ts` 的确认框被拒绝（选 deny / No）或按 `esc` / `ctrl+c` 取消时，除了返回 `{ block: true, reason }` 拦截本次工具调用，还会调用 `ctx.abort()`：
-  - `ctx.abort()` 在 TUI 下等价于流式输出时按 `esc`（`restoreQueuedMessagesToEditor({ abort: true })` → `agent.abort()`），立即终止当前 agent run，控制权交回编辑器等待下一条命令；排队中的 steering / follow-up 消息会被还原回编辑器
-  - 覆盖三条路径：bash 拒绝、编辑/写入拒绝、弹框取消（`esc` / `ctrl+c` 触发 `ApprovalDialog` 的 `done(undefined)`）
-  - 修复前只返回 `{ block: true }`，仅拦截该次调用，模型收到 "blocked" 结果后会继续尝试其他做法或继续下一个 tool call；现在拒绝/取消即停止
-  - 注意：abort 会在返回 block 结果之前终止 run，因此模型通常看不到 `User denied/cancelled` 的 reason；若想让模型看到 reason 可改用 `terminate: true`，但该方式只在同一 tool batch 内所有结果都 terminating 时才停止，多 tool call 并行时不可靠
-
-插件通过 `pi install` 安装，记录在 `settings.json` 的 `packages` 中：
-
 ```bash
+# pi install
 pi list
 pi install npm:<package>
 pi remove npm:<package>
@@ -1832,6 +1817,7 @@ pi update --extensions
 ```
 
 ```bash
+# ~/.pi/agent/settings.json → packages
 npm:@ollama/pi-web-search
 npm:billion-context-pi
 ```
@@ -1866,11 +1852,7 @@ npm:billion-context-pi
 }
 ```
 
-（`tuiMode: "fullscreen"` 是鼠标交互的前提。）
-
 ### ~/.pi/acp.json
-
-billion-context-pi 配置。压缩相关项热生效；`delegate` 开关在 session 启动时读取（工具注册发生在 `session_start`），**需要重启 pi / 新开会话**才生效：
 
 ```json
 {
@@ -1881,25 +1863,78 @@ billion-context-pi 配置。压缩相关项热生效；`delegate` 开关在 sess
 }
 ```
 
-`"delegate": false`（等价 `{ "delegate": { "enabled": false } }`）用于禁用 `acp_delegate` 子代理相关工具：
-
-- **移除内容**：`acp_delegate` / `acp_delegate_wait` / `acp_delegate_cancel` 三个工具、system prompt 里的 `ACP_DELEGATE NOTIFICATIONS` 段、delegate 的 TUI 快捷键（`/acp-fleet` 会提示 delegate 已关闭）
-- **不受影响**：`compress` / `decompress` / `search_context` / `acp_status` 照常工作
-- 只想去掉提示词、保留工具：`{ "delegatePrompt": null }`
-- 不要用 `pi --exclude-tools acp_delegate,...` 代替，它只隐藏工具，模型仍会收到描述这些工具的提示词段
-- 另装了 `pi-subagents` 时：项目级安装会自动让 `acp_delegate` 让位；想强制保留设 `"delegate": { "forceEnable": true }`
-- 连整个 ACP 都不要：顶层 `"enabled": false`（关闭全部 ACP 工具、system prompt 与 context transform）
-
 ### ~/.pi/agent/keybindings.json
 
 ```json
 {
-  "tui.altScreen.pageUp": ["ctrl+pageUp"],
-  "tui.altScreen.pageDown": ["ctrl+pageDown"],
-  "tui.altScreen.halfPageUp": ["pageUp"],
-  "tui.altScreen.halfPageDown": ["pageDown"],
-  "tui.altScreen.lineUp": ["alt+pageUp"],
-  "tui.altScreen.lineDown": ["alt+pageDown"]
+  "app.thinking.cycle": ["ctrl+shift+t"],
+
+  "tui.editor.cursorWordLeft": [],
+  "tui.editor.cursorWordRight": [],
+  "tui.editor.cursorLineStart": [],
+  "tui.editor.cursorLineEnd": [],
+  "tui.editor.jumpForward": [],
+  "tui.editor.jumpBackward": [],
+
+  "tui.editor.deleteCharForward": [],
+  "tui.editor.deleteWordBackward": [],
+  "tui.editor.deleteWordForward": [],
+  "tui.editor.deleteToLineStart": [],
+  "tui.editor.deleteToLineEnd": [],
+
+  "tui.input.tab": [],
+
+  "tui.editor.yank": [],
+  "tui.editor.yankPop": [],
+  "tui.editor.undo": [],
+
+  "tui.input.copy": [],
+
+  "tui.altScreen.lineUp": [],
+  "tui.altScreen.lineDown": [],
+  "tui.altScreen.previousPrompt": [],
+  "tui.altScreen.nextPrompt": [],
+  "tui.altScreen.search": [],
+  "tui.altScreen.searchNext": [],
+  "tui.altScreen.searchPrevious": [],
+  "tui.altScreen.searchClose": [],
+
+  "app.suspend": [],
+
+  "app.session.togglePath": [],
+  "app.session.toggleSort": [],
+  "app.session.toggleNamedFilter": [],
+  "app.session.rename": [],
+  "app.session.delete": [],
+  "app.session.deleteNoninvasive": [],
+
+  "app.model.select": [],
+  "app.model.cycleForward": [],
+  "app.model.cycleBackward": [],
+  "app.models.save": [],
+  "app.thinking.save": [],
+
+  "app.message.copy": [],
+  "app.message.followUp": [],
+  "app.message.dequeue": [],
+
+  "app.tree.foldOrUp": [],
+  "app.tree.unfoldOrDown": [],
+  "app.tree.editLabel": [],
+  "app.tree.toggleLabelTimestamp": [],
+  "app.tree.filter.default": [],
+  "app.tree.filter.noTools": [],
+  "app.tree.filter.userOnly": [],
+  "app.tree.filter.labeledOnly": [],
+  "app.tree.filter.all": [],
+  "app.tree.filter.cycleForward": [],
+  "app.tree.filter.cycleBackward": [],
+
+  "app.models.enableAll": [],
+  "app.models.clearAll": [],
+  "app.models.toggleProvider": [],
+  "app.models.reorderUp": [],
+  "app.models.reorderDown": []
 }
 ```
 
