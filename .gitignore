@@ -31,7 +31,8 @@
 *.out
 *.app
 
-*.json
+# Local editor settings (JSON config that should not be committed)
+.vscode/settings.json
 
 .vs
 out

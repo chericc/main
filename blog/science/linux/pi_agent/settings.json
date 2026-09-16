@@ -1,0 +1,25 @@
+{
+  "defaultModel": "deepseek-v4.1-flash:cloud",
+  "defaultProvider": "ollama",
+  "doubleEscapeAction": "none",
+  "editorPaddingX": 1,
+  "fullscreenExitOutput": "transcript",
+  "fullscreenScrollbar": "auto",
+  "hideThinkingBlock": false,
+  "lastChangelogVersion": "0.85.1",
+  "modelThinkingLevels": {
+    "ollama/deepseek-v4.1-flash:cloud": "high"
+  },
+  "outputPad": 1,
+  "packages": [
+    "npm:@ollama/pi-web-search",
+    "npm:billion-context-pi"
+  ],
+  "showCacheMissNotices": true,
+  "terminal": {
+    "trueColor": true
+  },
+  "theme": "dark",
+  "treeFilterMode": "no-tools",
+  "tuiMode": "fullscreen"
+}
