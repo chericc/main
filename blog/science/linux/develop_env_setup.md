@@ -1867,15 +1867,25 @@ npm:billion-context-pi
 
 ### ~/.pi/acp.json
 
-billion-context-pi 配置，热生效：
+billion-context-pi 配置。压缩相关项热生效；`delegate` 开关在 session 启动时读取（工具注册发生在 `session_start`），**需要重启 pi / 新开会话**才生效：
 
 ```json
 {
   "compress": {
     "nudgeGrowthTokens": 250000
-  }
+  },
+  "delegate": false
 }
 ```
+
+`"delegate": false`（等价 `{ "delegate": { "enabled": false } }`）用于禁用 `acp_delegate` 子代理相关工具：
+
+- **移除内容**：`acp_delegate` / `acp_delegate_wait` / `acp_delegate_cancel` 三个工具、system prompt 里的 `ACP_DELEGATE NOTIFICATIONS` 段、delegate 的 TUI 快捷键（`/acp-fleet` 会提示 delegate 已关闭）
+- **不受影响**：`compress` / `decompress` / `search_context` / `acp_status` 照常工作
+- 只想去掉提示词、保留工具：`{ "delegatePrompt": null }`
+- 不要用 `pi --exclude-tools acp_delegate,...` 代替，它只隐藏工具，模型仍会收到描述这些工具的提示词段
+- 另装了 `pi-subagents` 时：项目级安装会自动让 `acp_delegate` 让位；想强制保留设 `"delegate": { "forceEnable": true }`
+- 连整个 ACP 都不要：顶层 `"enabled": false`（关闭全部 ACP 工具、system prompt 与 context transform）
 
 ### ~/.pi/agent/keybindings.json
 
