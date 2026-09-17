@@ -1212,41 +1212,61 @@ class ApprovalDialog<T> implements Component {
 
 	render(width: number): string[] {
 		const th = this.theme;
+		const innerWidth = Math.max(1, width - 2);
+		const border = (text: string) => th.fg(this.spec.titleColor, text);
+		const padLine = (text: string) => {
+			const clipped = truncateToWidth(` ${text}`, innerWidth, "…");
+			const padding = Math.max(0, innerWidth - visibleWidth(clipped));
+			return `${clipped}${" ".repeat(padding)}`;
+		};
+		const row = (text = "") => border("│") + padLine(text) + border("│");
+
 		const out: string[] = [];
-		out.push(truncateToWidth(th.fg(this.spec.titleColor, th.bold(this.spec.title)), width, "…"));
-		if (this.spec.subtitle) {
-			out.push(truncateToWidth(`  ${th.fg("dim", this.spec.subtitle)}`, width, "…"));
-		}
-		out.push("");
+		// Title as a filled "chip" on the top border, tinted by severity, so the
+		// prompt reads as one prominent box instead of blending into the transcript.
+		const sevBg =
+			this.spec.titleColor === "error"
+				? "toolErrorBg"
+				: this.spec.titleColor === "warning"
+					? "toolPendingBg"
+					: "customMessageBg";
+		const chipLabel = truncateToWidth(` ${this.spec.title} `, Math.max(1, innerWidth - 1), "…");
+		const topFill = "─".repeat(Math.max(0, innerWidth - 1 - visibleWidth(chipLabel)));
+		out.push(border("╭─") + th.bg(sevBg, th.fg("text", th.bold(chipLabel))) + border(`${topFill}╮`));
+
+		if (this.spec.subtitle) out.push(row(th.fg("muted", this.spec.subtitle)));
+		out.push(row(""));
 
 		const shown = this.spec.lines.slice(0, this.spec.maxBodyLines);
 		this.previewTop = out.length;
-		for (const line of shown) {
-			out.push(truncateToWidth(`  ${colorDiffLine(line, th)}`, width, "…"));
-		}
+		for (const line of shown) out.push(row(colorDiffLine(line, th)));
 		this.previewBottom = out.length - 1;
 
 		const hidden = this.spec.lines.length - shown.length;
 		const more = hidden > 0 ? `${th.fg("muted", `… ${hidden} more line${hidden === 1 ? "" : "s"}`)} ` : "";
-		const viewHint = th.fg(
-			"dim",
-			hidden > 0
-				? `[ click here or press v to view ${this.spec.viewLabel} ]`
-				: `[ press v to view ${this.spec.viewLabel} ]`,
+		const viewHint = th.underline(
+			th.fg(
+				"dim",
+				hidden > 0
+					? `[ click here or press v to view ${this.spec.viewLabel} ]`
+					: `[ press v to view ${this.spec.viewLabel} ]`,
+			),
 		);
-		out.push(truncateToWidth(`  ${more}${viewHint}`, width, "…"));
-		out.push("");
+		out.push(row(`${more}${viewHint}`));
+		out.push(row(""));
 
 		this.spec.options.forEach((option, index) => {
-			const marker = index === this.selected ? th.fg("accent", "▶") : " ";
-			const label = index === this.selected ? th.bold(option.label) : th.fg("text", option.label);
-			out.push(truncateToWidth(` ${marker} ${label}`, width, "…"));
+			if (index === this.selected) {
+				const highlighted = padLine(`${th.fg("accent", "▶")} ${th.bold(option.label)}`);
+				out.push(border("│") + th.bg("selectedBg", highlighted) + border("│"));
+			} else {
+				out.push(row(`  ${th.fg("text", option.label)}`));
+			}
 		});
 
-		out.push("");
-		out.push(
-			truncateToWidth(th.fg("dim", ` ↑↓ select · enter confirm · v ${this.spec.viewLabel} · esc cancel`), width, "…"),
-		);
+		out.push(row(""));
+		out.push(row(th.fg("dim", `↑↓ select · enter confirm · v ${this.spec.viewLabel} · esc cancel`)));
+		out.push(border(`╰${"─".repeat(innerWidth)}╯`));
 		return out;
 	}
 
@@ -1381,9 +1401,11 @@ class DiffViewer<T> implements Component {
 			out.push(border("│") + padLine("") + border("│"));
 			this.options.forEach((option, index) => {
 				const isSelected = index === this.selected;
-				const marker = isSelected ? th.fg("accent", "▶") : " ";
-				const label = isSelected ? th.bold(option.label) : th.fg("text", option.label);
-				out.push(border("│") + padLine(`${marker} ${label}`) + border("│"));
+				const line = isSelected
+					? `${th.fg("accent", "▶")} ${th.bold(option.label)}`
+					: ` ${th.fg("text", option.label)}`;
+				const rendered = padLine(line);
+				out.push(border("│") + (isSelected ? th.bg("selectedBg", rendered) : rendered) + border("│"));
 			});
 			out.push(
 				border("│") +
