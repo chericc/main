@@ -8,7 +8,8 @@
  *   ask-to-edit (default)  Show a diff and wait for approval before every edit/write.
  *   auto-edit              Run edit/write without prompting.
  *   auto-all               Run edit/write and bash without prompting, except:
- *                          - edit/write to paths outside the project directory;
+ *                          - edit/write to paths outside the project directory
+ *                            (the temp dir, e.g. /tmp, counts as inside);
  *                          - dangerous bash commands (sudo, rm -rf outside the
  *                            project, package/system changes, writes outside the
  *                            project, ...). See classifyDangerousBash;
@@ -52,6 +53,8 @@
 
 import * as os from "node:os";
 import * as path from "node:path";
+import { createRequire } from "node:module";
+import { Parser, Language } from "web-tree-sitter";
 import {
 	isToolCallEventType,
 	type EditToolCallEvent,
@@ -105,188 +108,10 @@ function truncateForPreview(text: string, maxLines: number, maxWidth: number): s
 }
 
 // ---------------------------------------------------------------------------
-// Bash read-only classifier
+// Read-only allow-list (used by the tree-sitter AST classifier below)
 // ---------------------------------------------------------------------------
 
-type ShellToken = { type: "word"; value: string } | { type: "operator"; value: string };
-
-interface TokenizedShell {
-	tokens: ShellToken[];
-	hasWriteRedirection: boolean;
-	hasSubstitution: boolean;
-	redirectTargets: string[];
-}
-
 const SAFE_REDIRECT_TARGETS = ["/dev/null", "/dev/stderr", "/dev/stdout"];
-
-function tokenizeShell(command: string): TokenizedShell {
-	const tokens: ShellToken[] = [];
-	const redirectTargets: string[] = [];
-	let current = "";
-	let hasWriteRedirection = false;
-	let hasSubstitution = false;
-	let quote: "'" | '"' | null = null;
-	let i = 0;
-
-	const pushWord = () => {
-		if (current.length > 0) {
-			tokens.push({ type: "word", value: current });
-			current = "";
-		}
-	};
-
-	const isWordBoundary = (ch: string | undefined) => ch === undefined || /[\s;&|<>]/.test(ch);
-
-	while (i < command.length) {
-		const ch = command[i] as string;
-
-		if (quote === "'") {
-			if (ch === "'") quote = null;
-			else current += ch;
-			i++;
-			continue;
-		}
-
-		if (quote === '"') {
-			if (ch === "\\") {
-				const next = command[i + 1];
-				if (next === '"' || next === "\\" || next === "$" || next === "`") {
-					current += next;
-					i += 2;
-					continue;
-				}
-				current += ch;
-				i++;
-				continue;
-			}
-			if (ch === '"') {
-				quote = null;
-				i++;
-				continue;
-			}
-			if (ch === "`") hasSubstitution = true;
-			if (ch === "$" && command[i + 1] === "(") hasSubstitution = true;
-			current += ch;
-			i++;
-			continue;
-		}
-
-		if (ch === "\\") {
-			const next = command[i + 1];
-			if (next !== undefined) {
-				current += next;
-				i += 2;
-				continue;
-			}
-			i++;
-			continue;
-		}
-		if (ch === "'") {
-			quote = "'";
-			i++;
-			continue;
-		}
-		if (ch === '"') {
-			quote = '"';
-			i++;
-			continue;
-		}
-		if (ch === "`") {
-			hasSubstitution = true;
-			current += ch;
-			i++;
-			continue;
-		}
-		if (ch === "$" && command[i + 1] === "(") {
-			hasSubstitution = true;
-			current += ch;
-			i++;
-			continue;
-		}
-
-		if (ch === ">") {
-			let j = i + 1;
-			if (command[j] === ">") j++;
-			while (command[j] === " " || command[j] === "\t") j++;
-			if (command[j] === "&") {
-				// File-descriptor duplication (2>&1), not a file write.
-				j++;
-				while (!isWordBoundary(command[j])) j++;
-			} else {
-				const start = j;
-				while (!isWordBoundary(command[j])) j++;
-				const target = command.slice(start, j).replace(/^['"]|['"]$/g, "");
-				redirectTargets.push(target);
-				const safe =
-					SAFE_REDIRECT_TARGETS.includes(target) || target.startsWith("/dev/fd/");
-				if (!safe) hasWriteRedirection = true;
-			}
-			pushWord();
-			i = j;
-			continue;
-		}
-		if (ch === "<") {
-			pushWord();
-			i++;
-			if (command[i] === "<") i++;
-			if (command[i] === "<") i++;
-			continue;
-		}
-		if (ch === "|") {
-			pushWord();
-			if (command[i + 1] === "|") {
-				tokens.push({ type: "operator", value: "||" });
-				i += 2;
-			} else {
-				tokens.push({ type: "operator", value: "|" });
-				i++;
-			}
-			continue;
-		}
-		if (ch === ";" || ch === "\n") {
-			pushWord();
-			tokens.push({ type: "operator", value: ";" });
-			i++;
-			continue;
-		}
-		if (ch === "&") {
-			if (command[i + 1] === "&") {
-				pushWord();
-				tokens.push({ type: "operator", value: "&&" });
-				i += 2;
-				continue;
-			}
-			if (command[i + 1] === ">") {
-				hasWriteRedirection = true;
-				pushWord();
-				i += 2;
-				if (command[i] === ">") i++;
-				while (command[i] === " " || command[i] === "\t") i++;
-				const start = i;
-				while (!isWordBoundary(command[i])) i++;
-				const target = command.slice(start, i).replace(/^['"]|['"]$/g, "");
-				if (target.length > 0) redirectTargets.push(target);
-				continue;
-			}
-			pushWord();
-			tokens.push({ type: "operator", value: "&" });
-			i++;
-			continue;
-		}
-		if (ch === " " || ch === "\t") {
-			pushWord();
-			i++;
-			continue;
-		}
-
-		current += ch;
-		i++;
-	}
-
-	pushWord();
-	if (command.includes("<(") || command.includes(">(")) hasSubstitution = true;
-	return { tokens, hasWriteRedirection, hasSubstitution, redirectTargets };
-}
 
 /** Commands that only read data; any argument is safe (subject to flag checks). */
 const READ_ONLY_SIMPLE = new Set([
@@ -299,14 +124,50 @@ const READ_ONLY_SIMPLE = new Set([
 	"locale", "tty", "ps", "pgrep", "free", "vmstat", "iostat", "nproc", "arch", "who", "w",
 	"last", "cal", "bc", "man", "help", "history", "dirs", "jobs", "umask", "sleep", "cd",
 	"pushd", "popd", "export", "set", "unset", "alias", "unalias",
+	"read", "declare", "typeset", "local", "readonly", "let", "shift", "return",
+	"break", "continue", "hash", "getopts", "mapfile", "readarray",
 ]);
+
+/** sed script commands that execute helpers or write files. */
+const SED_SIDE_EFFECT_PATTERNS = [/[^\\]e\s/, /^e\s/, /[^\\]w\s/, /^w\s/, /[^\\]r\s/, /^r\s/];
+
+/** awk programs that run commands, write files or read via getline. */
+const AWK_SIDE_EFFECT_PATTERNS = [
+	/(^|[^A-Za-z_])system\s*\(/,
+	/(print|printf)[^>|]*>>?\s*"/,
+	/(print|printf)[^|]*\|\s*"/,
+	/getline\s*</,
+	/\|\s*getline/,
+];
 
 const GIT_READ_ONLY_SUBCOMMANDS = new Set([
 	"status", "log", "diff", "show", "describe", "rev-parse", "rev-list", "ls-files", "ls-tree",
 	"cat-file", "blame", "shortlog", "show-ref", "for-each-ref", "name-rev", "merge-base",
 	"whatchanged", "grep", "fsck", "count-objects", "check-ignore", "check-attr", "version",
-	"help",
+	"help", "ls-remote", "var",
 ]);
+
+/** git global flags that take no value and may precede the subcommand. */
+const GIT_GLOBAL_NO_VALUE_FLAGS = new Set([
+	"--no-pager", "--paginate", "-p", "--bare", "--literal-pathspecs", "--glob-pathspecs",
+	"--noglob-pathspecs", "--icase-pathspecs", "--no-replace-objects", "--no-optional-locks",
+]);
+
+/**
+ * git subcommand flags that write files or execute helpers, so the subcommand
+ * is not read-only even when the verb is. Mirrors OpenAI Codex CLI.
+ */
+const GIT_UNSAFE_ARGS = ["--output", "--ext-diff", "--textconv", "--exec", "--paginate"];
+
+function isUnsafeGitArg(arg: string): boolean {
+	return (
+		GIT_UNSAFE_ARGS.includes(arg) ||
+		arg.startsWith("--output=") ||
+		arg.startsWith("--exec=") ||
+		arg.startsWith("--ext-diff=") ||
+		arg.startsWith("--textconv=")
+	);
+}
 
 function gitReadOnly(args: string[]): boolean {
 	if (args.length === 0) return true;
@@ -315,12 +176,14 @@ function gitReadOnly(args: string[]): boolean {
 
 	if (sub.startsWith("-")) {
 		if (sub === "--version" || sub === "-v" || sub === "--help" || sub === "-h") return true;
-		if (["-C", "--git-dir", "--work-tree", "-c", "--config-env"].includes(sub)) {
-			return rest.length >= 2 && gitReadOnly(rest.slice(1));
-		}
+		if (GIT_GLOBAL_NO_VALUE_FLAGS.has(sub)) return gitReadOnly(rest);
+		// Global override flags (-C, -c, --git-dir, --work-tree, --config-env,
+		// --exec-path, --namespace, --super-prefix) can redirect git to
+		// attacker-controlled config, helpers or hooks, so they are NOT treated
+		// as read-only. Mirrors OpenAI Codex CLI's git safety rules.
 		return false;
 	}
-	if (GIT_READ_ONLY_SUBCOMMANDS.has(sub)) return true;
+	if (GIT_READ_ONLY_SUBCOMMANDS.has(sub)) return !rest.some(isUnsafeGitArg);
 
 	if (sub === "branch" || sub === "tag") return rest.every((a) => a.startsWith("-"));
 	if (sub === "remote") {
@@ -422,15 +285,49 @@ function baseName(p: string): string {
 	return idx >= 0 ? p.slice(idx + 1) : p;
 }
 
+/**
+ * `for NAME [in WORD...]` / `select NAME [in WORD...]`. The header only binds a
+ * loop variable and iterates over data; command/process substitution is already
+ * rejected globally, and the loop body arrives as its own segments, so a header
+ * of plain literals is read-only.
+ */
+function forLoopHeaderReadOnly(args: string[]): boolean {
+	let i = 0;
+	if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(args[i] ?? "")) return false;
+	i++;
+	if (args[i] === "in") i++;
+	return args.slice(i).every((w) => !w.includes("$(") && !w.includes("`"));
+}
+
 function analyzeWords(words: string[], depth = 0): boolean {
 	if (depth > 4) return false;
 	let i = 0;
 	while (i < words.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(words[i] as string)) i++;
 	if (i >= words.length) return true; // only variable assignments
 
-	const cmd = baseName(words[i] as string);
+	const raw = baseName(words[i] as string);
+	if (raw.length === 0 || raw.includes("$")) return false;
+	// Strip grouping punctuation attached to the command word, so subshells
+	// `(cd x && ls)` and brace groups `{ cat a; }` tokenize cleanly. `[`/`]` are
+	// deliberately left alone: `[` is a real command.
+	const cmd = raw.replace(/^\(+/, "").replace(/\)+$/, "").replace(/^\{+/, "").replace(/\}+$/, "");
 	const args = words.slice(i + 1);
-	if (cmd.length === 0 || cmd.includes("$")) return false;
+	if (cmd.length === 0) return analyzeWords(args, depth + 1); // bare `(`, `)`, `{`, `}`
+
+	// Shell reserved words for compound commands. The tokenizer splits
+	// `for x in a b; do ...; done` into separate segments, so the keyword shows
+	// up as the leading word of its own segment. The keywords have no file
+	// effects themselves: validate whatever command is attached to a prefix
+	// keyword and treat pure terminators as neutral, leaving the body segments
+	// to be checked individually.
+	if (cmd === "for" || cmd === "select") return forLoopHeaderReadOnly(args);
+	if (cmd === "while" || cmd === "until" || cmd === "if" || cmd === "elif") {
+		return analyzeWords(args, depth + 1);
+	}
+	if (cmd === "do" || cmd === "then" || cmd === "else" || cmd === "!") {
+		return analyzeWords(args, depth + 1);
+	}
+	if (cmd === "done" || cmd === "fi" || cmd === "esac") return true;
 
 	if (cmd === "git") return gitReadOnly(args);
 	if (cmd === "gh") return ghReadOnly(args);
@@ -440,39 +337,46 @@ function analyzeWords(words: string[], depth = 0): boolean {
 	if (cmd === "kubectl") return kubectlReadOnly(args);
 	if (RUNTIME_COMMANDS.has(cmd)) return runtimeReadOnly(cmd, args);
 
-	if (cmd === "env" || cmd === "time" || cmd === "nohup") {
-		let j = 0;
-		while (j < args.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(args[j] as string)) j++;
+	// `command -v` / `command -V` only look up a name; they never execute it.
+	if (cmd === "command" && args.some((a) => a === "-v" || a === "-V")) return true;
+
+	// Wrapper commands (`env`, `nice`, `stdbuf`, `timeout`, `xargs`, `command`,
+	// `exec`, ...): skip their own flags/assignments, then classify the wrapped
+	// command. `timeout` takes a positional duration before the command.
+	if (WRAPPER_COMMANDS.has(cmd)) {
+		const valueFlags = WRAPPER_VALUE_FLAGS[cmd] ?? new Set<string>();
+		let j = skipWrapperFlags(args, valueFlags, cmd === "env");
+		if (cmd === "timeout" && j < args.length) j++;
 		if (j >= args.length) return true;
 		return analyzeWords(args.slice(j), depth + 1);
 	}
-	if (cmd === "timeout") return args.length >= 2 && analyzeWords(args.slice(2), depth + 1);
 
 	if (cmd === "find" || cmd === "fd" || cmd === "fdfind") {
 		return !args.some((a) => a.startsWith("-delete") || a.startsWith("-exec") || a.startsWith("-ok") || a.startsWith("-fprint") || a.startsWith("-fls"));
 	}
 	if (cmd === "sed") {
-		return !args.some((a) => a.startsWith("-i") || a.startsWith("--in-place"));
+		if (args.some((a) => a.startsWith("-i") || a.startsWith("--in-place"))) return false;
+		const script = args.filter((a) => !isFlag(a)).join(" ");
+		return !SED_SIDE_EFFECT_PATTERNS.some((p) => p.test(script));
+	}
+	if (cmd === "awk" || cmd === "gawk" || cmd === "mawk") {
+		return !AWK_SIDE_EFFECT_PATTERNS.some((p) => p.test(args.join(" ")));
+	}
+	if (cmd === "rg" || cmd === "ripgrep") {
+		return !args.some(
+			(a) =>
+				a === "--pre" ||
+				a.startsWith("--pre=") ||
+				a === "--hostname-bin" ||
+				a.startsWith("--hostname-bin=") ||
+				a === "-z" ||
+				a === "--search-zip",
+		);
 	}
 	if (cmd === "sort") {
 		return !args.some((a) => a.startsWith("-o") || a.startsWith("--output"));
 	}
 	return READ_ONLY_SIMPLE.has(cmd);
-}
-
-function splitSegments(tokens: ShellToken[]): string[][] {
-	const segments: string[][] = [];
-	let current: string[] = [];
-	for (const token of tokens) {
-		if (token.type === "operator") {
-			if (current.length > 0) segments.push(current);
-			current = [];
-		} else {
-			current.push(token.value);
-		}
-	}
-	if (current.length > 0) segments.push(current);
-	return segments;
 }
 
 /**
@@ -486,22 +390,207 @@ function shortAskReason(reason: string): string {
 	return first.length > 0 ? `not in the read-only allowlist: ${first}` : "not in the read-only allowlist";
 }
 
-function analyzeBashCommand(command: string): { readOnly: boolean; reason: string } {
-	const trimmed = command.trim();
-	if (trimmed.length === 0) return { readOnly: true, reason: "empty command" };
+// ---------------------------------------------------------------------------
+// Bash read-only classifier (tree-sitter AST)
+//
+// Shell structure is parsed with tree-sitter-bash; the structural walk below
+// follows the classifiers used by OpenAI Codex CLI and Qwen Code. Per-command
+// allow-listing still goes through analyzeWords(), so the allow-lists live in
+// one place. The parser is a hard dependency: if it cannot be initialised,
+// analyzeBashCommand fails closed instead of falling back to a heuristic.
+// ---------------------------------------------------------------------------
 
-	const { tokens, hasWriteRedirection, hasSubstitution } = tokenizeShell(command);
-	if (hasSubstitution) return { readOnly: false, reason: "contains command or process substitution" };
-	if (hasWriteRedirection) return { readOnly: false, reason: "contains output redirection to a file" };
+let astParser: Parser | undefined;
+let astParserInit: Promise<Parser | undefined> | undefined;
+let astParserFailed = false;
 
-	const segments = splitSegments(tokens);
-	if (segments.length === 0) return { readOnly: true, reason: "empty command" };
+const AST_WRITE_REDIRECT_OPS = new Set([">", ">>", "&>", "&>>", ">|"]);
+const AST_REDIRECT_NODES = new Set(["file_redirect", "heredoc_redirect", "herestring_redirect"]);
 
-	for (const segment of segments) {
-		if (!analyzeWords(segment)) {
-			return { readOnly: false, reason: `not read-only: ${segment.join(" ")}` };
+/** Nodes with no effects of their own: recurse into their children. */
+const AST_STRUCTURAL_NODES = new Set([
+	"program", "list", "pipeline", "do_group", "else_clause", "elif_clause",
+	"if_statement", "while_statement", "until_statement", "for_statement",
+	"c_style_for_statement", "case_statement", "case_item", "subshell",
+	"compound_statement", "negated_command", "test_command", "binary_expression",
+	"unary_expression", "postfix_expression", "expansion", "simple_expansion",
+	"concatenation", "string", "variable_assignment", "declaration_command",
+	"command_substitution", "process_substitution", "heredoc_redirect", "herestring_redirect",
+	"array", "arithmetic_expansion", "subscript", "unset_command",
+]);
+
+/** Leaf nodes that are pure data. */
+const AST_TERMINAL_NODES = new Set([
+	"word", "number", "string_content", "raw_string", "variable_name",
+	"heredoc_start", "heredoc_body", "heredoc_end", "comment", "file_descriptor",
+	"test_operator",
+]);
+
+async function getAstParser(): Promise<Parser | undefined> {
+	if (astParser) return astParser;
+	if (astParserFailed) return undefined;
+	if (!astParserInit) {
+		astParserInit = (async () => {
+			const require = createRequire(import.meta.url);
+			const runtimeWasm = require.resolve("web-tree-sitter/web-tree-sitter.wasm");
+			const bashWasm = require.resolve("tree-sitter-bash/tree-sitter-bash.wasm");
+			await Parser.init({ locateFile: () => runtimeWasm });
+			const bash = await Language.load(bashWasm);
+			const parser = new Parser();
+			parser.setLanguage(bash);
+			astParser = parser;
+			return parser;
+		})().catch((error: unknown) => {
+			astParserFailed = true;
+			astParserInit = undefined;
+			console.error("[edit-modes] tree-sitter-bash parser init failed:", error);
+			return undefined;
+		});
+	}
+	return astParserInit;
+}
+
+function stripOuterQuotes(text: string): string {
+	if (text.length >= 2) {
+		const first = text[0];
+		const last = text[text.length - 1];
+		if ((first === '"' && last === '"') || (first === "'" && last === "'")) return text.slice(1, -1);
+	}
+	return text;
+}
+
+function astHasSubstitution(node: Parser.SyntaxNode): boolean {
+	for (const child of node.namedChildren) {
+		if (child.type === "command_substitution" || child.type === "process_substitution") return true;
+		if (astHasSubstitution(child)) return true;
+	}
+	return false;
+}
+
+/** Literal text of a command_name, or undefined when the name is dynamic. */
+function astLiteralCommandName(nameNode: Parser.SyntaxNode | null): string | undefined {
+	if (!nameNode || nameNode.type !== "command_name") return undefined;
+	const kids = nameNode.namedChildren;
+	if (kids.length !== 1) return undefined;
+	const only = kids[0] as Parser.SyntaxNode;
+	if (only.type === "word" || only.type === "number" || only.type === "string" || only.type === "raw_string") {
+		return stripOuterQuotes(only.text);
+	}
+	return undefined;
+}
+
+/** Argument text for allow-list checks; substitutions become opaque placeholders. */
+function astArgText(node: Parser.SyntaxNode): string {
+	switch (node.type) {
+		case "command_substitution":
+		case "process_substitution":
+			return "__sub__";
+		case "expansion":
+		case "simple_expansion":
+			// Keep the `$` so path checks treat the value as unresolved (fail closed).
+			return "$__var__";
+		case "string":
+			return astHasSubstitution(node) ? "__sub__" : stripOuterQuotes(node.text);
+		case "concatenation":
+			return astHasSubstitution(node) ? "__sub__" : node.text;
+		case "raw_string":
+			return stripOuterQuotes(node.text);
+		default:
+			return node.text;
+	}
+}
+
+function astRedirectTarget(node: Parser.SyntaxNode): string {
+	const dest = node.childForFieldName("destination");
+	return dest ? stripOuterQuotes(dest.text) : "";
+}
+
+function astRedirectIsWrite(node: Parser.SyntaxNode): boolean {
+	for (const child of node.children) {
+		if (AST_WRITE_REDIRECT_OPS.has(child.type)) {
+			const target = astRedirectTarget(node);
+			return !(SAFE_REDIRECT_TARGETS.includes(target) || target.startsWith("/dev/fd/"));
 		}
 	}
+	return false;
+}
+
+/** Commands whose read-only-ness depends on argument/flag semantics. */
+const AST_FLAG_SENSITIVE = new Set([
+	"find", "fd", "fdfind", "sed", "sort", "awk", "gawk", "mawk", "rg", "ripgrep",
+	"git", "gh", "npm", "pnpm", "yarn", "bun", "docker", "podman", "kubectl",
+]);
+
+function astChildrenReason(node: Parser.SyntaxNode, depth: number): string | undefined {
+	for (const child of node.namedChildren) {
+		const reason = astNodeReason(child, depth);
+		if (reason) return reason;
+	}
+	return undefined;
+}
+
+function astCommandReason(node: Parser.SyntaxNode, depth: number): string | undefined {
+	const nameNode = node.childForFieldName("name");
+	const name = astLiteralCommandName(nameNode);
+	if (name === undefined) return "dynamic command name";
+	const words = [name];
+	for (const child of node.namedChildren) {
+		if (child.type === "command_name") continue;
+		const reason = astNodeReason(child, depth + 1);
+		if (reason) return reason;
+		if (child.type === "variable_assignment") continue;
+		words.push(astArgText(child));
+	}
+	if (words.includes("__sub__")) {
+		// A command substitution can change flag/argument semantics at runtime
+		// (e.g. `find . $(echo -delete)`), so flag-sensitive commands and wrappers
+		// are rejected. For plain data commands the inner program was already
+		// validated above, so `echo $(date)` stays read-only.
+		const base = words[0] as string;
+		if (AST_FLAG_SENSITIVE.has(base) || RUNTIME_COMMANDS.has(base) || WRAPPER_COMMANDS.has(base)) {
+			return `command substitution in a flag-sensitive command: ${words.join(" ")}`;
+		}
+	}
+	if (!analyzeWords(words)) return `not read-only: ${words.join(" ")}`;
+	return undefined;
+}
+
+function astRedirectedReason(node: Parser.SyntaxNode, depth: number): string | undefined {
+	for (const child of node.namedChildren) {
+		if (child.type === "file_redirect" && astRedirectIsWrite(child)) {
+			return "contains output redirection to a file";
+		}
+	}
+	for (const child of node.namedChildren) {
+		if (AST_REDIRECT_NODES.has(child.type)) continue;
+		const reason = astNodeReason(child, depth);
+		if (reason) return reason;
+	}
+	return undefined;
+}
+
+function astNodeReason(node: Parser.SyntaxNode, depth: number): string | undefined {
+	if (depth > 8) return "shell nesting too deep to analyze";
+	const type = node.type;
+	if (type === "command") return astCommandReason(node, depth);
+	if (type === "redirected_statement") return astRedirectedReason(node, depth);
+	if (type === "file_redirect") return astRedirectIsWrite(node) ? "contains output redirection to a file" : undefined;
+	if (type === "function_definition") return "defines a shell function";
+	if (AST_TERMINAL_NODES.has(type)) return undefined;
+	if (AST_STRUCTURAL_NODES.has(type)) return astChildrenReason(node, depth);
+	return `unsupported shell construct: ${type}`;
+}
+
+async function analyzeBashCommand(command: string): Promise<{ readOnly: boolean; reason: string }> {
+	const trimmed = command.trim();
+	if (trimmed.length === 0) return { readOnly: true, reason: "empty command" };
+	const parser = await getAstParser();
+	// tree-sitter-bash is a hard dependency; fail closed rather than guessing.
+	if (!parser) return { readOnly: false, reason: "read-only parser unavailable (tree-sitter-bash)" };
+	const tree = parser.parse(command);
+	const reason = tree.rootNode.hasError ? "shell parse error" : astChildrenReason(tree.rootNode, 0);
+	tree.delete();
+	if (reason) return { readOnly: false, reason };
 	return { readOnly: true, reason: "read-only" };
 }
 
@@ -568,6 +657,23 @@ function isWithin(root: string, target: string): boolean {
 	return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
 }
 
+/**
+ * Extra roots treated like the project dir: operations underneath them do not
+ * ask. `/tmp` plus whatever the OS reports as the temp dir, so a TMPDIR override
+ * still matches.
+ */
+const TEMP_ALLOWED_ROOTS = ["/tmp", os.tmpdir()];
+
+/** True when `resolved` is inside the project dir or an allowed temp root. */
+function isAllowedRoot(resolved: string, cwd: string): boolean {
+	return isWithin(cwd, resolved) || TEMP_ALLOWED_ROOTS.some((root) => isWithin(root, resolved));
+}
+
+/** True when `resolved` is exactly an allowed temp root (e.g. `/tmp` itself). */
+function isTempRootItself(resolved: string): boolean {
+	return TEMP_ALLOWED_ROOTS.some((root) => resolved === path.resolve(root));
+}
+
 /** Resolve a path argument; undefined when it cannot be resolved statically. */
 function resolvePathArg(p: string, cwd: string): string | undefined {
 	const expanded = expandHome(p);
@@ -581,14 +687,14 @@ function isUnsafeWritePath(p: string, cwd: string): boolean {
 	if (SAFE_REDIRECT_TARGETS.includes(p) || p.startsWith("/dev/fd/")) return false;
 	const resolved = resolvePathArg(p, cwd);
 	if (resolved === undefined) return true;
-	return !isWithin(cwd, resolved) && !isWithin(os.tmpdir(), resolved);
+	return !isAllowedRoot(resolved, cwd);
 }
 
 /** True when `p` clearly points outside the project dir (fail-closed on unknowns). */
 function isUnsafeReadPath(p: string, cwd: string): boolean {
 	const resolved = resolvePathArg(p, cwd);
 	if (resolved === undefined) return true;
-	return !isWithin(cwd, resolved);
+	return !isAllowedRoot(resolved, cwd);
 }
 
 function isFlag(arg: string): boolean {
@@ -652,10 +758,13 @@ function parseSegment(
 	}
 
 	if (SHELL_COMMANDS.has(cmd)) {
-		const cIndex = args.findIndex((arg) => arg === "-c" || arg === "--command");
+		// `-c`, `--command`, and combined short flags such as `-lc` / `-cl`.
+		const cIndex = args.findIndex(
+			(arg) => arg === "-c" || arg === "--command" || /^-[a-zA-Z]*c[a-zA-Z]*$/.test(arg),
+		);
 		const script = cIndex >= 0 ? args[cIndex + 1] : undefined;
 		if (script !== undefined) {
-			const reason = classifyDangerousBash(script, cwd, depth + 1);
+			const reason = classifyDangerousBashSync(script, cwd, depth + 1);
 			return reason ? { reason } : undefined;
 		}
 		return { cmd, args };
@@ -664,7 +773,7 @@ function parseSegment(
 	if (cmd === "eval") {
 		const script = args.filter((arg) => !isFlag(arg)).join(" ");
 		if (script.length > 0) {
-			const reason = classifyDangerousBash(script, cwd, depth + 1);
+			const reason = classifyDangerousBashSync(script, cwd, depth + 1);
 			return reason ? { reason } : undefined;
 		}
 		return undefined;
@@ -696,6 +805,7 @@ function rmDanger(args: string[], cwd: string): string | undefined {
 		const resolved = resolvePathArg(target, cwd);
 		if (resolved === undefined) return `rm on an unresolved path: ${target}`;
 		if (resolved === path.resolve(cwd)) return `rm targeting the project root: ${target}`;
+		if (isTempRootItself(resolved)) return `rm targeting the temp root: ${target}`;
 		if (isUnsafeWritePath(target, cwd)) return `rm outside the project: ${target}`;
 	}
 	return undefined;
@@ -769,7 +879,27 @@ function downloadDanger(cmd: string, args: string[], cwd: string): string | unde
 	return undefined;
 }
 
+const GIT_OVERRIDE_FLAGS = [
+	"-C", "-c", "--git-dir", "--work-tree", "--config-env", "--exec-path", "--namespace", "--super-prefix",
+];
+
+/** git global flags that can redirect config/helpers to attacker-controlled code. */
+function gitOverrideDanger(args: string[]): string | undefined {
+	for (const arg of args) {
+		if (GIT_OVERRIDE_FLAGS.includes(arg)) return `git global override flag ${arg} can execute external helpers`;
+		if (arg.startsWith("-C") && arg.length > 2) return "git global override flag -C";
+		if (arg.startsWith("--") && arg.includes("=")) {
+			const name = arg.split("=")[0] as string;
+			if (GIT_OVERRIDE_FLAGS.includes(name)) return `git global override flag ${name}`;
+		}
+	}
+	return undefined;
+}
+
 function gitDanger(args: string[]): string | undefined {
+	const override = gitOverrideDanger(args);
+	if (override) return override;
+	if (args.some(isUnsafeGitArg)) return "git with a file-writing or helper-executing flag";
 	let i = 0;
 	while (i < args.length && isFlag(args[i] as string)) {
 		i += ["-C", "-c", "--git-dir", "--work-tree", "--config-env"].includes(args[i] as string) ? 2 : 1;
@@ -833,34 +963,106 @@ function dangerForCommand(cmd: string, args: string[], cwd: string): string | un
 	return packageManagerDanger(cmd, args);
 }
 
-function classifyDangerousBash(command: string, cwd: string, depth = 0): string | undefined {
+interface DangerFacts {
+	invocations: { words: string[]; dynamicName: boolean; hasSubArg: boolean }[];
+	writeTargets: string[];
+	pipeIntoshell: boolean;
+}
+
+/** Walk the AST collecting every executed command and write-redirect target. */
+function collectDangerFacts(node: Parser.SyntaxNode, facts: DangerFacts): void {
+	if (node.type === "command") {
+		const name = astLiteralCommandName(node.childForFieldName("name"));
+		const words: string[] = [];
+		let hasSubArg = false;
+		if (name !== undefined) words.push(name);
+		for (const child of node.namedChildren) {
+			if (child.type === "command_name" || child.type === "variable_assignment") continue;
+			if (
+				child.type === "command_substitution" ||
+				child.type === "process_substitution" ||
+				((child.type === "string" || child.type === "concatenation") && astHasSubstitution(child))
+			) {
+				hasSubArg = true;
+			}
+			words.push(astArgText(child));
+		}
+		facts.invocations.push({ words, dynamicName: name === undefined, hasSubArg });
+	}
+	if (node.type === "file_redirect") {
+		for (const child of node.children) {
+			if (AST_WRITE_REDIRECT_OPS.has(child.type)) {
+				facts.writeTargets.push(astRedirectTarget(node));
+				break;
+			}
+		}
+	}
+	if (node.type === "pipeline") {
+		const commands = node.namedChildren.filter((child) => child.type === "command");
+		for (let i = 1; i < commands.length; i++) {
+			const name = astLiteralCommandName((commands[i] as Parser.SyntaxNode).childForFieldName("name"));
+			if (name !== undefined && SHELL_COMMANDS.has(name)) facts.pipeIntoshell = true;
+		}
+	}
+	for (const child of node.namedChildren) collectDangerFacts(child, facts);
+}
+
+/**
+ * auto-all bash policy: auto-approve everything unless an AST-derived effect
+ * crosses the danger policy (privileged/system commands, recursive or
+ * out-of-project writes, system/package changes, git history rewrites).
+ * Dynamic command names, flag-sensitive command substitutions and parse errors
+ * fail closed. `sh -c` / `eval` scripts recurse here.
+ */
+function classifyDangerousBashSync(command: string, cwd: string, depth = 0): string | undefined {
 	if (depth > 3) return "command nesting too deep to analyze";
 	const trimmed = command.trim();
 	if (trimmed.length === 0) return undefined;
+	const parser = astParser;
+	if (!parser) return "read-only parser unavailable (tree-sitter-bash)";
 
-	const { tokens, hasSubstitution, redirectTargets } = tokenizeShell(command);
-	for (const target of redirectTargets) {
+	const tree = parser.parse(command);
+	if (tree.rootNode.hasError) {
+		tree.delete();
+		return "shell parse error";
+	}
+	const facts: DangerFacts = { invocations: [], writeTargets: [], pipeIntoshell: false };
+	collectDangerFacts(tree.rootNode, facts);
+	tree.delete();
+
+	for (const target of facts.writeTargets) {
 		if (isUnsafeWritePath(target, cwd)) return `output redirection outside the project: ${target}`;
 	}
-	if (hasSubstitution && /(?:^|[;&|]\s*)(eval|source)\b/.test(trimmed)) {
-		return "evaluating command substitution";
-	}
 
-	const segments = splitSegments(tokens);
-	const commandNames: string[] = [];
-	for (const segment of segments) {
-		const parsed = parseSegment(segment, cwd, depth);
-		if (!parsed) continue;
-		if (parsed.reason) return parsed.reason;
-		if (parsed.cmd === undefined || parsed.args === undefined) continue;
-		commandNames.push(parsed.cmd);
+	for (const invocation of facts.invocations) {
+		if (invocation.dynamicName) return "dynamic command name";
+		const parsed = parseSegment(invocation.words, cwd, depth);
+		if (parsed?.reason) return parsed.reason;
+		const effective = parsed?.cmd ?? cleanCommandName(invocation.words[0] ?? "");
+		if (
+			invocation.hasSubArg &&
+			(AST_FLAG_SENSITIVE.has(effective) ||
+				effective === "eval" ||
+				effective === "source" ||
+				effective === "." ||
+				RUNTIME_COMMANDS.has(effective) ||
+				WRAPPER_COMMANDS.has(effective))
+		) {
+			return `command substitution in a sensitive command: ${invocation.words.join(" ")}`;
+		}
+		if (!parsed || parsed.cmd === undefined || parsed.args === undefined) continue;
 		const reason = dangerForCommand(parsed.cmd, parsed.args, cwd);
 		if (reason) return reason;
 	}
 
-	const piped = command.split("||").some((part) => part.includes("|"));
-	if (piped && commandNames.some((name) => SHELL_COMMANDS.has(name))) return "piping into a shell";
+	if (facts.pipeIntoshell) return "piping into a shell";
 	return undefined;
+}
+
+async function classifyDangerousBash(command: string, cwd: string, depth = 0): Promise<string | undefined> {
+	const parser = await getAstParser();
+	if (!parser) return "read-only parser unavailable (tree-sitter-bash)";
+	return classifyDangerousBashSync(command, cwd, depth);
 }
 
 // ---------------------------------------------------------------------------
@@ -935,16 +1137,9 @@ const APPROVAL_OPTIONS: ReadonlyArray<{ label: string; choice: ApprovalChoice }>
 ];
 
 /** Choices offered by the bash confirmation dialog. */
-type BashChoice = "allow" | "allow-all" | "deny";
+type BashChoice = "allow" | "deny";
 
 const BASH_OPTIONS: ReadonlyArray<{ label: string; choice: BashChoice }> = [
-	{ label: "Allow once", choice: "allow" },
-	{ label: "Allow all (this session)", choice: "allow-all" },
-	{ label: "Deny", choice: "deny" },
-];
-
-/** `git commit` can never be allowed for a whole session, so it has no allow-all option. */
-const COMMIT_OPTIONS: ReadonlyArray<{ label: string; choice: BashChoice }> = [
 	{ label: "Allow once", choice: "allow" },
 	{ label: "Deny", choice: "deny" },
 ];
@@ -1276,7 +1471,6 @@ async function approveEditChange(
 
 export default function (pi: ExtensionAPI) {
 	let mode: EditMode = "ask-to-edit";
-	let bashAutoApprove = false;
 
 	pi.registerFlag(STARTUP_FLAG, {
 		description: "Start in an edit approval mode: ask-to-edit | auto-edit | auto-all",
@@ -1287,8 +1481,7 @@ export default function (pi: ExtensionAPI) {
 	function applyStatus(ctx: ExtensionContext): void {
 		if (!ctx.hasUI) return;
 		const color = mode === "ask-to-edit" ? "warning" : mode === "auto-edit" ? "success" : "accent";
-		const suffix = bashAutoApprove ? " · bash:auto" : "";
-		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(color, `${mode}${suffix}`));
+		ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg(color, mode));
 	}
 
 	function setMode(next: EditMode, ctx: ExtensionContext, options: { persist?: boolean; notify?: boolean } = {}): void {
@@ -1300,9 +1493,6 @@ export default function (pi: ExtensionAPI) {
 	}
 
 	pi.on("session_start", async (_event, ctx) => {
-		// "Allow all bash commands (this session)" is intentionally not persisted.
-		bashAutoApprove = false;
-
 		let restored: EditMode | undefined;
 		for (const entry of ctx.sessionManager.getBranch()) {
 			if (entry.type === "custom" && entry.customType === STATE_TYPE) {
@@ -1372,12 +1562,10 @@ export default function (pi: ExtensionAPI) {
 			let askReason: string | undefined;
 			if (commit) {
 				askReason = "git commit is never auto-approved: each commit needs explicit confirmation";
-			} else if (bashAutoApprove) {
-				return;
 			} else if (mode === "auto-all") {
-				askReason = classifyDangerousBash(command, ctx.cwd);
+				askReason = await classifyDangerousBash(command, ctx.cwd);
 			} else {
-				const verdict = analyzeBashCommand(command);
+				const verdict = await analyzeBashCommand(command);
 				if (!verdict.readOnly) askReason = verdict.reason;
 			}
 			if (askReason === undefined) return;
@@ -1416,18 +1604,12 @@ export default function (pi: ExtensionAPI) {
 					maxBodyLines: COLLAPSED_PREVIEW_LINES,
 					maxFallbackLines: MAX_BASH_PREVIEW_LINES,
 					viewLabel: "full command",
-					options: commit ? COMMIT_OPTIONS : BASH_OPTIONS,
+					options: BASH_OPTIONS,
 				},
 				label,
 			);
 
 			if (choice === "allow") return;
-			if (choice === "allow-all") {
-				bashAutoApprove = true;
-				applyStatus(ctx);
-				ctx.ui.notify("Bash: auto-approving all commands for this session", "warning");
-				return;
-			}
 			// Denying stops the current agent run entirely (like pressing Esc) instead of
 			// just blocking this tool call and letting the model continue working.
 			ctx.abort();
@@ -1444,7 +1626,7 @@ export default function (pi: ExtensionAPI) {
 		const targetPath = event.input.path;
 		if (mode === "auto-all") {
 			const resolved = resolvePathArg(targetPath, ctx.cwd);
-			if (resolved !== undefined && isWithin(ctx.cwd, resolved)) return;
+			if (resolved !== undefined && isAllowedRoot(resolved, ctx.cwd)) return;
 		}
 
 		const summary = isEditCall
