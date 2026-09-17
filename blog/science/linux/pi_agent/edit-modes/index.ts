@@ -1128,7 +1128,7 @@ function colorDiffLine(line: DiffLine, theme: Theme): string {
 }
 
 /** Lines shown in the collapsed approval dialog before the user expands. */
-const COLLAPSED_PREVIEW_LINES = 6;
+const COLLAPSED_PREVIEW_LINES = 8;
 
 const APPROVAL_OPTIONS: ReadonlyArray<{ label: string; choice: ApprovalChoice }> = [
 	{ label: "Allow once", choice: "allow" },

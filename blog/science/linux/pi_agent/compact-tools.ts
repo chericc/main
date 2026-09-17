@@ -38,7 +38,7 @@ import {
 import { type Component, Container, Text } from "@earendil-works/pi-tui";
 
 /** How many body lines to show while collapsed. Change this to taste. */
-const COLLAPSED_LINES = 5;
+const COLLAPSED_LINES = 20;
 
 /** Tools that should keep their *last* lines when collapsed (their tail is the useful part). */
 const TAIL_TOOLS = new Set(["bash", "powershell"]);
