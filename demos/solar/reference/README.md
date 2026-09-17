@@ -44,7 +44,7 @@ the mean anomaly modulo 2π).
 | SBDB osculating elements | Mean ecliptic and equinox of J2000 |
 | Satellite mean elements | Per-satellite: `ecliptic`, `equatorial` or `Laplace` — recorded in the `frame` field and carried through to `src/data/moon-orbits.generated.ts` |
 
-Scolar converts everything into the mean ecliptic and equinox of J2000
+Solar converts everything into the mean ecliptic and equinox of J2000
 rectangular frame (`+x` towards the vernal equinox, `+z` towards ecliptic
 north). Planet and satellite pole orientations come from the IAU WGCCRE report
 (Archinal et al.) as `(RA, Dec)` of the north pole in the ICRF, which is

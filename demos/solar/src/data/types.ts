@@ -1,5 +1,5 @@
 /**
- * Data model for every celestial body in Scolar.
+ * Data model for every celestial body in Solar.
  *
  * All values are real, sourced from NASA/JPL (see each data file for the
  * exact provenance, and `reference/` for the raw downloaded tables).

@@ -28,7 +28,7 @@ export const MOONS: MoonData[] = MOON_ORBITS.map((record) => {
   };
 });
 
-/** Number of satellites rendered by Scolar, per parent id. */
+/** Number of satellites rendered by Solar, per parent id. */
 export const MOON_COUNT_BY_PARENT: Record<string, number> = MOONS.reduce<Record<string, number>>((acc, m) => {
   acc[m.parent] = (acc[m.parent] ?? 0) + 1;
   return acc;

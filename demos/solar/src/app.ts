@@ -119,7 +119,7 @@ export class App {
 
   private buildBrand(): HTMLElement {
     return el('header', { class: 'brand' }, [
-      el('h1', { class: 'brand-title', html: 'Scolar<span>.</span>' }),
+      el('h1', { class: 'brand-title', html: 'Solar<span>.</span>' }),
       el('p', { class: 'brand-sub', text: '真实比例太阳系模拟 · Real-scale Solar System' }),
     ]);
   }

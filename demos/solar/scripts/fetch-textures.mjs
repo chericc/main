@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Downloads the planet/star textures used by Scolar into `masters/textures/`.
+ * Downloads the planet/star textures used by Solar into `masters/textures/`.
  * These are the full-resolution masters; `npm run optimize:textures` derives
  * the down-scaled copies that are actually bundled from them.
  *

@@ -3,7 +3,7 @@ import { J2000, SECONDS_PER_DAY } from './constants';
 /**
  * Julian Date helpers and the simulation clock.
  *
- * All ephemeris maths in Scolar is driven by a Julian Date (JD, TT/TDB).
+ * All ephemeris maths in Solar is driven by a Julian Date (JD, TT/TDB).
  * The tiny difference between UTC and TDB (< 2 ms) is irrelevant at the
  * accuracy of the mean-element model used here.
  */

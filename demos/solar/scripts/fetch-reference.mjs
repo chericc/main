@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fetches the authoritative source data used by Scolar and stores it under
+ * Fetches the authoritative source data used by Solar and stores it under
  * `reference/` so that it can be inspected/audited later.
  *
  * Sources
@@ -42,7 +42,7 @@ function curlOnce(url, useProxy) {
       '--connect-timeout',
       '15',
       '-A',
-      'scolar/1.0',
+      'solar/1.0',
     ];
     if (useProxy) args.push('-x', useProxy);
     args.push(url);

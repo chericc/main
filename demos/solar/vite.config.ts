@@ -14,7 +14,7 @@ function escapeRegExp(text: string): string {
  */
 function singleFilePlugin(): Plugin {
   return {
-    name: 'scolar:single-file',
+    name: 'solar:single-file',
     apply: 'build',
     enforce: 'post',
     generateBundle(_options, bundle) {
@@ -67,7 +67,7 @@ function singleFilePlugin(): Plugin {
   };
 }
 
-const standalone = process.env.SCOLAR_STANDALONE === '1';
+const standalone = process.env.SOLAR_STANDALONE === '1';
 
 export default defineConfig(({ mode }) => {
   // `npm run build` (mode=standalone) emits one self-contained index.html that

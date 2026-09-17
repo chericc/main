@@ -19,7 +19,7 @@ const J2000 = 2_451_545.0;
 const ref = JSON.parse(await readFile(resolve(ROOT, 'reference/satellite-elements.json'), 'utf8'));
 const sats = ref.satellites;
 
-/** Curated list: which satellites Scolar renders, and where they belong. */
+/** Curated list: which satellites Solar renders, and where they belong. */
 const SELECTION = [
   ['Moon', 'earth', '月球', true],
   ['Phobos', 'mars', '火卫一（福波斯）'],
@@ -89,7 +89,7 @@ lines.push('//');
 lines.push('// Elements are mean osculating elements at epoch 2000-01-01.5 TDB (J2000).');
 lines.push('// The `frame` field records the reference plane of the mean elements as');
 lines.push('// published by JPL: "equator" = planet equator, "laplace" = Laplace plane');
-lines.push('// (Scolar approximates it with the planet equator), "ecliptic" = J2000');
+lines.push('// (Solar approximates it with the planet equator), "ecliptic" = J2000');
 lines.push('// ecliptic. The tabulated (Ω, ω, M) triple is stored as (Ω, ϖ, L) with');
 lines.push('//   ϖ = ω + Ω,  L = ω + Ω + M.');
 lines.push('');

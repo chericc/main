@@ -1,7 +1,7 @@
 /**
  * World-unit scaling.
  *
- * Scolar renders at **true scale**: one three.js world unit is one
+ * Solar renders at **true scale**: one three.js world unit is one
  * astronomical unit, and every body radius is its real radius. The only
  * concession is `radiusExaggeration`, an optically labelled aid that is
  * 1 by default (i.e. off) — see the README for why true scale is otherwise

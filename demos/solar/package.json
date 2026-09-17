@@ -1,9 +1,9 @@
 {
-  "name": "scolar",
+  "name": "solar",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Scolar — a real-scale, data-driven 3D solar system simulation for the web",
+  "description": "Solar — a real-scale, data-driven 3D solar system simulation for the web",
   "license": "MIT",
   "engines": {
     "node": ">=20.19.0"

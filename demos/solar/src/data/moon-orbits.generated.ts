@@ -7,7 +7,7 @@
 // Elements are mean osculating elements at epoch 2000-01-01.5 TDB (J2000).
 // The `frame` field records the reference plane of the mean elements as
 // published by JPL: "equator" = planet equator, "laplace" = Laplace plane
-// (Scolar approximates it with the planet equator), "ecliptic" = J2000
+// (Solar approximates it with the planet equator), "ecliptic" = J2000
 // ecliptic. The tabulated (Ω, ω, M) triple is stored as (Ω, ϖ, L) with
 //   ϖ = ω + Ω,  L = ω + Ω + M.
 
