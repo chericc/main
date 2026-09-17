@@ -287,15 +287,25 @@ export class BodyView {
    * always truthful. The name plate is what keeps distant bodies findable.
    */
   updateLabel(visible: boolean, screenRadiusPx: number): void {
+    // Visibility must be toggled on the CSS2DObjects, never via
+    // `element.style.display`: CSS2DRenderer rewrites `display` every frame
+    // from `object.visible`, so a `display: none` set here is immediately
+    // undone and the node reappears at its stylesheet fallback size (a 6px
+    // dot). That fallback was the phantom "minimum size" seen on satellites
+    // until they were visited once and got a real `--dot-size`.
+    this.markerObject.visible = visible;
+    this.nameObject.visible = visible;
+
     if (!visible) {
-      this.markerElement.style.display = 'none';
-      this.nameElement.style.display = 'none';
+      // Defensive: should anything re-show the node before the next update it
+      // must render at zero size, not at the CSS default.
+      this.markerElement.style.setProperty('--dot-size', '0px');
+      this.markerElement.style.opacity = '0';
       return;
     }
 
     // --- marker: true projected size, no floor and no ceiling -------------- 
     const markerPx = screenRadiusPx * 2;
-    this.markerElement.style.display = '';
     this.markerElement.style.setProperty('--dot-size', `${markerPx.toFixed(4)}px`);
     const fadeIn = Math.min(1, screenRadiusPx / MARKER_FADE_IN_PX);
     const fadeOut = Math.max(
@@ -306,7 +316,7 @@ export class BodyView {
 
     // --- name plate: anchored on the body centre, pushed clear of the disc --
     const showName = screenRadiusPx <= NAME_HIDE_PX;
-    this.nameElement.style.display = showName ? '' : 'none';
+    this.nameObject.visible = showName;
     if (showName) {
       const padX = Math.max(11, screenRadiusPx + 9);
       const padBottom = Math.min(46, screenRadiusPx * 0.95);

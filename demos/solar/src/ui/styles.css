@@ -507,23 +507,26 @@ button {
 /*
  * The marker is anchored exactly on the body centre and its diameter is the
  * body's true projected diameter, so it keeps shrinking to nothing as you
- * zoom out — no minimum size is ever applied. The name plate is a separate
- * element anchored to the same point, so toggling it never moves the marker.
+ * zoom out — no minimum size is ever applied. `--dot-size` is written by
+ * BodyView before the marker is ever shown; the fallback here is 0 so that an
+ * unset variable can never fabricate a minimum-size dot. The name plate is a
+ * separate element anchored to the same point, so toggling it never moves the
+ * marker.
  */
 .body-marker {
-  width: var(--dot-size, 6px);
-  height: var(--dot-size, 6px);
+  width: var(--dot-size, 0px);
+  height: var(--dot-size, 0px);
   border-radius: 50%;
   background: var(--dot, #fff);
   /* The glow scales with the dot, otherwise it would impose a hidden floor. */
-  box-shadow: 0 0 calc(var(--dot-size, 6px) * 0.9) var(--dot, #fff);
+  box-shadow: 0 0 calc(var(--dot-size, 0px) * 0.9) var(--dot, #fff);
   pointer-events: auto;
   cursor: pointer;
   user-select: none;
 }
 
 .body-marker.kind-moon {
-  box-shadow: 0 0 calc(var(--dot-size, 4px) * 0.7) var(--dot, #fff);
+  box-shadow: 0 0 calc(var(--dot-size, 0px) * 0.7) var(--dot, #fff);
 }
 
 .body-name {
