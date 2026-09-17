@@ -3,8 +3,6 @@
 
   "tui.editor.cursorWordLeft": [],
   "tui.editor.cursorWordRight": [],
-  "tui.editor.cursorLineStart": [],
-  "tui.editor.cursorLineEnd": [],
   "tui.editor.jumpForward": [],
   "tui.editor.jumpBackward": [],
 
