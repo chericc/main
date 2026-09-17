@@ -521,6 +521,14 @@ unbind C-a
 set-option -sg escape-time 500
 set -g focus-events off
 
+# 真彩色(true color)：让 tmux 把外层终端的真彩能力告诉应用，
+# 否则 git-delta 等真彩(24-bit RGB)输出会被 tmux 压成近似 256 色，
+# 深色背景可能被近似成黑色而“看不见颜色”。
+# 生效后可用 `tmux display-message -p '#{client_termfeatures}'` 验证是否包含 RGB
+# 注意：terminal-features 在客户端 attach 时生效，改完需 detach 再 attach
+set -g default-terminal "tmux-256color"
+set -as terminal-features ",*:RGB"
+
 # 右下角类似效果：21:58:48 12-12
 set -g status-right "%H:%M:%S %d-%b"
 
