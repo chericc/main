@@ -81,8 +81,7 @@ pi update --extensions
 
 ```json
 "packages": [
-  "npm:@ollama/pi-web-search",
-  "npm:billion-context-pi"
+  "npm:@ollama/pi-web-search"
 ]
 ```
 
