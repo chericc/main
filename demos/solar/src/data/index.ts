@@ -4,6 +4,7 @@ import { MOONS } from './moons';
 import { PLANETS } from './planets';
 import { SMALL_BODIES } from './small-bodies';
 import { SUN } from './sun';
+import { TEX } from './textures';
 import type { BodyData, BodyKind, MoonData, OrbitFrame, PhysicalData, RingData, TextureSet } from './types';
 
 export * from './types';
@@ -63,6 +64,9 @@ function moonToBody(moon: MoonData): SolarBody {
     orbit: moon.orbit,
     frame: moon.frame,
     ...(moon.useLunarTheory ? { useLunarTheory: true } : {}),
+    // The Moon is the one satellite with a published surface map; the rest
+    // fall back to the procedural maps in `scene/textures.ts`.
+    ...(moon.id === 'moon' ? { textures: { map: TEX.moon } } : {}),
     physical: {
       radiusKm: moon.radiusKm,
       massKg: moon.massKg ?? 0,

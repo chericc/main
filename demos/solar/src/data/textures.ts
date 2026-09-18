@@ -8,7 +8,7 @@
  *     (`file://` blocks CORS-checked image loads, but `data:` URLs are fine).
  *
  * Source: Solar System Scope (https://www.solarsystemscope.com/textures/),
- * CC BY 4.0. Masters live in `public/textures/`; the bundled, down-scaled
+ * CC BY 4.0. Masters live in `masters/textures/`; the bundled, down-scaled
  * copies in `src/assets/textures/` are produced by `npm run optimize:textures`.
  */
 import ceres from '../assets/textures/ceres.jpg';
@@ -29,13 +29,10 @@ import starsMilkyWay from '../assets/textures/stars-milkyway.jpg';
 import sun from '../assets/textures/sun.jpg';
 import uranus from '../assets/textures/uranus.jpg';
 import venusAtmosphere from '../assets/textures/venus-atmosphere.jpg';
-import venusSurface from '../assets/textures/venus.jpg';
 
 export const TEX = {
   sun,
   mercury,
-  /** Radar-derived surface map of Venus (not used by default). */
-  venusSurface,
   /** Visible cloud deck — what Venus actually looks like from outside. */
   venusAtmosphere,
   earthDay,

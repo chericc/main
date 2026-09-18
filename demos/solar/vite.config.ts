@@ -9,8 +9,8 @@ function escapeRegExp(text: string): string {
  * Emits a single self-contained `index.html` (JS and CSS inlined) so the build
  * output can be opened directly from the file system — no web server needed.
  *
- * Public assets (the textures) stay external and are referenced relatively,
- * which browsers allow for `<img>`/texture loads from `file://`.
+ * The textures are inlined too, as `data:` URLs, via `assetsInlineLimit` below;
+ * `file://` blocks CORS-checked image loads, but `data:` URLs are fine.
  */
 function singleFilePlugin(): Plugin {
   return {

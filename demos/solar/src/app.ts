@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ALL_BODIES, findBody, KIND_LABELS, type SolarBody } from './data';
+import { STAR_BACKGROUND } from './data/textures';
 import { RAD } from './core/constants';
 import { dateToJD, SimulationClock } from './core/time';
 import { SolarSystemScene } from './scene/solar-system-scene';
@@ -33,7 +34,7 @@ const IDLE_RENDER_MS = 1000;
 
 /** Every texture the scene may reference (star background included). */
 function collectTexturePaths(): string[] {
-  const paths = new Set<string>(['textures/stars-milkyway.jpg']);
+  const paths = new Set<string>([STAR_BACKGROUND]);
   for (const body of ALL_BODIES) {
     const set = body.textures;
     if (set) {

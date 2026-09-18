@@ -2,22 +2,12 @@
  * Texture loading plus procedural fall-backs.
  *
  * Real maps (Solar System Scope, CC BY 4.0 — see README) are pre-loaded at
- * start-up. Every body that has no published map (all satellites, Pluto) gets
+ * start-up. Every body that has no published map (most satellites, Pluto) gets
  * a procedurally generated equirectangular albedo/bump pair derived from its
  * real size, colour and surface style, so the app is fully self-contained and
  * always renders something plausible.
  */
 import * as THREE from 'three';
-
-/**
- * Resolves an asset path against Vite's configured base path.
- * Only needed for assets that are not imported through the bundler.
- */
-export function assetUrl(path: string): string {
-  const base = import.meta.env.BASE_URL;
-  const clean = path.replace(/^\//, '');
-  return base.endsWith('/') ? base + clean : `${base}/${clean}`;
-}
 
 /** Seeded PRNG (mulberry32) so procedural textures are deterministic. */
 function mulberry32(seed: number): () => number {
@@ -258,23 +248,6 @@ export function glowTexture(inner = 'rgba(255,246,214,1)', outer = 'rgba(255,170
   const tex = new THREE.CanvasTexture(canvas);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
-}
-
-/** Small round dot used for the screen-space body markers. */
-export function markerTexture(): THREE.CanvasTexture {
-  const size = 64;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d')!;
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, 'rgba(255,255,255,1)');
-  grad.addColorStop(0.45, 'rgba(255,255,255,0.75)');
-  grad.addColorStop(0.75, 'rgba(255,255,255,0.15)');
-  grad.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
-  return new THREE.CanvasTexture(canvas);
 }
 
 /**

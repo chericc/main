@@ -25,7 +25,6 @@ const BASE = 'https://www.solarsystemscope.com/textures/download/';
 const TEXTURES = {
   'sun.jpg': '2k_sun.jpg',
   'mercury.jpg': '2k_mercury.jpg',
-  'venus.jpg': '2k_venus_surface.jpg',
   'venus-atmosphere.jpg': '2k_venus_atmosphere.jpg',
   'earth-day.jpg': '2k_earth_daymap.jpg',
   'earth-night.jpg': '2k_earth_nightmap.jpg',

@@ -14,7 +14,8 @@ import { TEX } from './textures';
  * Spitzer measurement literature.
  *
  * NOTE ON TEXTURES: Solar System Scope publishes no Pluto map, so Pluto and
- * all satellites use the procedurally generated maps from `scene/textures.ts`.
+ * most satellites use the procedurally generated maps from `scene/textures.ts`.
+ * (The Moon is the exception: it has a real published map.)
  * The Ceres/Haumea/Makemake/Eris maps are the artist's "fictional"
  * interpretations published by the same source.
  */

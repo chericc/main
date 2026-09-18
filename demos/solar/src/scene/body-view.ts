@@ -98,7 +98,7 @@ export class BodyView {
     this.tiltGroup.add(this.mesh);
 
     // Venus' visible disk is its cloud deck, so the atmospheric map is used
-    // as the base map there (the radar surface map stays in public/textures).
+    // as the base map there.
     if (body.textures?.cloudsMap && textures.has(body.textures.cloudsMap)) {
       const cloudTex = textures.get(body.textures.cloudsMap)!;
       this.clouds = new THREE.Mesh(
