@@ -1146,6 +1146,11 @@ const BASH_OPTIONS: ReadonlyArray<{ label: string; choice: BashChoice }> = [
 
 type ThemeColor = Parameters<Theme["fg"]>[0];
 
+/** Panel background matching a dialog's severity, mirroring the tool-block shells. */
+function severityBg(color: ThemeColor): Parameters<Theme["bg"]>[0] {
+	return color === "error" ? "toolErrorBg" : color === "warning" ? "toolPendingBg" : "customMessageBg";
+}
+
 /** Everything the confirmation dialog needs in order to render one approval request. */
 interface ApprovalSpec<T> {
 	/** Plain (uncoloured) title line, e.g. `ask-to-edit: edit src/index.ts`. */
@@ -1214,22 +1219,19 @@ class ApprovalDialog<T> implements Component {
 		const th = this.theme;
 		const innerWidth = Math.max(1, width - 2);
 		const border = (text: string) => th.fg(this.spec.titleColor, text);
+		const sevBg = severityBg(this.spec.titleColor);
 		const padLine = (text: string) => {
 			const clipped = truncateToWidth(` ${text}`, innerWidth, "…");
 			const padding = Math.max(0, innerWidth - visibleWidth(clipped));
 			return `${clipped}${" ".repeat(padding)}`;
 		};
-		const row = (text = "") => border("│") + padLine(text) + border("│");
+		// Every interior row shares the severity background, so the dialog reads as
+		// one tinted panel like the tool blocks; the selected option keeps selectedBg.
+		const row = (text = "") => border("│") + th.bg(sevBg, padLine(text)) + border("│");
 
 		const out: string[] = [];
 		// Title as a filled "chip" on the top border, tinted by severity, so the
 		// prompt reads as one prominent box instead of blending into the transcript.
-		const sevBg =
-			this.spec.titleColor === "error"
-				? "toolErrorBg"
-				: this.spec.titleColor === "warning"
-					? "toolPendingBg"
-					: "customMessageBg";
 		const chipLabel = truncateToWidth(` ${this.spec.title} `, Math.max(1, innerWidth - 1), "…");
 		const topFill = "─".repeat(Math.max(0, innerWidth - 1 - visibleWidth(chipLabel)));
 		out.push(border("╭─") + th.bg(sevBg, th.fg("text", th.bold(chipLabel))) + border(`${topFill}╮`));
@@ -1282,6 +1284,7 @@ class DiffViewer<T> implements Component {
 
 	constructor(
 		private readonly title: string,
+		private readonly titleColor: ThemeColor,
 		private readonly lines: DiffLine[],
 		private readonly theme: Theme,
 		private readonly tui: TUI,
@@ -1370,12 +1373,16 @@ class DiffViewer<T> implements Component {
 	render(width: number): string[] {
 		const th = this.theme;
 		const innerWidth = Math.max(1, width - 2);
-		const border = (text: string) => th.fg("border", text);
+		const border = (text: string) => th.fg(this.titleColor, text);
+		const sevBg = severityBg(this.titleColor);
 		const padLine = (text: string) => {
 			const clipped = truncateToWidth(` ${text}`, innerWidth, "…");
 			const padding = Math.max(0, innerWidth - visibleWidth(clipped));
 			return `${clipped}${" ".repeat(padding)}`;
 		};
+		// Same severity tint as the collapsed dialog: interior rows sit on sevBg,
+		// the selected option on selectedBg.
+		const row = (text = "") => border("│") + th.bg(sevBg, padLine(text)) + border("│");
 
 		const wrapped = this.wrapLines(width);
 		const total = wrapped.length;
@@ -1385,33 +1392,29 @@ class DiffViewer<T> implements Component {
 		const out: string[] = [];
 		const titleText = truncateToWidth(` ${this.title} `, innerWidth, "…");
 		const topFill = "─".repeat(Math.max(0, innerWidth - visibleWidth(titleText)));
-		out.push(border("╭") + th.fg("accent", titleText) + border(`${topFill}╮`));
+		out.push(border("╭") + th.bg(sevBg, th.fg("text", th.bold(titleText))) + border(`${topFill}╮`));
 
 		const first = total === 0 ? 0 : this.offset + 1;
 		const last = Math.min(total, this.offset + viewport);
 		const info = `lines ${first}-${last} / ${total}  ·  wheel/pageUp-pageDown/home/end scroll`;
-		out.push(border("│") + padLine(th.fg("dim", info)) + border("│"));
+		out.push(row(th.fg("dim", info)));
 
 		const shown = wrapped.slice(this.offset, this.offset + viewport);
-		for (const line of shown) out.push(border("│") + padLine(line) + border("│"));
-		for (let i = shown.length; i < viewport; i++) out.push(border("│") + padLine("") + border("│"));
+		for (const line of shown) out.push(row(line));
+		for (let i = shown.length; i < viewport; i++) out.push(row(""));
 
 		// Confirmation options, so the decision can be made without leaving fullscreen.
 		if (this.options.length > 0) {
-			out.push(border("│") + padLine("") + border("│"));
+			out.push(row(""));
 			this.options.forEach((option, index) => {
 				const isSelected = index === this.selected;
 				const line = isSelected
 					? `${th.fg("accent", "▶")} ${th.bold(option.label)}`
 					: ` ${th.fg("text", option.label)}`;
 				const rendered = padLine(line);
-				out.push(border("│") + (isSelected ? th.bg("selectedBg", rendered) : rendered) + border("│"));
+				out.push(border("│") + (isSelected ? th.bg("selectedBg", rendered) : th.bg(sevBg, rendered)) + border("│"));
 			});
-			out.push(
-				border("│") +
-					padLine(th.fg("dim", " ↑↓ select · enter confirm · pageUp/pageDown scroll · esc back")) +
-					border("│"),
-			);
+			out.push(row(th.fg("dim", " ↑↓ select · enter confirm · pageUp/pageDown scroll · esc back")));
 		}
 
 		out.push(border(`╰${"─".repeat(innerWidth)}╯`));
@@ -1455,7 +1458,7 @@ async function runApprovalDialog<T>(
 
 		const choice = await ctx.ui.custom<T | "back" | undefined>(
 			(tui, theme, _keybindings, done) =>
-				new DiffViewer<T>(viewerTitle, spec.lines, theme, tui, done, spec.options),
+				new DiffViewer<T>(viewerTitle, spec.titleColor, spec.lines, theme, tui, done, spec.options),
 			{
 				overlay: true,
 				overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "center" },

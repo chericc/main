@@ -292,6 +292,12 @@ export default function (pi: ExtensionAPI) {
 
 	for (const [name, definition] of Object.entries(definitions)) {
 		const overrides: {
+			// The built-in `edit` tool opts into the "self" shell so it can draw its
+			// own background. Our compact renderers replace that shell with plain
+			// Text/Container components, which drops the coloured block background
+			// (read/bash/write get it from the default boxed shell). Force `edit`
+			// back to the default shell so its block is tinted like the others.
+			renderShell?: "default" | "self";
 			renderResult: (
 				result: AgentToolResult<any>,
 				options: ToolRenderResultOptions,
@@ -300,6 +306,7 @@ export default function (pi: ExtensionAPI) {
 			) => Component;
 			renderCall?: (args: any, theme: Theme, context: ToolRenderContext) => Component;
 		} = {
+			renderShell: name === "edit" ? "default" : definition.renderShell,
 			renderResult(result, options, theme, context) {
 				if (name === "edit") return renderEditResult(result, options, theme, context);
 				if (name === "write") return renderWriteResult(result, theme, context);
