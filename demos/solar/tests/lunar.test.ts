@@ -9,6 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { AU_KM } from '../src/core/constants';
+import { SolarSystemModel } from '../src/core/model';
 import { lunarDistanceKm, lunarLongitudeLatitude, lunarPositionEcliptic } from '../src/core/lunar-theory';
 import type { Vec3 } from '../src/core/kepler';
 
@@ -65,5 +66,41 @@ describe('lunar theory', () => {
     expect(lon).toBeGreaterThanOrEqual(0);
     expect(lon).toBeLessThan(360);
     expect(Math.abs(lat)).toBeLessThan(6);
+  });
+});
+
+describe('rendered lunar orbit trace', () => {
+  const segments = 192;
+  const model = new SolarSystemModel();
+  const moon = model.body('moon');
+
+  it('is a closed polyline that starts on the Moon', () => {
+    const path = model.orbitPathEcliptic(moon, segments);
+    const n = path.length / 3 - 1;
+    expect(n).toBe(segments);
+
+    // The final sample repeats the first, so the line has no seam/gap.
+    expect(path[n * 3]).toBe(path[0]);
+    expect(path[n * 3 + 1]).toBe(path[1]);
+    expect(path[n * 3 + 2]).toBe(path[2]);
+
+    // The trace passes through the Moon's current position.
+    const pos = model.localPositionAt(moon, model.epochJD);
+    expect(path[0]).toBeCloseTo(pos.x, 12);
+    expect(path[1]).toBeCloseTo(pos.y, 12);
+    expect(path[2]).toBeCloseTo(pos.z, 12);
+  });
+
+  it('re-anchors on the Moon when the epoch advances', () => {
+    const before = model.orbitPathEcliptic(moon, segments);
+    model.update(model.epochJD + 10);
+    const after = model.orbitPathEcliptic(moon, segments);
+    const pos = model.localPositionAt(moon, model.epochJD);
+
+    expect(after[0]).toBeCloseTo(pos.x, 12);
+    expect(after[1]).toBeCloseTo(pos.y, 12);
+    expect(after[2]).toBeCloseTo(pos.z, 12);
+    // A new epoch genuinely shifts the perturbed trace.
+    expect(Math.hypot(after[0] - before[0], after[1] - before[1], after[2] - before[2])).toBeGreaterThan(0);
   });
 });

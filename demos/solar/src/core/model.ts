@@ -152,16 +152,24 @@ export class SolarSystemModel {
    */
   orbitPathEcliptic(body: SolarBody, segments = 512): Float64Array {
     if (body.useLunarTheory) {
-      // Trace one sidereal month of the perturbed geocentric path.
+      // Trace one month of the perturbed geocentric path, starting at the
+      // current epoch so the trace passes through the Moon. The perturbation
+      // theory does not return exactly to its starting point after one mean
+      // period (the mean anomaly advances at the anomalistic rate), so the
+      // final sample repeats the first: the polyline is closed and there is no
+      // visible gap at the Moon.
       const period = body.orbit?.period ?? 27.322;
       const n = Math.max(16, Math.floor(segments));
       const out = new Float64Array((n + 1) * 3);
-      for (let i = 0; i <= n; i++) {
+      for (let i = 0; i < n; i++) {
         const p = lunarPositionEcliptic(this.jd + (period * i) / n);
         out[i * 3] = p.x;
         out[i * 3 + 1] = p.y;
         out[i * 3 + 2] = p.z;
       }
+      out[n * 3] = out[0];
+      out[n * 3 + 1] = out[1];
+      out[n * 3 + 2] = out[2];
       return out;
     }
 
