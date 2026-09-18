@@ -262,8 +262,12 @@ export class SolarSystemScene {
     }
   }
 
-  /** Advance the simulation and redraw. */
-  render(): void {
+  /**
+   * Advance the simulation and redraw.
+   * Returns true while the camera is still moving, so the app can keep the
+   * frame rate high until the view settles.
+   */
+  render(): boolean {
     const now = performance.now();
     const dt = Math.min(0.1, (now - this.lastTime) / 1000);
     this.lastTime = now;
@@ -290,12 +294,13 @@ export class SolarSystemScene {
     const targetRadius = followed
       ? this.scaling.radii(followed.body.physical.radiusKm, followed.body.physical.flattening ?? 0)[0]
       : 0;
-    this.camera.update(dt, targetPosition, targetRadius);
+    const cameraMoving = this.camera.update(dt, targetPosition, targetRadius);
 
     this.updateLabels();
 
     this.renderer.render(this.scene, this.camera.camera);
     this.labelRenderer.render(this.scene, this.camera.camera);
+    return cameraMoving;
   }
 
   /** Supplies the current simulation epoch each frame. */

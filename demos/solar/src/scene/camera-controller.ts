@@ -126,8 +126,12 @@ export class CameraController {
     };
   }
 
-  /** Per-frame update. `targetPosition` is the followed body's world position. */
-  update(dt: number, targetPosition: THREE.Vector3 | null, targetRadius: number): void {
+  /**
+   * Per-frame update. `targetPosition` is the followed body's world position.
+   * Returns true while the camera is still moving (flight, damping, follow),
+   * so the caller can keep rendering at full rate until it settles.
+   */
+  update(dt: number, targetPosition: THREE.Vector3 | null, targetRadius: number): boolean {
     if (this.flight) {
       this.flight.elapsed += dt;
       const t = Math.min(1, this.flight.elapsed / this.flight.duration);
@@ -147,7 +151,9 @@ export class CameraController {
       this.lastTargetPosition.copy(targetPosition);
     }
 
-    this.controls.update();
+    // OrbitControls reports whether this update actually moved the camera;
+    // it keeps returning true until damping has fully settled.
+    const cameraChanged = this.controls.update();
 
     // Dynamic near plane: keep it just in front of the closest surface we
     // care about, so depth precision stays usable across all scales.
@@ -158,6 +164,8 @@ export class CameraController {
       this.camera.near = near;
       this.camera.updateProjectionMatrix();
     }
+
+    return cameraChanged;
   }
 
   resize(width: number, height: number): void {

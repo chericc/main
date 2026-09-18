@@ -23,6 +23,14 @@ export interface AppCallbacks {
   onProgress?: (loaded: number, total: number) => void;
 }
 
+/**
+ * Refresh interval (ms) for a fully static scene — clock paused and camera at
+ * rest. At true scale a still frame is just a still frame, so there is nothing
+ * to gain from repainting at the display rate; ~1 fps keeps the DOM readouts
+ * alive (and picks up late layout) at a tiny fraction of the cost.
+ */
+const IDLE_RENDER_MS = 1000;
+
 /** Every texture the scene may reference (star background included). */
 function collectTexturePaths(): string[] {
   const paths = new Set<string>(['textures/stars-milkyway.jpg']);
@@ -49,6 +57,12 @@ export class App {
   private infoTimer = 0;
   private syncTimer = 0;
   private raf = 0;
+  private readonly viewport: HTMLElement;
+  /** Set when something outside the render loop changes the scene. */
+  private dirty = true;
+  /** True while the camera is still moving (flight / damping / follow). */
+  private animating = false;
+  private lastRender = 0;
 
   constructor(hosts: AppHosts, textures: TextureLibrary) {
     this.scene = new SolarSystemScene({
@@ -65,31 +79,51 @@ export class App {
     this.timeControls = new TimeControls({
       onTogglePause: () => {
         this.clock.paused = !this.clock.paused;
+        this.markDirty();
       },
       onSpeed: (value) => {
         this.clock.speed = value;
+        this.markDirty();
       },
       onDate: (jd) => {
         this.clock.jd = jd;
         this.scene.model.update(jd);
         this.refreshInfo(true);
+        this.markDirty();
       },
       onNow: () => {
         this.clock.jd = dateToJD(new Date());
         this.refreshInfo(true);
+        this.markDirty();
       },
       onStep: (days) => {
         this.clock.jd += days;
         this.refreshInfo(true);
+        this.markDirty();
       },
     });
 
     this.displayControls = new DisplayControls({
-      onToggleOrbits: (v) => this.scene.setOrbitsVisible(v),
-      onToggleLabels: (v) => this.scene.setLabelsVisible(v),
-      onToggleBelts: (v) => this.scene.setBeltsVisible(v),
-      onRadiusExaggeration: (v) => this.scene.setRadiusExaggeration(v),
-      onDistance: (v) => this.scene.camera.setDistance(v),
+      onToggleOrbits: (v) => {
+        this.scene.setOrbitsVisible(v);
+        this.markDirty();
+      },
+      onToggleLabels: (v) => {
+        this.scene.setLabelsVisible(v);
+        this.markDirty();
+      },
+      onToggleBelts: (v) => {
+        this.scene.setBeltsVisible(v);
+        this.markDirty();
+      },
+      onRadiusExaggeration: (v) => {
+        this.scene.setRadiusExaggeration(v);
+        this.markDirty();
+      },
+      onDistance: (v) => {
+        this.scene.camera.setDistance(v);
+        this.markDirty();
+      },
       onOverview: () => this.overview(),
     });
 
@@ -112,6 +146,13 @@ export class App {
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('resize', this.onResize);
     window.addEventListener('hashchange', this.onHashChange);
+
+    // Pointer and wheel activity must wake the idle renderer immediately,
+    // otherwise a drag would not reach the screen until the next 1 fps tick.
+    this.viewport = hosts.canvasHost.parentElement ?? hosts.canvasHost;
+    this.viewport.addEventListener('pointerdown', this.onActivity, { passive: true });
+    this.viewport.addEventListener('pointermove', this.onPointerMoveActivity, { passive: true });
+    this.viewport.addEventListener('wheel', this.onActivity, { passive: true });
     this.onResize();
 
     this.raf = requestAnimationFrame(this.loop);
@@ -143,6 +184,7 @@ export class App {
     this.scene.focus(id, instant);
     this.bodyList.setActive(id);
     this.refreshInfo(true);
+    this.markDirty();
     if (decodeURIComponent(location.hash.replace(/^#/, '')) !== id) {
       history.replaceState(null, '', `#${id}`);
     }
@@ -158,6 +200,7 @@ export class App {
     this.scene.overview();
     this.bodyList.setActive(null);
     this.infoPanel.show(null);
+    this.markDirty();
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
   }
 
@@ -171,6 +214,7 @@ export class App {
       case ' ':
         event.preventDefault();
         this.clock.paused = !this.clock.paused;
+        this.markDirty();
         break;
       case 'Escape':
       case '0':
@@ -187,10 +231,12 @@ export class App {
       case '+':
       case '=':
         this.scene.camera.setDistance(this.scene.camera.distance / 1.6);
+        this.markDirty();
         break;
       case '-':
       case '_':
         this.scene.camera.setDistance(this.scene.camera.distance * 1.6);
+        this.markDirty();
         break;
       default:
         break;
@@ -199,6 +245,20 @@ export class App {
 
   private onResize = (): void => {
     this.scene.resize();
+    this.markDirty();
+  };
+
+  private markDirty(): void {
+    this.dirty = true;
+  }
+
+  private onActivity = (): void => {
+    this.dirty = true;
+  };
+
+  private onPointerMoveActivity = (event: PointerEvent): void => {
+    // Hovering alone must not keep the renderer awake — only drags.
+    if (event.buttons !== 0) this.dirty = true;
   };
 
   private refreshInfo(immediate = false): void {
@@ -233,8 +293,19 @@ export class App {
     const dt = Math.min(0.1, (now - this.lastFrame) / 1000 || 0);
     this.lastFrame = now;
 
+    // A paused clock with a settled camera is a static image: there is no
+    // reason to repaint at the display rate. Idle drops to ~1 fps; any input
+    // (`dirty`), camera motion (`animating`) or a running clock resumes full
+    // rate on the very next frame.
+    const running = !this.clock.paused && this.clock.speed !== 0;
+    if (!running && !this.dirty && !this.animating && now - this.lastRender < IDLE_RENDER_MS) {
+      return;
+    }
+
+    this.lastRender = now;
+    this.dirty = false;
     this.clock.advance(dt);
-    this.scene.render();
+    this.animating = this.scene.render();
 
     this.syncTimer += dt;
     if (this.syncTimer >= 0.1) {
@@ -266,6 +337,9 @@ export class App {
     window.removeEventListener('keydown', this.onKeyDown);
     window.removeEventListener('resize', this.onResize);
     window.removeEventListener('hashchange', this.onHashChange);
+    this.viewport.removeEventListener('pointerdown', this.onActivity);
+    this.viewport.removeEventListener('pointermove', this.onPointerMoveActivity);
+    this.viewport.removeEventListener('wheel', this.onActivity);
     this.scene.dispose();
   }
 }
