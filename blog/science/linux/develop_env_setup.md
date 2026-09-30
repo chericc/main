@@ -1750,13 +1750,15 @@ unsetopt AUTO_MENU
 
 ## Ghostty 配置
 
-Ghostty 是 macOS 上的终端模拟器。配置文件路径：
+Ghostty 是跨平台的终端模拟器。配置文件路径：
 
 ```bash
 ~/.config/ghostty/config.ghostty
 ```
 
-当前生效的配置：
+配置修改后热加载：macOS 按 `cmd + shift + ,`，Linux 按 `ctrl + shift + ,`。
+
+### macOS
 
 ```ini
 # 将 CJK 汉字及标点映射到系统字体 PingFang SC，保持默认英文字体不变
@@ -1767,7 +1769,59 @@ font-codepoint-map = U+2000-U+206F=PingFang SC   # 通用标点（—破折号�
 font-codepoint-map = U+3400-U+4DBF=PingFang SC   # CJK 扩展A（生僻字/姓名用字）
 ```
 
-配置修改后按 `cmd + shift + ,` 热加载。
+> 说明：上文那个 `.ttc` 丢 index 的 bug 出在 Ghostty 的 **fontconfig** 字体发现路径（Linux/BSD）。
+> macOS 走 **CoreText**，按 family/style 名匹配、不使用 collection index，所以这里用
+> `font-codepoint-map` 指向 PingFang SC 一般能正确命中简体面，不受该 bug 影响。
+>
+> 仍建议实测确认（与 Linux 同一条命令）：
+>
+> ```bash
+> ghostty +show-face --string="置直骨争"   # 期望输出：PingFang SC
+> ```
+>
+> 若想与 Linux 保持一致的写法（免维护 Unicode 区间，缺字自动回退），也可改成
+> `font-family` 回退链。注意 Ghostty 默认英文等宽字体是内置的 JetBrains Mono，
+> 且**必须把它放第一行**，否则 PingFang 会成为主字体、拉丁字符也用它渲染：
+>
+> ```ini
+> font-family = JetBrains Mono   # 可省略，就是默认值，写出来更明确
+> font-family = PingFang SC
+> ```
+
+### Linux
+
+```ini
+theme = Dark+
+
+# 主字体（拉丁/ASCII）
+font-family = DejaVu Sans Mono
+
+# CJK 回退字体
+font-family = Noto Sans Mono CJK SC
+```
+
+`Noto Sans Mono CJK SC` 来自 `fonts-noto-cjk`，可用 `fc-list :lang=zh` 确认是否已安装。
+
+> **坑：Linux 上不要用 `font-codepoint-map` 指定 CJK 字体。**
+>
+> Ghostty 的 `font-codepoint-map` 在加载 `.ttc` 字体集合（如 `NotoSansCJK-Regular.ttc`）时会**丢掉 face index**，
+> 一律按 index 0 处理。而该 TTC 的 index 0 是 **JP** face，index 7 才是 **Mono SC**，
+> 于是 `font-codepoint-map = ...=Noto Sans Mono CJK SC` 实际渲染出来的是**日文字形**——
+> 「置」「直」等简繁/中日写法有差异的字会一眼看出不对。
+>
+> 用 `font-family` 则能正确带上 index。注意：**Linux 上不给任何配置时，默认回退也会选到 JP face。**
+>
+> 验证方式（无需截图）：
+>
+> ```bash
+> # font-codepoint-map 方式 → ❌ Noto Sans Mono CJK JP
+> # font-family        方式 → ✅ Noto Sans Mono CJK SC
+> ghostty +show-face --string="置"
+> ```
+>
+> 补充：`font-family` 可以写多行，按顺序作为「主字体 + 回退链」——拉丁取第一个，
+> 缺字回退到后续字体，因此英文观感不变。若更喜欢比例字形的汉字，把第二行换成
+> `font-family = Noto Sans CJK SC` 即可（同样是 SC，且 `font-family` 路径 index 正确）。
 
 ### SSH terminfo
 
