@@ -1823,6 +1823,25 @@ font-family = Noto Sans Mono CJK SC
 > 缺字回退到后续字体，因此英文观感不变。若更喜欢比例字形的汉字，把第二行换成
 > `font-family = Noto Sans CJK SC` 即可（同样是 SC，且 `font-family` 路径 index 正确）。
 
+### io_uring 后端导致 `wa`(iowait) 虚高
+
+现象：`top` 的 `wa` 常年 20%~40%，但磁盘完全空闲（`iostat -x 1` 的 `%util`、`aqu-sz` 都 ≈0），`ps` 里也没有 `D` 状态进程。判据是 `procs_blocked` 一直 >0 且不归零：
+
+```bash
+awk '/procs_blocked/{print $2}' /proc/stat   # 空闲机器上正常应为 0
+```
+
+原因：Ghostty 默认 `async-backend = auto`，在 Linux 上会选 **io_uring**。io_uring 等待事件时**直接置位 `in_iowait`**（不走 `io_schedule()`，所以既不是 `D` 状态、栈里也没有 `io_schedule`），内核 `nr_iowait` 因此常驻 >0；而 `account_idle_time()` 的规则是“本 CPU 有 iowait 任务就把**空闲时间**记为 iowait”，于是整台机器的 idle 时间都被记成 `wa`。
+
+修正：改用 epoll 后端，重启 Ghostty 后即恢复（`procs_blocked` 归 0，`wa` 降到个位数）。
+
+```ini
+# ~/.config/ghostty/config.ghostty
+async-backend = epoll
+```
+
+参考 ghostty-org/ghostty#10700、axboe/liburing#943。上游正解是应用调 `io_uring_set_iowait(ring, false)`（内核 6.15+），但 Ghostty 未采用。
+
 ### SSH terminfo
 
 通过 SSH 连接远程服务器（如 Ubuntu）时，如果出现 `missing or unsuitable terminal: xterm-ghostty` 警告，
