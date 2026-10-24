@@ -1,47 +1,76 @@
 # Ghostty 配置
 
-Ghostty 是跨平台的终端模拟器。配置文件路径：
+Ghostty 是跨平台的终端模拟器。配置文件路径（二选一，按优先级从高到低）：
 
 ```bash
-~/.config/ghostty/config.ghostty
+# macOS
+~/Library/Application Support/com.mitchellh.ghostty/config
+# 跨平台（macOS / Linux 都读）
+~/.config/ghostty/config
 ```
 
-配置修改后热加载：macOS 按 `cmd + shift + ,`，Linux 按 `ctrl + shift + ,`。
+旧版文档里的 `config.ghostty` 文件名仍被兼容读取（macOS 上就在
+`~/Library/Application Support/com.mitchellh.ghostty/config.ghostty`），新配置建议直接用 `config`。
+配置文件改动需要重载：macOS 按 `cmd + shift + ,`，Linux 按 `ctrl + shift + ,`（或重启 Ghostty）。
+注释必须单独成行，Ghostty 不支持行内注释（否则会被当成值的一部分）。
+
+检查语法与生效结果：
+
+```bash
+ghostty +validate-config   # 只报错不输出；exit 0 即无错
+ghostty +show-config       # 打印合并后的最终配置（含默认值），确认自己的行被读进来了
+```
 
 ## macOS
 
-```ini
-# 将 CJK 汉字及标点映射到系统字体 PingFang SC，保持默认英文字体不变
-font-codepoint-map = U+4E00-U+9FFF=PingFang SC   # CJK 统一表意文字（汉字）
-font-codepoint-map = U+3000-U+303F=PingFang SC   # CJK 符号和标点（。、「」等）
-font-codepoint-map = U+FF00-U+FFEF=PingFang SC   # 全角形式（，：；！？等）
-font-codepoint-map = U+2000-U+206F=PingFang SC   # 通用标点（—破折号、…省略号等）
-font-codepoint-map = U+3400-U+4DBF=PingFang SC   # CJK 扩展A（生僻字/姓名用字）
+（实测环境：macOS 26.7.1 + Ghostty 1.3.1）
+
+和 Linux 用同一个字体：**Sarasa Term SC Nerd**（西文 Iosevka Term + 汉字思源黑体 SC，严格 2:1，
+自带 Nerd 图标），单一家族搞定，不需要 `font-codepoint-map`，也不依赖 CoreText 隐式回退。
+
+安装（用户级，不需要 sudo；`bsdtar` 就是 macOS 自带的 libarchive，能直接解 7z）：
+
+```bash
+mkdir -p /tmp/sarasa && cd /tmp/sarasa
+# 国内网络可加 -x http://127.0.0.1:7897
+curl -fL --retry 5 --retry-all-errors -o sarasa.7z \
+  https://github.com/laishulu/Sarasa-Term-SC-Nerd/releases/download/v2.3.1/SarasaTermSCNerd.ttf.7z
+bsdtar -xf sarasa.7z \
+  SarasaTermSCNerd-Regular.ttf SarasaTermSCNerd-Bold.ttf \
+  SarasaTermSCNerd-Italic.ttf SarasaTermSCNerd-BoldItalic.ttf
+mkdir -p ~/Library/Fonts
+cp SarasaTermSCNerd-*.ttf ~/Library/Fonts/     # 4 个字重共约 115MB
 ```
 
-> 注意：PingFang SC 的汉字也是 1em，而上文默认的 JetBrains Mono 是 0.6em，
-> 汉字只占 1.66 格，同样有 Linux 小节里那类“汉字偏小”的问题。如果在意 2:1 对齐，
-> 直接装 Sarasa Term SC Nerd（macOS 也有发布包），
-> 用单一家族即可，不必再写 `font-codepoint-map`。
+配置：
 
-> 说明：Linux 小节里那个 `.ttc` 丢 index 的 bug 出在 Ghostty 的 **fontconfig** 字体发现路径（Linux/BSD）。
-> macOS 走 **CoreText**，按 family/style 名匹配、不使用 collection index，所以这里用
-> `font-codepoint-map` 指向 PingFang SC 一般能正确命中简体面，不受该 bug 影响。
->
-> 仍建议实测确认（与 Linux 同一条命令）：
->
-> ```bash
-> ghostty +show-face --string="置直骨争"   # 期望输出：PingFang SC
-> ```
->
-> 若想与 Linux 保持一致的写法（免维护 Unicode 区间，缺字自动回退），也可改成
-> `font-family` 回退链。注意 Ghostty 默认英文等宽字体是内置的 JetBrains Mono，
-> 且**必须把它放第一行**，否则 PingFang 会成为主字体、拉丁字符也用它渲染：
->
-> ```ini
-> font-family = JetBrains Mono   # 可省略，就是默认值，写出来更明确
-> font-family = PingFang SC
-> ```
+```ini
+# ~/Library/Application Support/com.mitchellh.ghostty/config
+theme = light:Catppuccin Latte,dark:Catppuccin Mocha
+font-family = Sarasa Term SC Nerd
+```
+
+实测结论（`fontTools` 直接读 hmtx，upm = 1000）：
+
+| 字符 | 码位 | advance |
+|---|---|---|
+| `a` `W` `M` `0` `★` `─` `│` 等 | — | `0.500em` |
+| 汉字 `置`、全角 `，。！？「」` | — | `1.000em` |
+
+- 严格 2:1，中英混排、`vim` 里手对齐的中文都不会错位。
+- 覆盖够用：常用汉字、全角标点、框线（`U+2500` 起）都在；连 `★`(`U+2605`)、
+  `𠮷`(`U+20BB7`，扩展 B) 也有，所以 **不需要** `font-family = PingFang SC` 兜底，不会落到日文/繁体面。
+
+```bash
+ghostty +validate-config
+# 每个字符都应报 found in face “Sarasa Term SC Nerd”
+ghostty +show-face --string="aWiM0 置直骨争，。！？「」★𠮷"
+```
+
+> 老写法是用 `font-codepoint-map` 把汉字及标点映射到系统字体 PingFang SC。macOS 走 **CoreText**，
+> 按 family/style 名匹配、不使用 collection index，所以不受 Linux 小节那个 `.ttc` 丢 index 的 bug 影响，
+> 一般能正确命中简体面。但 PingFang SC 的汉字也是 1em，而默认的 JetBrains Mono 是 0.6em，
+> 汉字只占 1.66 格，同样有「汉字偏小、框线错位」的问题，已不再推荐。
 
 ## Linux
 
