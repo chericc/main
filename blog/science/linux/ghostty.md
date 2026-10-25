@@ -19,7 +19,12 @@ font-codepoint-map = U+2000-U+206F=PingFang SC   # 通用标点（—破折号�
 font-codepoint-map = U+3400-U+4DBF=PingFang SC   # CJK 扩展A（生僻字/姓名用字）
 ```
 
-> 说明：上文那个 `.ttc` 丢 index 的 bug 出在 Ghostty 的 **fontconfig** 字体发现路径（Linux/BSD）。
+> 注意：PingFang SC 的汉字也是 1em，而上文默认的 JetBrains Mono 是 0.6em，
+> 汉字只占 1.66 格，同样有 Linux 小节里那类“汉字偏小”的问题。如果在意 2:1 对齐，
+> 直接装 Sarasa Term SC Nerd（macOS 也有发布包），
+> 用单一家族即可，不必再写 `font-codepoint-map`。
+
+> 说明：Linux 小节里那个 `.ttc` 丢 index 的 bug 出在 Ghostty 的 **fontconfig** 字体发现路径（Linux/BSD）。
 > macOS 走 **CoreText**，按 family/style 名匹配、不使用 collection index，所以这里用
 > `font-codepoint-map` 指向 PingFang SC 一般能正确命中简体面，不受该 bug 影响。
 >
@@ -40,20 +45,93 @@ font-codepoint-map = U+3400-U+4DBF=PingFang SC   # CJK 扩展A（生僻字/姓�
 
 ## Linux
 
+（实测环境：Ubuntu 24.04 + Ghostty 1.3.1）
+
+中英文混排的关键只有一个数：**汉字宽度必须是西文字宽的整数倍（一般是 2 倍）**。
+汉字固定 1em，主字体西文若是 0.5em，汉字正好占满 2 格；只有 1:2 时框线表格、
+`vim` 里手工对齐的中文才能对齐，汉字大小也才和西文协调。常见西文字宽实测：
+
+| 西文字体 | 西文字宽 | 1em 汉字占格 | 结论 |
+|---|---|---|---|
+| Iosevka Term（Sarasa Term 的西文） | 0.5em | 2.00 | ✅ 完美 |
+| Noto Sans Mono CJK 的西文（Source Sans） | 0.5em | 2.00 | ✅ 完美 |
+| DejaVu Sans Mono | 0.602em | 1.66 | ❌ 汉字偏小、框线错位 |
+| Ubuntu Mono / Ubuntu Sans Mono（24.04） | 0.56em | 1.79 | ❌ 同样对不齐 |
+| JetBrains Mono / Fira Code / Source Code Pro | 0.6em | 1.67 | ❌ |
+
+> Ubuntu 24.04 的 `Ubuntu Mono` 已从 0.5em 改成 560/1000 = 0.56em，所以
+> 「Ubuntu Mono + Noto CJK」也不再是 2:1，别照抄老教程。
+> Ghostty 内置的默认字体是 JetBrains Mono（0.6em），完全不配字体时中文同样偏小。
+
+### 方案一：Sarasa Term SC Nerd（推荐）
+
+更纱黑体的终端版：西文 Iosevka Term + 汉字思源黑体 SC，严格 2:1，字重齐全，
+并打好 Nerd 图标补丁（Powerline、`eza`/`lsd`、`p10k` 可直接用）。
+
+用户级安装，不需要 sudo（4 个常用字重约 115MB；只留 Regular + Bold 约 58MB）：
+
+```bash
+mkdir -p /tmp/sarasa && cd /tmp/sarasa
+curl -fL -x http://127.0.0.1:7897 -o sarasa.7z \
+  https://github.com/laishulu/Sarasa-Term-SC-Nerd/releases/download/v2.3.1/SarasaTermSCNerd.ttf.7z
+# bsdtar（libarchive）能直接解 7z，Ubuntu 自带；也可以换成 7z x
+bsdtar -xf sarasa.7z \
+  SarasaTermSCNerd-Regular.ttf SarasaTermSCNerd-Bold.ttf \
+  SarasaTermSCNerd-Italic.ttf SarasaTermSCNerd-BoldItalic.ttf
+mkdir -p ~/.local/share/fonts/SarasaTermSCNerd
+cp SarasaTermSCNerd-*.ttf ~/.local/share/fonts/SarasaTermSCNerd/
+fc-cache -f ~/.local/share/fonts
+```
+
 ```ini
-theme = Dark+
+font-family = Sarasa Term SC Nerd
+```
 
-# 主字体（拉丁/ASCII）
-font-family = DejaVu Sans Mono
+### 方案二：零安装，只用 Noto Sans Mono CJK SC
 
-# CJK 回退字体
+`fonts-noto-cjk` 自带（`fc-list :lang=zh` 可确认）。它的西文是 Source Sans 0.5em、
+汉字 1em，正好 2:1：
+
+```ini
 font-family = Noto Sans Mono CJK SC
 ```
 
-`Noto Sans Mono CJK SC` 来自 `fonts-noto-cjk`，可用 `fc-list :lang=zh` 确认是否已安装。
+缺点是西文不够“编程”：`0/O`、`1/l/I` 区分较弱，也没有连字；适合不想装字体、只求对齐。
+（Nerd 图标由 Ghostty 内置符号字体兜底，不会变豆腐块。）
 
-> **坑：Linux 上不要用 `font-codepoint-map` 指定 CJK 字体。**
->
+### 验证是否真的生效
+
+```bash
+# 拉丁和汉字应落在同一个 face；汉字必须是 SC，不能是 JP
+ghostty +show-face --string="aA1中置直骨争"
+```
+
+方案一期望每个字符都来自 `Sarasa Term SC Nerd`；方案二全部来自 `Noto Sans Mono CJK SC`。
+如果汉字落到别的字体、或出现 `Noto Sans Mono CJK JP`，说明配置没生效。
+
+想自己核对字宽（1em = 1000）：
+
+```bash
+python3 - <<'EOF'
+import os
+from PIL import ImageFont
+for p in ["~/.local/share/fonts/SarasaTermSCNerd/SarasaTermSCNerd-Regular.ttf"]:
+    f = ImageFont.truetype(os.path.expanduser(p), 1000)
+    print(p.split("/")[-1], "M =", f.getlength("M"), "中 =", f.getlength("中"))
+EOF
+```
+
+### 卸载 / 回滚
+
+```bash
+rm -rf ~/.local/share/fonts/SarasaTermSCNerd
+fc-cache -f
+```
+
+然后改回 `font-family = Noto Sans Mono CJK SC` 即可。
+
+### 坑：不要用 `font-codepoint-map` 指定 CJK 字体
+
 > Ghostty 的 `font-codepoint-map` 在加载 `.ttc` 字体集合（如 `NotoSansCJK-Regular.ttc`）时会**丢掉 face index**，
 > 一律按 index 0 处理。而该 TTC 的 index 0 是 **JP** face，index 7 才是 **Mono SC**，
 > 于是 `font-codepoint-map = ...=Noto Sans Mono CJK SC` 实际渲染出来的是**日文字形**——
